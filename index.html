@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -36,9 +35,7 @@
             --header-bg: rgba(255, 255, 255, 0.92);
             
             --header-h: 155px;        
-            --cell-h: 60px;                
-            --font-base: 0.85rem;        
-            --font-small: 0.7rem;        
+            --cell-h: 65px;  /* Aumentato leggermente l'altezza cella per i caratteri più grandi */              
             --th-h: 40px;                
             
             /* COLORI TURNISTI (Pieni, testo bianco) */
@@ -57,6 +54,8 @@
             --bg-perm: #00e749; --t-perm: #000000; --b-perm: #004e1c;
             --bg-ng: #00bfff; --t-ng: #ffffff; --b-ng: #0099cc;
             --bg-stu: #3b82f6; --t-stu: #ffffff; --b-stu: #1d4ed8;
+            /* Permesso Notte (Verde Scuro) */
+            --bg-pn: #14532d; --t-pn: #ffffff; --b-pn: #052e16;
 
             --month-bar-bg: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
             --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
@@ -151,7 +150,7 @@
         table { width: 100%; border-collapse: separate; border-spacing: 0; }
 
         thead th {
-            background: var(--bg); color: var(--text-sec); padding: 5px; font-size: 0.7rem; 
+            background: var(--bg); color: var(--text-sec); padding: 5px; font-size: 0.75rem; 
             text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;
             position: sticky; top: var(--header-h); z-index: 90; 
             border-bottom: 1px solid var(--border); text-align: center; min-width: 115px;
@@ -188,25 +187,25 @@
         }
         
         .td-date { 
-            text-align: center; font-weight: 800; color: var(--text-main); font-size: 1.1rem; 
+            text-align: center; font-weight: 800; color: var(--text-main); font-size: 1.15rem; 
             border-right: 2px solid var(--border); background: var(--bg);
             position: sticky; left: 0; z-index: 80;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             height: var(--cell-h); 
         }
-        .td-date small { display: block; font-weight: 600; font-size: 0.7rem; text-transform: uppercase; color: var(--text-sec); margin-top: 2px; }
+        .td-date small { display: block; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; color: var(--text-sec); margin-top: 2px; }
         .td-date.date-red { color: #dc2626; background: #fef2f2; border-right-color: #fca5a5; }
         .td-date.date-red small { color: #ef4444; }
         body.dark-mode .td-date.date-red { background: #450a0a; color: #fca5a5; border-right-color: #7f1d1d; }
         body.dark-mode .td-date.date-red small { color: #fecaca; }
 
-        .holiday-name { font-size: 0.55rem; color: #dc2626; font-weight: 900; line-height: 1; margin-top: 3px; max-width: 55px; white-space: normal; }
+        .holiday-name { font-size: 0.6rem; color: #dc2626; font-weight: 900; line-height: 1; margin-top: 3px; max-width: 55px; white-space: normal; }
         body.dark-mode .holiday-name { color: #f87171; }
 
         .cell { 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
             height: 100%; width: 100%; border-radius: 10px; font-weight: 800; 
-            font-size: 0.55rem; 
+            font-size: 0.75rem; /* Aumentato Font Size */
             letter-spacing: -0.2px;
             text-transform: uppercase; position: relative; 
             line-height: 1.1; text-align: center; cursor: pointer;
@@ -218,7 +217,7 @@
         body.dark-mode .cell { box-shadow: none; border: 1px solid rgba(255,255,255,0.05); }
 
         .time-tag { 
-            font-size: 0.55rem; 
+            font-size: 0.6rem; /* Aumentato */
             font-weight: 700; 
             opacity: 0.95; 
             margin-top: 2px; 
@@ -233,23 +232,27 @@
         .t-R { background: var(--c-R); color: var(--t-R); border: 1px solid var(--b-R); }
         .t-S { background: var(--c-SM); color: var(--t-SM); border: 1px solid var(--b-SM); }
         
-        /* STILI DIURNISTI */
-        .d-M { background: #ffffff; color: #026bfe; border: 2px solid #026bfe; }
-        .d-P { background: #ffffff; color: #d97706; border: 2px solid #d97706; }
-        .d-R { background: #ffffff; color: #4b5563; border: 2px solid #4b5563; }
-        body.dark-mode .d-M { background: #1e293b; color: #60a5fa; border: 2px solid #3b82f6; }
-        body.dark-mode .d-P { background: #1e293b; color: #fbbf24; border: 2px solid #f59e0b; }
-        body.dark-mode .d-R { background: #1e293b; color: #94a3b8; border: 2px solid #64748b; }
+        /* STILI DIURNISTI (UNIFORMATI - SFONDO PIENO) */
+        .d-M { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+        .d-P { background: #fff7ed; color: #9a3412; border: 1px solid #fed7aa; }
+        .d-R { background: #f8fafc; color: #64748b; border: 1px solid #cbd5e1; }
+        
+        body.dark-mode .d-M { background: #172554; color: #bfdbfe; border-color: #1e40af; }
+        body.dark-mode .d-P { background: #451a03; color: #fed7aa; border-color: #9a3412; }
+        body.dark-mode .d-R { background: #1e293b; color: #94a3b8; border-color: #475569; }
 
-        /* STILI SPECIALI RICHIESTI */
-        .spec-ferie { background: var(--bg-ferie); color: var(--t-ferie); border: 1px solid var(--b-ferie); font-size: 0.65rem; }
-        .spec-rec { background: var(--bg-rec); color: var(--t-rec); border: 1px solid var(--b-rec); font-size: 0.65rem; }
-        .spec-cong { background: var(--bg-cong); color: var(--t-cong); border: 1px solid var(--b-cong); font-size: 0.65rem; }
-        .spec-mal { background: var(--bg-mal); color: var(--t-mal); border: 1px solid var(--b-mal); font-size: 0.75rem; }
-        .spec-nl { background: var(--bg-nl); color: var(--t-nl); border: 1px solid var(--b-nl); font-size: 0.65rem; }
-        .spec-perm { background: var(--bg-perm); color: var(--t-perm); border: 1px solid var(--b-perm); font-size: 0.65rem; }
-        .spec-ng { background: var(--bg-ng); color: var(--t-ng); border: 1px solid var(--b-ng); font-size: 0.65rem; }
-        .spec-stu { background: var(--bg-stu); color: var(--t-stu); border: 1px solid var(--b-stu); font-size: 0.65rem; }
+        /* STILI SPECIALI RICHIESTI - FONT INGRANDITI */
+        .spec-ferie { background: var(--bg-ferie); color: var(--t-ferie); border: 1px solid var(--b-ferie); font-size: 0.75rem; }
+        .spec-rec { background: var(--bg-rec); color: var(--t-rec); border: 1px solid var(--b-rec); font-size: 0.75rem; }
+        .spec-cong { background: var(--bg-cong); color: var(--t-cong); border: 1px solid var(--b-cong); font-size: 0.75rem; }
+        .spec-mal { background: var(--bg-mal); color: var(--t-mal); border: 1px solid var(--b-mal); font-size: 0.8rem; }
+        .spec-nl { background: var(--bg-nl); color: var(--t-nl); border: 1px solid var(--b-nl); font-size: 0.7rem; }
+        .spec-perm { background: var(--bg-perm); color: var(--t-perm); border: 1px solid var(--b-perm); font-size: 0.75rem; }
+        .spec-ng { background: var(--bg-ng); color: var(--t-ng); border: 1px solid var(--b-ng); font-size: 0.75rem; }
+        .spec-stu { background: var(--bg-stu); color: var(--t-stu); border: 1px solid var(--b-stu); font-size: 0.75rem; }
+        
+        /* Permesso Notte (Verde Scuro) - Font Ingrandito */
+        .spec-pn { background: var(--bg-pn); color: var(--t-pn); border: 1px solid var(--b-pn); font-size: 0.75rem; }
 
         .empty { background: transparent; box-shadow: none; color: #cbd5e1; font-weight: 400;}
 
@@ -281,15 +284,90 @@
         .btn-close-modal { background: var(--bg); border: none; color: var(--text-sec); cursor: pointer; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
         
         .modal-body { padding: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-        .colleague-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-bottom: 1px solid var(--border); transition: background 0.2s; }
-        .c-name { font-weight: 700; color: var(--text-main); font-size: 1rem; display: flex; align-items: center; }
-        .c-time { font-size: 0.8rem; font-weight: 800; color: var(--text-sec); background: var(--bg); padding: 6px 12px; border-radius: 8px; font-variant-numeric: tabular-nums; }
+
+        /* --- NUOVO STILE POPUP TURNI (MIGLIORATO) --- */
+        .modal-section-title {
+            padding: 16px 20px 8px 20px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-sec);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg);
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .colleague-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            transition: background 0.2s;
+        }
+        .colleague-card:last-child { border-bottom: none; }
+        .colleague-card:active { background: var(--bg); }
+
+        .col-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.1rem;
+            margin-right: 14px;
+            flex-shrink: 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .col-info { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+        .col-name { font-weight: 700; font-size: 0.95rem; color: var(--text-main); line-height: 1.2; }
+        .col-role { font-size: 0.7rem; font-weight: 600; color: var(--text-sec); margin-top: 2px; }
+
+        .col-badge {
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 6px 10px;
+            border-radius: 8px;
+            min-width: 35px;
+            text-align: center;
+        }
+
+        /* Stili specifici Autisti */
+        .driver-highlight { background: #fef2f2; }
+        body.dark-mode .driver-highlight { background: #450a0a; }
+        
+        .driver-highlight .col-avatar {
+            background: #dc2626; 
+            color: white;
+            border: 2px solid #b91c1c;
+        }
+        .driver-highlight .col-name { color: #991b1b; }
+        body.dark-mode .driver-highlight .col-name { color: #fca5a5; }
+        
+        .driver-highlight .col-role { color: #ef4444; }
+
+        /* Stili Infermieri */
+        .nurse-highlight .col-avatar {
+            background: var(--primary);
+            color: white;
+            border: 2px solid #1e40af;
+        }
         
         /* Modal Themes */
-        .modal-theme-M .modal-header { background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%); } .modal-theme-M .header-text h3 { color: #0c4a6e; } .modal-theme-M .c-time { background: #e0f2fe; color: #0369a1; }
-        .modal-theme-P .modal-header { background: linear-gradient(135deg, #e0e7ff 0%, #eef2ff 100%); } .modal-theme-P .header-text h3 { color: #312e81; } .modal-theme-P .c-time { background: #e0e7ff; color: #4338ca; }
-        .modal-theme-N .modal-header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); } .modal-theme-N .header-text h3 { color: white; } .modal-theme-N .header-text span { color: #94a3b8; } .modal-theme-N .btn-close-modal { background: #334155; color: white; } .modal-theme-N .c-time { background: #f1f5f9; color: #0f172a; }
-        .modal-theme-R .modal-header { background: linear-gradient(135deg, #dcfce7 0%, #ecfdf5 100%); } .modal-theme-R .header-text h3 { color: #064e3b; } .modal-theme-R .c-time { background: #dcfce7; color: #15803d; }
+        .modal-theme-M .modal-header { background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%); } .modal-theme-M .header-text h3 { color: #0c4a6e; } 
+        .modal-theme-P .modal-header { background: linear-gradient(135deg, #e0e7ff 0%, #eef2ff 100%); } .modal-theme-P .header-text h3 { color: #312e81; } 
+        .modal-theme-N .modal-header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); } .modal-theme-N .header-text h3 { color: white; } .modal-theme-N .header-text span { color: #94a3b8; } .modal-theme-N .btn-close-modal { background: #334155; color: white; } 
+        .modal-theme-R .modal-header { background: linear-gradient(135deg, #dcfce7 0%, #ecfdf5 100%); } .modal-theme-R .header-text h3 { color: #064e3b; } 
         .modal-theme-SM .modal-header { background: linear-gradient(135deg, #64748b 0%, #94a3b8 100%); } .modal-theme-SM .header-text h3 { color: white; }
 
         /* OPTIONS MODAL SPECIFIC */
@@ -741,12 +819,14 @@
             } catch(e) { alert("Errore file: " + e.message); }
         }
 
-        // FUNZIONE PER LEGGERE IL FILE DEGLI AUTISTI UTILIZZANDO LA STESSA LOGICA
+        // FUNZIONE PER LEGGERE IL FILE DEGLI AUTISTI (MIGLIORATA)
         async function loadAutistiWorkbook(buffer) {
             try {
-                const workbook = new ExcelJS.Workbook(); 
+                const workbook = new ExcelJS.Workbook();
                 await workbook.xlsx.load(buffer);
-                let ws = workbook.worksheets[0]; let rawData = [];
+                let ws = workbook.worksheets[0];
+                let rawData = [];
+                
                 ws.eachRow({ includeEmpty: true }, (row, rowNumber) => {
                     let rowData = [];
                     row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
@@ -756,12 +836,19 @@
                     });
                     rawData[rowNumber] = rowData;
                 });
-                
+
                 autistiData = parseHorizontalLayout(rawData);
+                
+                // CORREZIONE: Assicuriamoci di prendere TUTTI gli autisti
                 let header = autistiData[0];
                 autistiDrivers = [];
-                // Estraggo i nomi degli autisti (dalla colonna 3 in poi)
-                for(let i=3; i<header.length; i++) autistiDrivers.push({name: header[i], idx: i});
+                // Solitamente le prime 3 colonne sono Mese, Giorno, Nome/Vuoto.
+                // Scansioniamo finché troviamo colonne
+                for(let i=3; i<header.length; i++) {
+                    if(header[i] && typeof header[i] === 'string' && header[i].trim().length > 0) {
+                        autistiDrivers.push({name: header[i], idx: i});
+                    }
+                }
             } catch(e) { console.error("Errore lettura autisti", e); }
         }
 
@@ -938,9 +1025,15 @@
                 tr.innerHTML = `<td class="${dateClass}">${dNum}<small>${dayWeek}</small>${holidayName ? `<div class="holiday-name">${holidayName}</div>` : ""}</td>`;
                 
                 cols.forEach(d => {
-                    let cellInfo = row[d.idx]; 
+                    let cellInfo = row[d.idx];
+                    
+                    // --- MODIFICA: PASSAGGIO INFO GIORNO PRECEDENTE ---
+                    let prevRow = finalData[i-1];
+                    let prevCellInfo = prevRow ? prevRow[d.idx] : null;
+                    
                     let td = document.createElement('td'); 
-                    td.innerHTML = formatCell(cellInfo);
+                    // Passo anche prevCellInfo alla funzione di formattazione
+                    td.innerHTML = formatCell(cellInfo, prevCellInfo);
                     
                     let rawVal = cellInfo.v ? cellInfo.v.toString().trim() : "";
                     if(rawVal || (cellInfo.subV && cellInfo.subV.toString().trim())) {
@@ -963,8 +1056,16 @@
             });
         }
 
-        function formatCell(info) {
+        // --- MODIFICA: FUNZIONE AGGIORNATA PER GESTIRE IL GIORNO PRECEDENTE ---
+        function formatCell(info, prevInfo) {
             let subVal = info.subV ? info.subV.toString().trim().toLowerCase() : "";
+            let prevSubVal = (prevInfo && prevInfo.subV) ? prevInfo.subV.toString().trim().toLowerCase() : "";
+            
+            // LOGICA PERMESSO NOTTE (PN): Se c'è PN oggi o c'era IERI, mostra PN
+            if(subVal === "pn" || prevSubVal === "pn") {
+                return `<div class="cell spec-pn">PERMESSO<br>NOTTE</div>`;
+            }
+
             if(subVal === "v") return `<div class="cell spec-ferie">FERIE<br>RESIDUE</div>`;
             if(subVal === "r") return `<div class="cell spec-rec">RECUPERO</div>`;
             if(subVal === "f") return `<div class="cell spec-cong">CONGEDO<br>ORD.</div>`;
@@ -1009,7 +1110,7 @@
             }
         }
 
-        // --- APERTURA MODALE CON INFERMIERI + AUTISTI (ROSSI E CON A.S.) ---
+        // --- APERTURA MODALE CON INFERMIERI + AUTISTI (MIGLIORATA) ---
         function openShiftModal(rowIndex, cellValue, month, day, weekDay) {
             vibrate();
             let modal = document.getElementById('shift-modal'); 
@@ -1028,10 +1129,10 @@
             else if(uShift === "R") content.classList.add("modal-theme-R");
             else if(uShift === "SM") content.classList.add("modal-theme-SM");
 
-            let fullText = "ELENCO TURNI"; let icon = "info";
-            if(uShift==="M") { fullText = "TURNO MATTINA"; icon="wb_sunny"; }
-            else if(uShift==="P") { fullText = "TURNO POMERIGGIO"; icon="wb_twilight"; }
-            else if(uShift==="N") { fullText = "TURNO NOTTE"; icon="bedtime"; }
+            let fullText = "DETTAGLIO TURNO"; let icon = "info";
+            if(uShift==="M") { fullText = "MATTINA"; icon="wb_sunny"; }
+            else if(uShift==="P") { fullText = "POMERIGGIO"; icon="wb_twilight"; }
+            else if(uShift==="N") { fullText = "NOTTE"; icon="bedtime"; }
             else if(uShift==="R") { fullText = "RIPOSO"; icon="weekend"; }
             else if(uShift==="SM") { fullText = "SMONTO"; icon="logout"; }
             
@@ -1041,10 +1142,10 @@
             list.innerHTML = "";
             let rowData = finalData[rowIndex];
             
-            let infermieriCount = 0;
-            let autistiCount = 0;
+            let foundNurses = [];
+            let foundDrivers = [];
 
-            // 1. RICERCA INFERMIERI IN TURNO
+            // 1. CERCA INFERMIERI
             drivers.forEach(d => {
                 let cell = rowData[d.idx];
                 let val = cell.v ? cell.v.toString().trim() : ""; 
@@ -1055,41 +1156,43 @@
                 let isWorking = (uVal === "M" || uVal === "P" || uVal === "N" || uVal === "SM");
                 let isMatch = false;
                 
-                if(["M","P","N","SM","R"].includes(uShift)) {
+                // Se sto guardando un turno lavorativo, mostrami chi è in quel turno
+                if(["M","P","N","SM"].includes(uShift)) {
                     if(uVal === uShift) isMatch = true; 
                 } else {
+                    // Se sto guardando un riposo o altro, mostrami tutti quelli che lavorano quel giorno
                     if(isWorking) isMatch = true;
                 }
 
                 if(isMatch) {
-                    infermieriCount++;
                     let time = isD ? (SCHEDULE_DIURNI[val.toLowerCase()] || val) : (SCHEDULE[uVal] || uVal);
+                    // Badge Style
+                    let badgeStyle = "background:#e2e8f0; color:#475569";
+                    if(uVal==="M") badgeStyle = "background:#dbeafe; color:#1e40af";
+                    if(uVal==="P") badgeStyle = "background:#ffedd5; color:#9a3412";
+                    if(uVal==="N") badgeStyle = "background:#1e293b; color:#f8fafc";
                     
-                    let displayLabel = isD ? "DIURNO" : "TURNO";
-                    let badgeColor = isD ? "color:#026bfe; background:#eff6ff; border:1px solid #bfdbfe" : "color:#ffffff; background:#026bfe; border:1px solid #026bfe";
-                    
-                    if (uVal === "P") badgeColor = isD ? "color:#d97706; background:#fffbeb; border:1px solid #fde68a" : "color:#ffffff; background:#56a2ff; border:1px solid #56a2ff";
-                    if (uVal === "N") badgeColor = "color:#ffffff; background:#003785; border:1px solid #003785";
-                    if (uVal === "SM") badgeColor = "color:#ffffff; background:#10004f; border:1px solid #10004f";
-                    if (uVal === "R") badgeColor = "color:#059669; background:#ecfdf5; border:1px solid #6ee7b7";
-
-                    let badge = `<span style="font-size:0.65rem; font-weight:800; margin-left:6px; padding:2px 6px; border-radius:6px; ${badgeColor}">${uVal} ${displayLabel}</span>`;
-                    
-                    list.innerHTML += `<div class="colleague-item">
-                                        <span class="c-name">${d.name} ${badge}</span>
-                                        <span class="c-time" style="font-weight: 800">${time}</span>
-                                       </div>`;
+                    foundNurses.push({
+                        name: d.name,
+                        shift: uVal,
+                        time: time,
+                        style: badgeStyle,
+                        isDiurno: isD
+                    });
                 }
             });
 
-            // 2. RICERCA AUTISTI IN TURNO (IN ROSSO E CON A.S.)
-            let autistiHtml = "";
+            // 2. CERCA AUTISTI (Logica corretta per trovarli TUTTI)
             if(autistiData && autistiData.length > 0) {
-                // Cerco la riga del giorno corrispondente nei dati degli autisti
+                // Trova la riga corretta in base a Mese e Giorno
                 let autistiMatch = autistiData.find(r => r[0].v === month && parseInt(r[1].v) === day);
+                
                 if(autistiMatch) {
                     autistiDrivers.forEach(d => {
                         let cell = autistiMatch[d.idx];
+                        // Gestione caso colonna mancante o undefined
+                        if(!cell) return; 
+
                         let val = cell.v ? cell.v.toString().trim() : ""; 
                         let uVal = val.toUpperCase();
                         if(uVal === "S") uVal = "SM";
@@ -1097,47 +1200,68 @@
                         let isWorking = (uVal === "M" || uVal === "P" || uVal === "N" || uVal === "SM");
                         let isMatch = false;
                         
-                        if(["M","P","N","SM","R"].includes(uShift)) {
+                        if(["M","P","N","SM"].includes(uShift)) {
                             if(uVal === uShift) isMatch = true; 
                         } else {
                             if(isWorking) isMatch = true;
                         }
 
                         if(isMatch) {
-                            autistiCount++;
                             let time = SCHEDULE[uVal] || uVal; 
-                            
-                            // Badge Autista in Rosso
-                            let badgeColor = "color:#ffffff; background:#dc2626; border:1px solid #b91c1c";
-                            let badge = `<span style="font-size:0.65rem; font-weight:800; margin-left:6px; padding:2px 6px; border-radius:6px; ${badgeColor}">${uVal} AUTISTA</span>`;
-                            
-                            // Riga autista con nome rosso e A.S.
-                            autistiHtml += `<div class="colleague-item" style="background:#fef2f2; border-bottom:1px solid #fecaca; border-left: 4px solid #dc2626;">
-                                                <span class="c-name" style="color:#b91c1c; font-weight:900;">
-                                                    <span style="font-weight:900; font-size:1.1rem; margin-right:8px; color:#ef4444; letter-spacing:-0.5px;">A.S.</span>
-                                                    ${d.name} ${badge}
-                                                </span>
-                                                <span class="c-time" style="font-weight: 800; background:#fee2e2; color:#991b1b">${time}</span>
-                                            </div>`;
+                            foundDrivers.push({
+                                name: d.name,
+                                shift: uVal,
+                                time: time
+                            });
                         }
                     });
                 }
             }
 
-            // 3. MOSTRO I MESSAGGI VUOTI O STAMPO GLI AUTISTI TROVATI
-            if(infermieriCount === 0 && autistiCount === 0) {
-                list.innerHTML = "<div style='padding:30px; text-align:center; color:var(--text-sec)'>Nessuno in questo turno.</div>";
+            // 3. GENERAZIONE HTML MIGLIORATO
+            
+            // SEZIONE INFERMIERI
+            if(foundNurses.length > 0) {
+                list.innerHTML += `<div class="modal-section-title"><span class="material-icons-round">local_hospital</span> INFERMIERI (${foundNurses.length})</div>`;
+                foundNurses.forEach(n => {
+                    let initials = n.name.substring(0,2).toUpperCase();
+                    list.innerHTML += `
+                    <div class="colleague-card nurse-highlight">
+                        <div class="col-avatar">${initials}</div>
+                        <div class="col-info">
+                            <div class="col-name">${n.name}</div>
+                            <div class="col-role" style="font-size:0.8rem; color:var(--primary)">${n.time}</div>
+                            <div class="col-role" style="font-size:0.65rem">${n.isDiurno ? 'Diurnista' : 'Turnista'}</div>
+                        </div>
+                        <div class="col-badge" style="${n.style}">${n.shift}</div>
+                    </div>`;
+                });
             } else {
-                if(infermieriCount === 0) {
-                     list.innerHTML = "<div style='padding:15px; text-align:center; color:var(--text-sec); font-size: 0.85rem'>Nessun infermiere presente in questo turno.</div>";
-                }
-                if(autistiCount > 0) {
-                    list.innerHTML += `<div style="padding: 12px 24px 8px 24px; background: var(--bg); font-size: 0.75rem; font-weight: 800; color: #dc2626; letter-spacing: 0.5px; border-bottom: 1px solid var(--border)">AUTISTI IN TURNO</div>`;
-                    list.innerHTML += autistiHtml;
-                }
+                list.innerHTML += `<div style="padding:20px; text-align:center; color:#94a3b8; font-size:0.9rem">Nessun infermiere in questo turno.</div>`;
             }
 
-            modal.style.display = 'flex'; setTimeout(() => modal.classList.add('open'), 10);
+            // SEZIONE AUTISTI
+            if(foundDrivers.length > 0) {
+                list.innerHTML += `<div class="modal-section-title" style="margin-top:10px; border-top:1px solid var(--border)"><span class="material-icons-round">ambulance</span> AUTISTI 118 (${foundDrivers.length})</div>`;
+                foundDrivers.forEach(d => {
+                    list.innerHTML += `
+                    <div class="colleague-card driver-highlight">
+                        <div class="col-avatar">AS</div>
+                        <div class="col-info">
+                            <div class="col-name">${d.name}</div>
+                            <div class="col-role" style="font-size:0.8rem; color:#b91c1c">${d.time}</div>
+                            <div class="col-role" style="font-size:0.65rem">Autista Soccorritore</div>
+                        </div>
+                        <div class="col-badge" style="background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5">${d.shift}</div>
+                    </div>`;
+                });
+            } else if (autistiDrivers.length > 0) {
+                // Mostra messaggio solo se gli autisti sono stati caricati ma non ce ne sono in turno
+                list.innerHTML += `<div style="padding:20px; text-align:center; color:#94a3b8; font-size:0.9rem; border-top:1px solid var(--border)">Nessun autista trovato in questo turno.</div>`;
+            }
+
+            modal.style.display = 'flex'; 
+            setTimeout(() => modal.classList.add('open'), 10);
         }
 
         function closeShiftModal(e) { if(e && e.target !== e.currentTarget) return; let m=document.getElementById('shift-modal'); m.classList.remove('open'); setTimeout(()=>m.style.display='none', 200); }
