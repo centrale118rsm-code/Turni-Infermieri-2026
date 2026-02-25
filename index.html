@@ -8,14 +8,14 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#ffffff" id="theme-color-meta">
-    <meta name="apple-mobile-web-app-title" content="Turni Infermieri">
+    <meta name="apple-mobile-web-app-title" content="Infermieri 26">
     <meta name="description" content="Gestione Turni Infermieri 2026">
     
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="logo.png">
     <link rel="icon" type="image/png" href="logo.png">
     
-    <title>TURNI INFERMIERI 2026</title>
+    <title>INFERMIERI 2026</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -36,7 +36,7 @@
             
             /* ALTEZZA HEADER RIDOTTA */
             --header-h: 100px;        
-            --cell-h: 65px;               
+            --cell-h: 65px;                
             --th-h: 40px;                 
             
             /* COLORI TURNISTI (Pieni, testo bianco) */
@@ -92,6 +92,7 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
+        /* Modifica layout Header per mobile (CORREZIONE APPLICATA) */
         .top-bar { 
             padding: 0 10px; 
             display: flex; 
@@ -99,7 +100,7 @@
             align-items: center; 
             height: 60px; 
             flex-shrink: 0; 
-            gap: 5px;
+            gap: 15px; /* Aumentato il gap */
         }
         
         .logo { 
@@ -114,6 +115,8 @@
             flex-shrink: 1; 
             min-width: 0;
             overflow: hidden;
+            margin-right: auto; /* Spinge il logo a sinistra */
+            padding-right: 10px; /* Margine di sicurezza */
         }
         .logo img { height: 36px; width: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); border-radius: 8px; cursor: pointer; }
         .logo-text { display: flex; flex-direction: column; line-height: 1; overflow: hidden; text-overflow: ellipsis; }
@@ -357,13 +360,6 @@
             font-size: 0.75rem; font-weight: 800; padding: 6px 10px;
             border-radius: 8px; min-width: 35px; text-align: center;
         }
-
-        .driver-highlight { background: #fef2f2; }
-        body.dark-mode .driver-highlight { background: #450a0a; }
-        .driver-highlight .col-avatar { background: #dc2626; color: white; border: 2px solid #b91c1c; }
-        .driver-highlight .col-name { color: #991b1b; }
-        body.dark-mode .driver-highlight .col-name { color: #fca5a5; }
-        .driver-highlight .col-role { color: #ef4444; }
 
         .nurse-highlight .col-avatar { background: var(--primary); color: white; border: 2px solid #1e40af; }
         
@@ -754,10 +750,6 @@
         let deferredPrompt;
         let globalMonthsList = []; // Per tenere traccia dei mesi per il modale
         
-        // VARIABILI PER SALVARE I DATI DEGLI AUTISTI
-        let autistiData = [];
-        let autistiDrivers = [];
-
         window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
         function installPWA() {
             if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt.userChoice.then((c) => { deferredPrompt = null; }); } 
@@ -848,15 +840,6 @@
                 document.getElementById('auto-loader').style.display = 'none'; 
                 document.getElementById('manual-upload').style.display = 'block'; 
             }
-
-            // 2. CARICAMENTO SILENZIOSO DEI TURNI AUTISTI PER I POPUP
-            try {
-                const respAut = await fetch("https://centrale118rsm-code.github.io/Turni-Autisti-2026-Rsm/turni.xlsx?v=" + new Date().getTime());
-                if(respAut.ok) {
-                    const bufAut = await respAut.arrayBuffer();
-                    await loadAutistiWorkbook(bufAut);
-                }
-            } catch(e) { console.log("Impossibile caricare autisti automaticamente", e); }
         };
 
         document.getElementById('file-input').addEventListener('change', function(e) {
@@ -881,36 +864,6 @@
                 document.getElementById('loader').style.opacity = '0'; setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
                 initApp();
             } catch(e) { alert("Errore file: " + e.message); }
-        }
-
-        // FUNZIONE PER LEGGERE IL FILE DEGLI AUTISTI (MIGLIORATA)
-        async function loadAutistiWorkbook(buffer) {
-            try {
-                const workbook = new ExcelJS.Workbook();
-                await workbook.xlsx.load(buffer);
-                let ws = workbook.worksheets[0];
-                let rawData = [];
-                
-                ws.eachRow({ includeEmpty: true }, (row, rowNumber) => {
-                    let rowData = [];
-                    row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
-                        let val = cell.value;
-                        if(typeof val === 'object' && val !== null) val = val.result || val.richText?.[0]?.text || "";
-                        rowData[colNumber] = { v: val };
-                    });
-                    rawData[rowNumber] = rowData;
-                });
-
-                autistiData = parseHorizontalLayout(rawData);
-                
-                let header = autistiData[0];
-                autistiDrivers = [];
-                for(let i=3; i<header.length; i++) {
-                    if(header[i] && typeof header[i] === 'string' && header[i].trim().length > 0) {
-                        autistiDrivers.push({name: header[i], idx: i});
-                    }
-                }
-            } catch(e) { console.error("Errore lettura autisti", e); }
         }
 
         function parseHorizontalLayout(raw) {
@@ -1105,7 +1058,6 @@
             }
         }
 
-        // --- MODIFICA: FUNZIONE AGGIORNATA PER GESTIRE IL GIORNO PRECEDENTE ---
         function formatCell(info, prevInfo) {
             let subVal = info.subV ? info.subV.toString().trim().toLowerCase() : "";
             let prevSubVal = (prevInfo && prevInfo.subV) ? prevInfo.subV.toString().trim().toLowerCase() : "";
@@ -1155,7 +1107,7 @@
             }
         }
 
-        // --- APERTURA MODALE CON INFERMIERI + AUTISTI (MIGLIORATA) ---
+        // --- APERTURA MODALE CON SOLO INFERMIERI ---
         function openShiftModal(rowIndex, cellValue, month, day, weekDay) {
             vibrate();
             let modal = document.getElementById('shift-modal'); 
@@ -1188,7 +1140,6 @@
             let rowData = finalData[rowIndex];
             
             let foundNurses = [];
-            let foundDrivers = [];
 
             // 1. CERCA INFERMIERI
             drivers.forEach(d => {
@@ -1224,38 +1175,8 @@
                 }
             });
 
-            // 2. CERCA AUTISTI
-            if(autistiData && autistiData.length > 0) {
-                let autistiMatch = autistiData.find(r => r[0].v === month && parseInt(r[1].v) === day);
-                if(autistiMatch) {
-                    autistiDrivers.forEach(d => {
-                        let cell = autistiMatch[d.idx];
-                        if(!cell) return; 
-                        let val = cell.v ? cell.v.toString().trim() : ""; 
-                        let uVal = val.toUpperCase();
-                        if(uVal === "S") uVal = "SM";
-                        let isWorking = (uVal === "M" || uVal === "P" || uVal === "N" || uVal === "SM");
-                        let isMatch = false;
-                        if(["M","P","N","SM"].includes(uShift)) {
-                            if(uVal === uShift) isMatch = true; 
-                        } else {
-                            if(isWorking) isMatch = true;
-                        }
-                        if(isMatch) {
-                            let time = SCHEDULE[uVal] || uVal; 
-                            foundDrivers.push({
-                                name: d.name,
-                                shift: uVal,
-                                time: time
-                            });
-                        }
-                    });
-                }
-            }
-
-            // 3. GENERAZIONE HTML
+            // 2. GENERAZIONE HTML
             if(foundNurses.length > 0) {
-                list.innerHTML += `<div class="modal-section-title"><span class="material-icons-round">local_hospital</span> INFERMIERI (${foundNurses.length})</div>`;
                 foundNurses.forEach(n => {
                     let initials = n.name.substring(0,2).toUpperCase();
                     list.innerHTML += `
@@ -1271,24 +1192,6 @@
                 });
             } else {
                 list.innerHTML += `<div style="padding:20px; text-align:center; color:#94a3b8; font-size:0.9rem">Nessun infermiere in questo turno.</div>`;
-            }
-
-            if(foundDrivers.length > 0) {
-                list.innerHTML += `<div class="modal-section-title" style="margin-top:10px; border-top:1px solid var(--border)"><span class="material-icons-round">ambulance</span> AUTISTI 118 (${foundDrivers.length})</div>`;
-                foundDrivers.forEach(d => {
-                    list.innerHTML += `
-                    <div class="colleague-card driver-highlight">
-                        <div class="col-avatar">AS</div>
-                        <div class="col-info">
-                            <div class="col-name">${d.name}</div>
-                            <div class="col-role" style="font-size:0.8rem; color:#b91c1c">${d.time}</div>
-                            <div class="col-role" style="font-size:0.65rem">Autista Soccorritore</div>
-                        </div>
-                        <div class="col-badge" style="background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5">${d.shift}</div>
-                    </div>`;
-                });
-            } else if (autistiDrivers.length > 0) {
-                list.innerHTML += `<div style="padding:20px; text-align:center; color:#94a3b8; font-size:0.9rem; border-top:1px solid var(--border)">Nessun autista trovato in questo turno.</div>`;
             }
 
             modal.style.display = 'flex'; 
