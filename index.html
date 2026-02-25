@@ -34,9 +34,10 @@
             --border: #e2e8f0;
             --header-bg: rgba(255, 255, 255, 0.92);
             
-            --header-h: 155px;        
-            --cell-h: 65px;  /* Aumentato leggermente l'altezza cella per i caratteri più grandi */              
-            --th-h: 40px;                
+            /* ALTEZZA HEADER RIDOTTA */
+            --header-h: 100px;        
+            --cell-h: 65px;               
+            --th-h: 40px;                 
             
             /* COLORI TURNISTI (Pieni, testo bianco) */
             --c-M: #026bfe; --t-M: #ffffff; --b-M: #bae6fd;
@@ -91,34 +92,60 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
-        .top-bar { padding: 0 16px; display: flex; justify-content: space-between; align-items: center; height: 55px; flex-shrink: 0; }
-        .logo { font-size: 1.15rem; font-weight: 900; color: var(--text-main); display: flex; align-items: center; gap: 10px; letter-spacing: -0.5px; }
-        .logo img { filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); border-radius: 8px; cursor: pointer; }
-        .logo img:active { transform: scale(0.9); }
+        .top-bar { 
+            padding: 0 10px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            height: 60px; 
+            flex-shrink: 0; 
+            gap: 5px;
+        }
         
-        .right-controls { display: flex; gap: 8px; position: relative; }
+        .logo { 
+            font-size: 1rem; 
+            font-weight: 900; 
+            color: var(--text-main); 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            letter-spacing: -0.5px;
+            white-space: nowrap; 
+            flex-shrink: 1; 
+            min-width: 0;
+            overflow: hidden;
+        }
+        .logo img { height: 36px; width: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); border-radius: 8px; cursor: pointer; }
+        .logo-text { display: flex; flex-direction: column; line-height: 1; overflow: hidden; text-overflow: ellipsis; }
+        
+        @media (max-width: 360px) {
+            #last-update-badge { display: none; }
+        }
+
+        .right-controls { display: flex; gap: 5px; position: relative; flex-shrink: 0; }
 
         .btn-action { 
             background: var(--bg-card); color: var(--text-sec); border: 1px solid var(--border); 
-            width: 42px; height: 42px; padding: 0; 
-            border-radius: 12px; cursor: pointer; 
+            width: 38px; height: 38px; 
+            padding: 0; 
+            border-radius: 10px; cursor: pointer; 
             display: flex; align-items: center; justify-content: center; 
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
         }
-        .btn-action span { font-size: 1.5rem; }
+        .btn-action span { font-size: 1.3rem; }
         .btn-action:active { transform: scale(0.94); opacity: 0.8; }
         
         .badge-dot {
-            position: absolute; top: 8px; right: 8px;
-            width: 10px; height: 10px; background: #ef4444;
+            position: absolute; top: 6px; right: 6px;
+            width: 8px; height: 8px; background: #ef4444;
             border-radius: 50%; border: 2px solid var(--bg-card);
             display: none; 
         }
         .badge-dot.visible { display: block; }
 
         #menu-dropdown { 
-            position: absolute; top: 55px; right: 0; background: var(--bg-card); 
+            position: absolute; top: 45px; right: 0; background: var(--bg-card); 
             border-radius: 16px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.2); 
             width: 220px; overflow: hidden; display: none; border: 1px solid var(--border); 
             flex-direction: column; z-index: 5000; transform-origin: top right;
@@ -131,26 +158,22 @@
         
         @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
 
-        .nav-scroller, .driver-scroller { flex: 1; display: flex; gap: 8px; overflow-x: auto; padding: 0 16px; align-items: center; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
-        .nav-scroller { border-bottom: 1px solid var(--border); }
+        .driver-scroller { flex: 1; display: flex; gap: 8px; overflow-x: auto; padding: 0 10px; align-items: center; scrollbar-width: none; -webkit-overflow-scrolling: touch; border-top: 1px solid var(--border); height: 40px; }
         
         .chip { 
-            padding: 8px 16px; border-radius: 10px; font-size: 0.8rem; font-weight: 700; 
+            padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; 
             white-space: nowrap; cursor: pointer; transition: all 0.2s ease; 
             display: flex; align-items: center; justify-content: center;
         }
         
-        .chip-month { background: var(--bg-card); color: var(--text-sec); border: 1px solid var(--border); }
-        .chip-month.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3); transform: translateY(-1px); }
-        
         .chip-driver { background: var(--bg); color: var(--text-sec); border: 1px solid var(--border); }
-        .chip-driver.active { background: var(--text-main); color: var(--bg-card); border-color: var(--text-main); box-shadow: 0 4px 10px rgba(0,0,0,0.1); transform: translateY(-1px); }
+        .chip-driver.active { background: var(--text-main); color: var(--bg-card); border-color: var(--text-main); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
         .container { padding: 0; max-width: 100%; margin: 0 auto; padding-bottom: 80px; }
         table { width: 100%; border-collapse: separate; border-spacing: 0; }
 
         thead th {
-            background: var(--bg); color: var(--text-sec); padding: 5px; font-size: 0.75rem; 
+            background: var(--bg); color: var(--text-sec); padding: 5px; font-size: 0.7rem; 
             text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;
             position: sticky; top: var(--header-h); z-index: 90; 
             border-bottom: 1px solid var(--border); text-align: center; min-width: 115px;
@@ -159,6 +182,7 @@
         }
         thead th:first-child, .td-date { width: 60px !important; min-width: 60px !important; max-width: 60px !important; }
 
+        /* --- STILE BARRA MESE --- */
         tr.month-header td {
             background: var(--month-bar-bg);
             color: white; 
@@ -187,25 +211,25 @@
         }
         
         .td-date { 
-            text-align: center; font-weight: 800; color: var(--text-main); font-size: 1.15rem; 
+            text-align: center; font-weight: 800; color: var(--text-main); font-size: 1.1rem; 
             border-right: 2px solid var(--border); background: var(--bg);
             position: sticky; left: 0; z-index: 80;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             height: var(--cell-h); 
         }
-        .td-date small { display: block; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; color: var(--text-sec); margin-top: 2px; }
+        .td-date small { display: block; font-weight: 600; font-size: 0.7rem; text-transform: uppercase; color: var(--text-sec); margin-top: 2px; }
         .td-date.date-red { color: #dc2626; background: #fef2f2; border-right-color: #fca5a5; }
         .td-date.date-red small { color: #ef4444; }
         body.dark-mode .td-date.date-red { background: #450a0a; color: #fca5a5; border-right-color: #7f1d1d; }
         body.dark-mode .td-date.date-red small { color: #fecaca; }
 
-        .holiday-name { font-size: 0.6rem; color: #dc2626; font-weight: 900; line-height: 1; margin-top: 3px; max-width: 55px; white-space: normal; }
+        .holiday-name { font-size: 0.55rem; color: #dc2626; font-weight: 900; line-height: 1; margin-top: 3px; max-width: 55px; white-space: normal; }
         body.dark-mode .holiday-name { color: #f87171; }
 
         .cell { 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
             height: 100%; width: 100%; border-radius: 10px; font-weight: 800; 
-            font-size: 0.75rem; /* Aumentato Font Size */
+            font-size: 0.75rem; 
             letter-spacing: -0.2px;
             text-transform: uppercase; position: relative; 
             line-height: 1.1; text-align: center; cursor: pointer;
@@ -217,7 +241,7 @@
         body.dark-mode .cell { box-shadow: none; border: 1px solid rgba(255,255,255,0.05); }
 
         .time-tag { 
-            font-size: 0.6rem; /* Aumentato */
+            font-size: 0.6rem; 
             font-weight: 700; 
             opacity: 0.95; 
             margin-top: 2px; 
@@ -232,16 +256,15 @@
         .t-R { background: var(--c-R); color: var(--t-R); border: 1px solid var(--b-R); }
         .t-S { background: var(--c-SM); color: var(--t-SM); border: 1px solid var(--b-SM); }
         
-        /* STILI DIURNISTI (UNIFORMATI - SFONDO PIENO) */
+        /* STILI DIURNISTI */
         .d-M { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
         .d-P { background: #fff7ed; color: #9a3412; border: 1px solid #fed7aa; }
         .d-R { background: #f8fafc; color: #64748b; border: 1px solid #cbd5e1; }
-        
         body.dark-mode .d-M { background: #172554; color: #bfdbfe; border-color: #1e40af; }
         body.dark-mode .d-P { background: #451a03; color: #fed7aa; border-color: #9a3412; }
         body.dark-mode .d-R { background: #1e293b; color: #94a3b8; border-color: #475569; }
 
-        /* STILI SPECIALI RICHIESTI - FONT INGRANDITI */
+        /* STILI SPECIALI */
         .spec-ferie { background: var(--bg-ferie); color: var(--t-ferie); border: 1px solid var(--b-ferie); font-size: 0.75rem; }
         .spec-rec { background: var(--bg-rec); color: var(--t-rec); border: 1px solid var(--b-rec); font-size: 0.75rem; }
         .spec-cong { background: var(--bg-cong); color: var(--t-cong); border: 1px solid var(--b-cong); font-size: 0.75rem; }
@@ -250,8 +273,6 @@
         .spec-perm { background: var(--bg-perm); color: var(--t-perm); border: 1px solid var(--b-perm); font-size: 0.75rem; }
         .spec-ng { background: var(--bg-ng); color: var(--t-ng); border: 1px solid var(--b-ng); font-size: 0.75rem; }
         .spec-stu { background: var(--bg-stu); color: var(--t-stu); border: 1px solid var(--b-stu); font-size: 0.75rem; }
-        
-        /* Permesso Notte (Verde Scuro) - Font Ingrandito */
         .spec-pn { background: var(--bg-pn); color: var(--t-pn); border: 1px solid var(--b-pn); font-size: 0.75rem; }
 
         .empty { background: transparent; box-shadow: none; color: #cbd5e1; font-weight: 400;}
@@ -271,11 +292,11 @@
         .file-label:active { transform: scale(0.96); }
         input[type="file"] { display: none; }
         
-        /* MODALI GENERICI */
-        #shift-modal, #dinner-modal, #options-modal, #notif-center-modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); z-index: 3000; backdrop-filter: blur(8px); align-items: flex-end; justify-content: center; opacity: 0; transition: opacity 0.3s; }
-        #shift-modal.open, #dinner-modal.open, #options-modal.open, #notif-center-modal.open { opacity: 1; }
+        /* MODALI */
+        #shift-modal, #dinner-modal, #options-modal, #notif-center-modal, #month-select-modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); z-index: 3000; backdrop-filter: blur(8px); align-items: flex-end; justify-content: center; opacity: 0; transition: opacity 0.3s; }
+        #shift-modal.open, #dinner-modal.open, #options-modal.open, #notif-center-modal.open, #month-select-modal.open { opacity: 1; }
         .modal-content { background: var(--bg-card); width: 100%; max-width: 600px; border-radius: 24px 24px 0 0; box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.3); overflow: hidden; transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); max-height: 85vh; display: flex; flex-direction: column; }
-        #shift-modal.open .modal-content, #dinner-modal.open .modal-content, #options-modal.open .modal-content, #notif-center-modal.open .modal-content { transform: translateY(0); }
+        #shift-modal.open .modal-content, #dinner-modal.open .modal-content, #options-modal.open .modal-content, #notif-center-modal.open .modal-content, #month-select-modal.open .modal-content { transform: translateY(0); }
         
         .modal-header { background: var(--bg); color: var(--text-main); padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
         .header-text h3 { margin: 0; font-size: 1.3rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 10px;}
@@ -285,7 +306,17 @@
         
         .modal-body { padding: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
 
-        /* --- NUOVO STILE POPUP TURNI (MIGLIORATO) --- */
+        /* SPECIFICO MODALE MESI */
+        .month-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 20px; }
+        .month-btn { 
+            aspect-ratio: 2/1; background: var(--bg); border: 1px solid var(--border); 
+            border-radius: 12px; display: flex; align-items: center; justify-content: center; 
+            font-weight: 800; color: var(--text-main); font-size: 0.9rem; cursor: pointer;
+            text-transform: uppercase; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .month-btn:active { transform: scale(0.96); background: var(--bg-card); }
+
+        /* POPUP TURNI */
         .modal-section-title {
             padding: 16px 20px 8px 20px;
             font-size: 0.75rem;
@@ -304,29 +335,18 @@
         }
 
         .colleague-card {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 20px;
-            background: var(--bg-card);
-            border-bottom: 1px solid var(--border);
-            transition: background 0.2s;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 20px; background: var(--bg-card);
+            border-bottom: 1px solid var(--border); transition: background 0.2s;
         }
         .colleague-card:last-child { border-bottom: none; }
         .colleague-card:active { background: var(--bg); }
 
         .col-avatar {
-            width: 42px;
-            height: 42px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 1.1rem;
-            margin-right: 14px;
-            flex-shrink: 0;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            width: 42px; height: 42px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 1.1rem; margin-right: 14px;
+            flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
         .col-info { flex: 1; display: flex; flex-direction: column; justify-content: center; }
@@ -334,34 +354,18 @@
         .col-role { font-size: 0.7rem; font-weight: 600; color: var(--text-sec); margin-top: 2px; }
 
         .col-badge {
-            font-size: 0.75rem;
-            font-weight: 800;
-            padding: 6px 10px;
-            border-radius: 8px;
-            min-width: 35px;
-            text-align: center;
+            font-size: 0.75rem; font-weight: 800; padding: 6px 10px;
+            border-radius: 8px; min-width: 35px; text-align: center;
         }
 
-        /* Stili specifici Autisti */
         .driver-highlight { background: #fef2f2; }
         body.dark-mode .driver-highlight { background: #450a0a; }
-        
-        .driver-highlight .col-avatar {
-            background: #dc2626; 
-            color: white;
-            border: 2px solid #b91c1c;
-        }
+        .driver-highlight .col-avatar { background: #dc2626; color: white; border: 2px solid #b91c1c; }
         .driver-highlight .col-name { color: #991b1b; }
         body.dark-mode .driver-highlight .col-name { color: #fca5a5; }
-        
         .driver-highlight .col-role { color: #ef4444; }
 
-        /* Stili Infermieri */
-        .nurse-highlight .col-avatar {
-            background: var(--primary);
-            color: white;
-            border: 2px solid #1e40af;
-        }
+        .nurse-highlight .col-avatar { background: var(--primary); color: white; border: 2px solid #1e40af; }
         
         /* Modal Themes */
         .modal-theme-M .modal-header { background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%); } .modal-theme-M .header-text h3 { color: #0c4a6e; } 
@@ -380,7 +384,7 @@
         input:checked + .slider { background-color: var(--primary); }
         input:checked + .slider:before { transform: translateX(22px); }
         
-        /* NOTIFICATION CENTER SPECIFIC */
+        /* NOTIFICATION CENTER */
         .notif-list { padding: 10px; display: flex; flex-direction: column; gap: 10px; }
         .notif-item { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 15px; position: relative; transition: all 0.2s; }
         .notif-item.unread { border-left: 4px solid var(--primary); background: #f0f9ff; }
@@ -518,6 +522,24 @@
         </div>
     </div>
 
+    <div id="month-select-modal" onclick="closeMonthModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div class="header-text">
+                    <h3><span class="material-icons-round" style="margin-right:10px">calendar_month</span> VAI AL MESE</h3>
+                    <span>Selezione Rapida</span>
+                </div>
+                <button class="btn-close-modal" onclick="closeMonthModal()">
+                    <span class="material-icons-round">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="month-grid" id="month-grid-container">
+                    </div>
+            </div>
+        </div>
+    </div>
+
     <div id="loader">
         <div id="auto-loader">
             <div class="spinner"></div>
@@ -652,19 +674,23 @@
     <header>
         <div class="top-bar">
             <div class="logo">
-                <img src="logo.png" style="height: 40px; width: auto; display:block;" alt="Logo" onerror="this.style.display='none'">
-                <div style="display:flex; flex-direction:column; line-height:1;">
-                    <span>TURNI INFERMIERI</span>
-                    <span id="last-update-badge" style="font-size:0.65rem; font-weight:500; color:var(--text-sec); margin-top:4px;"></span>
+                <img src="logo.png" style="height: 36px; width: auto; display:block;" alt="Logo" onerror="this.style.display='none'">
+                <div class="logo-text">
+                    <span>INFERMIERI 2026</span>
+                    <span id="last-update-badge" style="font-size:0.65rem; font-weight:500; color:var(--text-sec); margin-top:2px;"></span>
                 </div>
             </div>
             <div class="right-controls">
                 <button class="btn-action" onclick="vibrate(); window.open('https://centrale118rsm-code.github.io/Turni-Autisti-2026-Rsm/', '_blank')">
-                    <span style="font-weight:900; font-size:1.1rem; letter-spacing: -0.5px; color:var(--text-main);">A.S.</span>
+                    <span style="font-weight:900; font-size:1rem; letter-spacing: -0.5px; color:var(--text-main);">A.S.</span>
                 </button>
                 <button class="btn-action" onclick="vibrate(); scrollToToday()">
                     <span class="material-icons-round">home</span>
                 </button>
+                <button class="btn-action" onclick="openMonthModal()">
+                   <span class="material-icons-round">calendar_month</span>
+                </button>
+
                 <button class="btn-action" onclick="openNotifCenter()" style="position:relative">
                     <span class="material-icons-round">notifications</span>
                     <span id="notif-badge" class="badge-dot"></span>
@@ -679,7 +705,7 @@
                     <div class="menu-item" onclick="openStatsSelection()">
                         <span class="material-icons-round">bar_chart</span> Statistiche
                     </div>
-                     <div class="menu-item" onclick="openOptionsModal()">
+                      <div class="menu-item" onclick="openOptionsModal()">
                         <span class="material-icons-round">settings</span> Opzioni
                     </div>
                     <div class="menu-item" onclick="vibrate(); location.reload()">
@@ -688,7 +714,7 @@
                 </div>
             </div>
         </div>
-        <div class="nav-scroller" id="month-nav"></div>
+        
         <div class="driver-scroller" id="driver-nav"></div>
     </header>
 
@@ -726,6 +752,7 @@
         let watchedDrivers = new Set();
         let notifHistory = []; 
         let deferredPrompt;
+        let globalMonthsList = []; // Per tenere traccia dei mesi per il modale
         
         // VARIABILI PER SALVARE I DATI DEGLI AUTISTI
         let autistiData = [];
@@ -762,6 +789,43 @@
             const isDark = document.body.classList.contains('dark-mode');
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
             document.querySelector('#theme-color-meta').setAttribute('content', isDark ? '#0f172a' : '#ffffff');
+        }
+
+        // --- GESTIONE MODALE MESI VELOCE ---
+        function openMonthModal() {
+            vibrate();
+            const grid = document.getElementById('month-grid-container');
+            grid.innerHTML = "";
+            
+            if(globalMonthsList.length === 0) {
+                grid.innerHTML = "<div style='grid-column:1/-1; text-align:center;'>Nessun mese disponibile</div>";
+            } else {
+                globalMonthsList.forEach(m => {
+                    let btn = document.createElement('div');
+                    btn.className = 'month-btn';
+                    btn.innerText = m.name.substr(0, 3);
+                    btn.onclick = () => {
+                        vibrate();
+                        closeMonthModal();
+                        const el = document.getElementById(m.id);
+                        if(el) {
+                            window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - 120, behavior: "smooth" });
+                        }
+                    };
+                    grid.appendChild(btn);
+                });
+            }
+            
+            let m = document.getElementById('month-select-modal');
+            m.style.display = 'flex';
+            setTimeout(() => m.classList.add('open'), 10);
+        }
+
+        function closeMonthModal(e) {
+            if (e && e.target !== e.currentTarget) return;
+            let m = document.getElementById('month-select-modal');
+            m.classList.remove('open');
+            setTimeout(() => m.style.display = 'none', 200);
         }
 
         document.addEventListener('click', function(event) {
@@ -839,11 +903,8 @@
 
                 autistiData = parseHorizontalLayout(rawData);
                 
-                // CORREZIONE: Assicuriamoci di prendere TUTTI gli autisti
                 let header = autistiData[0];
                 autistiDrivers = [];
-                // Solitamente le prime 3 colonne sono Mese, Giorno, Nome/Vuoto.
-                // Scansioniamo finché troviamo colonne
                 for(let i=3; i<header.length; i++) {
                     if(header[i] && typeof header[i] === 'string' && header[i].trim().length > 0) {
                         autistiDrivers.push({name: header[i], idx: i});
@@ -930,7 +991,6 @@
 
             initNotificationOptions(); loadNotificationHistory(); renderTable(); startLiveClock(); setTimeout(scrollToToday, 600); setTimeout(checkForScheduleChanges, 2000);
 
-            // ---> MOSTRA IL POPUP DISCLAIMER INIZIALE <---
             setTimeout(() => {
                 let wm = document.getElementById('welcome-modal');
                 wm.style.display = 'flex';
@@ -1007,16 +1067,21 @@
         function startLiveClock() { setInterval(() => { const now = new Date(); document.querySelectorAll('.live-clock').forEach(el => el.innerText = `${now.toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'})} • ${now.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}`); }, 1000); }
 
         function renderTable() {
-            const thead = document.getElementById('table-head'); const tbody = document.getElementById('table-body'); const nav = document.getElementById('month-nav');
-            thead.innerHTML = ""; tbody.innerHTML = ""; nav.innerHTML = "";
+            const thead = document.getElementById('table-head'); const tbody = document.getElementById('table-body');
+            thead.innerHTML = ""; tbody.innerHTML = "";
             let cols = (selectedDrivers.size === 0) ? drivers : drivers.filter(d => selectedDrivers.has(d.idx));
             let thD = document.createElement('th'); thD.innerText = "DATA"; thD.style.left = "0"; thD.style.zIndex="95"; thead.appendChild(thD);
             cols.forEach(d => { let th = document.createElement('th'); th.innerText = d.name; thead.appendChild(th); });
 
-            let currentMonth = ""; let monthsFound = []; let year = 2026; const today = new Date();
+            let currentMonth = ""; globalMonthsList = []; let year = 2026; const today = new Date();
             for(let i = 1; i < finalData.length; i++) {
                 let row = finalData[i]; let mName = row[0].v; let dNum = parseInt(row[1].v);
-                if(mName && mName !== currentMonth) { currentMonth = mName; let mId = "m-" + i; monthsFound.push({name: mName, id: mId}); tbody.innerHTML += `<tr class="month-header" id="${mId}"><td colspan="${cols.length + 1}"><div class="sticky-month-text"><span class="month-label">${mName}</span><span class="live-clock"></span></div></td></tr>`; }
+                if(mName && mName !== currentMonth) { 
+                    currentMonth = mName; 
+                    let mId = "m-" + i; 
+                    globalMonthsList.push({name: mName, id: mId}); 
+                    tbody.innerHTML += `<tr class="month-header" id="${mId}"><td colspan="${cols.length + 1}"><div class="sticky-month-text"><span class="month-label">${mName}</span><span class="live-clock"></span></div></td></tr>`; 
+                }
                 let tr = document.createElement('tr'); let mIdx = MONTH_MAP[currentMonth]; let dateObj = new Date(year, mIdx, dNum);
                 let dayWeek = dateObj.toLocaleDateString('it-IT', { weekday: 'short' }).toUpperCase(); let dayIdx = dateObj.getDay(); 
                 let holKey = `${mIdx}-${dNum}`; let holidayName = HOLIDAYS[holKey]; let isRed = (dayIdx === 0 || dayIdx === 6 || holidayName);
@@ -1026,15 +1091,10 @@
                 
                 cols.forEach(d => {
                     let cellInfo = row[d.idx];
-                    
-                    // --- MODIFICA: PASSAGGIO INFO GIORNO PRECEDENTE ---
                     let prevRow = finalData[i-1];
                     let prevCellInfo = prevRow ? prevRow[d.idx] : null;
-                    
                     let td = document.createElement('td'); 
-                    // Passo anche prevCellInfo alla funzione di formattazione
                     td.innerHTML = formatCell(cellInfo, prevCellInfo);
-                    
                     let rawVal = cellInfo.v ? cellInfo.v.toString().trim() : "";
                     if(rawVal || (cellInfo.subV && cellInfo.subV.toString().trim())) {
                         td.setAttribute("onclick", `openShiftModal(${i}, '${rawVal}', '${mName}', ${dNum}, '${dayWeek}')`);
@@ -1043,17 +1103,6 @@
                 });
                 tbody.appendChild(tr);
             }
-            monthsFound.forEach(m => { 
-                let btn = document.createElement('div'); btn.className = "chip chip-month"; btn.innerText = m.name.substr(0,3); 
-                btn.onclick = () => { 
-                    vibrate(); 
-                    document.querySelectorAll('.chip-month').forEach(b => b.classList.remove('active')); 
-                    btn.classList.add('active'); 
-                    const el = document.getElementById(m.id); 
-                    window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - 195, behavior: "smooth" }); 
-                }; 
-                nav.appendChild(btn); 
-            });
         }
 
         // --- MODIFICA: FUNZIONE AGGIORNATA PER GESTIRE IL GIORNO PRECEDENTE ---
@@ -1093,19 +1142,15 @@
             if (isDiurnista) {
                 let time = SCHEDULE_DIURNI[val.toLowerCase()] || "";
                 let timeHtml = time ? `<div class="time-tag">${time}</div>` : "";
-                
                 let cls = "d-" + u;
                 if(!["M","P","R"].includes(u)) cls = "d-M";
-
                 return `<div class="cell ${cls}"><div>${display}</div>${timeHtml}</div>`;
             } else {
                 let time = SCHEDULE[u] || "";
                 let timeHtml = time ? `<div class="time-tag">${time}</div>` : "";
-                
                 let cls = "t-" + u;
                 if(u === "S" || u === "SM") cls = "t-S";
                 else if(!["M","P","N","R"].includes(u)) cls = "t-M";
-
                 return `<div class="cell ${cls}"><div>${display}</div>${timeHtml}</div>`;
             }
         }
@@ -1156,17 +1201,14 @@
                 let isWorking = (uVal === "M" || uVal === "P" || uVal === "N" || uVal === "SM");
                 let isMatch = false;
                 
-                // Se sto guardando un turno lavorativo, mostrami chi è in quel turno
                 if(["M","P","N","SM"].includes(uShift)) {
                     if(uVal === uShift) isMatch = true; 
                 } else {
-                    // Se sto guardando un riposo o altro, mostrami tutti quelli che lavorano quel giorno
                     if(isWorking) isMatch = true;
                 }
 
                 if(isMatch) {
                     let time = isD ? (SCHEDULE_DIURNI[val.toLowerCase()] || val) : (SCHEDULE[uVal] || uVal);
-                    // Badge Style
                     let badgeStyle = "background:#e2e8f0; color:#475569";
                     if(uVal==="M") badgeStyle = "background:#dbeafe; color:#1e40af";
                     if(uVal==="P") badgeStyle = "background:#ffedd5; color:#9a3412";
@@ -1182,30 +1224,23 @@
                 }
             });
 
-            // 2. CERCA AUTISTI (Logica corretta per trovarli TUTTI)
+            // 2. CERCA AUTISTI
             if(autistiData && autistiData.length > 0) {
-                // Trova la riga corretta in base a Mese e Giorno
                 let autistiMatch = autistiData.find(r => r[0].v === month && parseInt(r[1].v) === day);
-                
                 if(autistiMatch) {
                     autistiDrivers.forEach(d => {
                         let cell = autistiMatch[d.idx];
-                        // Gestione caso colonna mancante o undefined
                         if(!cell) return; 
-
                         let val = cell.v ? cell.v.toString().trim() : ""; 
                         let uVal = val.toUpperCase();
                         if(uVal === "S") uVal = "SM";
-                        
                         let isWorking = (uVal === "M" || uVal === "P" || uVal === "N" || uVal === "SM");
                         let isMatch = false;
-                        
                         if(["M","P","N","SM"].includes(uShift)) {
                             if(uVal === uShift) isMatch = true; 
                         } else {
                             if(isWorking) isMatch = true;
                         }
-
                         if(isMatch) {
                             let time = SCHEDULE[uVal] || uVal; 
                             foundDrivers.push({
@@ -1218,9 +1253,7 @@
                 }
             }
 
-            // 3. GENERAZIONE HTML MIGLIORATO
-            
-            // SEZIONE INFERMIERI
+            // 3. GENERAZIONE HTML
             if(foundNurses.length > 0) {
                 list.innerHTML += `<div class="modal-section-title"><span class="material-icons-round">local_hospital</span> INFERMIERI (${foundNurses.length})</div>`;
                 foundNurses.forEach(n => {
@@ -1240,7 +1273,6 @@
                 list.innerHTML += `<div style="padding:20px; text-align:center; color:#94a3b8; font-size:0.9rem">Nessun infermiere in questo turno.</div>`;
             }
 
-            // SEZIONE AUTISTI
             if(foundDrivers.length > 0) {
                 list.innerHTML += `<div class="modal-section-title" style="margin-top:10px; border-top:1px solid var(--border)"><span class="material-icons-round">ambulance</span> AUTISTI 118 (${foundDrivers.length})</div>`;
                 foundDrivers.forEach(d => {
@@ -1256,7 +1288,6 @@
                     </div>`;
                 });
             } else if (autistiDrivers.length > 0) {
-                // Mostra messaggio solo se gli autisti sono stati caricati ma non ce ne sono in turno
                 list.innerHTML += `<div style="padding:20px; text-align:center; color:#94a3b8; font-size:0.9rem; border-top:1px solid var(--border)">Nessun autista trovato in questo turno.</div>`;
             }
 
