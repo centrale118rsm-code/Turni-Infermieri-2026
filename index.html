@@ -92,7 +92,6 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
-        /* Modifica layout Header per mobile (CORREZIONE APPLICATA) */
         .top-bar { 
             padding: 0 10px; 
             display: flex; 
@@ -100,7 +99,7 @@
             align-items: center; 
             height: 60px; 
             flex-shrink: 0; 
-            gap: 15px; /* Aumentato il gap */
+            gap: 15px;
         }
         
         .logo { 
@@ -115,8 +114,8 @@
             flex-shrink: 1; 
             min-width: 0;
             overflow: hidden;
-            margin-right: auto; /* Spinge il logo a sinistra */
-            padding-right: 10px; /* Margine di sicurezza */
+            margin-right: auto;
+            padding-right: 10px;
         }
         .logo img { height: 36px; width: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); border-radius: 8px; cursor: pointer; }
         .logo-text { display: flex; flex-direction: column; line-height: 1; overflow: hidden; text-overflow: ellipsis; }
@@ -250,6 +249,20 @@
             margin-top: 2px; 
             letter-spacing: -0.3px; 
             white-space: nowrap;
+        }
+
+        /* --- STILE REPERIBILE (Tipo Autisti) --- */
+        .rep-badge { 
+            font-size: 0.55rem; 
+            color: #ffffff; 
+            margin-top: 2px;
+            font-weight: 900; 
+            background: linear-gradient(135deg, #ef4444, #dc2626); 
+            padding: 2px 6px; 
+            border-radius: 4px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+            letter-spacing: 0.5px;
+            display: inline-block;
         }
 
         /* STILI TURNISTI */
@@ -748,7 +761,7 @@
         let watchedDrivers = new Set();
         let notifHistory = []; 
         let deferredPrompt;
-        let globalMonthsList = []; // Per tenere traccia dei mesi per il modale
+        let globalMonthsList = []; 
         
         window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
         function installPWA() {
@@ -783,7 +796,6 @@
             document.querySelector('#theme-color-meta').setAttribute('content', isDark ? '#0f172a' : '#ffffff');
         }
 
-        // --- GESTIONE MODALE MESI VELOCE ---
         function openMonthModal() {
             vibrate();
             const grid = document.getElementById('month-grid-container');
@@ -828,7 +840,6 @@
         window.onload = async () => {
             try { const lastUp = new Date(document.lastModified); document.getElementById('last-update-badge').innerText = `Agg. ${lastUp.toLocaleDateString()} ${lastUp.toLocaleTimeString().slice(0,5)}`; } catch(e) {}
             
-            // 1. CARICAMENTO TURNI INFERMIERI (PRINCIPALE)
             try { 
                 const response = await fetch(FILE_NAME); 
                 if (!response.ok) throw new Error("File mancante"); 
@@ -882,6 +893,22 @@
                 if(raw[r] && raw[r][1] && typeof raw[r][1].v === 'string' && raw[r][1].v.length > 2) {
                     let n = raw[r][1].v.trim().toUpperCase();
                     if(n === "NAN" || seenNames.has(n)) continue; 
+                    
+                    let cleanNameForCheck = n.replace(/\s+/g, '');
+                    if (cleanNameForCheck.includes("P/PN") || 
+                        cleanNameForCheck.includes("P.S.") || 
+                        cleanNameForCheck.includes("1>7") || 
+                        cleanNameForCheck.includes("1-7") || 
+                        cleanNameForCheck.includes("ORA") ||
+                        cleanNameForCheck.includes("CONGEDO") ||
+                        cleanNameForCheck.includes("MALATTIA") ||
+                        cleanNameForCheck.includes("FERIE") ||
+                        cleanNameForCheck.includes("RECUPERO") ||
+                        cleanNameForCheck.includes("LEGENDA") ||
+                        /^[A-Z]{1,2}-/.test(cleanNameForCheck)) {
+                        continue;
+                    }
+
                     seenNames.add(n); nurseRows.push({ name: n, idx: r, subIdx: r + 1 });
                 }
             }
@@ -913,14 +940,17 @@
                 nurseRows.forEach(nurse => {
                     let cellMain = raw[nurse.idx][c] || {v: ""};
                     let cellSub = (raw[nurse.subIdx] && raw[nurse.subIdx][c]) ? raw[nurse.subIdx][c] : {v: ""};
-                    dataRow.push({ v: cellMain.v, subV: cellSub.v });
+                    
+                    // --- LETTURA RIGA SUPERIORE ---
+                    let cellSup = (raw[nurse.idx - 1] && raw[nurse.idx - 1][c]) ? raw[nurse.idx - 1][c] : {v: ""};
+                    
+                    dataRow.push({ v: cellMain.v, subV: cellSub.v, supV: cellSup.v });
                 });
                 processed.push(dataRow);
             }
             return processed;
         }
 
-        // FUNZIONE PER CHIUDERE IL DISCLAIMER INIZIALE
         function closeWelcomeModal() {
             vibrate(); 
             let m = document.getElementById('welcome-modal'); 
@@ -952,7 +982,6 @@
             }, 800);
         }
 
-        /* --- NOTIFICHE E MONITORAGGIO --- */
         function initNotificationOptions() {
             const list = document.getElementById('notification-driver-list'); if(!list) return; list.innerHTML = "";
             const saved = localStorage.getItem('watched_nurses_ids'); if(saved) watchedDrivers = new Set(JSON.parse(saved));
@@ -1059,27 +1088,27 @@
         }
 
         function formatCell(info, prevInfo) {
+            let val = info.v ? info.v.toString().trim() : "";
             let subVal = info.subV ? info.subV.toString().trim().toLowerCase() : "";
             let prevSubVal = (prevInfo && prevInfo.subV) ? prevInfo.subV.toString().trim().toLowerCase() : "";
             
-            // LOGICA PERMESSO NOTTE (PN): Se c'è PN oggi o c'era IERI, mostra PN
-            if(subVal === "pn" || prevSubVal === "pn") {
-                return `<div class="cell spec-pn">PERMESSO<br>NOTTE</div>`;
-            }
+            // --- CATTURA REPERIBILITÀ DALLA RIGA SUPERIORE ---
+            let supVal = info.supV ? info.supV.toString().replace(/\s+/g, '').toLowerCase() : "";
+            let isReperibile = supVal.includes("m/r") || supVal.includes("p/r") || supVal.includes("n/r");
+            let repHtml = isReperibile ? `<div class="rep-badge">REPERIBILE</div>` : "";
 
-            if(subVal === "v") return `<div class="cell spec-ferie">FERIE<br>RESIDUE</div>`;
-            if(subVal === "r") return `<div class="cell spec-rec">RECUPERO</div>`;
-            if(subVal === "f") return `<div class="cell spec-cong">CONGEDO<br>ORD.</div>`;
-            if(subVal === "m") return `<div class="cell spec-mal">MALATTIA</div>`;
-            if(subVal === "nl") return `<div class="cell spec-nl">FESTIVO<br>NON LAV.</div>`;
-            if(subVal === "p") return `<div class="cell spec-perm">PERMESSO</div>`;
-            if(subVal === "ng") return `<div class="cell spec-ng">FESTIVO<br>NON GOD.</div>`;
-            if(subVal === "c") return `<div class="cell spec-stu">PERMESSO<br>STUDIO</div>`;
+            if(subVal === "pn" || prevSubVal === "pn") return `<div class="cell spec-pn">PERMESSO<br>NOTTE${repHtml}</div>`;
+            if(subVal === "v") return `<div class="cell spec-ferie">FERIE<br>RESIDUE${repHtml}</div>`;
+            if(subVal === "r") return `<div class="cell spec-rec">RECUPERO${repHtml}</div>`;
+            if(subVal === "f") return `<div class="cell spec-cong">CONGEDO<br>ORD.${repHtml}</div>`;
+            if(subVal === "m") return `<div class="cell spec-mal">MALATTIA${repHtml}</div>`;
+            if(subVal === "nl") return `<div class="cell spec-nl">FESTIVO<br>NON LAV.${repHtml}</div>`;
+            if(subVal === "p") return `<div class="cell spec-perm">PERMESSO${repHtml}</div>`;
+            if(subVal === "ng") return `<div class="cell spec-ng">FESTIVO<br>NON GOD.${repHtml}</div>`;
+            if(subVal === "c") return `<div class="cell spec-stu">PERMESSO<br>STUDIO${repHtml}</div>`;
 
-            let val = info.v ? info.v.toString().trim() : ""; 
-            if(!val || val === "-") return `<div class="cell empty">-</div>`;
+            if(!val || val === "-") return `<div class="cell empty">${val ? val : "-"}${repHtml}</div>`;
             
-            // LOGICA DIURNISTI
             let firstChar = val.charAt(0);
             let isDiurnista = (firstChar >= 'a' && firstChar <= 'z');
             let u = val.toUpperCase();
@@ -1096,18 +1125,17 @@
                 let timeHtml = time ? `<div class="time-tag">${time}</div>` : "";
                 let cls = "d-" + u;
                 if(!["M","P","R"].includes(u)) cls = "d-M";
-                return `<div class="cell ${cls}"><div>${display}</div>${timeHtml}</div>`;
+                return `<div class="cell ${cls}"><div>${display}</div>${timeHtml}${repHtml}</div>`;
             } else {
                 let time = SCHEDULE[u] || "";
                 let timeHtml = time ? `<div class="time-tag">${time}</div>` : "";
                 let cls = "t-" + u;
                 if(u === "S" || u === "SM") cls = "t-S";
                 else if(!["M","P","N","R"].includes(u)) cls = "t-M";
-                return `<div class="cell ${cls}"><div>${display}</div>${timeHtml}</div>`;
+                return `<div class="cell ${cls}"><div>${display}</div>${timeHtml}${repHtml}</div>`;
             }
         }
 
-        // --- APERTURA MODALE CON SOLO INFERMIERI ---
         function openShiftModal(rowIndex, cellValue, month, day, weekDay) {
             vibrate();
             let modal = document.getElementById('shift-modal'); 
@@ -1118,7 +1146,6 @@
             let uShift = valStr.toUpperCase();
             if(uShift === "S") uShift = "SM";
             
-            // Tema Colore Modale
             content.className = "modal-content"; 
             if(uShift === "M") content.classList.add("modal-theme-M");
             else if(uShift === "P") content.classList.add("modal-theme-P");
@@ -1141,12 +1168,12 @@
             
             let foundNurses = [];
 
-            // 1. CERCA INFERMIERI
             drivers.forEach(d => {
                 let cell = rowData[d.idx];
                 let val = cell.v ? cell.v.toString().trim() : ""; 
                 let uVal = val.toUpperCase();
                 if(uVal === "S") uVal = "SM";
+                
                 let isD = val.length > 0 && val.charAt(0) >= 'a' && val.charAt(0) <= 'z';
                 
                 let isWorking = (uVal === "M" || uVal === "P" || uVal === "N" || uVal === "SM");
@@ -1160,6 +1187,13 @@
 
                 if(isMatch) {
                     let time = isD ? (SCHEDULE_DIURNI[val.toLowerCase()] || val) : (SCHEDULE[uVal] || uVal);
+                    
+                    // --- MOSTRA REPERIBILITÀ ANCHE NEL POPUP ---
+                    let supVal = cell.supV ? cell.supV.toString().replace(/\s+/g, '').toLowerCase() : "";
+                    if (supVal.includes("m/r") || supVal.includes("p/r") || supVal.includes("n/r")) {
+                        time += ` &nbsp; <span style="color:#ef4444; font-weight:900; font-size: 0.75rem;">(REPERIBILE)</span>`;
+                    }
+
                     let badgeStyle = "background:#e2e8f0; color:#475569";
                     if(uVal==="M") badgeStyle = "background:#dbeafe; color:#1e40af";
                     if(uVal==="P") badgeStyle = "background:#ffedd5; color:#9a3412";
@@ -1175,7 +1209,6 @@
                 }
             });
 
-            // 2. GENERAZIONE HTML
             if(foundNurses.length > 0) {
                 foundNurses.forEach(n => {
                     let initials = n.name.substring(0,2).toUpperCase();
