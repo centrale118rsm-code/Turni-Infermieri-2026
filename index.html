@@ -117,15 +117,15 @@
         .action-circle:active { transform: scale(0.9); background: var(--bg); }
         .action-circle .material-icons-round { font-size: 20px; }
         
-        .action-pill {
-            height: 38px; padding: 0 12px; border-radius: 20px; border: none;
+        .action-circle-as {
+            width: 38px; height: 38px; border-radius: 50%; border: none;
             background: var(--primary); color: white; font-weight: 800; font-size: 0.85rem;
-            display: flex; align-items: center; gap: 6px; cursor: pointer; transition: 0.2s;
+            display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; transition: 0.2s;
             box-shadow: 0 4px 10px rgba(37,99,235,0.3); letter-spacing: 0.5px;
         }
-        .action-pill:active { transform: scale(0.95); opacity: 0.9; }
-        .action-pill .material-icons-round { font-size: 18px; }
-        
+        .action-circle-as:active { transform: scale(0.9); opacity: 0.9; }
+
         .badge-dot {
             position: absolute; top: 0px; right: 0px;
             width: 10px; height: 10px; background: #ef4444;
@@ -670,8 +670,8 @@
             </div>
             
             <div class="app-actions">
-                <button class="action-pill" onclick="vibrate(); window.open('https://centrale118rsm-code.github.io/Turni-Autisti-2026-Rsm/', '_blank')">
-                    <span class="material-icons-round">local_ambulance</span> A.S.
+                <button class="action-circle-as" onclick="vibrate(); window.open('https://centrale118rsm-code.github.io/Turni-Autisti-2026-Rsm/', '_blank')">
+                    A.S.
                 </button>
                 
                 <button class="action-circle" onclick="vibrate(); scrollToToday()">
