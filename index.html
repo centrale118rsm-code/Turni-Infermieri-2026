@@ -11,6 +11,7 @@
     <meta name="apple-mobile-web-app-title" content="Infermieri 26">
     <meta name="description" content="Gestione Turni Infermieri 2026">
     
+    <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="logo.png">
     <link rel="icon" type="image/png" href="logo.png">
     
@@ -117,11 +118,7 @@
             padding-right: 10px;
         }
         .logo img { height: 36px; width: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); border-radius: 8px; cursor: pointer; }
-        .logo-text { display: flex; flex-direction: column; line-height: 1; overflow: hidden; text-overflow: ellipsis; }
-        
-        @media (max-width: 360px) {
-            #last-update-badge { display: none; }
-        }
+        .logo-text { display: flex; flex-direction: column; line-height: 1; overflow: hidden; justify-content: center; }
 
         .right-controls { display: flex; gap: 5px; position: relative; flex-shrink: 0; }
 
@@ -250,19 +247,16 @@
             white-space: nowrap;
         }
 
-        /* --- STILE REPERIBILE (Tipo Autisti) --- */
-        .rep-badge { 
-            font-size: 0.55rem; 
-            color: #ffffff; 
+        /* --- STILE REPERIBILE IN GRASSETTO ROSSO --- */
+        .rep-text { 
+            font-size: 0.7rem; 
+            color: #dc2626; 
             margin-top: 2px;
             font-weight: 900; 
-            background: linear-gradient(135deg, #ef4444, #dc2626); 
-            padding: 2px 6px; 
-            border-radius: 4px; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
             letter-spacing: 0.5px;
-            display: inline-block;
+            text-shadow: 0 0 3px rgba(255,255,255,0.8);
         }
+        body.dark-mode .rep-text { color: #f87171; text-shadow: 0 0 3px rgba(0,0,0,0.8); }
 
         /* STILI TURNISTI */
         .t-M { background: var(--c-M); color: var(--t-M); border: 1px solid var(--b-M); }
@@ -703,9 +697,8 @@
         <div class="top-bar">
             <div class="logo">
                 <img src="logo.png" style="height: 36px; width: auto; display:block;" alt="Logo" onerror="this.style.display='none'">
-                <div class="logo-text">
-                    <span>INFERMIERI 2026</span>
-                    <span id="last-update-badge" style="font-size:0.65rem; font-weight:500; color:var(--text-sec); margin-top:2px;"></span>
+                <div class="logo-text" style="justify-content: center;">
+                    <span id="last-update-badge" style="font-size:0.85rem; font-weight:700; color:var(--text-main);"></span>
                 </div>
             </div>
             <div class="right-controls">
@@ -1008,7 +1001,6 @@
                 let wm = document.getElementById('welcome-modal');
                 wm.style.display = 'flex';
                 setTimeout(() => wm.classList.add('open'), 50);
-                // NOTA: il comando vibrate() qui è stato rimosso per evitare l'errore del browser all'avvio
             }, 800);
         }
 
@@ -1111,8 +1103,9 @@
                     if (val === "P") countP++;
                 });
                 
-                let hasGraziellaM = countM >= 3;
-                let hasGraziellaP = countP >= 3;
+                // Si attiva ESATTAMENTE se il totale della mattina è 3 o il totale del pomeriggio è 3
+                let hasGraziellaM = countM === 3;
+                let hasGraziellaP = countP === 3;
                 // --- FINE LOGICA GRAZIELLA ---
 
                 cols.forEach(d => {
@@ -1143,8 +1136,8 @@
             
             // --- CATTURA REPERIBILITÀ DALLA RIGA SUPERIORE ---
             let supVal = info.supV ? info.supV.toString().replace(/\s+/g, '').toLowerCase() : "";
-            let isReperibile = supVal.includes("m/r") || supVal.includes("p/r") || supVal.includes("n/r");
-            let repHtml = isReperibile ? `<div class="rep-badge">REPERIBILE</div>` : "";
+            let isReperibile = supVal.includes("m/r");
+            let repHtml = isReperibile ? `<div class="rep-text">REPERIBILE</div>` : "";
 
             if(subVal === "pn" || prevSubVal === "pn") return `<div class="cell spec-pn">PERMESSO<br>NOTTE${repHtml}</div>`;
             if(subVal === "v") return `<div class="cell spec-ferie">FERIE<br>RESIDUE${repHtml}</div>`;
@@ -1242,7 +1235,7 @@
                     
                     // --- MOSTRA REPERIBILITÀ ANCHE NEL POPUP ---
                     let supVal = cell.supV ? cell.supV.toString().replace(/\s+/g, '').toLowerCase() : "";
-                    if (supVal.includes("m/r") || supVal.includes("p/r") || supVal.includes("n/r")) {
+                    if (supVal.includes("m/r")) {
                         time += ` &nbsp; <span style="color:#ef4444; font-weight:900; font-size: 0.75rem;">(REPERIBILE)</span>`;
                     }
 
