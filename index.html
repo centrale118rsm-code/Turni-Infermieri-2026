@@ -34,12 +34,11 @@
             --border: #e2e8f0;
             --header-bg: rgba(255, 255, 255, 0.92);
             
-            /* ALTEZZA HEADER RIDOTTA */
             --header-h: 100px;        
             --cell-h: 65px;                
             --th-h: 40px;                 
             
-            /* COLORI TURNISTI (Pieni, testo bianco) */
+            /* COLORI TURNISTI */
             --c-M: #026bfe; --t-M: #ffffff; --b-M: #bae6fd;
             --c-P: #56a2ff; --t-P: #ffffff; --b-P: #c7d2fe;
             --c-N: #003785; --t-N: #ffffff; --b-N: #c7d2fe;
@@ -55,7 +54,6 @@
             --bg-perm: #00e749; --t-perm: #000000; --b-perm: #004e1c;
             --bg-ng: #00bfff; --t-ng: #ffffff; --b-ng: #0099cc;
             --bg-stu: #3b82f6; --t-stu: #ffffff; --b-stu: #1d4ed8;
-            /* Permesso Notte (Verde Scuro) */
             --bg-pn: #14532d; --t-pn: #ffffff; --b-pn: #052e16;
 
             --month-bar-bg: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
@@ -103,22 +101,28 @@
         }
         
         .logo { 
-            font-size: 1rem; 
-            font-weight: 900; 
-            color: var(--text-main); 
             display: flex; 
             align-items: center; 
             gap: 8px; 
-            letter-spacing: -0.5px;
-            white-space: nowrap; 
             flex-shrink: 1; 
             min-width: 0;
-            overflow: hidden;
             margin-right: auto;
-            padding-right: 10px;
         }
         .logo img { height: 36px; width: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); border-radius: 8px; cursor: pointer; }
-        .logo-text { display: flex; flex-direction: column; line-height: 1; overflow: hidden; justify-content: center; }
+        
+        .logo-text { 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            white-space: normal; 
+            line-height: 1.2;
+        }
+        #last-update-badge {
+            font-size: 0.75rem; 
+            font-weight: 700; 
+            color: var(--text-sec);
+            word-wrap: break-word;
+        }
 
         .right-controls { display: flex; gap: 5px; position: relative; flex-shrink: 0; }
 
@@ -180,7 +184,6 @@
         }
         thead th:first-child, .td-date { width: 60px !important; min-width: 60px !important; max-width: 60px !important; }
 
-        /* --- STILE BARRA MESE --- */
         tr.month-header td {
             background: var(--month-bar-bg);
             color: white; 
@@ -225,14 +228,14 @@
         body.dark-mode .holiday-name { color: #f87171; }
 
         .cell { 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            display: flex; flex-direction: column; align-items: center; justify-content: space-between; 
             height: 100%; width: 100%; border-radius: 10px; font-weight: 800; 
             font-size: 0.75rem; 
             letter-spacing: -0.2px;
             text-transform: uppercase; position: relative; 
             line-height: 1.1; text-align: center; cursor: pointer;
             box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: transform 0.1s;
-            padding: 2px 0; 
+            padding: 3px 0; 
         }
         .cell:active { transform: scale(0.96); }
         body.dark-mode .cell.empty { color: #475569; }
@@ -247,14 +250,16 @@
             white-space: nowrap;
         }
 
-        /* --- STILE REPERIBILE IN GRASSETTO ROSSO --- */
+        /* --- STILE REPERIBILE ALLINEATO IN BASSO --- */
         .rep-text { 
-            font-size: 0.7rem; 
+            font-size: 0.65rem; 
             color: #dc2626; 
-            margin-top: 2px;
+            margin-top: auto; /* SPINGE IN BASSO */
+            padding-bottom: 2px;
             font-weight: 900; 
             letter-spacing: 0.5px;
             text-shadow: 0 0 3px rgba(255,255,255,0.8);
+            line-height: 1;
         }
         body.dark-mode .rep-text { color: #f87171; text-shadow: 0 0 3px rgba(0,0,0,0.8); }
 
@@ -291,7 +296,7 @@
         body.dark-mode tr.today td { background: #431407 !important; border-bottom: 2px solid #ea580c !important; }
         body.dark-mode tr.today .td-date { background: #431407; color: #fdba74; }
 
-        /* LOADER */
+        /* LOADER & MODALS (Stili Generici) */
         #loader { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; padding: 20px;}
         .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite; margin-bottom: 20px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -301,7 +306,6 @@
         .file-label:active { transform: scale(0.96); }
         input[type="file"] { display: none; }
         
-        /* MODALI */
         #shift-modal, #dinner-modal, #options-modal, #notif-center-modal, #month-select-modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); z-index: 3000; backdrop-filter: blur(8px); align-items: flex-end; justify-content: center; opacity: 0; transition: opacity 0.3s; }
         #shift-modal.open, #dinner-modal.open, #options-modal.open, #notif-center-modal.open, #month-select-modal.open { opacity: 1; }
         .modal-content { background: var(--bg-card); width: 100%; max-width: 600px; border-radius: 24px 24px 0 0; box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.3); overflow: hidden; transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); max-height: 85vh; display: flex; flex-direction: column; }
@@ -315,7 +319,6 @@
         
         .modal-body { padding: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
 
-        /* SPECIFICO MODALE MESI */
         .month-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 20px; }
         .month-btn { 
             aspect-ratio: 2/1; background: var(--bg); border: 1px solid var(--border); 
@@ -325,58 +328,23 @@
         }
         .month-btn:active { transform: scale(0.96); background: var(--bg-card); }
 
-        /* POPUP TURNI */
-        .modal-section-title {
-            padding: 16px 20px 8px 20px;
-            font-size: 0.75rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-sec);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--bg);
-            position: sticky;
-            top: 0;
-            z-index: 5;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .colleague-card {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 14px 20px; background: var(--bg-card);
-            border-bottom: 1px solid var(--border); transition: background 0.2s;
-        }
+        .modal-section-title { padding: 16px 20px 8px 20px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--text-sec); display: flex; align-items: center; gap: 8px; background: var(--bg); position: sticky; top: 0; z-index: 5; border-bottom: 1px solid var(--border); }
+        .colleague-card { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background: var(--bg-card); border-bottom: 1px solid var(--border); transition: background 0.2s; }
         .colleague-card:last-child { border-bottom: none; }
         .colleague-card:active { background: var(--bg); }
-
-        .col-avatar {
-            width: 42px; height: 42px; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 800; font-size: 1.1rem; margin-right: 14px;
-            flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-
+        .col-avatar { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.1rem; margin-right: 14px; flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .col-info { flex: 1; display: flex; flex-direction: column; justify-content: center; }
         .col-name { font-weight: 700; font-size: 0.95rem; color: var(--text-main); line-height: 1.2; }
         .col-role { font-size: 0.7rem; font-weight: 600; color: var(--text-sec); margin-top: 2px; }
-
-        .col-badge {
-            font-size: 0.75rem; font-weight: 800; padding: 6px 10px;
-            border-radius: 8px; min-width: 35px; text-align: center;
-        }
-
+        .col-badge { font-size: 0.75rem; font-weight: 800; padding: 6px 10px; border-radius: 8px; min-width: 35px; text-align: center; }
         .nurse-highlight .col-avatar { background: var(--primary); color: white; border: 2px solid #1e40af; }
         
-        /* Modal Themes */
         .modal-theme-M .modal-header { background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%); } .modal-theme-M .header-text h3 { color: #0c4a6e; } 
         .modal-theme-P .modal-header { background: linear-gradient(135deg, #e0e7ff 0%, #eef2ff 100%); } .modal-theme-P .header-text h3 { color: #312e81; } 
         .modal-theme-N .modal-header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); } .modal-theme-N .header-text h3 { color: white; } .modal-theme-N .header-text span { color: #94a3b8; } .modal-theme-N .btn-close-modal { background: #334155; color: white; } 
         .modal-theme-R .modal-header { background: linear-gradient(135deg, #dcfce7 0%, #ecfdf5 100%); } .modal-theme-R .header-text h3 { color: #064e3b; } 
         .modal-theme-SM .modal-header { background: linear-gradient(135deg, #64748b 0%, #94a3b8 100%); } .modal-theme-SM .header-text h3 { color: white; }
 
-        /* OPTIONS MODAL SPECIFIC */
         .option-item { padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); font-weight: 600; color: var(--text-main); }
         .option-item:last-child { border-bottom: none; }
         .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
@@ -386,7 +354,6 @@
         input:checked + .slider { background-color: var(--primary); }
         input:checked + .slider:before { transform: translateX(22px); }
         
-        /* NOTIFICATION CENTER */
         .notif-list { padding: 10px; display: flex; flex-direction: column; gap: 10px; }
         .notif-item { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 15px; position: relative; transition: all 0.2s; }
         .notif-item.unread { border-left: 4px solid var(--primary); background: #f0f9ff; }
@@ -394,13 +361,9 @@
         .notif-date { font-size: 0.7rem; color: var(--text-sec); margin-bottom: 4px; font-weight: 600; }
         .notif-text { font-size: 0.9rem; color: var(--text-main); line-height: 1.4; }
         .btn-del-notif { position: absolute; top: 10px; right: 10px; color: #ef4444; background: none; border: none; cursor: pointer; padding: 5px; border-radius: 50%; }
-        .btn-del-notif:active { background: rgba(239, 68, 68, 0.1); }
         .no-notif { text-align: center; padding: 40px 20px; color: var(--text-sec); font-size: 0.9rem; }
-
         .btn-install { background: var(--text-main); color: var(--bg); border: none; padding: 10px 18px; border-radius: 12px; font-weight: 700; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .btn-install:active { transform: scale(0.96); }
 
-        /* MODALE CENA / STATISTICHE... */
         .dinner-checkbox-list { padding: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .dinner-check-item { background: var(--bg-card); padding: 12px; border-radius: 12px; border: 1px solid var(--border); display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: var(--text-sec); transition: all 0.2s; }
         .dinner-check-item.checked { background: var(--bg); border-color: var(--primary); color: var(--primary); box-shadow: 0 2px 4px rgba(37,99,235,0.1); }
@@ -420,16 +383,13 @@
         .d-res-score { background: #dcfce7; color: #15803d; font-weight: 700; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; }
         .missing-list { display: flex; flex-wrap: wrap; gap: 6px; }
         .missing-badge { background: #fee2e2; color: #b91c1c; font-size: 0.75rem; font-weight: 600; padding: 4px 8px; border-radius: 6px; }
-        .warning-badge { background: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; font-size: 0.75rem; font-weight: 700; padding: 4px 8px; border-radius: 6px; display:inline-flex; align-items:center; gap:4px; }
-
-        /* MODALE STATISTICHE */
+        
         #stats-modal { display: none; position: fixed; inset: 0; background: var(--bg-card); z-index: 4000; flex-direction: column; overflow: hidden; animation: slideInRight 0.3s ease; }
         #stats-modal.open { display: flex; }
         @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
         .stats-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); background: var(--bg-card); }
         .stats-body { flex: 1; overflow-y: auto; padding: 20px; background: var(--bg); -webkit-overflow-scrolling: touch; }
         .driver-list-item { padding: 18px; border-bottom: 1px solid var(--border); font-weight: 700; color: var(--text-main); cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); margin-bottom: 10px; border-radius: 14px; box-shadow: var(--shadow-soft); transition: 0.2s; }
-        .driver-list-item:active { transform: scale(0.98); background: var(--bg); }
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px; }
         .stat-card { background: var(--bg-card); padding: 16px; border-radius: 18px; border: 1px solid var(--border); text-align: center; box-shadow: var(--shadow-soft); display:flex; flex-direction:column; justify-content:center; }
         .stat-val { font-size: 2rem; font-weight: 900; display: block; margin-bottom: 4px; line-height: 1; letter-spacing: -1px; color: var(--text-main); }
@@ -442,7 +402,6 @@
         .sc-fest { color: #0369a1; border-color: #7dd3fc; background: #f0f9ff; }
         .sc-rec { color: var(--b-rec); border-color: var(--bg-rec); background: #fdf2f8; }
         
-        /* MODALI AVVISI */
         #alert-modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); z-index: 9999; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; padding: 20px; }
         #alert-modal.open { opacity: 1; }
         .alert-card { background: var(--bg-card); width: 100%; max-width: 400px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); overflow: hidden; transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid var(--border); }
@@ -453,33 +412,14 @@
         .alert-body { padding: 24px; font-size: 1rem; color: var(--text-main); line-height: 1.5; }
         .alert-footer { padding: 0 24px 24px; }
         .btn-alert-ok { width: 100%; padding: 14px; border-radius: 14px; border: none; background: #d97706; color: white; font-weight: 800; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-alert-ok:active { transform: scale(0.98); }
         
-        /* MODALE AVVISO INIZIALE (DISCLAIMER) */
         #welcome-modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); z-index: 10000; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.4s ease; padding: 20px; }
         #welcome-modal.open { opacity: 1; }
         #welcome-modal .alert-card { transform: scale(0.85); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         #welcome-modal.open .alert-card { transform: scale(1); }
 
-        /* --- STILE ICONA GRAZIELLA --- */
-        .graziella-icon {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            width: 26px;
-            height: 26px;
-            border-radius: 50%;
-            border: 2px solid var(--bg-card);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-            z-index: 10;
-            background: #fff;
-            object-fit: cover;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        .graziella-icon:active {
-            transform: scale(0.85);
-        }
+        .graziella-icon { position: absolute; top: -8px; right: -8px; width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--bg-card); box-shadow: 0 2px 5px rgba(0,0,0,0.3); z-index: 10; background: #fff; object-fit: cover; cursor: pointer; transition: transform 0.2s; }
+        .graziella-icon:active { transform: scale(0.85); }
     </style>
 </head>
 <body>
@@ -556,8 +496,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <div class="month-grid" id="month-grid-container">
-                    </div>
+                <div class="month-grid" id="month-grid-container"></div>
             </div>
         </div>
     </div>
@@ -697,8 +636,8 @@
         <div class="top-bar">
             <div class="logo">
                 <img src="logo.png" style="height: 36px; width: auto; display:block;" alt="Logo" onerror="this.style.display='none'">
-                <div class="logo-text" style="justify-content: center;">
-                    <span id="last-update-badge" style="font-size:0.85rem; font-weight:700; color:var(--text-main);"></span>
+                <div class="logo-text">
+                    <span id="last-update-badge"></span>
                 </div>
             </div>
             <div class="right-controls">
@@ -767,7 +706,6 @@
             "r": "RIPOSO"
         };
 
-        // --- AUDIO GRAZIELLA ---
         const audioGraziella = new Audio('graziella.mp3');
         function playGraziella() {
             if(navigator.vibrate) navigator.vibrate(10);
@@ -861,7 +799,12 @@
         });
 
         window.onload = async () => {
-            try { const lastUp = new Date(document.lastModified); document.getElementById('last-update-badge').innerText = `Agg. ${lastUp.toLocaleDateString()} ${lastUp.toLocaleTimeString().slice(0,5)}`; } catch(e) {}
+            try { 
+                const lastUp = new Date(document.lastModified); 
+                const dateStr = lastUp.toLocaleDateString('it-IT', {day: '2-digit', month: '2-digit', year: '2-digit'});
+                const timeStr = lastUp.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'});
+                document.getElementById('last-update-badge').innerHTML = `Agg. ${dateStr}<br><span style="color:var(--primary)">Ore: ${timeStr}</span>`;
+            } catch(e) {}
             
             try { 
                 const response = await fetch(FILE_NAME); 
@@ -963,10 +906,7 @@
                 nurseRows.forEach(nurse => {
                     let cellMain = raw[nurse.idx][c] || {v: ""};
                     let cellSub = (raw[nurse.subIdx] && raw[nurse.subIdx][c]) ? raw[nurse.subIdx][c] : {v: ""};
-                    
-                    // --- LETTURA RIGA SUPERIORE ---
                     let cellSup = (raw[nurse.idx - 1] && raw[nurse.idx - 1][c]) ? raw[nurse.idx - 1][c] : {v: ""};
-                    
                     dataRow.push({ v: cellMain.v, subV: cellSub.v, supV: cellSup.v });
                 });
                 processed.push(dataRow);
@@ -1070,6 +1010,12 @@
         function updateDriverButtons() { const allBtn = document.querySelector('.chip-driver[data-idx="all"]'); if(selectedDrivers.size === 0) allBtn.classList.add('active'); else allBtn.classList.remove('active'); document.querySelectorAll('.chip-driver:not([data-idx="all"])').forEach(btn => { const idx = parseInt(btn.dataset.idx); if(selectedDrivers.has(idx)) btn.classList.add('active'); else btn.classList.remove('active'); }); }
         function startLiveClock() { setInterval(() => { const now = new Date(); document.querySelectorAll('.live-clock').forEach(el => el.innerText = `${now.toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'})} • ${now.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}`); }, 1000); }
 
+        // --- FUNZIONE PER CAPIRE SE UNA STRINGA CONTIENE REPERIBILITÀ ---
+        function isRepStr(str) {
+            let s = str.toLowerCase().replace(/\s+/g, '');
+            return s.includes("m/r") || s.includes("p/r") || s.includes("n/r") || s.includes("s/r") || s.includes("sm/r");
+        }
+
         function renderTable() {
             const thead = document.getElementById('table-head'); const tbody = document.getElementById('table-body');
             thead.innerHTML = ""; tbody.innerHTML = "";
@@ -1093,27 +1039,37 @@
                 if(mIdx === today.getMonth() && dNum === today.getDate() && today.getFullYear() === year) { tr.className = "today"; tr.id = "today-row"; }
                 tr.innerHTML = `<td class="${dateClass}">${dNum}<small>${dayWeek}</small>${holidayName ? `<div class="holiday-name">${holidayName}</div>` : ""}</td>`;
                 
-                // --- INIZIO LOGICA GRAZIELLA ---
                 let countM = 0;
                 let countP = 0;
                 drivers.forEach(d => {
                     let cellInfo = row[d.idx];
-                    let val = cellInfo.v ? cellInfo.v.toString().trim().toUpperCase() : "";
-                    if (val === "M") countM++;
-                    if (val === "P") countP++;
+                    let v = cellInfo.v ? cellInfo.v.toString().trim() : "";
+                    
+                    if (isRepStr(v)) {
+                        let sI = v.indexOf('/');
+                        if (sI !== -1) v = v.substring(0, sI).trim();
+                    }
+                    
+                    let u = v.toUpperCase();
+                    if (u === "M") countM++;
+                    if (u === "P") countP++;
                 });
                 
-                // Si attiva ESATTAMENTE se il totale della mattina è 3 o il totale del pomeriggio è 3
                 let hasGraziellaM = countM === 3;
                 let hasGraziellaP = countP === 3;
-                // --- FINE LOGICA GRAZIELLA ---
 
                 cols.forEach(d => {
                     let cellInfo = row[d.idx];
                     let prevRow = finalData[i-1];
                     let prevCellInfo = prevRow ? prevRow[d.idx] : null;
 
-                    let uVal = cellInfo.v ? cellInfo.v.toString().trim().toUpperCase() : "";
+                    // per calcolare chi vede graziella facciamo lo stesso mini extract
+                    let v = cellInfo.v ? cellInfo.v.toString().trim() : "";
+                    if (isRepStr(v)) {
+                        let sI = v.indexOf('/');
+                        if (sI !== -1) v = v.substring(0, sI).trim();
+                    }
+                    let uVal = v.toUpperCase();
                     let showGraziella = (uVal === "M" && hasGraziellaM) || (uVal === "P" && hasGraziellaP);
 
                     let td = document.createElement('td'); 
@@ -1121,7 +1077,7 @@
                     
                     let rawVal = cellInfo.v ? cellInfo.v.toString().trim() : "";
                     if(rawVal || (cellInfo.subV && cellInfo.subV.toString().trim())) {
-                        td.setAttribute("onclick", `openShiftModal(${i}, '${rawVal}', '${mName}', ${dNum}, '${dayWeek}')`);
+                        td.setAttribute("onclick", `openShiftModal(${i}, '${rawVal.replace(/'/g, "\\'")}', '${mName}', ${dNum}, '${dayWeek}')`);
                     }
                     tr.appendChild(td);
                 });
@@ -1130,24 +1086,37 @@
         }
 
         function formatCell(info, prevInfo, showGraziella = false) {
-            let val = info.v ? info.v.toString().trim() : "";
+            let rawValStr = info.v ? info.v.toString().trim() : "";
+            let val = rawValStr;
             let subVal = info.subV ? info.subV.toString().trim().toLowerCase() : "";
             let prevSubVal = (prevInfo && prevInfo.subV) ? prevInfo.subV.toString().trim().toLowerCase() : "";
+            let supVal = info.supV ? info.supV.toString().trim() : "";
             
-            // --- CATTURA REPERIBILITÀ DALLA RIGA SUPERIORE ---
-            let supVal = info.supV ? info.supV.toString().replace(/\s+/g, '').toLowerCase() : "";
-            let isReperibile = supVal.includes("m/r");
+            let isReperibile = false;
+            
+            // 1. Estrae correttamente il turno primario anche se l'utente digita M/R nella cella stessa
+            if (isRepStr(val)) {
+                isReperibile = true;
+                let slashIdx = val.indexOf('/');
+                if (slashIdx !== -1) val = val.substring(0, slashIdx).trim(); // Lascia "M" pulita
+            }
+            
+            // 2. Controlla anche le righe sopra e sotto per sicurezza se non l'ha già trovata
+            if (!isReperibile && (isRepStr(subVal) || isRepStr(supVal))) {
+                isReperibile = true;
+            }
+
             let repHtml = isReperibile ? `<div class="rep-text">REPERIBILE</div>` : "";
 
-            if(subVal === "pn" || prevSubVal === "pn") return `<div class="cell spec-pn">PERMESSO<br>NOTTE${repHtml}</div>`;
-            if(subVal === "v") return `<div class="cell spec-ferie">FERIE<br>RESIDUE${repHtml}</div>`;
-            if(subVal === "r") return `<div class="cell spec-rec">RECUPERO${repHtml}</div>`;
-            if(subVal === "f") return `<div class="cell spec-cong">CONGEDO<br>ORD.${repHtml}</div>`;
-            if(subVal === "m") return `<div class="cell spec-mal">MALATTIA${repHtml}</div>`;
-            if(subVal === "nl") return `<div class="cell spec-nl">FESTIVO<br>NON LAV.${repHtml}</div>`;
-            if(subVal === "p") return `<div class="cell spec-perm">PERMESSO${repHtml}</div>`;
-            if(subVal === "ng") return `<div class="cell spec-ng">FESTIVO<br>NON GOD.${repHtml}</div>`;
-            if(subVal === "c") return `<div class="cell spec-stu">PERMESSO<br>STUDIO${repHtml}</div>`;
+            if(subVal === "pn" || prevSubVal === "pn") return `<div class="cell spec-pn"><div style="flex:1;display:flex;align-items:center;text-align:center">PERMESSO<br>NOTTE</div>${repHtml}</div>`;
+            if(subVal === "v") return `<div class="cell spec-ferie"><div style="flex:1;display:flex;align-items:center;text-align:center">FERIE<br>RESIDUE</div>${repHtml}</div>`;
+            if(subVal === "r") return `<div class="cell spec-rec"><div style="flex:1;display:flex;align-items:center;text-align:center">RECUPERO</div>${repHtml}</div>`;
+            if(subVal === "f") return `<div class="cell spec-cong"><div style="flex:1;display:flex;align-items:center;text-align:center">CONGEDO<br>ORD.</div>${repHtml}</div>`;
+            if(subVal === "m") return `<div class="cell spec-mal"><div style="flex:1;display:flex;align-items:center;text-align:center">MALATTIA</div>${repHtml}</div>`;
+            if(subVal === "nl") return `<div class="cell spec-nl"><div style="flex:1;display:flex;align-items:center;text-align:center">FESTIVO<br>NON LAV.</div>${repHtml}</div>`;
+            if(subVal === "p") return `<div class="cell spec-perm"><div style="flex:1;display:flex;align-items:center;text-align:center">PERMESSO</div>${repHtml}</div>`;
+            if(subVal === "ng") return `<div class="cell spec-ng"><div style="flex:1;display:flex;align-items:center;text-align:center">FESTIVO<br>NON GOD.</div>${repHtml}</div>`;
+            if(subVal === "c") return `<div class="cell spec-stu"><div style="flex:1;display:flex;align-items:center;text-align:center">PERMESSO<br>STUDIO</div>${repHtml}</div>`;
 
             if(!val || val === "-") return `<div class="cell empty">${val ? val : "-"}${repHtml}</div>`;
             
@@ -1162,22 +1131,24 @@
             else if(u === "S" || u === "SM") display = "SMONTO";
             else if(u === "R") display = "RIPOSO";
 
-            // --- HTML DELL'ICONA GRAZIELLA ---
             let graziellaHtml = showGraziella ? `<img src="graziella.png" class="graziella-icon" onclick="event.stopPropagation(); playGraziella();">` : "";
 
+            // --- L'impaginazione in div con flex=1 centra il contenuto in alto, lasciando REPERIBILE in basso ---
             if (isDiurnista) {
                 let time = SCHEDULE_DIURNI[val.toLowerCase()] || "";
                 let timeHtml = time ? `<div class="time-tag">${time}</div>` : "";
                 let cls = "d-" + u;
                 if(!["M","P","R"].includes(u)) cls = "d-M";
-                return `<div class="cell ${cls}"><div>${display}</div>${timeHtml}${repHtml}${graziellaHtml}</div>`;
+                let mainContent = `<div style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; width:100%;"><div>${display}</div>${timeHtml}</div>`;
+                return `<div class="cell ${cls}">${mainContent}${repHtml}${graziellaHtml}</div>`;
             } else {
                 let time = SCHEDULE[u] || "";
                 let timeHtml = time ? `<div class="time-tag">${time}</div>` : "";
                 let cls = "t-" + u;
                 if(u === "S" || u === "SM") cls = "t-S";
                 else if(!["M","P","N","R"].includes(u)) cls = "t-M";
-                return `<div class="cell ${cls}"><div>${display}</div>${timeHtml}${repHtml}${graziellaHtml}</div>`;
+                let mainContent = `<div style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; width:100%;"><div>${display}</div>${timeHtml}</div>`;
+                return `<div class="cell ${cls}">${mainContent}${repHtml}${graziellaHtml}</div>`;
             }
         }
 
@@ -1188,6 +1159,13 @@
             let content = document.querySelector('#shift-modal .modal-content');
             
             let valStr = cellValue ? cellValue.toString().trim() : "";
+            
+            // Ripulisce l'M/R per far capire al modale di cosa stiamo parlando
+            if (isRepStr(valStr)) {
+                let sIdx = valStr.indexOf('/');
+                if (sIdx !== -1) valStr = valStr.substring(0, sIdx).trim();
+            }
+
             let uShift = valStr.toUpperCase();
             if(uShift === "S") uShift = "SM";
             
@@ -1215,7 +1193,14 @@
 
             drivers.forEach(d => {
                 let cell = rowData[d.idx];
-                let val = cell.v ? cell.v.toString().trim() : ""; 
+                let rawValStr = cell.v ? cell.v.toString().trim() : "";
+                
+                if (isRepStr(rawValStr)) {
+                    let sIdx = rawValStr.indexOf('/');
+                    if (sIdx !== -1) rawValStr = rawValStr.substring(0, sIdx).trim();
+                }
+
+                let val = rawValStr;
                 let uVal = val.toUpperCase();
                 if(uVal === "S") uVal = "SM";
                 
@@ -1233,9 +1218,11 @@
                 if(isMatch) {
                     let time = isD ? (SCHEDULE_DIURNI[val.toLowerCase()] || val) : (SCHEDULE[uVal] || uVal);
                     
-                    // --- MOSTRA REPERIBILITÀ ANCHE NEL POPUP ---
-                    let supVal = cell.supV ? cell.supV.toString().replace(/\s+/g, '').toLowerCase() : "";
-                    if (supVal.includes("m/r")) {
+                    let strSup = cell.supV ? cell.supV.toString().trim() : "";
+                    let strV = cell.v ? cell.v.toString().trim() : "";
+                    let strSub = cell.subV ? cell.subV.toString().trim() : "";
+                    
+                    if (isRepStr(strSup) || isRepStr(strV) || isRepStr(strSub)) {
                         time += ` &nbsp; <span style="color:#ef4444; font-weight:900; font-size: 0.75rem;">(REPERIBILE)</span>`;
                     }
 
@@ -1293,6 +1280,12 @@
             for(let i=1;i<finalData.length;i++){
                 let r=finalData[i][idx];
                 let v=r.v?r.v.toString().trim():"";
+                
+                if (isRepStr(v)) {
+                    let sI = v.indexOf('/');
+                    if (sI !== -1) v = v.substring(0, sI).trim();
+                }
+
                 let u=v.toUpperCase();
                 let sv=r.subV?r.subV.toString().toLowerCase().trim():"";
                 
