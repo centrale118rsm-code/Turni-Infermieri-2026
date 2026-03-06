@@ -26,7 +26,6 @@
         * { -webkit-tap-highlight-color: transparent; user-select: none; box-sizing: border-box; outline: none; }
         
         :root {
-            /* Calcolo dinamico per iPhone Safe Area */
             --safe-top: env(safe-area-inset-top, 0px);
             --header-base-h: 115px;
             --header-h: calc(var(--header-base-h) + var(--safe-top));
@@ -87,7 +86,7 @@
             z-index: 1000; 
             height: var(--header-h);
             display: flex; flex-direction: column;
-            padding-top: var(--safe-top); /* Correzione Apple Home Screen */
+            padding-top: var(--safe-top);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(0,0,0,0.08);
@@ -101,18 +100,69 @@
         
         .app-brand { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
         .app-brand img { width: 44px; height: 44px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer; }
+        
         .brand-text { display: flex; flex-direction: column; min-width: 0; justify-content: center; }
-        .brand-text h1 { margin: 0; font-size: 1.15rem; font-weight: 900; color: var(--text-main); letter-spacing: -0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2;}
-        #last-update-badge { font-size: 0.7rem; font-weight: 600; color: var(--text-sec); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        /* Modifiche per Mostrare Solo Data GitHub */
+        .github-lbl {
+            font-size: 0.65rem; 
+            color: var(--text-sec); 
+            text-transform: uppercase; 
+            font-weight: 800; 
+            letter-spacing: 0.5px; 
+            display: flex; 
+            align-items: center; 
+            gap: 4px; 
+            margin-bottom: 2px;
+        }
+        #last-update-badge { 
+            font-size: 0.95rem; 
+            font-weight: 800; 
+            color: var(--text-main); 
+            line-height: 1.1; 
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+        }
 
         .app-actions { display: flex; align-items: center; gap: 6px; position: relative; }
         
+        /* Animazione contenitore a scomparsa */
+        .expandable-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            max-width: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+        }
+        .expandable-actions.expanded {
+            max-width: 280px; /* Abbastanza largo per ospitare tutte le icone */
+            opacity: 1;
+            overflow: visible;
+        }
+        
+        /* Freccina di attivazione */
+        #toggle-actions-btn {
+            background: var(--text-main);
+            color: var(--bg-card);
+            border: none;
+        }
+        #toggle-actions-btn .material-icons-round {
+            transition: transform 0.3s ease;
+        }
+        #toggle-actions-btn.active .material-icons-round {
+            transform: rotate(180deg);
+        }
+
         .action-circle { 
             width: 38px; height: 38px; border-radius: 50%; border: none; 
             background: var(--bg-card); color: var(--text-main); 
             display: flex; align-items: center; justify-content: center; 
             cursor: pointer; transition: 0.2s; box-shadow: 0 2px 6px rgba(0,0,0,0.05);
             border: 1px solid var(--border);
+            flex-shrink: 0;
         }
         .action-circle:active { transform: scale(0.9); background: var(--bg); }
         .action-circle .material-icons-round { font-size: 20px; }
@@ -121,7 +171,7 @@
             width: 38px; height: 38px; border-radius: 50%; border: none;
             background: var(--primary); color: white; font-weight: 800; font-size: 0.85rem;
             display: flex; align-items: center; justify-content: center; 
-            cursor: pointer; transition: 0.2s;
+            cursor: pointer; transition: 0.2s; flex-shrink: 0;
             box-shadow: 0 4px 10px rgba(37,99,235,0.3); letter-spacing: 0.5px;
         }
         .action-circle-as:active { transform: scale(0.9); opacity: 0.9; }
@@ -166,7 +216,7 @@
         thead th {
             background: var(--bg); color: var(--text-sec); padding: 5px; font-size: 0.7rem; 
             text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;
-            position: -webkit-sticky; /* iOS Webkit Fix */
+            position: -webkit-sticky; 
             position: sticky; 
             top: var(--header-h); z-index: 90; 
             border-bottom: 1px solid var(--border); text-align: center; min-width: 115px;
@@ -178,14 +228,14 @@
             width: 60px !important; 
             min-width: 60px !important; 
             max-width: 60px !important; 
-            left: 0;      /* Assicura che la colonna data stia fissa a sinistra */
+            left: 0;      
             z-index: 95; 
         }
 
         tr.month-header td {
             background: var(--month-bar-bg);
             color: white; 
-            position: -webkit-sticky; /* iOS Webkit Fix */
+            position: -webkit-sticky; 
             position: sticky; 
             top: calc(var(--header-h) + var(--th-h)); z-index: 85; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
@@ -194,7 +244,7 @@
             line-height: 1;
         }
         .sticky-month-text { 
-            position: -webkit-sticky; /* iOS Webkit Fix */
+            position: -webkit-sticky; 
             position: sticky; 
             left: 0; width: 100vw; 
             text-align: left; 
@@ -216,7 +266,7 @@
         .td-date { 
             text-align: center; font-weight: 800; color: var(--text-main); font-size: 1.1rem; 
             border-right: 2px solid var(--border); background: var(--bg);
-            position: -webkit-sticky; /* iOS Webkit Fix */
+            position: -webkit-sticky; 
             position: sticky; 
             left: 0; z-index: 80;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -254,7 +304,6 @@
             white-space: nowrap;
         }
 
-        /* --- STILE REPERIBILE LAMPEGGIANTE --- */
         @keyframes repBlink {
             0%, 100% { background-color: #ffffff; color: #dc2626; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
             50% { background-color: #fef2f2; color: #991b1b; box-shadow: 0 0 10px rgba(220, 38, 38, 0.7); }
@@ -281,14 +330,13 @@
             background-color: #ffffff; 
         }
 
-        /* STILI TURNISTI */
+        /* STILI TURNISTI E DIURNISTI */
         .t-M { background: var(--c-M); color: var(--t-M); border: 1px solid var(--b-M); }
         .t-P { background: var(--c-P); color: var(--t-P); border: 1px solid var(--b-P); }
         .t-N { background: var(--c-N); color: var(--t-N); border: 1px solid var(--b-N); }
         .t-R { background: var(--c-R); color: var(--t-R); border: 1px solid var(--b-R); }
         .t-S { background: var(--c-SM); color: var(--t-SM); border: 1px solid var(--b-SM); }
         
-        /* STILI DIURNISTI */
         .d-M { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
         .d-P { background: #fff7ed; color: #9a3412; border: 1px solid #fed7aa; }
         .d-R { background: #f8fafc; color: #64748b; border: 1px solid #cbd5e1; }
@@ -314,7 +362,7 @@
         body.dark-mode tr.today td { background: #431407 !important; border-bottom: 2px solid #ea580c !important; }
         body.dark-mode tr.today .td-date { background: #431407; color: #fdba74; }
 
-        /* LOADER & MODALS (Stili Generici) */
+        /* LOADER & MODALS */
         #loader { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; padding: 20px;}
         .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite; margin-bottom: 20px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -401,24 +449,6 @@
         .d-res-score { background: #dcfce7; color: #15803d; font-weight: 700; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; }
         .missing-list { display: flex; flex-wrap: wrap; gap: 6px; }
         .missing-badge { background: #fee2e2; color: #b91c1c; font-size: 0.75rem; font-weight: 600; padding: 4px 8px; border-radius: 6px; }
-        
-        #stats-modal { display: none; position: fixed; inset: 0; background: var(--bg-card); z-index: 4000; flex-direction: column; overflow: hidden; animation: slideInRight 0.3s ease; }
-        #stats-modal.open { display: flex; }
-        @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
-        .stats-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); background: var(--bg-card); }
-        .stats-body { flex: 1; overflow-y: auto; padding: 20px; background: var(--bg); -webkit-overflow-scrolling: touch; }
-        .driver-list-item { padding: 18px; border-bottom: 1px solid var(--border); font-weight: 700; color: var(--text-main); cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); margin-bottom: 10px; border-radius: 14px; box-shadow: var(--shadow-soft); transition: 0.2s; }
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px; }
-        .stat-card { background: var(--bg-card); padding: 16px; border-radius: 18px; border: 1px solid var(--border); text-align: center; box-shadow: var(--shadow-soft); display:flex; flex-direction:column; justify-content:center; }
-        .stat-val { font-size: 2rem; font-weight: 900; display: block; margin-bottom: 4px; line-height: 1; letter-spacing: -1px; color: var(--text-main); }
-        .stat-lbl { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; color: var(--text-sec); }
-        
-        .sc-fer { color: var(--b-ferie); border-color: var(--bg-ferie); background: #fff7ed; }
-        .sc-cong { color: var(--b-cong); border-color: var(--bg-cong); background: #fefce8; }
-        .sc-perm { color: var(--b-perm); border-color: var(--bg-perm); background: #f0fdf4; }
-        .sc-mal { color: #b91c1c; border-color: #fca5a5; background: #fef2f2; }
-        .sc-fest { color: #0369a1; border-color: #7dd3fc; background: #f0f9ff; }
-        .sc-rec { color: var(--b-rec); border-color: var(--bg-rec); background: #fdf2f8; }
         
         #alert-modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); z-index: 9999; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; padding: 20px; }
         #alert-modal.open { opacity: 1; }
@@ -647,56 +677,47 @@
         </div>
     </div>
 
-    <div id="stats-modal">
-        <div class="stats-header">
-            <h3 style="margin:0; font-size:1.2rem; color:var(--text-main); display:flex; align-items:center; gap:10px;">
-                <span class="material-icons-round">bar_chart</span> STATISTICHE
-            </h3>
-            <button class="btn-close-modal" onclick="closeStatsModal()">
-                <span class="material-icons-round">close</span>
-            </button>
-        </div>
-        <div class="stats-body" id="stats-container"></div>
-    </div>
-
     <header>
         <div class="header-main">
             <div class="app-brand">
                 <img src="logo.png" alt="Logo" onerror="this.style.display='none'">
+                
                 <div class="brand-text">
-                    <h1>Infermieri 2026</h1>
-                    <span id="last-update-badge">Aggiornamento in corso...</span>
+                    <div class="github-lbl">
+                        <span class="material-icons-round" style="font-size:12px">update</span> GITHUB UPDATE
+                    </div>
+                    <span id="last-update-badge">Caricamento...</span>
                 </div>
             </div>
             
             <div class="app-actions">
-                <button class="action-circle-as" onclick="vibrate(); window.open('https://centrale118rsm-code.github.io/Turni-Autisti-2026-Rsm/', '_blank')">
-                    A.S.
-                </button>
                 
-                <button class="action-circle" onclick="vibrate(); scrollToToday()">
-                    <span class="material-icons-round">my_location</span>
-                </button>
-                
-                <button class="action-circle" onclick="openMonthModal()">
-                   <span class="material-icons-round">calendar_month</span>
-                </button>
+                <div class="expandable-actions" id="expandable-actions-container">
+                    <button class="action-circle-as" onclick="vibrate(); window.open('https://centrale118rsm-code.github.io/Turni-Autisti-2026-Rsm/', '_blank')">
+                        A.S.
+                    </button>
+                    <button class="action-circle" onclick="vibrate(); scrollToToday()">
+                        <span class="material-icons-round">my_location</span>
+                    </button>
+                    <button class="action-circle" onclick="openMonthModal()">
+                       <span class="material-icons-round">calendar_month</span>
+                    </button>
+                    <button class="action-circle" onclick="openNotifCenter()" style="position:relative">
+                        <span class="material-icons-round">notifications</span>
+                        <span id="notif-badge" class="badge-dot"></span>
+                    </button>
+                    <button class="action-circle menu-trigger" onclick="toggleMenu()">
+                        <span class="material-icons-round">menu</span>
+                    </button>
+                </div>
 
-                <button class="action-circle" onclick="openNotifCenter()" style="position:relative">
-                    <span class="material-icons-round">notifications</span>
-                    <span id="notif-badge" class="badge-dot"></span>
-                </button>
-                
-                <button class="action-circle menu-trigger" onclick="toggleMenu()">
-                    <span class="material-icons-round">menu</span>
+                <button class="action-circle" id="toggle-actions-btn" onclick="toggleActions()">
+                    <span class="material-icons-round">chevron_left</span>
                 </button>
                 
                 <div id="menu-dropdown">
                     <div class="menu-item" onclick="openDinnerModal()">
                         <span class="material-icons-round">restaurant</span> Organizza Uscita
-                    </div>
-                    <div class="menu-item" onclick="openStatsSelection()">
-                        <span class="material-icons-round">bar_chart</span> Statistiche
                     </div>
                     <div class="menu-item" onclick="openOptionsModal()">
                         <span class="material-icons-round">settings</span> Opzioni
@@ -785,6 +806,15 @@
             if(m.style.display === 'flex') { m.classList.remove('open'); setTimeout(() => m.style.display = 'none', 100); } 
             else { m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 10); }
         }
+
+        // Funzione per mostrare/nascondere le icone
+        function toggleActions() {
+            vibrate();
+            const container = document.getElementById('expandable-actions-container');
+            const btn = document.getElementById('toggle-actions-btn');
+            container.classList.toggle('expanded');
+            btn.classList.toggle('active');
+        }
         
         function openOptionsModal() {
             toggleMenu(); let m = document.getElementById('options-modal'); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 10);
@@ -843,9 +873,9 @@
         window.onload = async () => {
             try { 
                 const lastUp = new Date(document.lastModified); 
-                const dateStr = lastUp.toLocaleDateString('it-IT', {day: '2-digit', month: '2-digit', year: '2-digit'});
+                const dateStr = lastUp.toLocaleDateString('it-IT', {day: '2-digit', month: 'short', year: 'numeric'});
                 const timeStr = lastUp.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'});
-                document.getElementById('last-update-badge').innerHTML = `Agg. ${dateStr} - Ore: ${timeStr}`;
+                document.getElementById('last-update-badge').innerHTML = `${dateStr} - ${timeStr}`;
             } catch(e) {}
             
             try { 
@@ -1062,7 +1092,6 @@
             thead.innerHTML = ""; tbody.innerHTML = "";
             let cols = (selectedDrivers.size === 0) ? drivers : drivers.filter(d => selectedDrivers.has(d.idx));
             
-            // Creazione riga "DATA" direttamente come HTML così eredita tutti gli stili CSS Apple correttamente
             let thD = document.createElement('th'); thD.innerText = "DATA"; thead.appendChild(thD);
             
             cols.forEach(d => { let th = document.createElement('th'); th.innerText = d.name; thead.appendChild(th); });
@@ -1311,60 +1340,6 @@
         function closeDinnerModal(e){if(e&&e.target!==e.currentTarget)return;let m=document.getElementById('dinner-modal');m.classList.remove('open');setTimeout(()=>m.style.display='none',200);}
         function calculateDinner(){vibrate();if(!dinnerSelectedMonth)return alert("Seleziona mese");let s=[];document.querySelectorAll('#dinner-driver-list input:checked').forEach(x=>s.push(parseInt(x.value)));if(s.length===0)return alert("Seleziona colleghi");let res=[];for(let i=1;i<finalData.length;i++){let r=finalData[i];if(r[0].v!==dinnerSelectedMonth)continue;let d=r[1].v;let ok=0;let ko=[];s.forEach(idx=>{let v=r[idx].v?r[idx].v.toString().trim().toUpperCase():"";let sv=r[idx].subV?r[idx].subV.toString().trim().toLowerCase():"";let busy=false;if(v==="M"||v==="P"||v==="N"||sv==="m"||sv==="f")busy=true;if(eventType==="cena" && v!=="N" && v!=="P") busy=false; if(busy)ko.push(drivers.find(z=>z.idx===idx).name);else ok++;});res.push({day:d,score:ok,tot:s.length,mis:ko});}res.sort((a,b)=>b.score-a.score);let c=document.getElementById('dinner-results-container');c.innerHTML="";res.slice(0,10).forEach(x=>{c.innerHTML+=`<div class="dinner-result-card"><div class="d-res-header"><span class="d-res-date">${x.day} ${dinnerSelectedMonth}</span><span class="d-res-score">${x.score}/${x.tot}</span></div>${x.mis.length?`<div class="missing-list">${x.mis.map(n=>`<span class="missing-badge">${n}</span>`).join("")}</div>`:`<div style="color:green;font-weight:bold;text-align:center">TUTTI LIBERI!</div>`}</div>`});document.getElementById('dinner-step-1').style.display='none';document.getElementById('dinner-step-2').style.display='block';}
 
-        function openStatsSelection(){toggleMenu();let c=document.getElementById('stats-container');c.innerHTML="";drivers.forEach(d=>{c.innerHTML+=`<div class="driver-list-item" onclick="showDriverStats(${d.idx},'${d.name}')"><span>${d.name}</span><span class="material-icons-round">chevron_right</span></div>`;});document.getElementById('stats-modal').classList.add('open');}
-        function closeStatsModal(){document.getElementById('stats-modal').classList.remove('open');}
-        
-        function showDriverStats(idx,name){
-            let s={M:0, P:0, N:0, R:0, dM:0, dP:0, dR:0, F:0, MAL:0};
-            for(let i=1;i<finalData.length;i++){
-                let r=finalData[i][idx];
-                let v=r.v?r.v.toString().trim():"";
-                
-                if (isRepStr(v)) {
-                    let sI = v.indexOf('/');
-                    if (sI !== -1) v = v.substring(0, sI).trim();
-                }
-
-                let u=v.toUpperCase();
-                let sv=r.subV?r.subV.toString().toLowerCase().trim():"";
-                
-                let isD = v.length > 0 && v.charAt(0) >= 'a' && v.charAt(0) <= 'z';
-                
-                if(isD) {
-                    if(u==="M") s.dM++; if(u==="P") s.dP++; if(u==="R") s.dR++;
-                } else {
-                    if(u==="M") s.M++; if(u==="P") s.P++; if(u==="N") s.N++; if(u==="R") s.R++;
-                }
-                
-                if(sv==="v"||sv==="f") s.F++; if(sv==="m") s.MAL++;
-            }
-            document.getElementById('stats-container').innerHTML=`
-            <div class="driver-list-item" onclick="openStatsSelection()" style="background:transparent;border:none">
-                <span style="display:flex;align-items:center;gap:10px"><span class="material-icons-round">arrow_back</span> ${name}</span>
-            </div>
-            
-            <div style="padding: 0 10px; margin-top: 10px; font-weight: bold; font-size: 0.8rem; color: var(--text-sec);">TURNISTI</div>
-            <div class="stats-grid">
-                <div class="stat-card" style="color:var(--c-M)"><span class="stat-val">${s.M}</span><span class="stat-lbl">Mattine</span></div>
-                <div class="stat-card" style="color:var(--c-P)"><span class="stat-val">${s.P}</span><span class="stat-lbl">Pomeriggi</span></div>
-                <div class="stat-card" style="color:var(--c-N)"><span class="stat-val">${s.N}</span><span class="stat-lbl">Notti</span></div>
-                <div class="stat-card" style="color:var(--t-R);background:var(--c-R)"><span class="stat-val">${s.R}</span><span class="stat-lbl">Riposi</span></div>
-            </div>
-
-            <div style="padding: 0 10px; margin-top: 20px; font-weight: bold; font-size: 0.8rem; color: var(--text-sec);">DIURNISTI</div>
-            <div class="stats-grid">
-                <div class="stat-card" style="color:var(--t-dM); border: 1px solid var(--b-dM); background: var(--c-dM)"><span class="stat-val">${s.dM}</span><span class="stat-lbl">Mattine Diurne</span></div>
-                <div class="stat-card" style="color:var(--t-dP); border: 1px solid var(--b-dP); background: var(--c-dP)"><span class="stat-val">${s.dP}</span><span class="stat-lbl">Pomeriggi Diurni</span></div>
-                <div class="stat-card" style="color:var(--t-dR); border: 1px solid var(--b-dR); background: var(--c-dR)"><span class="stat-val">${s.dR}</span><span class="stat-lbl">Riposi Diurni</span></div>
-            </div>
-            
-            <div style="padding: 0 10px; margin-top: 20px; font-weight: bold; font-size: 0.8rem; color: var(--text-sec);">ASSENZE</div>
-            <div class="stats-grid">
-                <div class="stat-card sc-fer" style="color:#d97706"><span class="stat-val">${s.F}</span><span class="stat-lbl">Ferie/Cong.</span></div>
-                <div class="stat-card sc-mal" style="color:#b91c1c"><span class="stat-val">${s.MAL}</span><span class="stat-lbl">Malattia</span></div>
-            </div>
-            <div style="margin-bottom:30px;"></div>`;
-        }
     </script>
 </body>
 </html>
