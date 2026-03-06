@@ -32,10 +32,10 @@
             --text-main: #0f172a;
             --text-sec: #64748b;
             --border: #e2e8f0;
-            --header-bg: rgba(255, 255, 255, 0.85);
+            --header-bg: rgba(255, 255, 255, 0.92);
             
-            --header-h: 115px; /* Aumentato per la nuova barra */
-            --cell-h: 70px;    /* Aumentato per far respirare il badge reperibile */            
+            --header-h: 100px;        
+            --cell-h: 65px;                
             --th-h: 40px;                 
             
             /* COLORI TURNISTI */
@@ -66,7 +66,7 @@
             --text-main: #f1f5f9; 
             --text-sec: #94a3b8; 
             --border: #334155; 
-            --header-bg: rgba(15, 23, 42, 0.85);
+            --header-bg: rgba(15, 23, 42, 0.95);
         }
 
         body { 
@@ -76,63 +76,80 @@
             overscroll-behavior-y: none; 
         }
 
-        /* --- NUOVO HEADER MODERNO --- */
+        /* HEADER */
         header {
             position: fixed; top: 0; left: 0; right: 0;
             background: var(--header-bg); 
+            box-shadow: 0 1px 0 rgba(0,0,0,0.08);
             z-index: 1000; height: var(--header-h);
             display: flex; flex-direction: column;
             padding-top: env(safe-area-inset-top);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(0,0,0,0.08);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
-        .header-main { 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 12px 16px; gap: 10px; height: 65px;
+        .top-bar { 
+            padding: 0 10px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            height: 60px; 
+            flex-shrink: 0; 
+            gap: 15px;
         }
         
-        .app-brand { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
-        .app-brand img { width: 44px; height: 44px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer; }
-        .brand-text { display: flex; flex-direction: column; min-width: 0; justify-content: center; }
-        .brand-text h1 { margin: 0; font-size: 1.15rem; font-weight: 900; color: var(--text-main); letter-spacing: -0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2;}
-        #last-update-badge { font-size: 0.7rem; font-weight: 600; color: var(--text-sec); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .logo { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            flex-shrink: 1; 
+            min-width: 0;
+            margin-right: auto;
+        }
+        .logo img { height: 36px; width: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); border-radius: 8px; cursor: pointer; }
+        
+        .logo-text { 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            white-space: normal; 
+            line-height: 1.2;
+        }
+        #last-update-badge {
+            font-size: 0.75rem; 
+            font-weight: 700; 
+            color: var(--text-sec);
+            word-wrap: break-word;
+        }
 
-        .app-actions { display: flex; align-items: center; gap: 6px; position: relative; }
-        
-        .action-circle { 
-            width: 38px; height: 38px; border-radius: 50%; border: none; 
-            background: var(--bg-card); color: var(--text-main); 
+        .right-controls { display: flex; gap: 5px; position: relative; flex-shrink: 0; }
+
+        .btn-action { 
+            background: var(--bg-card); color: var(--text-sec); border: 1px solid var(--border); 
+            width: 38px; height: 38px; 
+            padding: 0; 
+            border-radius: 10px; cursor: pointer; 
             display: flex; align-items: center; justify-content: center; 
-            cursor: pointer; transition: 0.2s; box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-            border: 1px solid var(--border);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
         }
-        .action-circle:active { transform: scale(0.9); background: var(--bg); }
-        .action-circle .material-icons-round { font-size: 20px; }
-        
-        .action-pill {
-            height: 38px; padding: 0 12px; border-radius: 20px; border: none;
-            background: var(--primary); color: white; font-weight: 800; font-size: 0.85rem;
-            display: flex; align-items: center; gap: 6px; cursor: pointer; transition: 0.2s;
-            box-shadow: 0 4px 10px rgba(37,99,235,0.3); letter-spacing: 0.5px;
-        }
-        .action-pill:active { transform: scale(0.95); opacity: 0.9; }
-        .action-pill .material-icons-round { font-size: 18px; }
+        .btn-action span { font-size: 1.3rem; }
+        .btn-action:active { transform: scale(0.94); opacity: 0.8; }
         
         .badge-dot {
-            position: absolute; top: 0px; right: 0px;
-            width: 10px; height: 10px; background: #ef4444;
+            position: absolute; top: 6px; right: 6px;
+            width: 8px; height: 8px; background: #ef4444;
             border-radius: 50%; border: 2px solid var(--bg-card);
             display: none; 
         }
         .badge-dot.visible { display: block; }
 
         #menu-dropdown { 
-            position: absolute; top: 50px; right: 0; background: var(--bg-card); 
-            border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); 
-            width: 230px; overflow: hidden; display: none; border: 1px solid var(--border); 
+            position: absolute; top: 45px; right: 0; background: var(--bg-card); 
+            border-radius: 16px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.2); 
+            width: 220px; overflow: hidden; display: none; border: 1px solid var(--border); 
             flex-direction: column; z-index: 5000; transform-origin: top right;
         }
         #menu-dropdown.open { display: flex; animation: scaleIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
@@ -143,10 +160,10 @@
         
         @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
 
-        .driver-scroller { flex: 1; display: flex; gap: 8px; overflow-x: auto; padding: 0 16px; align-items: center; scrollbar-width: none; -webkit-overflow-scrolling: touch; border-top: 1px solid var(--border); height: 50px; }
+        .driver-scroller { flex: 1; display: flex; gap: 8px; overflow-x: auto; padding: 0 10px; align-items: center; scrollbar-width: none; -webkit-overflow-scrolling: touch; border-top: 1px solid var(--border); height: 40px; }
         
         .chip { 
-            padding: 8px 14px; border-radius: 12px; font-size: 0.8rem; font-weight: 700; 
+            padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; 
             white-space: nowrap; cursor: pointer; transition: all 0.2s ease; 
             display: flex; align-items: center; justify-content: center;
         }
@@ -233,32 +250,18 @@
             white-space: nowrap;
         }
 
-        /* --- STILE REPERIBILE LAMPEGGIANTE (NUOVO) --- */
-        @keyframes repBlink {
-            0%, 100% { background-color: #ffffff; color: #dc2626; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-            50% { background-color: #fef2f2; color: #991b1b; box-shadow: 0 0 10px rgba(220, 38, 38, 0.7); }
-        }
-
+        /* --- STILE REPERIBILE ALLINEATO IN BASSO --- */
         .rep-text { 
             font-size: 0.65rem; 
             color: #dc2626; 
-            background-color: #ffffff; /* Sfondo bianco come richiesto */
-            margin-top: auto; 
-            margin-bottom: 3px;
-            padding: 2px 6px;
-            border-radius: 6px; /* Bordo arrotondato */
+            margin-top: auto; /* SPINGE IN BASSO */
+            padding-bottom: 2px;
             font-weight: 900; 
             letter-spacing: 0.5px;
-            line-height: 1.1;
-            border: 1px solid #fca5a5;
-            animation: repBlink 1.2s infinite ease-in-out; /* Effetto lampeggiante */
-            z-index: 2;
+            text-shadow: 0 0 3px rgba(255,255,255,0.8);
+            line-height: 1;
         }
-        
-        body.dark-mode .rep-text { 
-            border-color: #dc2626; 
-            background-color: #ffffff; /* Mantenuto bianco in dark mode per massima visibilità */
-        }
+        body.dark-mode .rep-text { color: #f87171; text-shadow: 0 0 3px rgba(0,0,0,0.8); }
 
         /* STILI TURNISTI */
         .t-M { background: var(--c-M); color: var(--t-M); border: 1px solid var(--b-M); }
@@ -418,6 +421,7 @@
         .graziella-icon { position: absolute; top: -8px; right: -8px; width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--bg-card); box-shadow: 0 2px 5px rgba(0,0,0,0.3); z-index: 10; background: #fff; object-fit: cover; cursor: pointer; transition: transform 0.2s; }
         .graziella-icon:active { transform: scale(0.85); }
 
+        /* NUOVO STILE MODALE GRAZIELLA GRANDE */
         #graziella-modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.9); z-index: 11000; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; padding: 20px; cursor: pointer; }
         #graziella-modal.open { opacity: 1; }
         #graziella-large-img { max-width: 100%; max-height: 80vh; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); transform: scale(0.8); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); object-fit: contain; }
@@ -639,37 +643,31 @@
     </div>
 
     <header>
-        <div class="header-main">
-            <div class="app-brand">
-                <img src="logo.png" alt="Logo" onerror="this.style.display='none'">
-                <div class="brand-text">
-                    <h1>Infermieri 2026</h1>
-                    <span id="last-update-badge">Aggiornamento in corso...</span>
+        <div class="top-bar">
+            <div class="logo">
+                <img src="logo.png" style="height: 36px; width: auto; display:block;" alt="Logo" onerror="this.style.display='none'">
+                <div class="logo-text">
+                    <span id="last-update-badge"></span>
                 </div>
             </div>
-            
-            <div class="app-actions">
-                <button class="action-pill" onclick="vibrate(); window.open('https://centrale118rsm-code.github.io/Turni-Autisti-2026-Rsm/', '_blank')">
-                    <span class="material-icons-round">local_ambulance</span> A.S.
+            <div class="right-controls">
+                <button class="btn-action" onclick="vibrate(); window.open('https://centrale118rsm-code.github.io/Turni-Autisti-2026-Rsm/', '_blank')">
+                    <span style="font-weight:900; font-size:1rem; letter-spacing: -0.5px; color:var(--text-main);">A.S.</span>
                 </button>
-                
-                <button class="action-circle" onclick="vibrate(); scrollToToday()">
-                    <span class="material-icons-round">my_location</span>
+                <button class="btn-action" onclick="vibrate(); scrollToToday()">
+                    <span class="material-icons-round">home</span>
                 </button>
-                
-                <button class="action-circle" onclick="openMonthModal()">
+                <button class="btn-action" onclick="openMonthModal()">
                    <span class="material-icons-round">calendar_month</span>
                 </button>
 
-                <button class="action-circle" onclick="openNotifCenter()" style="position:relative">
+                <button class="btn-action" onclick="openNotifCenter()" style="position:relative">
                     <span class="material-icons-round">notifications</span>
                     <span id="notif-badge" class="badge-dot"></span>
                 </button>
-                
-                <button class="action-circle menu-trigger" onclick="toggleMenu()">
-                    <span class="material-icons-round">menu</span>
+                <button class="btn-action" onclick="toggleMenu()">
+                    <span class="material-icons-round">more_vert</span>
                 </button>
-                
                 <div id="menu-dropdown">
                     <div class="menu-item" onclick="openDinnerModal()">
                         <span class="material-icons-round">restaurant</span> Organizza Uscita
@@ -677,7 +675,7 @@
                     <div class="menu-item" onclick="openStatsSelection()">
                         <span class="material-icons-round">bar_chart</span> Statistiche
                     </div>
-                    <div class="menu-item" onclick="openOptionsModal()">
+                      <div class="menu-item" onclick="openOptionsModal()">
                         <span class="material-icons-round">settings</span> Opzioni
                     </div>
                     <div class="menu-item" onclick="vibrate(); location.reload()">
@@ -726,6 +724,7 @@
             if (playPromise !== undefined) {
                 playPromise.catch(error => { console.log("Riproduzione bloccata dal browser", error); });
             }
+            // Apre il modale immagine
             let modal = document.getElementById('graziella-modal');
             modal.style.display = 'flex';
             setTimeout(() => modal.classList.add('open'), 10);
@@ -815,7 +814,7 @@
         }
 
         document.addEventListener('click', function(event) {
-            let m = document.getElementById('menu-dropdown'); let btn = document.querySelector('.action-circle.menu-trigger');
+            let m = document.getElementById('menu-dropdown'); let btn = document.querySelector('.btn-action[onclick="toggleMenu()"]');
             if (m.style.display === 'flex' && !m.contains(event.target) && !btn.contains(event.target)) toggleMenu();
         });
 
@@ -824,7 +823,7 @@
                 const lastUp = new Date(document.lastModified); 
                 const dateStr = lastUp.toLocaleDateString('it-IT', {day: '2-digit', month: '2-digit', year: '2-digit'});
                 const timeStr = lastUp.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'});
-                document.getElementById('last-update-badge').innerHTML = `Agg. ${dateStr} - Ore: ${timeStr}`;
+                document.getElementById('last-update-badge').innerHTML = `Agg. ${dateStr}<br><span style="color:var(--primary)">Ore: ${timeStr}</span>`;
             } catch(e) {}
             
             try { 
@@ -1031,6 +1030,7 @@
         function updateDriverButtons() { const allBtn = document.querySelector('.chip-driver[data-idx="all"]'); if(selectedDrivers.size === 0) allBtn.classList.add('active'); else allBtn.classList.remove('active'); document.querySelectorAll('.chip-driver:not([data-idx="all"])').forEach(btn => { const idx = parseInt(btn.dataset.idx); if(selectedDrivers.has(idx)) btn.classList.add('active'); else btn.classList.remove('active'); }); }
         function startLiveClock() { setInterval(() => { const now = new Date(); document.querySelectorAll('.live-clock').forEach(el => el.innerText = `${now.toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'})} • ${now.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}`); }, 1000); }
 
+        // --- FUNZIONE PER CAPIRE SE UNA STRINGA CONTIENE REPERIBILITÀ ---
         function isRepStr(str) {
             let s = str.toLowerCase().replace(/\s+/g, '');
             return s.includes("m/r") || s.includes("p/r") || s.includes("n/r") || s.includes("s/r") || s.includes("sm/r");
