@@ -11,7 +11,6 @@
     <meta name="apple-mobile-web-app-title" content="Infermieri 26">
     <meta name="description" content="Gestione Turni Infermieri 2026">
     
-    <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="logo.png">
     <link rel="icon" type="image/png" href="logo.png">
     
@@ -467,6 +466,26 @@
         #welcome-modal.open { opacity: 1; }
         #welcome-modal .alert-card { transform: scale(0.85); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         #welcome-modal.open .alert-card { transform: scale(1); }
+
+        /* --- STILE ICONA GRAZIELLA --- */
+        .graziella-icon {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            border: 2px solid var(--bg-card);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            z-index: 10;
+            background: #fff;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .graziella-icon:active {
+            transform: scale(0.85);
+        }
     </style>
 </head>
 <body>
@@ -755,6 +774,17 @@
             "r": "RIPOSO"
         };
 
+        // --- AUDIO GRAZIELLA ---
+        const audioGraziella = new Audio('graziella.mp3');
+        function playGraziella() {
+            if(navigator.vibrate) navigator.vibrate(10);
+            audioGraziella.currentTime = 0;
+            let playPromise = audioGraziella.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(error => { console.log("Riproduzione bloccata dal browser", error); });
+            }
+        }
+
         let finalData = [];
         let drivers = [];
         let selectedDrivers = new Set();
@@ -978,7 +1008,7 @@
                 let wm = document.getElementById('welcome-modal');
                 wm.style.display = 'flex';
                 setTimeout(() => wm.classList.add('open'), 50);
-                vibrate();
+                // NOTA: il comando vibrate() qui è stato rimosso per evitare l'errore del browser all'avvio
             }, 800);
         }
 
@@ -1071,12 +1101,31 @@
                 if(mIdx === today.getMonth() && dNum === today.getDate() && today.getFullYear() === year) { tr.className = "today"; tr.id = "today-row"; }
                 tr.innerHTML = `<td class="${dateClass}">${dNum}<small>${dayWeek}</small>${holidayName ? `<div class="holiday-name">${holidayName}</div>` : ""}</td>`;
                 
+                // --- INIZIO LOGICA GRAZIELLA ---
+                let countM = 0;
+                let countP = 0;
+                drivers.forEach(d => {
+                    let cellInfo = row[d.idx];
+                    let val = cellInfo.v ? cellInfo.v.toString().trim().toUpperCase() : "";
+                    if (val === "M") countM++;
+                    if (val === "P") countP++;
+                });
+                
+                let hasGraziellaM = countM >= 3;
+                let hasGraziellaP = countP >= 3;
+                // --- FINE LOGICA GRAZIELLA ---
+
                 cols.forEach(d => {
                     let cellInfo = row[d.idx];
                     let prevRow = finalData[i-1];
                     let prevCellInfo = prevRow ? prevRow[d.idx] : null;
+
+                    let uVal = cellInfo.v ? cellInfo.v.toString().trim().toUpperCase() : "";
+                    let showGraziella = (uVal === "M" && hasGraziellaM) || (uVal === "P" && hasGraziellaP);
+
                     let td = document.createElement('td'); 
-                    td.innerHTML = formatCell(cellInfo, prevCellInfo);
+                    td.innerHTML = formatCell(cellInfo, prevCellInfo, showGraziella);
+                    
                     let rawVal = cellInfo.v ? cellInfo.v.toString().trim() : "";
                     if(rawVal || (cellInfo.subV && cellInfo.subV.toString().trim())) {
                         td.setAttribute("onclick", `openShiftModal(${i}, '${rawVal}', '${mName}', ${dNum}, '${dayWeek}')`);
@@ -1087,7 +1136,7 @@
             }
         }
 
-        function formatCell(info, prevInfo) {
+        function formatCell(info, prevInfo, showGraziella = false) {
             let val = info.v ? info.v.toString().trim() : "";
             let subVal = info.subV ? info.subV.toString().trim().toLowerCase() : "";
             let prevSubVal = (prevInfo && prevInfo.subV) ? prevInfo.subV.toString().trim().toLowerCase() : "";
@@ -1120,19 +1169,22 @@
             else if(u === "S" || u === "SM") display = "SMONTO";
             else if(u === "R") display = "RIPOSO";
 
+            // --- HTML DELL'ICONA GRAZIELLA ---
+            let graziellaHtml = showGraziella ? `<img src="graziella.png" class="graziella-icon" onclick="event.stopPropagation(); playGraziella();">` : "";
+
             if (isDiurnista) {
                 let time = SCHEDULE_DIURNI[val.toLowerCase()] || "";
                 let timeHtml = time ? `<div class="time-tag">${time}</div>` : "";
                 let cls = "d-" + u;
                 if(!["M","P","R"].includes(u)) cls = "d-M";
-                return `<div class="cell ${cls}"><div>${display}</div>${timeHtml}${repHtml}</div>`;
+                return `<div class="cell ${cls}"><div>${display}</div>${timeHtml}${repHtml}${graziellaHtml}</div>`;
             } else {
                 let time = SCHEDULE[u] || "";
                 let timeHtml = time ? `<div class="time-tag">${time}</div>` : "";
                 let cls = "t-" + u;
                 if(u === "S" || u === "SM") cls = "t-S";
                 else if(!["M","P","N","R"].includes(u)) cls = "t-M";
-                return `<div class="cell ${cls}"><div>${display}</div>${timeHtml}${repHtml}</div>`;
+                return `<div class="cell ${cls}"><div>${display}</div>${timeHtml}${repHtml}${graziellaHtml}</div>`;
             }
         }
 
