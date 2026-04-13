@@ -58,6 +58,7 @@
             --bg-ng: #00bfff; --t-ng: #ffffff; --b-ng: #0099cc;
             --bg-stu: #3b82f6; --t-stu: #ffffff; --b-stu: #1d4ed8;
             --bg-pn: #14532d; --t-pn: #ffffff; --b-pn: #052e16;
+            --bg-coord: #8b5cf6; --t-coord: #ffffff; --b-coord: #7c3aed; /* Sostituzione Coord */
 
             --month-bar-bg: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
             --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
@@ -103,7 +104,6 @@
         
         .brand-text { display: flex; flex-direction: column; min-width: 0; justify-content: center; }
         
-        /* Modifiche per Mostrare Solo Data GitHub */
         .github-lbl {
             font-size: 0.65rem; 
             color: var(--text-sec); 
@@ -127,7 +127,6 @@
 
         .app-actions { display: flex; align-items: center; gap: 6px; position: relative; }
         
-        /* Animazione contenitore a scomparsa */
         .expandable-actions {
             display: flex;
             align-items: center;
@@ -138,12 +137,11 @@
             transition: max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
         }
         .expandable-actions.expanded {
-            max-width: 280px; /* Abbastanza largo per ospitare tutte le icone */
+            max-width: 280px; 
             opacity: 1;
             overflow: visible;
         }
         
-        /* Freccina di attivazione */
         #toggle-actions-btn {
             background: var(--text-main);
             color: var(--bg-card);
@@ -354,6 +352,7 @@
         .spec-ng { background: var(--bg-ng); color: var(--t-ng); border: 1px solid var(--b-ng); font-size: 0.75rem; }
         .spec-stu { background: var(--bg-stu); color: var(--t-stu); border: 1px solid var(--b-stu); font-size: 0.75rem; }
         .spec-pn { background: var(--bg-pn); color: var(--t-pn); border: 1px solid var(--b-pn); font-size: 0.75rem; }
+        .spec-coord { background: var(--bg-coord); color: var(--t-coord); border: 1px solid var(--b-coord); font-size: 0.65rem; line-height: 1.1; }
 
         .empty { background: transparent; box-shadow: none; color: #cbd5e1; font-weight: 400;}
 
@@ -779,6 +778,7 @@
             setTimeout(() => modal.style.display = 'none', 300);
         }
 
+        // Variabili Globali (SISTEMATE PER EVITARE ERRORI)
         let finalData = [];
         let drivers = [];
         let selectedDrivers = new Set();
@@ -786,6 +786,8 @@
         let notifHistory = []; 
         let deferredPrompt;
         let globalMonthsList = []; 
+        let dinnerSelectedMonth = "";
+        let eventType = "cena";
         
         window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
         function installPWA() {
@@ -1179,6 +1181,7 @@
             let repHtml = isReperibile ? `<div class="rep-text">REPERIBILE</div>` : "";
 
             if(subVal === "pn" || prevSubVal === "pn") return `<div class="cell spec-pn"><div style="flex:1;display:flex;align-items:center;text-align:center">PERMESSO<br>NOTTE</div>${repHtml}</div>`;
+            if(subVal === "z") return `<div class="cell spec-coord"><div style="flex:1;display:flex;align-items:center;text-align:center">SOSTITUZIONE<br>COORD.</div>${repHtml}</div>`;
             if(subVal === "v") return `<div class="cell spec-ferie"><div style="flex:1;display:flex;align-items:center;text-align:center">FERIE<br>RESIDUE</div>${repHtml}</div>`;
             if(subVal === "r") return `<div class="cell spec-rec"><div style="flex:1;display:flex;align-items:center;text-align:center">RECUPERO</div>${repHtml}</div>`;
             if(subVal === "f") return `<div class="cell spec-cong"><div style="flex:1;display:flex;align-items:center;text-align:center">CONGEDO<br>ORD.</div>${repHtml}</div>`;
@@ -1333,12 +1336,134 @@
 
         function closeShiftModal(e) { if(e && e.target !== e.currentTarget) return; let m=document.getElementById('shift-modal'); m.classList.remove('open'); setTimeout(()=>m.style.display='none', 200); }
         
-        function openDinnerModal() { toggleMenu(); let m = document.getElementById('dinner-modal'); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 10); resetDinnerStep(); let ml = document.getElementById('dinner-month-list'); ml.innerHTML=""; Object.keys(MONTH_MAP).forEach(k=>{let c=document.createElement('div');c.className="chip chip-month";c.innerText=k.substr(0,3);c.onclick=()=>{vibrate();document.querySelectorAll('#dinner-month-list .chip-month').forEach(x=>x.classList.remove('active'));c.classList.add('active');dinnerSelectedMonth=k;};ml.appendChild(c);}); let dl = document.getElementById('dinner-driver-list'); if(dl.children.length===0){drivers.forEach(d=>{let l=document.createElement('label');l.className="dinner-check-item checked";l.innerHTML=`<input type="checkbox" value="${d.idx}" checked onchange="this.parentElement.classList.toggle('checked');vibrate()"><div class="dinner-check-icon"><span class="material-icons-round" style="font-size:14px">check</span></div>${d.name}`;dl.appendChild(l);});} }
-        function setEventType(t,e){vibrate();eventType=t;document.querySelectorAll('.event-option').forEach(x=>x.classList.remove('active'));e.classList.add('active');}
-        function toggleAllDrivers(){vibrate();let ck=document.querySelectorAll('#dinner-driver-list input');let all=Array.from(ck).every(c=>c.checked);ck.forEach(c=>{c.checked=!all;c.parentElement.classList.toggle('checked',!all);});}
-        function resetDinnerStep(){document.getElementById('dinner-step-1').style.display='block';document.getElementById('dinner-step-2').style.display='none';}
-        function closeDinnerModal(e){if(e&&e.target!==e.currentTarget)return;let m=document.getElementById('dinner-modal');m.classList.remove('open');setTimeout(()=>m.style.display='none',200);}
-        function calculateDinner(){vibrate();if(!dinnerSelectedMonth)return alert("Seleziona mese");let s=[];document.querySelectorAll('#dinner-driver-list input:checked').forEach(x=>s.push(parseInt(x.value)));if(s.length===0)return alert("Seleziona colleghi");let res=[];for(let i=1;i<finalData.length;i++){let r=finalData[i];if(r[0].v!==dinnerSelectedMonth)continue;let d=r[1].v;let ok=0;let ko=[];s.forEach(idx=>{let v=r[idx].v?r[idx].v.toString().trim().toUpperCase():"";let sv=r[idx].subV?r[idx].subV.toString().trim().toLowerCase():"";let busy=false;if(v==="M"||v==="P"||v==="N"||sv==="m"||sv==="f")busy=true;if(eventType==="cena" && v!=="N" && v!=="P") busy=false; if(busy)ko.push(drivers.find(z=>z.idx===idx).name);else ok++;});res.push({day:d,score:ok,tot:s.length,mis:ko});}res.sort((a,b)=>b.score-a.score);let c=document.getElementById('dinner-results-container');c.innerHTML="";res.slice(0,10).forEach(x=>{c.innerHTML+=`<div class="dinner-result-card"><div class="d-res-header"><span class="d-res-date">${x.day} ${dinnerSelectedMonth}</span><span class="d-res-score">${x.score}/${x.tot}</span></div>${x.mis.length?`<div class="missing-list">${x.mis.map(n=>`<span class="missing-badge">${n}</span>`).join("")}</div>`:`<div style="color:green;font-weight:bold;text-align:center">TUTTI LIBERI!</div>`}</div>`});document.getElementById('dinner-step-1').style.display='none';document.getElementById('dinner-step-2').style.display='block';}
+        // --- FUNZIONI ORGANIZZA CENA COMPLETAMENTE RISCRITTE PER EVITARE CRASH ---
+        function openDinnerModal() { 
+            toggleMenu(); 
+            let m = document.getElementById('dinner-modal'); 
+            m.style.display = 'flex'; 
+            setTimeout(() => m.classList.add('open'), 10); 
+            resetDinnerStep(); 
+            let ml = document.getElementById('dinner-month-list'); 
+            ml.innerHTML=""; 
+            Object.keys(MONTH_MAP).forEach(k=>{
+                let c=document.createElement('div');
+                c.className="chip chip-month";
+                c.innerText=k.substr(0,3);
+                c.onclick=()=>{
+                    vibrate();
+                    document.querySelectorAll('#dinner-month-list .chip-month').forEach(x=>x.classList.remove('active'));
+                    c.classList.add('active');
+                    dinnerSelectedMonth=k;
+                };
+                ml.appendChild(c);
+            }); 
+            let dl = document.getElementById('dinner-driver-list'); 
+            if(dl.children.length===0){
+                drivers.forEach(d=>{
+                    let l=document.createElement('label');
+                    l.className="dinner-check-item checked";
+                    l.innerHTML=`<input type="checkbox" value="${d.idx}" checked onchange="this.parentElement.classList.toggle('checked');vibrate()"><div class="dinner-check-icon"><span class="material-icons-round" style="font-size:14px">check</span></div>${d.name}`;
+                    dl.appendChild(l);
+                });
+            } 
+        }
+
+        function setEventType(t,e) {
+            vibrate();
+            eventType=t;
+            document.querySelectorAll('.event-option').forEach(x=>x.classList.remove('active'));
+            e.classList.add('active');
+        }
+
+        function toggleAllDrivers(){
+            vibrate();
+            let ck=document.querySelectorAll('#dinner-driver-list input');
+            let all=Array.from(ck).every(c=>c.checked);
+            ck.forEach(c=>{c.checked=!all; c.parentElement.classList.toggle('checked',!all);});
+        }
+
+        function resetDinnerStep(){
+            document.getElementById('dinner-step-1').style.display='block';
+            document.getElementById('dinner-step-2').style.display='none';
+        }
+
+        function closeDinnerModal(e){
+            if(e&&e.target!==e.currentTarget)return;
+            let m=document.getElementById('dinner-modal');
+            m.classList.remove('open');
+            setTimeout(()=>m.style.display='none',200);
+        }
+
+        function calculateDinner() {
+            vibrate();
+            if(!dinnerSelectedMonth) return alert("Seleziona il mese!");
+            
+            let s = [];
+            document.querySelectorAll('#dinner-driver-list input:checked').forEach(x => s.push(parseInt(x.value)));
+            if(s.length === 0) return alert("Seleziona almeno un collega!");
+            
+            let res = [];
+            for(let i=1; i<finalData.length; i++) {
+                let r = finalData[i];
+                if(r[0] && r[0].v !== dinnerSelectedMonth) continue; // Salta i mesi non scelti
+                
+                let d = r[1] ? r[1].v : "";
+                let ok = 0;
+                let ko = [];
+                
+                s.forEach(idx => {
+                    let cell = r[idx] || {}; // Evita crash se la cella non esiste
+                    let v = cell.v ? cell.v.toString().trim().toUpperCase() : "";
+                    
+                    // Rimuovi eventuale '/R' della reperibilità
+                    if (isRepStr(v)) {
+                        let sIdx = v.indexOf('/');
+                        if (sIdx !== -1) v = v.substring(0, sIdx).trim();
+                    }
+
+                    let sv = cell.subV ? cell.subV.toString().trim().toLowerCase() : "";
+                    
+                    let busy = false;
+                    
+                    // Condizioni Base: se in malattia, ferie o altro permesso lungo, è "occupato" a prescindere dal turno
+                    if(["m", "f", "v", "pn", "c"].includes(sv)) busy = true;
+                    
+                    if(eventType === "cena") {
+                        // Per CENA, sei occupato se fai P o N
+                        if(v === "P" || v === "N") busy = true;
+                    } else { 
+                        // Per PRANZO, sei occupato se fai M o P
+                        if(v === "M" || v === "P") busy = true;
+                    }
+
+                    if(busy) {
+                        let objDriver = drivers.find(z => z.idx === idx);
+                        ko.push(objDriver ? objDriver.name : "Ignoto");
+                    } else {
+                        ok++;
+                    }
+                });
+                res.push({ day: d, score: ok, tot: s.length, mis: ko });
+            }
+            
+            res.sort((a,b) => b.score - a.score);
+            let c = document.getElementById('dinner-results-container');
+            c.innerHTML = "";
+            
+            res.slice(0,10).forEach(x => {
+                c.innerHTML += `
+                <div class="dinner-result-card">
+                    <div class="d-res-header">
+                        <span class="d-res-date">${x.day} ${dinnerSelectedMonth}</span>
+                        <span class="d-res-score">${x.score}/${x.tot}</span>
+                    </div>
+                    ${x.mis.length ? `<div class="missing-list">${x.mis.map(n => `<span class="missing-badge">${n}</span>`).join("")}</div>` : `<div style="color:green;font-weight:bold;text-align:center">TUTTI LIBERI!</div>`}
+                </div>`;
+            });
+            
+            document.getElementById('dinner-step-1').style.display = 'none';
+            document.getElementById('dinner-step-2').style.display = 'block';
+        }
 
     </script>
 </body>
