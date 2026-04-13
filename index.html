@@ -58,8 +58,8 @@
             --bg-ng: #00bfff; --t-ng: #ffffff; --b-ng: #0099cc;
             --bg-stu: #3b82f6; --t-stu: #ffffff; --b-stu: #1d4ed8;
             --bg-pn: #14532d; --t-pn: #ffffff; --b-pn: #052e16;
-            --bg-coord: #ff9696; --t-coord: #ffffff; --b-coord: #ee7c7c; /* Sostituzione Coord */
-
+            --bg-coord: #ffffff; --t-coord: #ff0000; --b-coord: #ff0000;
+            
             --month-bar-bg: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
             --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
@@ -353,6 +353,13 @@
         .spec-stu { background: var(--bg-stu); color: var(--t-stu); border: 1px solid var(--b-stu); font-size: 0.75rem; }
         .spec-pn { background: var(--bg-pn); color: var(--t-pn); border: 1px solid var(--b-pn); font-size: 0.75rem; }
         .spec-coord { background: var(--bg-coord); color: var(--t-coord); border: 1px solid var(--b-coord); font-size: 0.65rem; line-height: 1.1; }
+        .spec-gr { background: #fdf2f8; color: #db2777; border: 1px solid #f9a8d4; }
+        
+        .baby-icon { font-size: 24px !important; margin-bottom: 2px; animation: babyFloat 2s ease-in-out infinite; }
+        @keyframes babyFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
 
         .empty { background: transparent; box-shadow: none; color: #cbd5e1; font-weight: 400;}
 
@@ -436,7 +443,13 @@
         .dinner-check-icon { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; transition: 0.2s; }
         .dinner-check-item.checked .dinner-check-icon { background: var(--primary); border-color: var(--primary); color: white; }
         .dinner-section-title { font-size: 0.75rem; font-weight: 800; color: var(--text-sec); padding: 20px 20px 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        
         .month-selector { display: flex; overflow-x: auto; gap: 8px; padding: 0 20px 10px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+        .chip-month { background: var(--bg); color: var(--text-sec); border: 1px solid var(--border); }
+        .chip-month.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 2px 6px rgba(37,99,235,0.3); }
+        .chip-month.disabled { background: transparent; color: #94a3b8; border: 1px dashed #cbd5e1; text-decoration: line-through; opacity: 0.6; pointer-events: none; }
+        body.dark-mode .chip-month.disabled { color: #475569; border-color: #334155; }
+
         .btn-find-dinner { margin: 20px; background: #0f172a; color: white; border: none; padding: 16px; border-radius: 14px; font-weight: 800; font-size: 1rem; width: calc(100% - 40px); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.3); transition: 0.2s; }
         body.dark-mode .btn-find-dinner { background: var(--primary); }
         .event-type-selector { display: flex; background: var(--bg); padding: 4px; border-radius: 14px; margin: 0 20px 10px; }
@@ -778,7 +791,7 @@
             setTimeout(() => modal.style.display = 'none', 300);
         }
 
-        // Variabili Globali (SISTEMATE PER EVITARE ERRORI)
+        // Variabili Globali
         let finalData = [];
         let drivers = [];
         let selectedDrivers = new Set();
@@ -1180,6 +1193,17 @@
 
             let repHtml = isReperibile ? `<div class="rep-text">REPERIBILE</div>` : "";
 
+            if(subVal === "gr") {
+                return `
+                <div class="cell spec-gr">
+                    <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                        <span class="material-icons-round baby-icon">child_care</span>
+                        <div style="font-size:0.55rem; font-weight:900;">GRAVIDANZA</div>
+                    </div>
+                    ${repHtml}
+                </div>`;
+            }
+
             if(subVal === "pn" || prevSubVal === "pn") return `<div class="cell spec-pn"><div style="flex:1;display:flex;align-items:center;text-align:center">PERMESSO<br>NOTTE</div>${repHtml}</div>`;
             if(subVal === "z") return `<div class="cell spec-coord"><div style="flex:1;display:flex;align-items:center;text-align:center">SOSTITUZIONE<br>COORD.</div>${repHtml}</div>`;
             if(subVal === "v") return `<div class="cell spec-ferie"><div style="flex:1;display:flex;align-items:center;text-align:center">FERIE<br>RESIDUE</div>${repHtml}</div>`;
@@ -1336,7 +1360,7 @@
 
         function closeShiftModal(e) { if(e && e.target !== e.currentTarget) return; let m=document.getElementById('shift-modal'); m.classList.remove('open'); setTimeout(()=>m.style.display='none', 200); }
         
-        // --- FUNZIONI ORGANIZZA CENA COMPLETAMENTE RISCRITTE PER EVITARE CRASH ---
+        // --- FUNZIONI ORGANIZZA CENA ---
         function openDinnerModal() { 
             toggleMenu(); 
             let m = document.getElementById('dinner-modal'); 
@@ -1345,24 +1369,43 @@
             resetDinnerStep(); 
             let ml = document.getElementById('dinner-month-list'); 
             ml.innerHTML=""; 
-            Object.keys(MONTH_MAP).forEach(k=>{
-                let c=document.createElement('div');
-                c.className="chip chip-month";
-                c.innerText=k.substr(0,3);
-                c.onclick=()=>{
-                    vibrate();
-                    document.querySelectorAll('#dinner-month-list .chip-month').forEach(x=>x.classList.remove('active'));
-                    c.classList.add('active');
-                    dinnerSelectedMonth=k;
-                };
+            
+            // Trova il mese e l'anno corrente per disabilitare i mesi passati
+            let currentDate = new Date();
+            let currentMonthIdx = currentDate.getMonth(); 
+            let currentYear = currentDate.getFullYear();
+            
+            // Se testiamo nel 2026 i mesi prima di aprile saranno sbarrati.
+            // Se siamo nel 2027+, tutto sbarrato. Se siamo nel 2025-, niente sbarrato.
+            if(currentYear > 2026) currentMonthIdx = 12;
+            if(currentYear < 2026) currentMonthIdx = -1;
+
+            Object.keys(MONTH_MAP).forEach(k => {
+                let mIdx = MONTH_MAP[k];
+                let c = document.createElement('div');
+                c.className = "chip chip-month";
+                c.innerText = k.substr(0,3);
+                
+                // Seleziona se il mese è passato e lo disabilita
+                if(mIdx < currentMonthIdx) {
+                    c.classList.add('disabled');
+                } else {
+                    c.onclick = () => {
+                        vibrate();
+                        document.querySelectorAll('#dinner-month-list .chip-month').forEach(x => x.classList.remove('active'));
+                        c.classList.add('active');
+                        dinnerSelectedMonth = k;
+                    };
+                }
                 ml.appendChild(c);
             }); 
+            
             let dl = document.getElementById('dinner-driver-list'); 
-            if(dl.children.length===0){
-                drivers.forEach(d=>{
-                    let l=document.createElement('label');
-                    l.className="dinner-check-item checked";
-                    l.innerHTML=`<input type="checkbox" value="${d.idx}" checked onchange="this.parentElement.classList.toggle('checked');vibrate()"><div class="dinner-check-icon"><span class="material-icons-round" style="font-size:14px">check</span></div>${d.name}`;
+            if(dl.children.length === 0){
+                drivers.forEach(d => {
+                    let l = document.createElement('label');
+                    l.className = "dinner-check-item checked";
+                    l.innerHTML = `<input type="checkbox" value="${d.idx}" checked onchange="this.parentElement.classList.toggle('checked');vibrate()"><div class="dinner-check-icon"><span class="material-icons-round" style="font-size:14px">check</span></div>${d.name}`;
                     dl.appendChild(l);
                 });
             } 
@@ -1370,28 +1413,28 @@
 
         function setEventType(t,e) {
             vibrate();
-            eventType=t;
-            document.querySelectorAll('.event-option').forEach(x=>x.classList.remove('active'));
+            eventType = t;
+            document.querySelectorAll('.event-option').forEach(x => x.classList.remove('active'));
             e.classList.add('active');
         }
 
         function toggleAllDrivers(){
             vibrate();
-            let ck=document.querySelectorAll('#dinner-driver-list input');
-            let all=Array.from(ck).every(c=>c.checked);
-            ck.forEach(c=>{c.checked=!all; c.parentElement.classList.toggle('checked',!all);});
+            let ck = document.querySelectorAll('#dinner-driver-list input');
+            let all = Array.from(ck).every(c => c.checked);
+            ck.forEach(c => { c.checked = !all; c.parentElement.classList.toggle('checked',!all); });
         }
 
         function resetDinnerStep(){
-            document.getElementById('dinner-step-1').style.display='block';
-            document.getElementById('dinner-step-2').style.display='none';
+            document.getElementById('dinner-step-1').style.display = 'block';
+            document.getElementById('dinner-step-2').style.display = 'none';
         }
 
         function closeDinnerModal(e){
-            if(e&&e.target!==e.currentTarget)return;
-            let m=document.getElementById('dinner-modal');
+            if(e && e.target !== e.currentTarget) return;
+            let m = document.getElementById('dinner-modal');
             m.classList.remove('open');
-            setTimeout(()=>m.style.display='none',200);
+            setTimeout(() => m.style.display = 'none', 200);
         }
 
         function calculateDinner() {
@@ -1405,17 +1448,16 @@
             let res = [];
             for(let i=1; i<finalData.length; i++) {
                 let r = finalData[i];
-                if(r[0] && r[0].v !== dinnerSelectedMonth) continue; // Salta i mesi non scelti
+                if(r[0] && r[0].v !== dinnerSelectedMonth) continue; 
                 
                 let d = r[1] ? r[1].v : "";
                 let ok = 0;
                 let ko = [];
                 
                 s.forEach(idx => {
-                    let cell = r[idx] || {}; // Evita crash se la cella non esiste
+                    let cell = r[idx] || {}; 
                     let v = cell.v ? cell.v.toString().trim().toUpperCase() : "";
                     
-                    // Rimuovi eventuale '/R' della reperibilità
                     if (isRepStr(v)) {
                         let sIdx = v.indexOf('/');
                         if (sIdx !== -1) v = v.substring(0, sIdx).trim();
@@ -1425,14 +1467,11 @@
                     
                     let busy = false;
                     
-                    // Condizioni Base: se in malattia, ferie o altro permesso lungo, è "occupato" a prescindere dal turno
-                    if(["m", "f", "v", "pn", "c"].includes(sv)) busy = true;
+                    if(["m", "f", "v", "pn", "c", "gr"].includes(sv)) busy = true;
                     
                     if(eventType === "cena") {
-                        // Per CENA, sei occupato se fai P o N
                         if(v === "P" || v === "N") busy = true;
                     } else { 
-                        // Per PRANZO, sei occupato se fai M o P
                         if(v === "M" || v === "P") busy = true;
                     }
 
