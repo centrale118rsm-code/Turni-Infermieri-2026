@@ -1133,12 +1133,21 @@
             if(isRepStr(rawV)) { let si = rawV.indexOf('/'); if(si !== -1) rawV = rawV.substring(0, si).trim(); }
             let uVal = rawV.toUpperCase(); if(uVal==="S") uVal="SM";
             let isD = rawV.length > 0 && rawV.charAt(0) >= 'a' && rawV.charAt(0) <= 'z';
-            let isWorking = ["M","P","N","SM"].includes(uVal);
+            let isWorking = ["M","P","N","SM"].includes(uVal) || isMN(rawV);
             let isMatch = false;
-            if(["M","P","N","SM"].includes(uShift)) { if(uVal === uShift) isMatch = true; }
-            else { if(isWorking) isMatch = true; }
+            if(["M","P","N","SM"].includes(uShift)) {
+                if(uVal === uShift) isMatch = true;
+                // chi fa M+N compare sia nel turno MATTINA che nel turno NOTTE
+                if(isMN(rawV) && (uShift === "M" || uShift === "N")) isMatch = true;
+            } else {
+                if(isWorking) isMatch = true;
+            }
             if(isMatch) {
-                let time = isD ? (SCHEDULE_DIURNI[rawV.toLowerCase()] || rawV) : (SCHEDULE[uVal] || uVal);
+                let time = isD
+                    ? (SCHEDULE_DIURNI[rawV.toLowerCase()] || rawV)
+                    : (isMN(rawV)
+                        ? `M: ${SCHEDULE["M"]} / N: ${SCHEDULE["N"]}`
+                        : (SCHEDULE[uVal] || uVal));
                 let strSup = (cell.supV||"").toString().trim(), strV = (cell.v||"").toString().trim(), strSub = (cell.subV||"").toString().trim();
                 if(isRepStr(strSup)||isRepStr(strV)||isRepStr(strSub)) time += ` &nbsp;<span style="color:#ef4444;font-weight:900;font-size:0.75rem;">(REPERIBILE)</span>`;
                 let badgeStyle = "background:#e2e8f0;color:#475569";
