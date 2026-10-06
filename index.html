@@ -7393,7 +7393,7 @@
         limit:  { icon: 'event_busy',  title: 'Oltre il limite' }
     };
     const chkId = (...p) => p.join('_').replace(/[^A-Za-z0-9]+/g, '_').slice(0, 140);
-    const chkDateLbl = d => d.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' });
+    const chkDateLbl = d => d.toLocaleDateString('it-IT', Object.assign({ weekday: 'short', day: 'numeric', month: 'short' }, d.getFullYear() !== SHIFT_YEAR ? { year: 'numeric' } : {}));
     const chkBase = c => { let v = String((c && c.v) || '').trim(); const i = v.indexOf('/'); if(i !== -1) v = v.slice(0, i).trim(); return v; };
     const chkSub = c => String((c && c.subV) || '').trim().toLowerCase();
     const chkIsAbs = s => !!s && SPECIAL_SUBCODES[s] !== undefined;
@@ -7415,10 +7415,12 @@
     function ccAnomalies() {
         if(chkCache && chkCache.data === finalData && Date.now() - chkCache.t < 1500) return chkCache.list;
         const out = [], all = buildDaysIndex(), rowOf = {}; all.forEach(dd => rowOf[ymd(dd.date)] = dd.rowIdx);
+        // le caselle si controllano anche nei mesi dell'anno dopo già aperti (si compilano in anticipo)
+        const rowsAll = []; for(let r = 1; r < finalData.length; r++) { const iso = repRowDate(r); if(iso && shiftRowYear(r) <= SHIFT_YEAR + 1) rowsAll.push({ rowIdx: r, date: repDateObj(iso) }); }
         drivers.filter(d => !d.hidden).forEach(d => {
             const nm = d.originalName || d.name;
             const add = (kind, iso, key, r, date, detail) => out.push({ id: chkId(kind, nm, iso, key), kind, d, r, idx: d.idx, date, detail });
-            all.forEach(dd => {
+            rowsAll.forEach(dd => {
                 const r = dd.rowIdx, c = finalData[r][d.idx] || {}, iso = ymd(dd.date);
                 const nx = finalData[r + 1] ? (finalData[r + 1][d.idx] || {}) : null, pv = r > 1 ? (finalData[r - 1][d.idx] || {}) : null;
                 const v = chkBase(c), V = v.toUpperCase().replace(/\s+/g, ''), s = chkSub(c);
