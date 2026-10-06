@@ -4836,6 +4836,13 @@
         if(!isContractDay(new Date(shiftRowYear(rowIdx), mi, dn))) return 0;
         return getContractHours(colIdx) * 60 / CONTRACT_WORKDAYS;
     }
+    // Il giorno dopo un permesso notte è libero se non ha un turno suo né un'altra assenza
+    function pnTailFree(cell) {
+        const sub = String((cell && cell.subV) || '').trim().toLowerCase();
+        if(sub && SPECIAL_SUBCODES[sub] !== undefined) return false;
+        let v = String((cell && cell.v) || '').trim(); const i = v.indexOf('/'); if(i !== -1) v = v.slice(0, i).trim();
+        return !v || v === '-' || /^(r|riposo|s|sm)$/i.test(v);
+    }
     // Metodo A (principale): rispecchia esattamente la logica usata per disegnare
     // le celle del calendario, incluso lo SMONTO automatico dopo un turno M+N.
     function computeDayInfo(rowIdx, colIdx) {
@@ -4848,6 +4855,10 @@
         const prevInfo = prevRow ? (prevRow[colIdx] || {}) : null;
         let prevRaw = (prevInfo && prevInfo.v !== undefined && prevInfo.v !== null) ? prevInfo.v.toString().trim().toUpperCase().replace(/\s+/g,'') : "";
         if(isMN(prevRaw)) return { minutes: minutesFromRange(SCHEDULE["SM"]), code:"SM", label:"SMONTO (dopo M+N)" };
+        // Permesso notte: il giorno dopo la notte continua fino alle 07:20 e quelle ore si contano sempre
+        // (anche se la casella è vuota, "-", un riposo o segnata "x" come nel file Excel)
+        if(prevInfo && String(prevInfo.subV || '').trim().toLowerCase() === 'pn' && pnTailFree(info))
+            return { minutes: minutesFromRange(SCHEDULE["SM"]), code:"pn", label:"PERMESSO NOTTE (dopo mezzanotte)", justified:true, pnTail:true };
 
         let rawStr = (info.v !== undefined && info.v !== null) ? info.v.toString().trim() : "";
         let rawUpper = rawStr.toUpperCase().replace(/\s+/g,'');
@@ -4884,6 +4895,11 @@
         const prevRow = finalData[rowIdx-1]; const prevCell = prevRow ? (prevRow[colIdx]||{}) : {};
         let prevRaw = (prevCell.v||"").toString().trim().toUpperCase().replace(/\s+/g,'');
         if(prevRaw === "M+N" || prevRaw === "MN") return minutesFromRange(SCHEDULE["SM"]);
+        if((prevCell.subV||"").toString().trim().toLowerCase() === "pn") {
+            const sb = (cell.subV||"").toString().trim().toLowerCase(), own = (cell.v||"").toString().split('/')[0].trim();
+            const otherAbs = sb && Object.prototype.hasOwnProperty.call(SPECIAL_SUBCODES, sb);
+            if(!otherAbs && (own === "" || own === "-" || ["R","RIPOSO","S","SM"].includes(own.toUpperCase()))) return minutesFromRange(SCHEDULE["SM"]);
+        }
         let raw = (cell.v||"").toString().trim();
         let rawU = raw.toUpperCase().replace(/\s+/g,'');
         if(rawU === "M+N" || rawU === "MN") return minutesFromRange(SCHEDULE["M"]) + minutesFromRange(SCHEDULE["N"]);
@@ -6094,7 +6110,7 @@
     function hmRange(s) { const m = String(s || '').match(/(\d{1,2})[:.](\d{2})\D+(\d{1,2})[:.](\d{2})/); return m ? [m[1].padStart(2, '0') + ':' + m[2], m[3].padStart(2, '0') + ':' + m[4]] : null; }
     // Eventi di una persona in un giorno: turni con orario, assenze a giornata intera.
     function dayEvents(rowIdx, d) {
-        const info = computeDayInfo(rowIdx, d.idx), c = info.code; if(!c || c === 'STR') return [];
+        const info = computeDayInfo(rowIdx, d.idx), c = info.code; if(!c || c === 'STR' || info.pnTail) return [];
         if(info.justified) {
             const lbl = info.custom ? (customCodes[c].label || c).replace(/\|/g, ' ') : ((ABS_TYPES[c] && ABS_TYPES[c].label) || SPECIAL_SUBCODES[c] || c);
             return [{ kind: 'abs', code: c, label: lbl.charAt(0) + lbl.slice(1).toLowerCase() }];
