@@ -4,7 +4,7 @@ name: Motore notifiche e calendari
 
 on:
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '7,22,37,52 * * * *'   # minuti poco affollati: GitHub ritarda o salta i giri allo scoccare dell'ora
   workflow_dispatch:
 
 permissions:

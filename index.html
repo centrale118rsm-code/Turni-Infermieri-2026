@@ -3314,6 +3314,9 @@
         try { await fbAuth.signInAnonymously(); } catch(e) { console.error("Auth anonima fallita:", e); }
         if(SERVER_MODE) return;
         identityRecoveryPromise = tryRecoverIdentityFromUid();
+        // impostazioni e reperibilità subito: non aspettano la scrittura della sessione (connessione lenta o assente)
+        listenConfigChanges();
+        listenReperibilita();   // le richieste in arrivo si ascoltano solo sul telefono del coordinatore
         try {
             await db.collection('infermieri26_accessi').doc(sessionId).set({
                 device: getDeviceLabel(),
@@ -3333,8 +3336,6 @@
                 db.collection('infermieri26_accessi').doc(sessionId).set({ online:false, lastActive: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true });
             } catch(e) {}
         });
-        listenConfigChanges();
-        listenReperibilita();   // le richieste in arrivo si ascoltano solo sul telefono del coordinatore
     }
 
     // Rete di sicurezza: se il browser ha cancellato i dati salvati sul dispositivo
@@ -3525,7 +3526,7 @@
                 renderCoordSyncList();
             }
             if(data.coverageMin) { coverageMin = Object.assign({}, COVERAGE_DEFAULT, data.coverageMin); dayChecksCache = null; }
-            if(data.checksResolved !== undefined) { checksResolved = data.checksResolved || {}; chkRefresh(); }
+            if(data.checksResolved !== undefined) { checksResolved = data.checksResolved || {}; setTimeout(chkRefresh, 0); }   // fuori dal flusso: un errore qui non deve fermare il resto delle impostazioni
             if(data.customCodes !== undefined && JSON.stringify(data.customCodes || {}) !== JSON.stringify(customCodes)) {
                 customCodes = data.customCodes || {}; applyCustomCodes();
                 if(finalData.length && document.querySelector('#table-body tr[data-row]')) renderTable();
@@ -3580,26 +3581,60 @@
         if(!fbReady) return;
         db.collection('richieste_infermieri').orderBy('timestamp', 'desc').limit(50)
             .onSnapshot(snap => {
-                if(!richiesteListenerReady) { richiesteListenerReady = true; return; } // salta il carico iniziale
+                // al primo caricamento: quelle arrivate mentre l'app era chiusa (non si perde nessuna richiesta)
+                if(!richiesteListenerReady) { richiesteListenerReady = true; reqCatchUp(snap.docs); return; }
                 snap.docChanges().forEach(change => {
                     if(change.type !== 'added') return;
                     notifyCoordinatorOfNewRequest(change.doc.data(), change.doc.id);
+                    reqMarkSeen(change.doc.data().timestamp);
                 });
             }, err => console.error('Errore ascolto richieste infermieri:', err));
     }
-    function notifyCoordinatorOfNewRequest(r, reqId) {
-        if(!isCoordinator) return;
+    function reqParts(r) {
         const label = RICHIESTE_TYPE_LABELS[r.type] || r.type || 'Richiesta';
         let periodo = '';
         if(r.dateFrom) {
             const parts = r.dateFrom.split('-');
             if(parts.length === 3) periodo = parts[2] + '/' + parts[1];
         }
+        if(r.type === 'copertura_reperibilita' && r.timeSlot) periodo += (periodo ? ' ' : '') + '(' + r.timeSlot + ')';
         const swap = r.swapWith ? (' con ' + r.swapWith) : '';
+        return { label, periodo, swap };
+    }
+    function notifyCoordinatorOfNewRequest(r, reqId, quiet) {
+        if(!isCoordinator) return;
+        if(reqId && notifHistory.some(n => n.reqId === reqId && n.owner === prefOwner())) return;   // già notificata su questo telefono
+        const { label, periodo, swap } = reqParts(r);
         const msg = `<b>${r.name || '—'}</b><br><span style="font-size:0.85rem;color:var(--text-sec)">${label}${swap}${periodo ? ' · ' + periodo : ''}</span>`;
         notifHistory.unshift({ id: Date.now()+Math.random(), ts: Date.now(), text: msg, read:false, archived:false, date:new Date().toLocaleString(), type:'richiesta', reqId: reqId || null, owner: prefOwner() });
         saveNotifications(); updateBadge();
-        showRichiestaAlert(r.name, label, swap, periodo, reqId);
+        if(!quiet) showRichiestaAlert(r.name, label, swap, periodo, reqId);
+    }
+    // Ultima richiesta già vista dal coordinatore su questo telefono (data di invio della richiesta).
+    function reqSeenKey() { return 'req_seen_ts_' + normalizeNameForMatch(coordinatorName || ''); }
+    function reqMarkSeen(ts) {
+        ts = String(ts || ''); if(!ts || !isCoordinator) return;
+        try { const k = reqSeenKey(), cur = localStorage.getItem(k) || ''; if(ts > cur) localStorage.setItem(k, ts); } catch(e) {}
+    }
+    // Richieste arrivate ad app chiusa: tutte nel centro notifiche e un solo avviso riassuntivo.
+    // La prima volta su un telefono si guardano quelle degli ultimi 7 giorni non ancora inserite.
+    function reqCatchUp(docs) {
+        if(!isCoordinator) return;
+        let last = ''; try { last = localStorage.getItem(reqSeenKey()) || ''; } catch(e) {}
+        const weekAgo = new Date(Date.now() - 7 * 864e5).toISOString();
+        const fresh = docs.map(d => ({ id: d.id, r: d.data() || {} })).filter(x => {
+            const t = String(x.r.timestamp || ''); if(!t || x.r.obscured) return false;
+            return last ? t > last : (t > weekAgo && !x.r.insertedInShifts);
+        }).filter(x => !notifHistory.some(n => n.reqId === x.id && n.owner === prefOwner())).reverse();
+        docs.forEach(d => reqMarkSeen((d.data() || {}).timestamp));
+        if(!fresh.length) return;
+        if(fresh.length === 1) { notifyCoordinatorOfNewRequest(fresh[0].r, fresh[0].id); return; }
+        fresh.forEach(x => notifyCoordinatorOfNewRequest(x.r, x.id, true));
+        lastRichiestaAlertReqId = null;
+        const rows = fresh.slice(-6).reverse().map(x => { const p = reqParts(x.r); return `<div style="background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:9px 12px; text-align:left; margin-bottom:6px;"><div style="font-weight:900;">${esc(x.r.name || '—')}</div><div style="font-size:0.84rem; color:var(--text-sec);">${esc(p.label + p.swap)}${p.periodo ? ' · ' + esc(p.periodo) : ''}</div></div>`; }).join('');
+        document.getElementById('richiesta-alert-text').innerHTML = `<div style="font-weight:800; margin-bottom:10px;">${fresh.length} richieste arrivate mentre l’app era chiusa</div>${rows}${fresh.length > 6 ? `<div style="font-size:0.8rem; color:var(--text-sec);">e altre ${fresh.length - 6}: le trovi tutte nelle notifiche</div>` : ''}<div style="font-size:0.8rem; color:var(--text-sec); margin-top:10px;">Da approvare come coordinatore.</div>`;
+        const m = document.getElementById('richiesta-alert-modal'); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 100);
+        if(navigator.vibrate) navigator.vibrate([40,60,40]);
     }
 
     function applyColorOverrides() {
@@ -4529,7 +4564,7 @@
 
     function loadNotificationHistory() {
         let saved = localStorage.getItem('notifications_history_nurses');
-        if(saved) { notifHistory = JSON.parse(saved); notifHistory.forEach(n => { if(n.archived === undefined) n.archived = false; }); }
+        if(saved) { const mem = notifHistory; notifHistory = JSON.parse(saved); notifHistory.forEach(n => { if(n.archived === undefined) n.archived = false; }); mem.forEach(n => { if(!notifHistory.some(x => x.id === n.id)) notifHistory.unshift(n); }); }   // non si perdono quelle arrivate prima del caricamento
         notifClaimLegacy(); updateBadge();
     }
     // Le notifiche sono di chi le ha ricevute: cambiando nome (o come Ospite) non si vedono quelle degli altri.
@@ -7485,7 +7520,7 @@
             await cfgRef('settings').update(new firebase.firestore.FieldPath('checksResolved', id), on ? val : firebase.firestore.FieldValue.delete());
         } catch(e) { console.error(e); ccToast('Spunta non salvata: ' + (e.code || e.message), true); }
     }
-    function chkRefresh() { chkCache = null; chkRender(); ccUpdateNavCounts(); }
+    function chkRefresh() { chkCache = null; try { chkRender(); if(appBooted && finalData.length) ccUpdateNavCounts(); } catch(e) { console.error('Da controllare:', e); } }
     function chkMaybeAuto() {
         try { if(sessionStorage.getItem('chk_auto_shown')) return; } catch(e) {}
         if(isViewingArchive() || !chkOpenCount()) return;
