@@ -24,7 +24,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;450;500;600&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add_circle,arrow_downward,arrow_selector_tool,arrow_upward,backup,badge,balance,beach_access,calendar_month,check,check_circle,chevron_left,chevron_right,close,cloud_done,cloud_download,cloud_off,cloud_upload,delete,delete_forever,description,done_all,download,drag_indicator,edit,edit_calendar,edit_note,error,event_busy,event_upcoming,expand_less,expand_more,filter_list,group,history,hourglass_top,info,ink_eraser,inventory_2,login,logout,manage_accounts,move_down,notifications_active,notifications_off,open_with,person_add,person_off,person_remove,person_search,phone_in_talk,picture_as_pdf,print,redo,remove_circle,repeat,restart_alt,restore,save,save_as,schedule,search,settings,shield,space_dashboard,summarize,swap_horiz,sync,table_view,task_alt,today,tune,undo,upload,upload_file,verified,view_agenda,view_compact,visibility,visibility_off,warning&display=block" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add_circle,arrow_downward,arrow_selector_tool,arrow_upward,backup,badge,balance,beach_access,bedtime,calendar_month,check,check_circle,chevron_left,chevron_right,close,cloud_done,cloud_download,cloud_off,cloud_upload,delete,delete_forever,description,done_all,download,drag_indicator,edit,edit_calendar,edit_note,error,event_busy,event_upcoming,expand_less,expand_more,fact_check,filter_list,group,help,history,hourglass_top,info,ink_eraser,inventory_2,layers,login,logout,manage_accounts,move_down,nights_stay,notifications_active,notifications_off,open_in_new,open_with,person_add,person_off,person_remove,person_search,phone_in_talk,picture_as_pdf,print,redo,remove_circle,repeat,restart_alt,restore,save,save_as,schedule,search,settings,shield,space_dashboard,summarize,swap_horiz,sync,table_view,task_alt,today,tune,undo,upload,upload_file,verified,view_agenda,view_compact,visibility,visibility_off,warning,wb_twilight&display=block" rel="stylesheet">
     <style>
         * { -webkit-tap-highlight-color: transparent; user-select: none; box-sizing: border-box; outline: none; }
         :root {
@@ -141,9 +141,16 @@
         .hdr-coord-exit:hover { background: #b91c1c; }
         .hdr-coord-exit:active { transform: scale(0.97); }
         body.coord-session .hdr-coord-exit { display: inline-flex; }
+        .hdr-coord-edit { background: #2563eb; box-shadow: 0 4px 12px -4px rgba(37,99,235,0.7); margin-left: 6px; }
+        .hdr-coord-edit:hover { background: #1d4ed8; }
+        body.coord-edit-mode .hdr-coord-edit { background: #fff; color: #1d4ed8; border-color: #fff; }
+        body.coord-edit-mode .hdr-coord-edit .material-icons-round { color: #1d4ed8; }
         @media (max-width: 560px) {
             .hdr-coord-exit { height: auto; min-height: 30px; padding: 3px 7px 3px 5px; font-size: 10px; white-space: normal; max-width: 86px; text-align: left; }
             .hdr-coord-exit .material-icons-round { font-size: 14px; }
+            .hdr-coord-edit { padding: 0; width: 34px; justify-content: center; margin-left: 4px; }
+            .hdr-coord-edit span:not(.material-icons-round) { display: none; }
+            .hdr-coord-edit .material-icons-round { font-size: 18px; }
         }
         .badge-dot {
             position: absolute; top: 6px; right: 6px; width: 9px; height: 9px;
@@ -1684,6 +1691,40 @@
         .cc-edit-intro ol li b { font-weight:600; }
         @media (max-width:760px) { .cc-edit-intro { grid-template-columns:1fr; justify-items:center; } .cc-edit-intro > div:last-child { justify-self:stretch; } }
 
+        /* finestra "Da controllare" */
+        #chk-modal { display:none; position:fixed; inset:0; z-index:9850; background:rgba(12,18,26,.5); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:16px; opacity:0; transition:opacity .16s; font-family:var(--cc-font); }
+        #chk-modal.open { opacity:1; }
+        .chk-box { width:min(680px, 100%); max-height:min(90vh, 820px); display:flex; flex-direction:column; background:var(--cc-surface); color:var(--cc-text); border:1px solid var(--cc-line); border-radius:16px; box-shadow:0 30px 70px -20px rgba(12,18,26,.55); overflow:hidden; }
+        .chk-head { display:flex; align-items:center; gap:12px; padding:16px 14px 12px 18px; border-bottom:1px solid var(--cc-line-2); }
+        .chk-hico { width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; background:var(--cc-warn-soft); color:var(--cc-warn); flex:none; }
+        .chk-ht { flex:1; min-width:0; } .chk-ht h4 { margin:0; font-size:17px; font-weight:700; } .chk-ht small { display:block; color:var(--cc-muted); font-size:12.5px; margin-top:2px; }
+        .chk-tabs { display:flex; gap:6px; padding:10px 14px; border-bottom:1px solid var(--cc-line-2); background:var(--cc-surface-2); }
+        .chk-tabs button { flex:1; height:36px; border-radius:10px; border:1px solid var(--cc-line); background:var(--cc-surface); color:var(--cc-text); font:600 13px var(--cc-font); cursor:pointer; }
+        .chk-tabs button b { display:inline-block; min-width:20px; padding:0 6px; margin-left:4px; border-radius:999px; background:var(--cc-line-2); font-size:11.5px; line-height:20px; }
+        .chk-tabs button.active { background:var(--cc-accent); border-color:var(--cc-accent); color:#fff; } .chk-tabs button.active b { background:rgba(255,255,255,.25); }
+        .chk-list { overflow:auto; padding:10px 12px; -webkit-overflow-scrolling:touch; }
+        .chk-item { display:flex; align-items:flex-start; gap:10px; padding:10px; margin-bottom:8px; border:1px solid var(--cc-line); border-radius:12px; background:var(--cc-surface); box-shadow:inset 3px 0 0 var(--cc-warn); }
+        .chk-item.k-limit, .chk-item.k-code { box-shadow:inset 3px 0 0 var(--cc-neg); } .chk-item.k-night, .chk-item.k-pn { box-shadow:inset 3px 0 0 #4f46e5; }
+        .chk-item.done { opacity:.72; box-shadow:inset 3px 0 0 var(--cc-pos); }
+        .chk-tick { position:relative; width:26px; height:26px; flex:none; margin-top:2px; cursor:pointer; }
+        .chk-tick input { position:absolute; inset:0; opacity:0; margin:0; cursor:pointer; }
+        .chk-tick .msym { width:26px; height:26px; border-radius:8px; border:2px solid var(--cc-line); display:flex; align-items:center; justify-content:center; font-size:18px; color:transparent; transition:all .12s; }
+        .chk-tick input:checked + .msym { background:var(--cc-pos); border-color:var(--cc-pos); color:#fff; }
+        .chk-tick input:focus-visible + .msym { outline:2px solid var(--cc-accent); outline-offset:2px; }
+        .chk-main { flex:1; min-width:0; }
+        .chk-top { display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; }
+        .chk-kind { display:inline-flex; align-items:center; gap:4px; font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--cc-muted); } .chk-kind .msym { font-size:16px; }
+        .chk-top b { font-size:14px; } .chk-date { font-size:12px; color:var(--cc-muted); margin-left:auto; }
+        .chk-main p { margin:4px 0 0; font-size:13px; line-height:1.4; color:var(--cc-text); }
+        .chk-by { display:block; margin-top:4px; font-size:11.5px; color:var(--cc-pos); font-weight:600; }
+        .chk-go { flex:none; align-self:center; }
+        .chk-empty { text-align:center; padding:36px 10px; color:var(--cc-muted); font-size:14px; } .chk-empty .msym { display:block; font-size:40px; margin-bottom:8px; color:var(--cc-pos); }
+        .chk-foot { display:flex; align-items:center; gap:12px; padding:12px 14px calc(12px + env(safe-area-inset-bottom,0px)); border-top:1px solid var(--cc-line-2); background:var(--cc-surface-2); }
+        .chk-foot small { flex:1; color:var(--cc-muted); font-size:12px; line-height:1.35; }
+        @media (max-width:520px) { .chk-item { flex-wrap:wrap; } .chk-go { margin-left:36px; } .chk-foot { flex-direction:column; align-items:stretch; } }
+        #main-table td.chk-flash { animation:chkFlash 2.6s ease; }
+        @keyframes chkFlash { 0%, 65% { box-shadow:inset 0 0 0 3px #f59e0b; } 100% { box-shadow:none; } }
+
         /* dialog */
         #cc-dialog { display:none; position:fixed; inset:0; z-index:9900; background:rgba(12,18,26,.45); align-items:center; justify-content:center; padding:20px; opacity:0; transition:opacity .14s; }
         #cc-dialog.open { opacity:1; }
@@ -2733,6 +2774,7 @@
             <nav class="cc-nav" id="cc-nav" aria-label="Sezioni">
                 <div class="cc-nav-group">Calendario</div>
                 <button data-sec="panoramica" onclick="ccGo('panoramica')"><span class="msym">space_dashboard</span><span>Panoramica</span></button>
+                <button data-sec="controlli" onclick="chkOpen()"><span class="msym">fact_check</span><span>Da controllare</span><span class="cc-count" id="cc-count-chk"></span></button>
                 <button data-sec="modifica" onclick="ccGo('modifica')"><span class="msym">edit_calendar</span><span>Modifica turni</span><span class="cc-count" id="cc-count-pending"></span></button>
                 <button data-sec="bozza" onclick="ccGo('bozza')"><span class="msym">event_upcoming</span><span>Bozza del mese</span></button>
                 <button data-sec="importa" onclick="ccGo('importa')"><span class="msym">upload_file</span><span>Importa da Excel</span></button>
@@ -3040,6 +3082,9 @@
             </div>
             <button id="hdr-coord-exit" class="hdr-coord-exit" onclick="coordExitFromHeader()" title="Chiude l’accesso coordinatore: per rientrare servirà la password">
                 <span class="material-icons-round">logout</span><span>Esci da coordinatore</span>
+            </button>
+            <button id="hdr-coord-edit" class="hdr-coord-exit hdr-coord-edit" onclick="coordEditFromHeader()" title="Apre il calendario in modifica (se è già in modifica, apre Modifica turni per salvare)">
+                <span class="material-icons-round">edit_calendar</span><span>Modifica turni</span>
             </button>
         </div>
         <div class="app-actions">
@@ -3480,6 +3525,7 @@
                 renderCoordSyncList();
             }
             if(data.coverageMin) { coverageMin = Object.assign({}, COVERAGE_DEFAULT, data.coverageMin); dayChecksCache = null; }
+            if(data.checksResolved !== undefined) { checksResolved = data.checksResolved || {}; chkRefresh(); }
             if(data.customCodes !== undefined && JSON.stringify(data.customCodes || {}) !== JSON.stringify(customCodes)) {
                 customCodes = data.customCodes || {}; applyCustomCodes();
                 if(finalData.length && document.querySelector('#table-body tr[data-row]')) renderTable();
@@ -4843,9 +4889,25 @@
         let v = String((cell && cell.v) || '').trim(); const i = v.indexOf('/'); if(i !== -1) v = v.slice(0, i).trim();
         return !v || v === '-' || /^(r|riposo|s|sm)$/i.test(v);
     }
+    // Ogni notte vale 11:35: 4:15 prima di mezzanotte e 7:20 il giorno dopo. Se il giorno dopo non
+    // c'è lo smonto (S) ma un riposo, una casella vuota o un'altra notte, le 7:20 si contano lo stesso.
+    function prevPlainNight(rowIdx, colIdx) {
+        if(rowIdx - 1 < 1) return false;
+        const c = (finalData[rowIdx - 1] || [])[colIdx] || {}, sub = String(c.subV || '').trim().toLowerCase();
+        if(sub && SPECIAL_SUBCODES[sub] !== undefined) return false;
+        if(c.customMinutes !== undefined && c.customMinutes !== null && c.customMinutes !== '') return false;
+        let v = String(c.v || '').trim(); const i = v.indexOf('/'); if(i !== -1) v = v.slice(0, i).trim();
+        return v.toUpperCase() === 'N';
+    }
+    function computeDayInfo(rowIdx, colIdx) {
+        const info = computeDayInfoBase(rowIdx, colIdx);
+        if(info.code === 'SM' || info.code === 'S' || info.code === 'STR' || info.justified || info.unrecognized || !prevPlainNight(rowIdx, colIdx)) return info;
+        const rest = !info.code || /^r$/i.test(info.code), tail = minutesFromRange(SCHEDULE["SM"]);
+        return Object.assign({}, info, { minutes: (rest ? 0 : (info.minutes || 0)) + tail, code: rest ? 'SM' : info.code, label: rest ? 'SMONTO (dopo la notte)' : 'SMONTO + ' + info.label, nightTail: true });
+    }
     // Metodo A (principale): rispecchia esattamente la logica usata per disegnare
     // le celle del calendario, incluso lo SMONTO automatico dopo un turno M+N.
-    function computeDayInfo(rowIdx, colIdx) {
+    function computeDayInfoBase(rowIdx, colIdx) {
         const row = finalData[rowIdx]; if(!row) return { minutes:0, code:"", label:"" };
         const info = row[colIdx] || {};
         if(info.customMinutes !== undefined && info.customMinutes !== null && info.customMinutes !== "") {
@@ -4887,6 +4949,19 @@
     // Metodo B (doppio controllo): ricalcolo indipendente scritto da zero, senza
     // richiamare computeDayInfo, per intercettare eventuali errori di calcolo.
     function independentDayMinutes(rowIdx, colIdx) {
+        const base = independentDayMinutesBase(rowIdx, colIdx);
+        if(rowIdx < 2) return base;
+        const prev = (finalData[rowIdx - 1] || [])[colIdx] || {}, cur = (finalData[rowIdx] || [])[colIdx] || {};
+        const has = (o, k) => Object.prototype.hasOwnProperty.call(o, k), filled = x => x !== undefined && x !== null && x !== "";
+        const pv = String(prev.v || "").split('/')[0].trim().toUpperCase(), ps = String(prev.subV || "").trim().toLowerCase();
+        if(pv !== "N" || (ps && has(SPECIAL_SUBCODES, ps)) || filled(prev.customMinutes)) return base;
+        const cs = String(cur.subV || "").trim().toLowerCase(), cv = String(cur.v || "").split('/')[0].trim(), cu = cv.toUpperCase().replace(/\s+/g, "");
+        if((cs && has(SPECIAL_SUBCODES, cs)) || filled(cur.customMinutes) || cu === "S" || cu === "SM") return base;
+        if(customCodes[cu] && customCodes[cu].kind === 'abs') return base;
+        const known = !cv || cv === "-" || cu === "M+N" || cu === "MN" || customCodes[cu] || (/^[a-z]/.test(cv) ? diurniSched(cv, repRowDate(rowIdx)) !== undefined : SCHEDULE[cu] !== undefined);
+        return known ? base + minutesFromRange(SCHEDULE["SM"]) : base;
+    }
+    function independentDayMinutesBase(rowIdx, colIdx) {
         const row = finalData[rowIdx]; if(!row) return 0;
         const cell = row[colIdx] || {};
         if(cell.customMinutes !== undefined && cell.customMinutes !== null && cell.customMinutes !== "") {
@@ -7269,6 +7344,168 @@
         if(calOverview) setCalView('dettaglio');
         setTimeout(() => { if(liteOn()) liteShowRow(r); const tr = document.querySelector(`#table-body tr[data-row="${r}"]`); if(tr) { liteScrollTo(tr, 200); tr.classList.add('chg-flash'); setTimeout(() => tr.classList.remove('chg-flash'), 2200); } }, 300);
     }
+    // ═══ DA CONTROLLARE: caselle che non tornano nei conteggi ═══════════════
+    // Finestra dell'Area coordinatore con le caselle sospette (notti senza smonto, assenze scritte
+    // sotto un turno, codici sconosciuti, assenze oltre il limite…). Si spunta una voce quando è
+    // sistemata o va bene così: la spunta sta nelle impostazioni condivise (checksResolved).
+    let checksResolved = {}, chkTab = 'open', chkCache = null;
+    const CHK_KINDS = {
+        night:  { icon: 'bedtime',     title: 'Notte senza smonto' },
+        sub:    { icon: 'layers',      title: 'Assenza sotto un turno' },
+        code:   { icon: 'help',        title: 'Codice sconosciuto' },
+        pn:     { icon: 'nights_stay', title: 'Permesso notte' },
+        smonto: { icon: 'wb_twilight', title: 'Smonto senza notte' },
+        limit:  { icon: 'event_busy',  title: 'Oltre il limite' }
+    };
+    const chkId = (...p) => p.join('_').replace(/[^A-Za-z0-9]+/g, '_').slice(0, 140);
+    const chkDateLbl = d => d.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' });
+    const chkBase = c => { let v = String((c && c.v) || '').trim(); const i = v.indexOf('/'); if(i !== -1) v = v.slice(0, i).trim(); return v; };
+    const chkSub = c => String((c && c.subV) || '').trim().toLowerCase();
+    const chkIsAbs = s => !!s && SPECIAL_SUBCODES[s] !== undefined;
+    const chkAbsName = s => s === 'z' ? 'sostituzione coordinatore' : (SPECIAL_SUBCODES[s] || s).toLowerCase().replace(' (c.o.)', '');
+    function chkCellTxt(c) {
+        const v = chkBase(c), s = chkSub(c);
+        if(chkIsAbs(s)) return v && v !== '-' ? `"${v}" con ${chkAbsName(s)}` : chkAbsName(s);
+        if(!v || v === '-') return 'una casella vuota';
+        if(/^r(iposo)?$/i.test(v)) return 'un riposo (R)';
+        return `"${v}"`;
+    }
+    function chkShiftMinutes(v, r) {
+        const u = v.toUpperCase().replace(/\s+/g, '');
+        if(isMN(u)) return minutesFromRange(SCHEDULE.M) + minutesFromRange(SCHEDULE.N);
+        if(/^[a-z]/.test(v)) { const t = diurniSched(v, repRowDate(r)); return t && t !== 'RIPOSO' ? minutesFromRange(t) : 0; }
+        if(customCodes[u]) return customCodes[u].kind === 'work' ? customMinutes(customCodes[u]) : 0;
+        const t = SCHEDULE[u]; return t && t !== 'RIPOSO' ? minutesFromRange(t) : 0;
+    }
+    function ccAnomalies() {
+        if(chkCache && chkCache.data === finalData && Date.now() - chkCache.t < 1500) return chkCache.list;
+        const out = [], all = buildDaysIndex(), rowOf = {}; all.forEach(dd => rowOf[ymd(dd.date)] = dd.rowIdx);
+        drivers.filter(d => !d.hidden).forEach(d => {
+            const nm = d.originalName || d.name;
+            const add = (kind, iso, key, r, date, detail) => out.push({ id: chkId(kind, nm, iso, key), kind, d, r, idx: d.idx, date, detail });
+            all.forEach(dd => {
+                const r = dd.rowIdx, c = finalData[r][d.idx] || {}, iso = ymd(dd.date);
+                const nx = finalData[r + 1] ? (finalData[r + 1][d.idx] || {}) : null, pv = r > 1 ? (finalData[r - 1][d.idx] || {}) : null;
+                const v = chkBase(c), V = v.toUpperCase().replace(/\s+/g, ''), s = chkSub(c);
+                const nd = new Date(dd.date); nd.setDate(nd.getDate() + 1);
+                const hasCustom = c.customMinutes !== undefined && c.customMinutes !== null && c.customMinutes !== '';
+                // 1. notte non seguita dallo smonto
+                if(V === 'N' && !chkIsAbs(s) && !hasCustom && nx) {
+                    const nV = chkBase(nx).toUpperCase().replace(/\s+/g, ''), ns = chkSub(nx);
+                    if(nV !== 'S' && nV !== 'SM') add('night', iso, nV + ns, r + 1, nd, chkIsAbs(ns)
+                        ? `Dopo la notte del ${chkDateLbl(dd.date)}, il ${chkDateLbl(nd)} c'è ${chkCellTxt(nx)}: le 7:20 dopo mezzanotte non sono contate. Se la notte è stata fatta, scrivi S il giorno dopo.`
+                        : `Dopo la notte del ${chkDateLbl(dd.date)}, il ${chkDateLbl(nd)} c'è ${chkCellTxt(nx)} invece dello smonto (S). Le 7:20 dopo mezzanotte sono contate lo stesso, così la notte vale 11:35. Se è un errore, scrivi S.`);
+                }
+                // 2. assenza scritta sotto un turno di lavoro: conta l'assenza al posto del turno
+                if(chkIsAbs(s) && v && v !== '-' && !/^r(iposo)?$/i.test(v)) {
+                    const own = chkShiftMinutes(v, r), just = justifiedDayMinutes(r, d.idx);
+                    if(own && Math.round(own) !== Math.round(just)) add('sub', iso, V + s, r, dd.date, `Il ${chkDateLbl(dd.date)} c'è "${v}" con sotto ${chkAbsName(s)}: per le ore conta ${hsHM(just)} (l'assenza) invece delle ${hsHM(own)} del turno. Se il turno è stato lavorato tutto, togli il codice sotto; se va bene così, spunta.`);
+                }
+                // 3. codici sconosciuti (la "x" dopo un permesso notte è lo smonto del permesso)
+                if(s && !chkIsAbs(s) && !(s === 'x' && pv && chkSub(pv) === 'pn'))
+                    add('code', iso, 'sub' + s, r, dd.date, `Il ${chkDateLbl(dd.date)} sotto ${v && v !== '-' ? `"${v}"` : 'la casella'} c'è "${c.subV}": l'app non conosce questo codice e conta ${v && v !== '-' ? 'solo il turno' : 'zero ore'}.`);
+                const info = computeDayInfo(r, d.idx);
+                if(info.unrecognized) add('code', iso, 'main' + info.code, r, dd.date, `Il ${chkDateLbl(dd.date)} c'è il turno "${info.code}": l'app non lo conosce e conta 0 ore.`);
+                // 4. permesso notte con il giorno dopo occupato
+                if(s === 'pn' && nx && !pnTailFree(nx)) add('pn', iso, chkBase(nx) + chkSub(nx), r + 1, nd, `Permesso notte il ${chkDateLbl(dd.date)}, ma il giorno dopo c'è ${chkCellTxt(nx)}: le 7:20 dopo mezzanotte del permesso non sono contate.`);
+                // 5. smonto senza notte il giorno prima
+                if((V === 'S' || V === 'SM') && pv) {
+                    const pV = chkBase(pv).toUpperCase().replace(/\s+/g, '');
+                    if(pV !== 'N' && !isMN(pV) && chkSub(pv) !== 'pn') add('smonto', iso, pV, r, dd.date, `Il ${chkDateLbl(dd.date)} c'è lo smonto (S), ma il giorno prima c'è ${chkCellTxt(pv)} e non una notte: conta comunque 7:20.`);
+                }
+            });
+            // 6. assenze oltre il limite dell'anno
+            const a = absCountFor(d, all);
+            const over = (key, used, max, dates, what) => {
+                if(used <= max) return;
+                const ds = (dates || []).slice().sort((x, y) => x - y), dt = ds[max] || ds[ds.length - 1] || new Date(SHIFT_YEAR, 11, 31), r = rowOf[ymd(dt)] || null;
+                add('limit', String(SHIFT_YEAR), key + used, r, dt, `${what}: ${used} su ${max}. Il primo oltre il limite è il ${chkDateLbl(dt)}.`);
+            };
+            over('co', a.allow.co, ABS_ALLOW.co, a.dates.f, 'Giorni di congedo ordinario');
+            over('sp', a.allow.sp, ABS_ALLOW.sp, [].concat(a.dates.p || [], a.dates.pn || []), 'Permessi straordinari (compresi i permessi notte)');
+            over('pn', a.allow.pn, ABS_ALLOW.pn, a.dates.pn, 'Permessi notte');
+            if(PERM_HOURLY.pl.max && a.hours.pl > PERM_HOURLY.pl.max) {
+                const hd = a.hdates.pl.slice().sort((x, y) => x.date - y.date); let t = 0, dt = hd.length ? hd[hd.length - 1].date : new Date(SHIFT_YEAR, 11, 31);
+                for(const h of hd) { t += h.h; if(t > PERM_HOURLY.pl.max) { dt = h.date; break; } }
+                add('limit', String(SHIFT_YEAR), 'pl' + a.hours.pl, rowOf[ymd(dt)] || null, dt, `Permesso legge: ${permHFmt(a.hours.pl)} su ${PERM_HOURLY.pl.max}h. Si supera il limite il ${chkDateLbl(dt)}.`);
+            }
+        });
+        out.sort((x, y) => x.date - y.date || x.d.name.localeCompare(y.d.name));
+        chkCache = { data: finalData, t: Date.now(), list: out };
+        return out;
+    }
+    function chkOpenCount() { if(!finalData.length) return 0; try { return ccAnomalies().filter(x => !checksResolved[x.id]).length; } catch(e) { console.error(e); return 0; } }
+    function chkOpen() {
+        vibrate(); chkCache = null;
+        let el = document.getElementById('chk-modal');
+        if(!el) {
+            el = document.createElement('div'); el.id = 'chk-modal'; el.className = 'cc-scope';
+            el.onclick = e => { if(e.target === el) chkClose(); };
+            el.innerHTML = `<div class="chk-box" role="dialog" aria-labelledby="chk-title">
+                <div class="chk-head"><span class="chk-hico"><span class="msym">fact_check</span></span><div class="chk-ht"><h4 id="chk-title">Da controllare</h4><small id="chk-sub"></small></div>
+                    <button class="cc-icon-btn" onclick="chkClose()" aria-label="Chiudi"><span class="msym">close</span></button></div>
+                <div class="chk-tabs"><button data-t="open" onclick="chkSetTab('open')">Da risolvere <b id="chk-n-open"></b></button><button data-t="done" onclick="chkSetTab('done')">Risolte <b id="chk-n-done"></b></button></div>
+                <div class="chk-list" id="chk-list"></div>
+                <div class="chk-foot"><small>Spunta una voce quando l'hai sistemata o va bene così: la spunta la vedono tutti i coordinatori. Se correggi la casella, la voce sparisce da sola.</small><button class="cc-btn primary" onclick="chkClose()">Chiudi</button></div>
+            </div>`;
+            document.body.appendChild(el);
+        }
+        el.style.display = 'flex'; requestAnimationFrame(() => el.classList.add('open'));
+        chkRender();
+    }
+    function chkClose() { const el = document.getElementById('chk-modal'); if(!el) return; el.classList.remove('open'); setTimeout(() => { if(!el.classList.contains('open')) el.style.display = 'none'; }, 180); }
+    function chkSetTab(t) { vibrate(); chkTab = t; chkRender(); }
+    function chkRender() {
+        const el = document.getElementById('chk-modal'); if(!el || el.style.display === 'none') return;
+        const list = ccAnomalies(), open = list.filter(x => !checksResolved[x.id]), done = list.filter(x => checksResolved[x.id]);
+        document.getElementById('chk-n-open').textContent = open.length; document.getElementById('chk-n-done').textContent = done.length;
+        el.querySelectorAll('.chk-tabs button').forEach(b => b.classList.toggle('active', b.dataset.t === chkTab));
+        document.getElementById('chk-sub').textContent = open.length ? `${open.length} ${open.length === 1 ? 'cosa da guardare' : 'cose da guardare'} nei turni del ${SHIFT_YEAR}` : `Nei turni del ${SHIFT_YEAR} torna tutto`;
+        const items = chkTab === 'done' ? done : open;
+        const box = document.getElementById('chk-list');
+        if(!items.length) { box.innerHTML = `<div class="chk-empty"><span class="msym">${chkTab === 'done' ? 'inventory_2' : 'task_alt'}</span>${chkTab === 'done' ? 'Nessuna voce spuntata.' : 'Niente da controllare: i conteggi tornano.'}</div>`; return; }
+        box.innerHTML = items.map(x => {
+            const K = CHK_KINDS[x.kind], res = checksResolved[x.id];
+            const when = res ? new Date(res.at).toLocaleString('it-IT', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+            return `<div class="chk-item ${res ? 'done' : ''} k-${x.kind}">
+                <label class="chk-tick" title="${res ? 'Togli la spunta' : 'Segna come risolta'}"><input type="checkbox" ${res ? 'checked' : ''} onchange="chkToggle('${x.id}', this.checked)"><span class="msym">check</span></label>
+                <div class="chk-main"><div class="chk-top"><span class="chk-kind"><span class="msym">${K.icon}</span>${K.title}</span><b>${esc(x.d.name)}</b><span class="chk-date">${chkDateLbl(x.date)}</span></div>
+                    <p>${esc(x.detail)}</p>${res ? `<small class="chk-by">Risolta da ${esc(res.by || 'coordinatore')} · ${when}</small>` : ''}</div>
+                ${x.r ? `<button class="cc-btn sm chk-go" onclick="chkGo(${x.r}, ${x.idx})" title="Apri la casella nel calendario"><span class="msym">open_in_new</span>Vai</button>` : ''}
+            </div>`;
+        }).join('');
+    }
+    async function chkToggle(id, on) {
+        vibrate();
+        const val = on ? { at: new Date().toISOString(), by: (userIdentity && userIdentity !== 'Ospite') ? userIdentity : (coordinatorName || 'Coordinatore') } : null;
+        if(on) checksResolved[id] = val; else delete checksResolved[id];
+        chkRender(); ccUpdateNavCounts();
+        try {
+            if(!fbReady) throw new Error('nessuna connessione a Firebase');
+            await cfgRef('settings').update(new firebase.firestore.FieldPath('checksResolved', id), on ? val : firebase.firestore.FieldValue.delete());
+        } catch(e) { console.error(e); ccToast('Spunta non salvata: ' + (e.code || e.message), true); }
+    }
+    function chkRefresh() { chkCache = null; chkRender(); ccUpdateNavCounts(); }
+    function chkMaybeAuto() {
+        try { if(sessionStorage.getItem('chk_auto_shown')) return; } catch(e) {}
+        if(isViewingArchive() || !chkOpenCount()) return;
+        try { sessionStorage.setItem('chk_auto_shown', '1'); } catch(e) {}
+        chkOpen();
+    }
+    function chkGo(r, idx) {
+        chkClose(); closeCoordConsole();
+        setTimeout(() => {
+            if(calOverview) setCalView('dettaglio');
+            if(liteOn()) liteShowRow(r);
+            setTimeout(() => {
+                const td = document.querySelector(`#main-table td[data-row="${r}"][data-col="${idx}"]`), tr = td ? td.closest('tr') : document.querySelector(`#table-body tr[data-row="${r}"]`);
+                liteQuietUntil = Date.now() + 1500;
+                if(td) { td.scrollIntoView({ block: 'center', inline: 'center', behavior: 'auto' }); td.classList.add('chk-flash'); setTimeout(() => td.classList.remove('chk-flash'), 2600); }
+                else if(tr) liteScrollTo(tr, 200);
+            }, 280);
+        }, 220);
+    }
+
     // ═══ SALDI ASSENZE PER IL PORTALE RICHIESTE ══════════════════════════
     // Documento "saldi" (C.O., permessi straordinari e notte usati/spettanti di ognuno):
     // il portale Richieste lo legge per mostrare quanti giorni restano. Si scrive solo se
@@ -8524,6 +8761,12 @@
     function updateCoordExitBtn() { document.body.classList.toggle('coord-session', isCoordLoggedIn()); }
     document.addEventListener('DOMContentLoaded', updateCoordExitBtn);
     // Pulsante rosso nella barra: esce subito (chiedendo prima delle modifiche non salvate).
+    // Pulsante "Modifica turni" nella barra: apre subito il calendario in modifica
+    function coordEditFromHeader() {
+        vibrate();
+        if(!isCoordLoggedIn() || coordEditModeActive) { openCoordConsole('modifica'); return; }
+        enterCoordEdit();
+    }
     async function coordExitFromHeader() {
         vibrate();
         if(coordEditModeActive) { if(!(await exitCoordEdit(true))) return; }
@@ -8655,6 +8898,7 @@
         document.getElementById('cc-login').classList.remove('show');
         document.getElementById('cc-app').classList.add('show');
         ccGo(section || 'panoramica');
+        setTimeout(chkMaybeAuto, 600);   // se nei turni c'è qualcosa che non torna, la finestra si apre da sola (una volta per sessione)
     }
     function coordLogin(e) {
         if(e) e.preventDefault();
@@ -8721,6 +8965,7 @@
         updateYearUi();
         const s = document.getElementById('cc-count-sync'); if(s) { const n = 0; s.textContent = n ? n : ''; }
         const p = document.getElementById('cc-count-pending'); if(p) { const n = pendingChangesCount(); p.textContent = n ? n : ''; }
+        const k = document.getElementById('cc-count-chk'); if(k) { const n = isViewingArchive() ? 0 : chkOpenCount(); k.textContent = n ? n : ''; }
     }
 
     // ── Dialoghi e avvisi ────────────────────────────────────────────────────
