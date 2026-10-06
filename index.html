@@ -6701,14 +6701,14 @@
 
     // ═══ RESOCONTO PER PERSONA (solo in Modifica turni) ══════════════════════
     // Sotto il nome di ognuno, se aperto: ferie e permessi che restano nell'anno, ore di
-    // permesso legge rimaste, reperibilità fatte fino a oggi, loro ore e quante di domenica o
+    // permesso legge rimaste, reperibilità dell'anno (fatte e in programma), loro ore e quante di domenica o
     // festivo. Si apre e si chiude dal pulsante "Resoconto" nella barra di Modifica turni.
     let edSumOpen = (() => { try { return localStorage.getItem('ed_sum_v1') === '1'; } catch(e) { return false; } })();
     function edSumToggle() {
         vibrate(); edSumOpen = !edSumOpen;
         try { localStorage.setItem('ed_sum_v1', edSumOpen ? '1' : '0'); } catch(e) {}
         edSumUi(); renderTableHead();
-        if(edSumOpen) ccToast('Resoconto: CO ferie, P permessi straord., PN perm. notte, PL ore perm. legge (rimasti) · REP reperibilità fatte, h loro ore, DOM di domenica/festivo');
+        if(edSumOpen) ccToast('Resoconto: CO ferie, P permessi straord., PN perm. notte, PL ore perm. legge (rimasti) · REP reperibilità dell’anno (anche quelle in programma, si aggiornano mentre le inserisci), h loro ore, DOM di domenica/festivo');
     }
     function edSumUi() { const b = document.getElementById('ces-sum'); if(b) { b.classList.toggle('on', edSumOpen); b.title = edSumOpen ? 'Chiudi il resoconto' : 'Resoconto di ferie, permessi e reperibilità per persona'; } const f = document.getElementById('ces-sumf'); if(f) f.style.display = edSumOpen ? '' : 'none'; }
     function edSumCtx() { return { days: buildDaysIndex(), R: repData(), today: ymd(new Date()), y: SHIFT_YEAR + '-' }; }
@@ -6756,25 +6756,25 @@
         { id: 'p',   lbl: 'P',   name: 'Permessi straordinari rimasti', grp: 'abs', bg: '--bg-perm', fg: '--t-perm' },
         { id: 'pn',  lbl: 'PN',  name: 'Permessi notte rimasti', grp: 'abs', bg: '--bg-pn', fg: '--t-pn' },
         { id: 'pl',  lbl: 'PL',  name: 'Ore di permesso legge rimaste', grp: 'abs', bg: '--bg-pl', fg: '--t-pl' },
-        { id: 'rep', lbl: 'REP', name: 'Reperibilità fatte fino a oggi', grp: 'rep' },
-        { id: 'h',   lbl: 'h',   name: 'Ore di reperibilità fatte', grp: 'rep' },
-        { id: 'dom', lbl: 'DOM', name: 'Reperibilità di domenica o festivo', grp: 'rep' }
+        { id: 'rep', lbl: 'REP', name: 'Reperibilità nell’anno (fatte e in programma)', grp: 'rep' },
+        { id: 'h',   lbl: 'h',   name: 'Ore di reperibilità nell’anno', grp: 'rep' },
+        { id: 'dom', lbl: 'DOM', name: 'Reperibilità di domenica o festivo nell’anno', grp: 'rep' }
     ];
     let edSumShow = (() => { try { const a = JSON.parse(localStorage.getItem('ed_sum_items_v1') || 'null'); if(Array.isArray(a)) return new Set(a); } catch(e) {} return new Set(EDSUM_ITEMS.map(x => x.id)); })();
     function edSumHtml(d, ctx) {
         const a = absCountFor(d, ctx.days), o = d.originalName;
         const pl = Math.round((PERM_HOURLY.pl.max - a.hours.pl) * 100) / 100;
-        let rep = 0, repAll = 0, dom = 0, min = 0, minAll = 0;
-        Object.keys(ctx.R.tit).forEach(dt => { if(ctx.R.tit[dt] !== o || !dt.startsWith(ctx.y)) return; repAll++; if(dt <= ctx.today) { rep++; if(repIsFestive(dt)) dom++; } });
+        let rep = 0, repAll = 0, dom = 0, domAll = 0, min = 0, minAll = 0;
+        Object.keys(ctx.R.tit).forEach(dt => { if(ctx.R.tit[dt] !== o || !dt.startsWith(ctx.y)) return; const fest = repIsFestive(dt); repAll++; if(fest) domAll++; if(dt <= ctx.today) { rep++; if(fest) dom++; } });
         Object.keys(ctx.R.days).forEach(dt => { if(!dt.startsWith(ctx.y)) return; ctx.R.days[dt].forEach((w, s) => { if(w !== o) return; minAll += REP_SLOTS[s].minutes; if(dt <= ctx.today) min += REP_SLOTS[s].minutes; }); });
         const val = {
             co: [ABS_ALLOW.co - a.allow.co, `Congedo ordinario: restano ${ABS_ALLOW.co - a.allow.co} giorni su ${ABS_ALLOW.co}`],
             p: [ABS_ALLOW.sp - a.allow.sp, `Permessi straordinari: restano ${ABS_ALLOW.sp - a.allow.sp} su ${ABS_ALLOW.sp}`],
             pn: [ABS_ALLOW.pn - a.allow.pn, `Permessi notte: restano ${ABS_ALLOW.pn - a.allow.pn} su ${ABS_ALLOW.pn}`],
             pl: [pl, `Permesso legge: restano ${permHFmt(Math.max(0, pl))} su 14h${pl < 0 ? ' (oltre di ' + permHFmt(-pl) + ')' : ''}`],
-            rep: [rep, `Reperibilità fatte fino a oggi: ${rep} (in calendario nell'anno: ${repAll})`],
-            h: [Math.round(min / 60), `Ore di reperibilità fatte fino a oggi: ${repHours(min)} (nell'anno: ${repHours(minAll)})`],
-            dom: [dom, `Reperibilità di domenica o festivo fatte fino a oggi: ${dom}`]
+            rep: [repAll, `Reperibilità nell'anno: ${repAll} (fatte fino a oggi ${rep}, in programma ${repAll - rep})`],
+            h: [Math.round(minAll / 60), `Ore di reperibilità nell'anno: ${repHours(minAll)} (fatte fino a oggi ${repHours(min)})`],
+            dom: [domAll, `Reperibilità di domenica o festivo nell'anno: ${domAll} (fatte fino a oggi ${dom})`]
         };
         const cell = it => { const [v, tip] = val[it.id], neg = it.grp === 'abs' && v < 0;
             const txt = it.id === 'pl' ? permHFmt(Math.max(0, v)) : v;
