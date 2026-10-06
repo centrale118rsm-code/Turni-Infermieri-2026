@@ -478,6 +478,28 @@
         .hs-wk em.pos { color: #15803d; } .hs-wk em.neg { color: #dc2626; }
         .hs-table tr.hs-sun td, .hs-table tr.hs-sun th { border-bottom: 2px solid #a855f7; }
         .hs-table tr.hs-today th, .hs-table tr.hs-today td { background-color: rgba(249,115,22,.12); }
+        .hs-table thead th { min-width: 0; backdrop-filter: none; -webkit-backdrop-filter: none; overflow: visible; letter-spacing: .02em; }
+        .hs-table thead th::before { display: none; }
+        .hs-table thead th.hs-date { width: auto !important; min-width: 64px !important; max-width: none !important; }
+        .hs-pick { display: flex; align-items: center; gap: 8px; padding: 10px 2px 8px; }
+        .hs-pick-lbl { width: 38px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: rgba(29,78,216,.1); color: var(--primary); flex: none; }
+        .hs-pick select { flex: 1; min-width: 0; height: 40px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main); font: 700 .88rem inherit; font-family: inherit; }
+        .hs-pick-all { height: 40px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main); font: 700 .8rem inherit; font-family: inherit; display: flex; align-items: center; gap: 6px; cursor: pointer; flex: none; }
+        .hs-pick-all .material-icons-round { font-size: 18px; }
+        .hs-name small { display: block; font-size: 0.56rem; font-weight: 700; opacity: .85; line-height: 1; margin-top: 1px; text-transform: none; letter-spacing: 0; }
+        .hs-name { line-height: 1.05; }
+        .hs-table thead tr:first-child th { height: 32px; }
+        .hs-table thead tr:nth-child(2) th { top: 32px; }
+        .hs-table tr.hs-mrow th, .hs-table tr.hs-mrow td { position: sticky; top: 52px; z-index: 2; height: 30px; background: #e8eefc; border-top: 2px solid var(--primary); border-bottom: 1px solid rgba(29,78,216,.3); }
+        .hs-table tr.hs-mrow th.hs-mlabel { z-index: 3; font-size: 0.62rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0; min-width: 64px; padding-left: 6px !important; color: var(--primary); }
+        .hs-mtot { text-align: left !important; padding-left: 8px !important; border-right: 3px solid var(--border) !important; }
+        .hs-mtot b { font-size: 0.8rem; font-weight: 900; color: var(--text-main); }
+        .hs-mtot span { font-size: 0.6rem; font-weight: 700; color: var(--text-sec); margin: 0 6px 0 4px; }
+        .hs-mtot em { font-style: normal; font-size: 0.7rem; font-weight: 800; color: var(--text-sec); }
+        .hs-mtot em.pos { color: #15803d; } .hs-mtot em.neg { color: #dc2626; }
+        body.dark-mode .hs-table tr.hs-mrow th, body.dark-mode .hs-table tr.hs-mrow td { background: #1b2742; }
+        .hs-wrap.hs-one .hs-table { width: 100%; font-size: 0.82rem; }
+        .hs-wrap.hs-one .hs-table tbody th, .hs-wrap.hs-one .hs-table tbody td { height: 30px; }
         .src-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         @media (max-width: 560px) { .src-switch { grid-template-columns: 1fr; } }
         .src-opt { display: flex; align-items: center; gap: 12px; text-align: left; padding: 12px 14px; border: 1.5px solid var(--cc-line); border-radius: 14px; background: var(--cc-surface); color: var(--cc-text); cursor: pointer; font-family: inherit; position: relative; }
@@ -2655,6 +2677,7 @@
                     <div class="hg-month" id="hg-month"></div>
                     <button class="hg-nav-btn" onclick="hgNav(1)" aria-label="Mese successivo"><span class="material-icons-round">chevron_right</span></button>
                 </div>
+                <div class="hs-pick" id="hs-pick" style="display:none"></div>
                 <div class="hg-legend">
                     <span><i style="background:rgba(239,68,68,.35)"></i>sotto le ore</span>
                     <span><i style="background:rgba(59,130,246,.18)"></i>in pari</span>
@@ -7006,36 +7029,72 @@
         document.querySelectorAll('#hc-list-view .hg-viewsw button').forEach(b => b.classList.toggle('active', b.dataset.v === hgView));
         const leg = document.querySelector('#hc-list-view .hg-legend'), note = document.querySelector('#hc-list-view .hg-note');
         if(leg) leg.style.display = hgView === 'foglio' ? 'none' : '';
+        const nav = document.querySelector('#hc-list-view .hg-nav'), pick = document.getElementById('hs-pick');
+        if(nav) nav.style.display = hgView === 'foglio' ? 'none' : '';
+        if(pick) pick.style.display = hgView === 'foglio' ? '' : 'none';
         if(hgView !== 'foglio') { if(note && note.dataset.orig) note.innerHTML = note.dataset.orig; renderHoursGridOld(); return; }
         if(note && !note.dataset.orig) note.dataset.orig = note.innerHTML;
         renderHoursSheet();
     }
     const HS_HEAD_COLORS = ['#ef4444', '#d946ef', '#38bdf8', '#22c55e', '#f59e0b', '#8b5cf6', '#14b8a6', '#f43f5e'];
     function hsHM(min) { const neg = min < 0, m = Math.round(Math.abs(min)); return (neg && m ? '−' : '') + Math.floor(m / 60) + ':' + String(m % 60).padStart(2, '0'); }
-    function renderHoursSheet() {
+    // Tutto l'anno in un solo foglio che scorre in verticale (un'intestazione per ogni mese con le
+    // ore del mese di ognuno). In alto si sceglie se vedere tutti gli operatori affiancati o uno solo.
+    let hsPick = (() => { try { return localStorage.getItem('hs_pick_v1') || ''; } catch(e) { return ''; } })();
+    function hsSetPick(v) {
+        vibrate(); hsPick = v; try { localStorage.setItem('hs_pick_v1', v); } catch(e) {}
+        // si resta sullo stesso giorno: si ricorda la prima riga visibile e la si ritrova dopo
+        const w = document.querySelector('#hg-grid .hs-wrap'); let anchor = null;
+        if(w) { const head = w.querySelector('thead').offsetHeight, rows = [...w.querySelectorAll('tbody tr')]; const i = rows.findIndex(r => r.offsetTop + r.offsetHeight > w.scrollTop + head); if(i >= 0) anchor = { i, off: rows[i].offsetTop - w.scrollTop }; }
+        renderHoursSheet(anchor);
+    }
+    function hsPickHtml(people) {
+        const me = prefMe(), list = people.slice().sort((a, b) => (me && b.idx === me.idx) - (me && a.idx === me.idx));
+        const opts = [`<option value="">Tutti gli operatori (${people.length})</option>`]
+            .concat(list.map(d => `<option value="${esc(d.originalName || d.name)}" ${hsPick === (d.originalName || d.name) ? 'selected' : ''}>${esc(d.name)}${me && d.idx === me.idx ? ' (tu)' : ''}</option>`));
+        return `<label class="hs-pick-lbl" for="hs-pick-sel"><span class="material-icons-round">person_search</span></label>
+            <select id="hs-pick-sel" onchange="hsSetPick(this.value)">${opts.join('')}</select>
+            ${hsPick ? `<button class="hs-pick-all" onclick="hsSetPick('')"><span class="material-icons-round">groups</span>Tutti</button>` : ''}`;
+    }
+    function renderHoursSheet(keepTop) {
         const el = document.getElementById('hg-grid'); if(!el) return;
-        document.getElementById('hg-month').innerHTML = `${MONTH_NAMES_IT[hgMonth].charAt(0).toUpperCase() + MONTH_NAMES_IT[hgMonth].slice(1)} <small>${SHIFT_YEAR}</small>`;
         const all = buildDaysIndex(), today = ymd(new Date());
-        const people = drivers.filter(d => !d.hidden);
-        // per persona, su tutto l'anno: minuti lavorati / di assenza, totale settimana, saldo progressivo
+        const everyone = drivers.filter(d => !d.hidden);
+        if(hsPick && !everyone.some(d => (d.originalName || d.name) === hsPick)) hsPick = '';
+        const people = hsPick ? everyone.filter(d => (d.originalName || d.name) === hsPick) : everyone;
+        const pick = document.getElementById('hs-pick'); if(pick) pick.innerHTML = hsPickHtml(everyone);
+        // per persona, su tutto l'anno: minuti lavorati / di assenza, totale settimana, saldo progressivo, ore del mese
         const data = people.map(d => {
             const ch = getContractHours(d.idx), sp = serviceSpan(d.idx), perDay = ch * 60 / CONTRACT_WORKDAYS;
-            let cum = 0, weekTot = 0; const byRow = {}, weekEnd = {}, balAfter = {};
+            let cum = 0, weekTot = 0; const byRow = {}, weekEnd = {}, balAfter = {}, month = {};
             all.forEach((dd, i) => {
                 const info = computeDayInfo(dd.rowIdx, d.idx), inS = dd.date >= sp.first && dd.date <= sp.last;
                 const work = info.justified ? 0 : (info.minutes || 0), abs = info.justified ? (info.minutes || 0) : 0;
                 byRow[dd.rowIdx] = { info, work, abs, inS };
                 weekTot += work + abs;
+                const M = month[dd.monthIdx] || (month[dd.monthIdx] = { tot: 0, tgt: 0, inS: false });
+                M.tot += work + abs; if(inS) { M.inS = true; if(isContractDay(dd.date)) M.tgt += perDay; }
                 if(inS) cum += work + abs - (isContractDay(dd.date) ? perDay : 0);
                 if(dd.date.getDay() === 0 || i === all.length - 1) { weekEnd[dd.rowIdx] = weekTot; balAfter[ymd(dd.date)] = cum; weekTot = 0; }
             });
-            return { d, byRow, weekEnd, balAfter, inYear: sp.first.getFullYear() < 3000 };
+            return { d, byRow, weekEnd, balAfter, month, inYear: sp.first.getFullYear() < 3000 };
         });
-        const days = all.filter(dd => dd.monthIdx === hgMonth);
-        const wd = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
-        const head1 = `<tr><th class="hs-date hs-h1" rowspan="2">${SHIFT_YEAR}</th>${data.map((p, i) => `<th class="hs-name" colspan="4" style="--hc:${HS_HEAD_COLORS[i % HS_HEAD_COLORS.length]}" onclick="openHoursDetail(${p.d.idx}, ${hgMonth})">${esc(p.d.name)}</th>`).join('')}</tr>`;
+        const one = data.length === 1, wd = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
+        const colorOf = d => HS_HEAD_COLORS[everyone.indexOf(d) % HS_HEAD_COLORS.length];
+        const curM = today.slice(0, 4) === String(SHIFT_YEAR) ? new Date().getMonth() : 0;
+        const head1 = `<tr><th class="hs-date hs-h1" rowspan="2">${SHIFT_YEAR}</th>${data.map(p => `<th class="hs-name" colspan="4" style="--hc:${colorOf(p.d)}" onclick="openHoursDetail(${p.d.idx}, ${curM})">${esc(p.d.name)}<small>${getContractHours(p.d.idx)} h/sett.</small></th>`).join('')}</tr>`;
         const head2 = `<tr>${data.map(() => `<th class="hs-sub">Turno</th><th class="hs-sub">Ore</th><th class="hs-sub">Ass.</th><th class="hs-sub hs-wk">Sett.</th>`).join('')}</tr>`;
-        const body = days.map(dd => {
+        let body = '', lastM = -1;
+        all.forEach(dd => {
+            if(dd.monthIdx !== lastM) {
+                lastM = dd.monthIdx;
+                const mName = MONTH_NAMES_IT[lastM];
+                body += `<tr class="hs-mrow" id="hs-m-${lastM}"><th class="hs-date hs-mlabel">${mName.charAt(0).toUpperCase() + mName.slice(1)}</th>${data.map(p => {
+                    const M = p.month[lastM]; if(!M || (!M.inS && !M.tot)) return '<td class="hs-mtot" colspan="4"></td>';
+                    const df = M.tot - M.tgt, cls = Math.abs(df) < 1 ? '' : (df < 0 ? 'neg' : 'pos');
+                    return `<td class="hs-mtot" colspan="4"><b>${hsHM(M.tot)}</b><span>ore del mese</span>${M.tgt ? `<em class="${cls}">${cls ? (df > 0 ? '+' : '') + hsHM(df) : 'in pari'}</em>` : ''}</td>`;
+                }).join('')}</tr>`;
+            }
             const iso = ymd(dd.date), g = dd.date.getDay(), red = g === 0 || !!HOLIDAYS[`${dd.monthIdx}-${dd.day}`], sun = g === 0;
             const prevSun = new Date(dd.date); prevSun.setDate(prevSun.getDate() - 1);
             const cells = data.map(p => {
@@ -7049,12 +7108,14 @@
                 else if(g === 1 && p.balAfter[ymd(prevSun)] !== undefined && p.inYear) { const b = p.balAfter[ymd(prevSun)]; wk = `<em class="${Math.abs(b) < 1 ? '' : (b < 0 ? 'neg' : 'pos')}" title="Saldo dall'inizio dell'anno">${b > 0 ? '+' : ''}${hsHM(b)}</em>`; }
                 return codeCell + ore + ass + `<td class="hs-wk">${wk}</td>`;
             }).join('');
-            return `<tr class="${sun ? 'hs-sun' : ''} ${iso === today ? 'hs-today' : ''}"><th class="hs-date ${red ? 'red' : ''}"><b>${dd.day}</b><small>${wd[g]}</small></th>${cells}</tr>`;
-        }).join('');
-        el.innerHTML = `<div class="hs-wrap"><table class="hs-table"><thead>${head1}${head2}</thead><tbody>${body}</tbody></table></div>`;
+            body += `<tr class="${sun ? 'hs-sun' : ''} ${iso === today ? 'hs-today' : ''}"><th class="hs-date ${red ? 'red' : ''}"><b>${dd.day}</b><small>${wd[g]}</small></th>${cells}</tr>`;
+        });
+        el.innerHTML = `<div class="hs-wrap ${one ? 'hs-one' : ''}"><table class="hs-table"><thead>${head1}${head2}</thead><tbody>${body}</tbody></table></div>`;
         const note = document.querySelector('#hc-list-view .hg-note');
-        if(note) note.innerHTML = 'Come il foglio Excel: per ognuno il turno, le ore lavorate e le ore di assenza giustificata (col colore dell’assenza). La domenica il totale della settimana, il lunedì dopo il saldo dall’inizio dell’anno (verde sopra il contratto, rosso sotto). Tocca un nome per il dettaglio.';
-        const t = el.querySelector('.hs-today'); if(t) setTimeout(() => { const w = el.querySelector('.hs-wrap'); if(w) w.scrollTop = Math.max(0, t.offsetTop - 90); }, 30);
+        if(note) note.innerHTML = 'Come il foglio Excel, con tutto l’anno da scorrere in verticale: per ognuno il turno, le ore lavorate e le ore di assenza giustificata (col colore dell’assenza). All’inizio di ogni mese le ore del mese e la differenza dal contratto; la domenica il totale della settimana, il lunedì dopo il saldo dall’inizio dell’anno (verde sopra, rosso sotto). Scegli un operatore dall’elenco per vedere solo lui; tocca un nome per il dettaglio.';
+        const w = el.querySelector('.hs-wrap'); if(!w) return;
+        if(keepTop) { const r = w.querySelectorAll('tbody tr')[keepTop.i]; if(r) w.scrollTop = Math.max(0, r.offsetTop - keepTop.off); return; }
+        const t = el.querySelector('.hs-today'); if(t) setTimeout(() => { w.scrollTop = Math.max(0, t.offsetTop - 120); }, 30);
     }
 
     // ═══ ORIGINE DEI TURNI: DA EXCEL O SOLO DALL'APP ═════════════════════
