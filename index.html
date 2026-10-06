@@ -24,7 +24,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;450;500;600&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add_circle,arrow_downward,arrow_selector_tool,arrow_upward,backup,badge,balance,beach_access,calendar_month,check,check_circle,chevron_left,chevron_right,close,cloud_done,cloud_download,cloud_off,cloud_upload,delete,delete_forever,description,done_all,download,drag_indicator,edit,edit_calendar,edit_note,error,event_busy,event_upcoming,expand_less,expand_more,filter_list,group,history,hourglass_top,info,ink_eraser,login,logout,manage_accounts,move_down,notifications_active,notifications_off,open_with,person_add,person_off,person_remove,person_search,phone_in_talk,picture_as_pdf,print,redo,remove_circle,repeat,restart_alt,restore,save,save_as,schedule,search,settings,shield,space_dashboard,summarize,swap_horiz,sync,table_view,task_alt,today,tune,undo,upload,upload_file,verified,view_agenda,view_compact,visibility,visibility_off,warning&display=block" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add_circle,arrow_downward,arrow_selector_tool,arrow_upward,backup,badge,balance,beach_access,calendar_month,check,check_circle,chevron_left,chevron_right,close,cloud_done,cloud_download,cloud_off,cloud_upload,delete,delete_forever,description,done_all,download,drag_indicator,edit,edit_calendar,edit_note,error,event_busy,event_upcoming,expand_less,expand_more,filter_list,group,history,hourglass_top,info,ink_eraser,inventory_2,login,logout,manage_accounts,move_down,notifications_active,notifications_off,open_with,person_add,person_off,person_remove,person_search,phone_in_talk,picture_as_pdf,print,redo,remove_circle,repeat,restart_alt,restore,save,save_as,schedule,search,settings,shield,space_dashboard,summarize,swap_horiz,sync,table_view,task_alt,today,tune,undo,upload,upload_file,verified,view_agenda,view_compact,visibility,visibility_off,warning&display=block" rel="stylesheet">
     <style>
         * { -webkit-tap-highlight-color: transparent; user-select: none; box-sizing: border-box; outline: none; }
         :root {
@@ -1043,6 +1043,14 @@
         .nt-act.ok { color:#16a34a; } .nt-act.danger { color:#dc2626; }
         .nt-intro { display:flex; gap:10px; align-items:center; padding:12px; margin:10px 0; border-radius:14px; background:rgba(29,78,216,.08); border:1px solid rgba(29,78,216,.25); }
         .nt-intro > .material-icons-round { color:var(--primary); }
+        .nt-guest { text-align:center; padding:26px 18px 18px; }
+        .nt-guest-ico { width:64px; height:64px; border-radius:20px; display:inline-flex; align-items:center; justify-content:center; font-size:32px; background:rgba(100,116,139,.12); color:var(--text-sec); margin-bottom:12px; }
+        .nt-guest > b { display:block; font-size:1.05rem; font-weight:800; color:var(--text-main); margin-bottom:8px; }
+        .nt-guest p { font-size:.84rem; line-height:1.45; color:var(--text-sec); margin:0 auto 8px; max-width:380px; }
+        .nt-guest button { margin-top:10px; height:44px; padding:0 20px; border:none; border-radius:12px; background:var(--primary); color:#fff; font:800 .88rem inherit; font-family:inherit; display:inline-flex; align-items:center; gap:8px; cursor:pointer; box-shadow:0 10px 22px -12px rgba(29,78,216,.8); }
+        .nt-guest-kept { display:flex; gap:10px; align-items:flex-start; text-align:left; margin:16px 4px 6px; padding:12px; border-radius:14px; background:var(--bg); border:1px dashed var(--border); font-size:.8rem; color:var(--text-main); line-height:1.4; }
+        .nt-guest-kept > .material-icons-round { color:var(--text-sec); }
+        .nt-guest-kept small { display:block; margin-top:4px; font-size:.74rem; color:var(--text-sec); }
         .nt-intro b { display:block; font-size:0.85rem; color:var(--text-main); } .nt-intro small { display:block; font-size:0.75rem; color:var(--text-sec); line-height:1.35; }
         .nt-intro button { margin-left:auto; border:none; background:var(--primary); color:#fff; border-radius:9px; padding:8px 12px; font-weight:700; cursor:pointer; font-family:inherit; }
         .nt-empty { text-align:center; color:var(--text-sec); font-weight:600; font-size:0.88rem; padding:40px 10px; }
@@ -3368,6 +3376,7 @@
         checkIfIAmCoordinator();
         prefsEnsureOwner(); prefsPullRemote();   // ogni operatore ritrova le sue preferenze
         pushSyncOwner();
+        notifClaimLegacy(); updateBadge();   // le notifiche sono di chi le ha ricevute
         let m = document.getElementById('identity-modal'); m.classList.remove('open');
         setTimeout(() => { m.style.display = 'none'; showStartupMessages(); }, 300);
     }
@@ -3519,7 +3528,7 @@
         }
         const swap = r.swapWith ? (' con ' + r.swapWith) : '';
         const msg = `<b>${r.name || '—'}</b><br><span style="font-size:0.85rem;color:var(--text-sec)">${label}${swap}${periodo ? ' · ' + periodo : ''}</span>`;
-        notifHistory.unshift({ id: Date.now()+Math.random(), ts: Date.now(), text: msg, read:false, archived:false, date:new Date().toLocaleString(), type:'richiesta', reqId: reqId || null });
+        notifHistory.unshift({ id: Date.now()+Math.random(), ts: Date.now(), text: msg, read:false, archived:false, date:new Date().toLocaleString(), type:'richiesta', reqId: reqId || null, owner: prefOwner() });
         saveNotifications(); updateBadge();
         showRichiestaAlert(r.name, label, swap, periodo, reqId);
     }
@@ -4410,7 +4419,7 @@
                 else if(!v) removed.push({ label: lbl, value: 'era ' + show(o), k, from: o, to: '' });
                 else changed.push({ label: lbl, value: show(o) + ' \u2192 ' + show(v), k, from: o, to: v });
             });
-            const push = obj => notifHistory.unshift(Object.assign({ id: Date.now() + Math.random(), ts: Date.now(), read:false, archived:false, date: new Date().toLocaleString(), type:'turno' }, obj));
+            const push = obj => notifHistory.unshift(Object.assign({ id: Date.now() + Math.random(), ts: Date.now(), read:false, archived:false, date: new Date().toLocaleString(), type:'turno', owner: prefOwner() }, obj));
             const alerts = [];
             if(added.length >= 3) {
                 const months = [...new Set(added.map(a => a.label.split(' ').slice(-1)[0]))].join(', ');
@@ -4444,7 +4453,7 @@
         const dateLabel = tomorrow.toLocaleDateString('it-IT', { day:'2-digit', month:'long' });
         const detail = R.tit[tDate] === me ? 'sei <b>reperibile</b> dalle 13:00 per 24 ore' : `copri la reperibilità: <b>${mine.join(', ')}</b>`;
         const msg = `<b>📟 Promemoria Reperibilità</b><br><span style="font-size:0.85rem;color:var(--text-sec)">Domani, <b>${dateLabel}</b>, ${detail}.</span>`;
-        notifHistory.unshift({ id:Date.now()+Math.random(), ts:Date.now(), text:msg, kind:'rep', title:'Reperibilit\u00e0 domani', detail: `${dateLabel}: ${R.tit[tDate] === me ? 'reperibile dalle 13:00 per 24 ore' : 'copri ' + mine.join(', ')}`, read:false, archived:false, date:new Date().toLocaleString(), type:'turno' });
+        notifHistory.unshift({ id:Date.now()+Math.random(), ts:Date.now(), text:msg, kind:'rep', title:'Reperibilit\u00e0 domani', detail: `${dateLabel}: ${R.tit[tDate] === me ? 'reperibile dalle 13:00 per 24 ore' : 'copri ' + mine.join(', ')}`, read:false, archived:false, date:new Date().toLocaleString(), type:'turno', owner: prefOwner() });
         saveNotifications(); updateBadge();
         localStorage.setItem(reminderKey, '1');
     }
@@ -4452,13 +4461,19 @@
     function loadNotificationHistory() {
         let saved = localStorage.getItem('notifications_history_nurses');
         if(saved) { notifHistory = JSON.parse(saved); notifHistory.forEach(n => { if(n.archived === undefined) n.archived = false; }); }
-        updateBadge();
+        notifClaimLegacy(); updateBadge();
     }
+    // Le notifiche sono di chi le ha ricevute: cambiando nome (o come Ospite) non si vedono quelle degli altri.
+    function notifClaimLegacy() {
+        const me = prefOwner(); if(me === 'OSPITE') return;
+        let ch = false; notifHistory.forEach(n => { if(!n.owner) { n.owner = me; ch = true; } }); if(ch) saveNotifications();
+    }
+    function myNotifs() { const me = prefOwner(); return me === 'OSPITE' ? [] : notifHistory.filter(n => n.owner === me); }
     function saveNotifications() { localStorage.setItem('notifications_history_nurses', JSON.stringify(notifHistory)); }
-    function updateBadge() { const c = notifHistory.filter(n => !n.read && !n.archived).length; const b = document.getElementById('notif-badge'); if(c > 0) b.classList.add('visible'); else b.classList.remove('visible'); }
+    function updateBadge() { const c = myNotifs().filter(n => !n.read && !n.archived).length; const b = document.getElementById('notif-badge'); if(c > 0) b.classList.add('visible'); else b.classList.remove('visible'); }
     function openNotifCenter() {
         vibrate(); let modal = document.getElementById('notif-center-modal'); modal.style.display = 'flex'; setTimeout(() => modal.classList.add('open'), 10);
-        currentNotifTab = notifHistory.some(n => !n.read && !n.archived) ? 'nuove' : 'tutte';
+        currentNotifTab = myNotifs().some(n => !n.read && !n.archived) ? 'nuove' : 'tutte';
         document.querySelectorAll('#notif-center-modal .nt-tab').forEach(b => b.classList.toggle('active', b.dataset.notiftab === currentNotifTab));
         updateArchiveAllBtnVisibility();
         renderNotifList(); setCurrentView("Notifiche");
@@ -4474,7 +4489,7 @@
     // Il pulsante "Archivia tutte" ha senso solo tra le notifiche Attive.
     function updateArchiveAllBtnVisibility() {
         const btn = document.getElementById('btn-archive-all-notif');
-        if(btn) btn.style.display = notifHistory.some(n => !n.read && !n.archived) ? 'flex' : 'none';
+        if(btn) btn.style.display = myNotifs().some(n => !n.read && !n.archived) ? 'flex' : 'none';
     }
     // Timestamp numerico affidabile per ordinare/raggruppare: le notifiche più vecchie,
     // salvate prima di questa revisione, non hanno "ts" — si ricava dalla data testuale.
@@ -4535,13 +4550,26 @@
     }
     function renderNotifList() {
         const c = document.getElementById('notif-list-container');
-        const unread = notifHistory.filter(n => !n.read && !n.archived).length;
+        const mine = myNotifs(), unread = mine.filter(n => !n.read && !n.archived).length;
+        const guest = prefOwner() === 'OSPITE', tabs = document.querySelector('#notif-center-modal .nt-tabs');
+        if(tabs) tabs.style.display = guest ? 'none' : '';
         const cnt = document.getElementById('nt-count-nuove'); if(cnt) cnt.textContent = unread || '';
         const sub = document.getElementById('nt-subtitle');
-        if(sub) sub.textContent = (userIdentity && userIdentity !== 'Ospite') ? `Avvisi sui turni e le reperibilit\u00e0 di ${userIdentity}` : 'Scegli chi sei per ricevere avvisi sui tuoi turni';
-        const items = currentNotifTab === 'archivio' ? notifHistory.filter(n => n.archived)
-            : currentNotifTab === 'nuove' ? notifHistory.filter(n => !n.read && !n.archived)
-            : notifHistory.filter(n => !n.archived);
+        if(sub) sub.textContent = (userIdentity && userIdentity !== 'Ospite') ? `Avvisi sui turni e le reperibilit\u00e0 di ${userIdentity}` : 'Modalità Ospite';
+        if(guest) {
+            // l'Ospite non riceve avvisi: si spiega perché e cosa resta salvato sul telefono
+            const others = {}; notifHistory.forEach(n => { if(n.owner && n.owner !== 'OSPITE' && !n.archived) others[n.owner] = (others[n.owner] || 0) + 1; });
+            const names = Object.keys(others).map(o => { const d = drivers.find(x => (x.originalName || '').toUpperCase() === o || x.name.toUpperCase() === o); return { o, nm: d ? d.name : o, n: others[o] }; });
+            const kept = names.length ? `<div class="nt-guest-kept"><span class="material-icons-round">inventory_2</span><div>${names.map(x => `<b>${esc(x.nm)}</b>: ${x.n} ${x.n === 1 ? 'notifica salvata' : 'notifiche salvate'}`).join('<br>')}<small>Non si vedono in modalità Ospite. Le ritrovi scegliendo di nuovo quel nome.</small></div></div>` : '';
+            c.innerHTML = `<div class="nt-guest"><span class="nt-guest-ico material-icons-round">notifications_off</span><b>Come Ospite non ricevi notifiche</b>
+                <p>Le notifiche sono personali: avvisano <b>te</b> quando ti assegnano nuovi turni, quando cambiano o vengono tolti, il giorno prima di una reperibilità e con il turno di domani.</p>
+                <p>Per riceverle scegli il tuo nome. Funzionano anche ad app chiusa, se le attivi nelle Opzioni.</p>
+                <button onclick="closeNotifCenter();setTimeout(requestChangeIdentityDirect,300)"><span class="material-icons-round">person_search</span>Scegli chi sei</button></div>` + kept;
+            return;
+        }
+        const items = currentNotifTab === 'archivio' ? mine.filter(n => n.archived)
+            : currentNotifTab === 'nuove' ? mine.filter(n => !n.read && !n.archived)
+            : mine.filter(n => !n.archived);
         let intro = '';
         if(!userIdentity || userIdentity === 'Ospite') intro = `<div class="nt-intro"><span class="material-icons-round">info</span><div><b>Non sai chi sei per l\u2019app</b><small>Scegli il tuo nome: ti avviseremo quando ti assegnano nuovi turni, quando cambiano e il giorno prima di una reperibilit\u00e0.</small></div><button onclick="closeNotifCenter();setTimeout(requestChangeIdentityDirect,300)">Scegli</button></div>`;
         if(!items.length) {
@@ -4585,12 +4613,12 @@
     function deleteNotif(id) { vibrate(); const n = notifHistory.find(x => x.id === id); if(n) n.archived = true; saveNotifications(); renderNotifList(); updateBadge(); }
     function restoreNotif(id) { vibrate(); const n = notifHistory.find(x => x.id === id); if(n) n.archived = false; saveNotifications(); renderNotifList(); updateBadge(); }
     function permanentDeleteNotif(id) { if(!confirm("Eliminare definitivamente questa notifica?")) return; vibrate(); notifHistory = notifHistory.filter(n => n.id !== id); saveNotifications(); renderNotifList(); updateBadge(); }
-    function clearAllNotif() { vibrate(); notifHistory.forEach(n => { n.read = true; }); saveNotifications(); updateArchiveAllBtnVisibility(); renderNotifList(); updateBadge(); }
+    function clearAllNotif() { vibrate(); myNotifs().forEach(n => { n.read = true; }); saveNotifications(); updateArchiveAllBtnVisibility(); renderNotifList(); updateBadge(); }
     // Tocco su una notifica: diventa letta e mostra/nasconde il dettaglio.
     function notifTap(id) {
         const n = notifHistory.find(x => String(x.id) === String(id)); if(!n) return;
         const card = document.querySelector(`.nt-card[data-id="${id}"]`);
-        if(!n.read) { n.read = true; saveNotifications(); updateBadge(); updateArchiveAllBtnVisibility(); if(card) card.classList.remove('unread'); const c = document.getElementById('nt-count-nuove'); if(c) { const k = notifHistory.filter(x => !x.read && !x.archived).length; c.textContent = k || ''; } }
+        if(!n.read) { n.read = true; saveNotifications(); updateBadge(); updateArchiveAllBtnVisibility(); if(card) card.classList.remove('unread'); const c = document.getElementById('nt-count-nuove'); if(c) { const k = myNotifs().filter(x => !x.read && !x.archived).length; c.textContent = k || ''; } }
         if(card) card.classList.toggle('open');
     }
     // Spunta una richiesta: bagliore verde sulla card, poi la archivia davvero e ridisegna.
@@ -4647,7 +4675,7 @@
         closeAlertAndSave();
         setTimeout(() => {
             openNotifCenter();
-            switchNotifTab('storico', document.querySelector('#notif-center-modal .admin-tab-btn[data-notiftab="storico"]'));
+            switchNotifTab('tutte', document.querySelector('#notif-center-modal .nt-tab[data-notiftab="tutte"]'));
         }, 320);
     }
     function closeAlertAndSave() { vibrate(); let m = document.getElementById('alert-modal'); m.classList.remove('open'); setTimeout(() => m.style.display='none', 300); }
@@ -5234,10 +5262,13 @@
                 <button class="btn-change-identity" onclick="closeOptionsModal();setTimeout(() => toggleDriverFilterDropdown(), 240)"><span class="material-icons-round" style="font-size:16px">groups</span> SCEGLI</button></div>
 
             <div class="option-category-header"><span class="material-icons-round">notifications</span> Notifiche</div>
-            ${pushOptionsHtml()}
-            ${sw('notifyChanges', 'Cambi ai miei turni', 'Avviso quando un tuo turno viene aggiunto, cambiato o tolto.')}
+            ${named ? '' : `<div class="option-item"><div class="opt-txt"><span>Come Ospite non ricevi notifiche</span><small>Gli avvisi sono personali: scegli il tuo nome per riceverli, anche ad app chiusa.</small></div>
+                <button class="btn-change-identity" onclick="closeOptionsModal();setTimeout(requestChangeIdentityDirect,220)">SCEGLI</button></div>`}
+            ${named ? pushOptionsHtml() : ''}
+            ${named ? '' : '<div style="display:none">'}${sw('notifyChanges', 'Cambi ai miei turni', 'Avviso quando un tuo turno viene aggiunto, cambiato o tolto.')}
             ${sw('notifyRep', 'Promemoria reperibilità', 'Il giorno prima, se sei reperibile o copri una fascia.')}
             ${sw('notifyTomorrow', 'Il mio turno di domani', 'Dopo mezzogiorno, un promemoria con il turno del giorno dopo.')}
+            ${named ? '' : '</div>'}
             ${isCoordinator ? `<div class="option-item"><div class="opt-txt"><span>Richieste dal portale</span><small>Sei il coordinatore: con le notifiche sul telefono attive ricevi anche ogni nuova richiesta.</small></div></div>` : ''}
 
             <div class="option-category-header" id="opt-cal"><span class="material-icons-round">calendar_month</span> Calendario del telefono</div>
@@ -5285,7 +5316,7 @@
         const lbl = info.justified ? ((ABS_TYPES[info.code] || {}).label || info.label) : (SHIFT_NAMES[info.code] || info.label);
         const time = info.justified ? '' : ((/^[mpr]$/.test(info.code) ? diurniSched(info.code, dd.date) : SCHEDULE[info.code]) || '');
         const dateLabel = t.toLocaleDateString('it-IT', { weekday:'long', day:'numeric', month:'long' });
-        notifHistory.unshift({ id: Date.now() + Math.random(), ts: Date.now(), kind:'domani', title:'Il tuo turno di domani', detail:`${dateLabel}: ${lbl}${time ? ' ' + time : ''}`, text:`<b>Domani</b> — ${esc(lbl)}`, read:false, archived:false, date: new Date().toLocaleString(), type:'turno' });
+        notifHistory.unshift({ id: Date.now() + Math.random(), ts: Date.now(), kind:'domani', title:'Il tuo turno di domani', detail:`${dateLabel}: ${lbl}${time ? ' ' + time : ''}`, text:`<b>Domani</b> — ${esc(lbl)}`, read:false, archived:false, date: new Date().toLocaleString(), type:'turno', owner: prefOwner() });
         saveNotifications(); updateBadge();
         try { localStorage.setItem(key, '1'); } catch(e) {}
     }
@@ -7151,7 +7182,7 @@
     function chgClose(history) {
         const el = document.getElementById('chg-modal'); if(!el) return;
         el.classList.remove('open'); setTimeout(() => { el.style.display = 'none'; }, 250);
-        if(history) setTimeout(() => { openNotifCenter(); switchNotifTab('storico', document.querySelector('#notif-center-modal .admin-tab-btn[data-notiftab="storico"]')); }, 280);
+        if(history) setTimeout(() => { openNotifCenter(); switchNotifTab('tutte', document.querySelector('#notif-center-modal .nt-tab[data-notiftab="tutte"]')); }, 280);
     }
     function chgGo(k) {
         chgClose();
