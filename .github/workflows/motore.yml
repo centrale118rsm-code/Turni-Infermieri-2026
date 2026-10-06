@@ -1,0 +1,43 @@
+# Ogni 15 minuti: aggiorna i calendari del telefono (cartella cal/) e manda le notifiche.
+# Serve il secret VAPID_PRIVATE (Settings › Secrets and variables › Actions).
+name: Motore notifiche e calendari
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: motore
+  cancel-in-progress: false
+
+jobs:
+  motore:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      APP_URL: https://centrale118rsm-code.github.io/Turni-Infermieri-2026/
+      VAPID_PUBLIC: BC1Dmgpc5zuCuMFLkCEq5c7eoLPyP7tVulYg2Wzo5M-1zpuuT50eqMWgqIcT3JXwz0ceBY9ZC1yGNRC0gOZuc3Q
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Librerie
+        run: npm install --prefix .github/motore --no-audit --no-fund
+      - name: Calendari e notifiche
+        run: node .github/motore/motore.mjs
+        env:
+          VAPID_PRIVATE: ${{ secrets.VAPID_PRIVATE }}
+      - name: Salva se cambiato
+        run: |
+          git config user.name "motore-turni"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add cal push
+          if git diff --cached --quiet; then echo "niente da salvare"; exit 0; fi
+          git commit -m "Motore: calendari e stato notifiche aggiornati"
+          for i in 1 2 3; do git pull --rebase -q && git push -q && exit 0; sleep 5; done
+          exit 1
