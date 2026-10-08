@@ -16,8 +16,6 @@
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <link rel="icon" type="image/png" href="icon-118-192.png">
     <title>INFERMIERI 2026</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
@@ -306,7 +304,7 @@
         #main-table.cell-measure tbody td[data-col] { width: auto !important; min-width: 0 !important; max-width: none !important; height: auto !important; }
         #main-table.cell-measure .cell { width: max-content !important; height: auto !important; }
         #main-table.cell-measure .rep-bar { width: max-content; }
-        #cell-probe { position: absolute; left: 0; top: 0; visibility: hidden; pointer-events: none; z-index: -1; display: flex; align-items: flex-start; }
+        #cell-probe { position: absolute; left: 0; top: 0; visibility: hidden; pointer-events: none; z-index: -1; display: flex; align-items: flex-start; contain: strict; width: 6000px; height: 600px; overflow: hidden; }
         #cell-probe .cell { width: max-content !important; height: auto !important; flex: none; }
         #cell-probe .rep-bar { width: max-content; }
         tr.month-header td {
@@ -344,12 +342,17 @@
         .rep-now-slot { font-size: 0.68rem; font-weight: 600; color: rgba(255,236,232,0.65); white-space: nowrap; }
         /* telefono: barra del mese compatta, così il nome del reperibile si legge per intero */
         @media (max-width: 560px) {
-            .rep-now-label, .rep-now-slot { display: none; }
+            .rep-now-slot { display: none; }
+            /* la scritta "Reperibile ora" resta, piccola sopra il nome */
+            .rep-now-pill { display: inline-grid; grid-template-columns: auto minmax(0,1fr); column-gap: 6px; row-gap: 0; align-items: center; }
+            .rep-now-pill .rep-now-dot { grid-row: 1 / span 2; }
+            .rep-now-label { font-size: 0.5rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; line-height: 1.1; }
+            .rep-now-name { line-height: 1.1; }
             .live-clock .lc-date, .live-clock .material-icons-round { display: none; }
             .sticky-month-text { gap: 8px; padding-left: 10px; }
             .month-label { font-size: 1.1rem; }
             .live-clock { padding: 4px 9px; font-size: 0.82rem; }
-            .rep-now-pill { padding: 4px 9px; }
+            .rep-now-pill { padding: 3px 10px 3px 8px; }
             .rep-now-name { max-width: 130px; }
         }
         tbody td {
@@ -1146,8 +1149,8 @@
         body.pref-hl-me #main-table td.me-col { background: rgba(37,99,235,.09); box-shadow: inset 2px 0 0 rgba(37,99,235,.55), inset -2px 0 0 rgba(37,99,235,.55); }
         body.dark-mode.pref-hl-me #main-table td.me-col { background: rgba(96,165,250,.13); }
         body.pref-hl-me #main-table thead th.me-col { color: var(--primary); box-shadow: inset 0 -3px 0 var(--primary); }
-        body.pref-no-times #main-table .time-tag { display:none; }
-        body.pref-no-repbar #main-table .rep-bar { display:none; }
+        body.pref-no-times #main-table .time-tag, body.pref-no-times #cell-probe .time-tag { display:none; }
+        body.pref-no-repbar #main-table .rep-bar, body.pref-no-repbar #cell-probe .rep-bar { display:none; }
 
         /* ══ Opzioni dell'app ══ */
         .opt-hero { display:flex; align-items:center; gap:12px; padding:14px 16px; margin:12px 14px 6px; border-radius:16px; color:#fff;
@@ -3334,7 +3337,21 @@
 <script>
     // ── Registro errori per il pannello admin: gli errori finiscono nella sessione su Firebase (campo "errors").
     // Nessun effetto visibile: si raccolgono e si inviano in silenzio (al massimo 25 diversi per sessione).
+    // Librerie caricate solo quando servono (Excel: import/export e modalità Excel; Chart: grafico del dettaglio ore)
+    const LIBS = { excel: 'https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js', chart: 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js' }, libLoading = {};
+    function loadLib(k) {
+        if(k === 'excel' && typeof ExcelJS !== 'undefined') return Promise.resolve();
+        if(k === 'chart' && typeof Chart !== 'undefined') return Promise.resolve();
+        return libLoading[k] || (libLoading[k] = new Promise((res, rej) => {
+            const sc = document.createElement('script'); sc.src = LIBS[k]; sc.async = true;
+            sc.onload = () => res(); sc.onerror = () => { delete libLoading[k]; rej(new Error('Libreria non caricata: ' + k)); };
+            document.head.appendChild(sc);
+        }));
+    }
     const APP_ERR = { queue: [], seen: new Set(), max: 25 };
+    // dimensioni dello schermo in memoria (ruota strumenti): leggerle mentre il calendario cambia obbliga il browser a reimpaginarlo tutto
+    var twVP = { w: window.innerWidth, h: window.innerHeight };
+    window.addEventListener('resize', () => { twVP.w = window.innerWidth; twVP.h = window.innerHeight; }, { passive: true });
     function appErrRecord(kind, msg, src, stack) {
         try {
             msg = String(msg || '').slice(0, 300); if(!msg) return;
@@ -3502,6 +3519,7 @@
         if(SERVER_MODE) return;
         identityRecoveryPromise = tryRecoverIdentityFromUid();
         setTimeout(() => { try { appErrFlush(); } catch(e) {} }, 1500);   // errori capitati prima del collegamento
+        setTimeout(() => { const go = () => loadLib('chart').catch(() => {}); window.requestIdleCallback ? requestIdleCallback(go, { timeout: 10000 }) : go(); }, 8000);
         // impostazioni e reperibilità subito: non aspettano la scrittura della sessione (connessione lenta o assente)
         listenConfigChanges();
         listenReperibilita();   // le richieste in arrivo si ascoltano solo sul telefono del coordinatore
@@ -3575,8 +3593,9 @@
         try {
             const myUid = fbAuth.currentUser && fbAuth.currentUser.uid;
             const cutoffMs = Date.now() - IDENTITY_CLAIM_MAX_AGE_MS;
-            const snap = await db.collection('infermieri26_identities').get();
-            let rel = {}; try { const st = await cfgRef('settings').get(); rel = (st.exists && st.data().identityReleases) || {}; } catch(e) {}   // nomi liberati dall'admin
+            // solo i nomi usati negli ultimi giorni (non tutti i telefoni di sempre): molto più veloce
+            const snap = await db.collection('infermieri26_identities').where('updatedAt', '>=', firebase.firestore.Timestamp.fromMillis(cutoffMs)).get();
+            const rel = identityReleases || {};   // nomi liberati dall'admin (dalle impostazioni già in memoria)
             const locked = new Set();
             snap.forEach(doc => {
                 if(doc.id === myUid) return;
@@ -3585,7 +3604,7 @@
                 const ms = tsToMillis(d.updatedAt);
                 if(ms && ms > cutoffMs && !(rel[d.name] && ms <= rel[d.name])) locked.add(d.name);
             });
-            console.log('[Identità] Nomi risultati in uso (prenotazione permanente):', [...locked]);
+            identityLockedCache = locked;
             return locked;
         } catch(e) { console.error("Errore lettura identità attive:", e); return new Set(); }
     }
@@ -3598,8 +3617,16 @@
         let m = document.getElementById('identity-info-modal'); m.classList.remove('open');
         setTimeout(() => { m.style.display = 'none'; openIdentityModal(); }, 300);
     }
+    // La finestra si apre subito; i nomi "In uso" arrivano appena la rete risponde (al massimo 6 s).
+    let identityLockedCache = null, identityReleases = {};
     async function openIdentityModal() {
-        const locked = await getLockedIdentities();
+        renderIdentityList(identityLockedCache || new Set());
+        const m = document.getElementById('identity-modal'); m.style.display = 'flex';
+        setTimeout(() => m.classList.add('open'), 20);
+        const fresh = await Promise.race([getLockedIdentities(), new Promise(r => setTimeout(() => r(null), 6000))]);
+        if(fresh && m.style.display !== 'none') renderIdentityList(fresh);
+    }
+    function renderIdentityList(locked) {
         const names = (drivers && drivers.length) ? drivers.map(d => d.name) : [];
         const allOptions = names.concat(IDENTITY_EXTRA_OPTIONS);
         const c = document.getElementById('identity-list-container'); c.innerHTML = "";
@@ -3617,8 +3644,6 @@
             if(!isLocked) btn.onclick = () => selectIdentity(name);
             c.appendChild(btn);
         });
-        let m = document.getElementById('identity-modal'); m.style.display = 'flex';
-        setTimeout(() => m.classList.add('open'), 20);
     }
     function selectIdentity(name) {
         vibrate();
@@ -3720,6 +3745,7 @@
                 renderCoordSyncList();
             }
             if(data.coverageMin) { coverageMin = Object.assign({}, COVERAGE_DEFAULT, data.coverageMin); dayChecksCache = null; }
+            if(data.identityReleases !== undefined) identityReleases = data.identityReleases || {};
             if(data.checksResolved !== undefined) { checksResolved = data.checksResolved || {}; setTimeout(chkRefresh, 0); }   // fuori dal flusso: un errore qui non deve fermare il resto delle impostazioni
             if(data.customCodes !== undefined && JSON.stringify(data.customCodes || {}) !== JSON.stringify(customCodes)) {
                 customCodes = data.customCodes || {}; applyCustomCodes();
@@ -4934,6 +4960,7 @@
 
     async function loadWorkbook(buffer, splashMinTime) {
         try {
+            await loadLib('excel');
             const workbook = new ExcelJS.Workbook(); await workbook.xlsx.load(buffer);
             let ws = workbook.worksheets[0]; let rawData = [];
             ws.eachRow({ includeEmpty:true }, (row, rowNumber) => {
@@ -6467,6 +6494,7 @@
         otherTeamLoading = (async () => {
             try {
                 const r = await fetch(OTHER_TEAM.url + '?v=' + Date.now()); if(!r.ok) return;
+                await loadLib('excel');
                 const wb = new ExcelJS.Workbook(); await wb.xlsx.load(await r.arrayBuffer());
                 const ws = wb.getWorksheet('Foglio2') || wb.worksheets[0], raw = [];
                 ws.eachRow({ includeEmpty: true }, (row, rn) => { const rd = []; row.eachCell({ includeEmpty: true }, (cell, cn) => { let v = cell.value; if(typeof v === 'object' && v !== null) v = v.result || (v.richText && v.richText[0] && v.richText[0].text) || ''; rd[cn] = { v }; }); raw[rn] = rd; });
@@ -7014,6 +7042,7 @@
     async function importLoadBuffer(buf, fileName) {
         const el = document.getElementById('imp-status'); if(el) el.innerHTML = '<p class="cc-note">Leggo il file…</p>';
         try {
+            await loadLib('excel');
             const wb = new ExcelJS.Workbook(); await wb.xlsx.load(buf);
             importAnalyze(importParseRaw(importReadRaw(wb.worksheets[0])), fileName);
         } catch(e) { console.error(e); importLast = null; ccToast('File non leggibile: ' + (e.message || e), true); }
@@ -7399,11 +7428,14 @@
     function edSumSet(id, on) { if(on) edSumShow.add(id); else edSumShow.delete(id); edSumSave(); }
     function edSumAll(on) { edSumShow = new Set(on ? EDSUM_ITEMS.map(x => x.id) : []); edSumSave(); const m = document.getElementById('ed-sum-menu'); if(m) { m.remove(); edSumMenu(); } }
     // l'intestazione dei nomi cambia altezza (saldo, resoconto): la barra del mese resta attaccata sotto
+    let rtDeferHeadFit = false, thFitSig = '';   // dentro renderTable l'intestazione si misura alla fine, insieme alle caselle
     function thFitHeight() {
+        if(rtDeferHeadFit) return;
         const thead = document.getElementById('table-head'); if(!thead) return;
         const root = document.documentElement.style; root.setProperty('--th-h', '40px');
         const h = Math.ceil(thead.getBoundingClientRect().height);
         if(h > 41) root.setProperty('--th-h', h + 'px');
+        thFitSig = '';   // misura fatta fuori da renderTable: la prossima volta si rimisura
     }
 
     // ═══ BARRA IN ALTO NASCOSTA DURANTE LA MODIFICA ══════════════════════════
@@ -7729,11 +7761,12 @@
     // Tutto l'anno in un solo foglio che scorre in verticale (un'intestazione per ogni mese con le
     // ore del mese di ognuno). In alto si sceglie se vedere tutti gli operatori affiancati o uno solo.
     let hsPick = (() => { try { return localStorage.getItem('hs_pick_v1') || ''; } catch(e) { return ''; } })();
+    let hsGen = 0;
     function hsSetPick(v) {
         vibrate(); hsPick = v; try { localStorage.setItem('hs_pick_v1', v); } catch(e) {}
         // si resta sullo stesso giorno: si ricorda la prima riga visibile e la si ritrova dopo
         const w = document.querySelector('#hg-grid .hs-wrap'); let anchor = null;
-        if(w) { const head = w.querySelector('thead').offsetHeight, rows = [...w.querySelectorAll('tbody tr')]; const i = rows.findIndex(r => r.offsetTop + r.offsetHeight > w.scrollTop + head); if(i >= 0) anchor = { i, off: rows[i].offsetTop - w.scrollTop }; }
+        if(w) { const head = w.querySelector('thead').offsetHeight, rows = [...w.querySelectorAll('tbody tr')]; const i = rows.findIndex(r => r.offsetTop + r.offsetHeight > w.scrollTop + head); if(i >= 0) anchor = { d: rows[i].dataset.d, off: rows[i].offsetTop - w.scrollTop }; }
         renderHoursSheet(anchor);
     }
     function hsPickHtml(people) {
@@ -7772,12 +7805,12 @@
         const curM = today.slice(0, 4) === String(SHIFT_YEAR) ? new Date().getMonth() : 0;
         const head1 = `<tr><th class="hs-date hs-h1" rowspan="2">${SHIFT_YEAR}</th>${data.map(p => `<th class="hs-name" colspan="4" style="--hc:${colorOf(p.d)}" onclick="openHoursDetail(${p.d.idx}, ${curM})">${esc(p.d.name)}<small>${getContractHours(p.d.idx)} h/sett.</small></th>`).join('')}</tr>`;
         const head2 = `<tr>${data.map(() => `<th class="hs-sub">Turno</th><th class="hs-sub">Ore</th><th class="hs-sub">Ass.</th><th class="hs-sub hs-wk">Sett.</th>`).join('')}</tr>`;
-        let body = '', lastM = -1;
+        const parts = {}; let lastM = -1;
         all.forEach(dd => {
             if(dd.monthIdx !== lastM) {
-                lastM = dd.monthIdx;
+                lastM = dd.monthIdx; parts[lastM] = '';
                 const mName = MONTH_NAMES_IT[lastM];
-                body += `<tr class="hs-mrow" id="hs-m-${lastM}"><th class="hs-date hs-mlabel">${mName.charAt(0).toUpperCase() + mName.slice(1)}</th>${data.map(p => {
+                parts[lastM] += `<tr class="hs-mrow" id="hs-m-${lastM}" data-d="m${lastM}"><th class="hs-date hs-mlabel">${mName.charAt(0).toUpperCase() + mName.slice(1)}</th>${data.map(p => {
                     const M = p.month[lastM]; if(!M || (!M.inS && !M.tot)) return '<td class="hs-mtot" colspan="4"></td>';
                     const df = M.tot - M.tgt, cls = Math.abs(df) < 1 ? '' : (df < 0 ? 'neg' : 'pos');
                     return `<td class="hs-mtot" colspan="4"><b>${hsHM(M.tot)}</b><span>ore del mese</span>${M.tgt ? `<em class="${cls}">${cls ? (df > 0 ? '+' : '') + hsHM(df) : 'in pari'}</em>` : ''}</td>`;
@@ -7796,13 +7829,28 @@
                 else if(g === 1 && p.balAfter[ymd(prevSun)] !== undefined && p.inYear) { const b = p.balAfter[ymd(prevSun)]; wk = `<em class="${Math.abs(b) < 1 ? '' : (b < 0 ? 'neg' : 'pos')}" title="Saldo dall'inizio dell'anno">${b > 0 ? '+' : ''}${hsHM(b)}</em>`; }
                 return codeCell + ore + ass + `<td class="hs-wk">${wk}</td>`;
             }).join('');
-            body += `<tr class="${sun ? 'hs-sun' : ''} ${iso === today ? 'hs-today' : ''}"><th class="hs-date ${red ? 'red' : ''}"><b>${dd.day}</b><small>${wd[g]}</small></th>${cells}</tr>`;
+            parts[lastM] += `<tr class="${sun ? 'hs-sun' : ''} ${iso === today ? 'hs-today' : ''}" data-d="${iso}"><th class="hs-date ${red ? 'red' : ''}"><b>${dd.day}</b><small>${wd[g]}</small></th>${cells}</tr>`;
         });
-        el.innerHTML = `<div class="hs-wrap ${one ? 'hs-one' : ''}"><table class="hs-table"><thead>${head1}${head2}</thead><tbody>${body}</tbody></table></div>`;
+        const months = Object.keys(parts).map(Number).sort((a, b) => a - b), gen = ++hsGen;
+        const tb = m => `<tbody data-m="${m}">${parts[m]}</tbody>`;
+        const startM = months.includes(curM) ? curM : months[0], progressive = !keepTop && months.length > 2;
+        el.innerHTML = `<div class="hs-wrap ${one ? 'hs-one' : ''}"><table class="hs-table"><thead>${head1}${head2}</thead>${(progressive ? [startM] : months).map(tb).join('')}</table></div>`;
+        if(progressive) {
+            const after = months.filter(m => m > startM), before = months.filter(m => m < startM).reverse();
+            const step = () => {
+                const w = el.querySelector('.hs-wrap'), table = w && w.querySelector('table');
+                if(gen !== hsGen || !table) return;
+                if(after.length) table.insertAdjacentHTML('beforeend', tb(after.shift()));
+                else if(before.length) { const h0 = w.scrollHeight; table.querySelector('tbody').insertAdjacentHTML('beforebegin', tb(before.shift())); w.scrollTop += w.scrollHeight - h0; }
+                else return;
+                setTimeout(step, 20);
+            };
+            setTimeout(step, 60);
+        }
         const note = document.querySelector('#hc-list-view .hg-note');
         if(note) note.innerHTML = 'Come il foglio Excel, con tutto l’anno da scorrere in verticale: per ognuno il turno, le ore lavorate e le ore di assenza giustificata (col colore dell’assenza). All’inizio di ogni mese le ore del mese e la differenza dal contratto; la domenica il totale della settimana, il lunedì dopo il saldo dall’inizio dell’anno (verde sopra, rosso sotto). Scegli un operatore dall’elenco per vedere solo lui; tocca un nome per il dettaglio.';
         const w = el.querySelector('.hs-wrap'); if(!w) return;
-        if(keepTop) { const r = w.querySelectorAll('tbody tr')[keepTop.i]; if(r) w.scrollTop = Math.max(0, r.offsetTop - keepTop.off); return; }
+        if(keepTop) { const r = w.querySelector(`tbody tr[data-d="${keepTop.d}"]`); if(r) w.scrollTop = Math.max(0, r.offsetTop - keepTop.off); return; }
         const t = el.querySelector('.hs-today'); if(t) setTimeout(() => { w.scrollTop = Math.max(0, t.offsetTop - 120); }, 30);
     }
 
@@ -8662,6 +8710,7 @@
 
         renderMonthCalendarGrid(hoursSelectedMonthIdx, hoursSelectedDriver);
 
+        if(typeof Chart === 'undefined') { loadLib('chart').then(() => { if(document.getElementById('hc-detail-view').style.display !== 'none') renderHoursDetail(); }).catch(() => {}); return; }
         let ctx = document.getElementById('hc-chart').getContext('2d');
         if(hoursChartInstance) hoursChartInstance.destroy();
         let datasets = [{ label:'Ore lavorate', data: chartData, backgroundColor:'rgba(37,99,235,0.75)', borderRadius:6 }];
@@ -8735,7 +8784,7 @@
             if(document.getElementById('hours-modal')?.classList.contains('open')) { if(document.getElementById('hc-detail-view').style.display === 'none') renderHoursGrid(); else renderHoursDetail(); }
             if(coordEditModeActive) updateCoordToolbarState();
             ccRefreshIfOpen();
-        }, 80);
+        }, 220);
     }
 
     // ── Scrittura di una casella: valore completo (i campi assenti vengono cancellati) ──
@@ -9560,11 +9609,12 @@
         if(a && a.closest && a.closest('#cc-main') && ['INPUT','SELECT','TEXTAREA'].includes(a.tagName)) return; // non disturbare chi sta scrivendo
         ccRenderSection();
     }
+    let chkCountTimer = null;
     function ccUpdateNavCounts() {
         updateYearUi();
         const s = document.getElementById('cc-count-sync'); if(s) { const n = 0; s.textContent = n ? n : ''; }
         const p = document.getElementById('cc-count-pending'); if(p) { const n = pendingChangesCount(); p.textContent = n ? n : ''; }
-        const k = document.getElementById('cc-count-chk'); if(k) { const n = isViewingArchive() ? 0 : chkOpenCount(); k.textContent = n ? n : ''; }
+        if(document.getElementById('cc-count-chk')) { clearTimeout(chkCountTimer); chkCountTimer = setTimeout(() => { const run = () => { const k = document.getElementById('cc-count-chk'); if(!k) return; const n = isViewingArchive() ? 0 : chkOpenCount(); k.textContent = n ? n : ''; }; window.requestIdleCallback ? requestIdleCallback(run, { timeout: 2000 }) : run(); }, 300); }
     }
 
     // ── Dialoghi e avvisi ────────────────────────────────────────────────────
@@ -10094,6 +10144,7 @@
     async function ccExportHours() {
         if(typeof ExcelJS === 'undefined') { ccToast('Esportazione non disponibile: libreria Excel non caricata.', true); return; }
         const M = computeHoursMatrix();
+        await loadLib('excel');
         const wb = new ExcelJS.Workbook();
         const ws = wb.addWorksheet(ccHoursPeriod === 'settimana' ? 'Settimana' : ccHoursPeriod === 'mese' ? 'Mese' : 'Anno');
         ws.addRow([`Conteggio ore \u2014 ${M.label}`]); ws.getRow(1).font = { bold:true, size:13 };
@@ -10381,7 +10432,7 @@
             setTimeout(draftOfferRestore, 400);
             attachCellEditHandlers();
             setCoordTool('select', null, null, true);
-            twExpanded = true; twRender(); twPlace();
+            twExpanded = true; twRender(); requestAnimationFrame(twPlace);   // posizione al prossimo disegno, insieme al resto
         } else {
             coordPaintTool = null; coordSwapMode = false; coordSwapFirst = null;
             coordSeqTool = null; coordRepTool = null; coordRepMoveFirst = null;
@@ -10734,7 +10785,7 @@
     let coordSeqTool = null, coordRepTool = null, coordRepMoveFirst = null;
     function twPrefSize() { let k = 'G'; try { k = localStorage.getItem(WHEEL_SIZE_KEY) || 'G'; } catch(e) {} return WHEEL_SIZES[k] ? k : 'G'; }
     function twSize() {
-        const fit = Math.min(window.innerWidth - 24, window.innerHeight - 150);
+        const fit = Math.min(twVP.w - 24, twVP.h - 150);
         return Math.round(Math.max(170, Math.min(WHEEL_SIZES[twPrefSize()], fit)));
     }
     function twSetSize(k) { try { localStorage.setItem(WHEEL_SIZE_KEY, k); } catch(e) {} vibrate(); twRender(); twPlace(); }
@@ -10874,7 +10925,7 @@
         else if(id === 'discard') coordResetChanges();
         else if(id === 'exit') exitCoordEdit();
     }
-    function twDefaultPos() { return { x: window.innerWidth - 60, y: window.innerHeight - 120 }; }
+    function twDefaultPos() { return { x: twVP.w - 60, y: twVP.h - 120 }; }
     function twLoadPos() {
         if(twPos) return twPos;
         try { const p = JSON.parse(localStorage.getItem(WHEEL_POS_KEY)); if(p && isFinite(p.x) && isFinite(p.y)) twPos = p; } catch(e) {}
@@ -10882,7 +10933,7 @@
         return twPos;
     }
     function twClamp(p, expanded) {
-        const W = window.innerWidth, H = window.innerHeight, half = twSize() / 2;
+        const W = twVP.w, H = twVP.h, half = twSize() / 2;
         const r = expanded ? half : 34, top = expanded ? half + 46 : 40, bottom = expanded ? half + 66 : 100;
         const x = W < r*2 + 16 ? W/2 : Math.min(Math.max(p.x, r + 8), W - r - 8);
         const y = H < top + bottom ? H/2 : Math.min(Math.max(p.y, top + (expanded ? 0 : 20)), H - bottom);
@@ -10892,11 +10943,11 @@
         const wheel = document.getElementById('tool-wheel'); if(!wheel) return;
         const p = twClamp(twLoadPos(), twExpanded), half = twSize() / 2;
         wheel.style.transform = `translate(${Math.round(p.x - half)}px, ${Math.round(p.y - half)}px)`;
-        wheel.classList.toggle('caption-top', p.y > window.innerHeight - (half + 80));
+        wheel.classList.toggle('caption-top', p.y > twVP.h - (half + 80));
         // la barra (frecce + dimensione) può essere più larga della ruota: resta dentro lo schermo
         const bar = document.getElementById('tw-bar');
         if(bar && twExpanded) {
-            const bw = bar.offsetWidth, W = window.innerWidth;
+            const bw = bar.offsetWidth, W = twVP.w;
             const left = Math.min(Math.max(p.x - bw / 2, 8), Math.max(8, W - 8 - bw));
             bar.style.transform = `translateX(calc(-50% + ${Math.round(left - (p.x - bw / 2))}px))`;
         }
@@ -11673,7 +11724,7 @@
         dayChecksCache = null;
         const tbody = document.getElementById('table-body');
         rtCols = rtVisibleCols();
-        renderTableHead();
+        rtDeferHeadFit = true; try { renderTableHead(); } finally { rtDeferHeadFit = false; }
         const frag = document.createDocumentFragment();
         const today = new Date(), blocks = monthBlocks(), lite = liteOn();
         if(lite) liteCheckRange();
@@ -11689,7 +11740,11 @@
         if(lite && liteTo < blocks.length - 1) frag.appendChild(liteMoreRow(1, blocks[liteTo + 1].name));
         tbody.innerHTML = ""; tbody.appendChild(frag);
         updateRepNowPill();
-        fitCalendarCells();
+        // l'intestazione si rimisura solo se è cambiata (nomi, resoconto, larghezza): misurarla obbliga a reimpaginare la tabella
+        const thead = document.getElementById('table-head'), thSig = thead ? thead.innerHTML.length + ':' + twVP.w + ':' + document.body.className : '';
+        // intestazione e caselle si misurano insieme: un solo ricalcolo dell'impaginazione
+        if(thSig !== thFitSig) { document.documentElement.style.setProperty('--th-h', '40px'); fitCalendarCells(null, thead); thFitSig = thSig; }
+        else fitCalendarCells();
         liteObserve();
         if(calOverview) renderOverviewSoon();
     }
@@ -11772,24 +11827,23 @@
     // (più un piccolo margine). Si misura il calendario intero dopo ogni ridisegno; dopo una
     // modifica di poche righe si misurano solo quelle e le caselle possono solo crescere.
     let cellFit = { w: 0, h: 0 };
-    function fitCalendarCells(onlyRows) {
+    function fitCalendarCells(onlyRows, headEl) {
         const table = document.getElementById('main-table'); if(!table) return;
+        let headH = 0;
+        const fitHead = () => { if(!headEl) return; if(headH > 41) document.documentElement.style.setProperty('--th-h', headH + 'px'); headEl = null; };
         const scope = onlyRows ? onlyRows.filter(Boolean) : [table];
         const cells = []; scope.forEach(el => el.querySelectorAll('td[data-col] > .cell').forEach(c => cells.push(c)));
-        if(!cells.length) return;
+        if(!cells.length) { if(headEl) { headH = Math.ceil(headEl.getBoundingClientRect().height); fitHead(); } return; }
         let w = 0, h = 0;
         const measure = list => list.forEach(c => { const r = c.getBoundingClientRect(); if(r.width > w) w = r.width; if(r.height > h) h = r.height; });
-        if(onlyRows) {
-            // poche righe: si misurano delle copie fuori dalla tabella, senza ricalcolare tutto il calendario
-            let probe = document.getElementById('cell-probe');
-            if(!probe) { probe = document.createElement('div'); probe.id = 'cell-probe'; probe.setAttribute('aria-hidden', 'true'); document.body.appendChild(probe); }
-            probe.innerHTML = ''; cells.forEach(c => probe.appendChild(c.cloneNode(true)));
-            measure([...probe.children]); probe.innerHTML = '';
-        } else {
-            table.classList.add('cell-measure');
-            measure(cells);
-            table.classList.remove('cell-measure');
-        }
+        // si misurano copie fuori dalla tabella (una per ogni casella diversa), senza ricalcolare tutto il calendario
+        let probe = document.getElementById('cell-probe');
+        if(!probe) { probe = document.createElement('div'); probe.id = 'cell-probe'; probe.setAttribute('aria-hidden', 'true'); document.body.appendChild(probe); }
+        const uniq = new Map(); cells.forEach(c => { const k = c.className + '|' + c.innerHTML; if(!uniq.has(k)) uniq.set(k, c); });
+        probe.innerHTML = ''; uniq.forEach(c => probe.appendChild(c.cloneNode(true)));
+        if(headEl) headH = Math.ceil(headEl.getBoundingClientRect().height);   // stessa lettura delle copie: un solo ricalcolo
+        measure([...probe.children]); probe.innerHTML = '';
+        fitHead();
         if(onlyRows) { w = Math.max(w, cellFit.w); h = Math.max(h, cellFit.h); }
         if(!w || !h) return;
         cellFit = { w, h };
