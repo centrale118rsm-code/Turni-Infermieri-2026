@@ -2038,6 +2038,150 @@
         .access-chevron { color:var(--text-sec); font-size:20px !important; }
         .admin-empty { text-align:center; padding:40px 20px; color:var(--text-sec); }
         .admin-empty .material-icons-round { font-size:40px; opacity:0.4; margin-bottom:8px; }
+        /* ══ Pannello di controllo admin (vale solo dentro #admin-panel-modal) ══ */
+        #admin-panel-modal { align-items:center; padding:18px; }
+        #admin-panel-modal .modal-content.adm-shell { max-width:1180px; width:100%; height:min(92vh, 900px); max-height:none; display:flex; flex-direction:row; padding:0; overflow:hidden; border-radius:20px; background:var(--bg); transform:translateY(16px) scale(.99); transition:transform .25s; }
+        #admin-panel-modal.open .modal-content.adm-shell { transform:none; }
+        .adm-side { width:248px; flex:none; display:flex; flex-direction:column; background:linear-gradient(180deg,#0b1222,#111b33); color:#cbd5e1; padding:18px 12px 12px; }
+        .adm-brand { display:flex; align-items:center; gap:11px; padding:2px 8px 18px; border-bottom:1px solid rgba(148,163,184,.14); margin-bottom:8px; }
+        .adm-brand-ico { width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#2563eb,#7c3aed); color:#fff; box-shadow:0 8px 20px -8px rgba(37,99,235,.8); flex:none; }
+        .adm-brand b { display:block; color:#fff; font-size:.92rem; font-weight:800; } .adm-brand small { display:block; font-size:.7rem; color:#8392ad; margin-top:1px; }
+        #admin-panel-modal .admin-tabs.adm-nav { display:flex; flex-direction:column; gap:2px; padding:0; background:none; border:none; position:static; overflow-y:auto; flex:1; }
+        .adm-nav-grp { font-size:.62rem; font-weight:800; letter-spacing:.09em; text-transform:uppercase; color:#64748b; padding:14px 10px 6px; }
+        #admin-panel-modal .admin-tab-btn { width:100%; display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:10px; border:none; background:none; color:#b6c2d6; font:600 .84rem 'Plus Jakarta Sans',sans-serif; text-align:left; box-shadow:none; cursor:pointer; transition:background .15s, color .15s; }
+        #admin-panel-modal .admin-tab-btn .material-icons-round { font-size:19px; color:#7c8ba5; }
+        #admin-panel-modal .admin-tab-btn:hover { background:rgba(148,163,184,.1); color:#fff; }
+        #admin-panel-modal .admin-tab-btn.active { background:rgba(59,130,246,.18); color:#fff; box-shadow:inset 3px 0 0 #3b82f6; }
+        #admin-panel-modal .admin-tab-btn.active .material-icons-round { color:#60a5fa; }
+        .adm-nav-l { flex:1; min-width:0; }
+        .adm-badge { min-width:20px; height:20px; padding:0 6px; border-radius:999px; font-size:.68rem; font-weight:800; line-height:20px; text-align:center; background:#334155; color:#fff; }
+        .adm-badge:empty { display:none; } .adm-badge.err { background:#dc2626; } .adm-badge.warn { background:#d97706; } .adm-badge.ok { background:#16a34a; }
+        .adm-side-foot { border-top:1px solid rgba(148,163,184,.14); padding-top:10px; }
+        .adm-side-foot button { width:100%; display:flex; align-items:center; gap:8px; padding:9px 10px; border:none; border-radius:10px; background:none; color:#94a3b8; font:600 .8rem 'Plus Jakarta Sans',sans-serif; cursor:pointer; }
+        .adm-side-foot button:hover { background:rgba(148,163,184,.1); color:#fff; }
+        .adm-main { flex:1; min-width:0; display:flex; flex-direction:column; background:var(--bg); }
+        .adm-top { display:flex; align-items:center; gap:10px; padding:16px 20px 14px 24px; border-bottom:1px solid var(--border); background:var(--bg-card); }
+        .adm-top-t { flex:1; min-width:0; } .adm-top-t h3 { margin:0; font-size:1.2rem; font-weight:800; color:var(--text-main); letter-spacing:-.01em; } .adm-top-t span { display:block; font-size:.78rem; color:var(--text-sec); margin-top:2px; }
+        .adm-updated { font-size:.72rem; color:var(--text-sec); white-space:nowrap; }
+        .adm-icon-btn { width:38px; height:38px; border-radius:10px; border:1px solid var(--border); background:var(--bg); color:var(--text-main); display:flex; align-items:center; justify-content:center; cursor:pointer; flex:none; }
+        .adm-icon-btn:hover { border-color:var(--primary); color:var(--primary); }
+        .adm-refresh.spin .material-icons-round, .adm-spin { animation:admSpin 1s linear infinite; }
+        @keyframes admSpin { to { transform:rotate(360deg); } }
+        #admin-panel-modal .adm-body { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+        #admin-panel-modal .admin-tab-panel { padding:20px 24px 28px; max-width:1040px; }
+        #admin-panel-modal .admin-section-label { color:var(--text-sec); }
+        .adm-kpis { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:12px; margin-bottom:18px; }
+        .adm-kpis.three { grid-template-columns:repeat(3, minmax(0,1fr)); }
+        .adm-kpi { display:flex; align-items:flex-start; gap:12px; padding:14px; border-radius:14px; background:var(--bg-card); border:1px solid var(--border); min-width:0; }
+        .adm-kpi > .material-icons-round { width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:20px; flex:none; background:rgba(37,99,235,.1); color:#2563eb; }
+        .adm-kpi div { min-width:0; } .adm-kpi b { display:block; font-size:1.25rem; font-weight:800; color:var(--text-main); line-height:1.15; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .adm-kpi small { display:block; font-size:.74rem; font-weight:700; color:var(--text-main); margin-top:2px; } .adm-kpi em { display:block; font-style:normal; font-size:.68rem; color:var(--text-sec); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .adm-kpi.tone-ok > .material-icons-round { background:rgba(22,163,74,.12); color:#16a34a; } .adm-kpi.tone-warn > .material-icons-round { background:rgba(217,119,6,.13); color:#d97706; }
+        .adm-kpi.tone-err > .material-icons-round { background:rgba(220,38,38,.12); color:#dc2626; } .adm-kpi.tone-muted > .material-icons-round { background:rgba(100,116,139,.12); color:#64748b; }
+        .adm-kpi.tone-err { border-color:rgba(220,38,38,.35); } .adm-kpi.tone-warn { border-color:rgba(217,119,6,.32); }
+        .adm-hero { display:flex; align-items:center; gap:14px; padding:16px 18px; border-radius:16px; margin-bottom:16px; color:#fff; background:linear-gradient(135deg,#15803d,#16a34a); }
+        .adm-hero.sev-info { background:linear-gradient(135deg,#1d4ed8,#2563eb); } .adm-hero.sev-warn { background:linear-gradient(135deg,#b45309,#d97706); } .adm-hero.sev-err { background:linear-gradient(135deg,#b91c1c,#dc2626); }
+        .adm-hero > .material-icons-round { font-size:30px; } .adm-hero div { flex:1; } .adm-hero b { display:block; font-size:1.05rem; font-weight:800; } .adm-hero small { display:block; opacity:.9; font-size:.8rem; margin-top:2px; }
+        .adm-btn { display:inline-flex; align-items:center; gap:6px; height:34px; padding:0 12px; border-radius:9px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-main); font:700 .78rem 'Plus Jakarta Sans',sans-serif; cursor:pointer; white-space:nowrap; flex:none; }
+        .adm-btn .material-icons-round { font-size:17px; } .adm-btn:hover { border-color:var(--primary); color:var(--primary); }
+        .adm-btn.primary { background:var(--primary); border-color:var(--primary); color:#fff; } .adm-btn.primary:hover { filter:brightness(1.08); color:#fff; }
+        .adm-btn.sm { height:30px; padding:0 10px; font-size:.74rem; }
+        .adm-btn.ghost { background:rgba(255,255,255,.16); border-color:rgba(255,255,255,.35); color:#fff; } .adm-btn.ghost:hover { background:rgba(255,255,255,.26); color:#fff; }
+        .adm-sec-h { display:flex; align-items:center; gap:8px; font-size:.78rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--text-sec); margin:4px 0 10px; }
+        .adm-sec-h .material-icons-round { font-size:17px; } .adm-sec-h b { background:var(--border); color:var(--text-main); border-radius:999px; padding:0 8px; font-size:.7rem; }
+        .adm-issue { display:flex; align-items:center; gap:12px; padding:12px 14px; margin-bottom:8px; border-radius:12px; background:var(--bg-card); border:1px solid var(--border); box-shadow:inset 4px 0 0 #2563eb; }
+        .adm-issue > .material-icons-round { font-size:22px; color:#2563eb; flex:none; } .adm-issue div { flex:1; min-width:0; }
+        .adm-issue b { display:block; font-size:.86rem; color:var(--text-main); } .adm-issue p { margin:2px 0 0; font-size:.76rem; color:var(--text-sec); line-height:1.4; }
+        .adm-issue.sev-warn { box-shadow:inset 4px 0 0 #d97706; } .adm-issue.sev-warn > .material-icons-round { color:#d97706; }
+        .adm-issue.sev-err { box-shadow:inset 4px 0 0 #dc2626; } .adm-issue.sev-err > .material-icons-round { color:#dc2626; }
+        .adm-grid2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px; }
+        .adm-card { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; padding:14px 16px; margin-top:12px; min-width:0; }
+        .adm-grid2 .adm-card { margin-top:0; }
+        .adm-card h4 { display:flex; align-items:center; gap:8px; margin:0 0 10px; font-size:.86rem; font-weight:800; color:var(--text-main); } .adm-card h4 .material-icons-round { font-size:18px; color:var(--primary); }
+        .adm-card > small.adm-muted { display:block; margin:-6px 0 10px; }
+        .adm-muted { color:var(--text-sec); font-size:.74rem; }
+        .adm-chart { display:flex; align-items:flex-end; gap:5px; height:140px; padding-top:16px; }
+        .adm-col { flex:1; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; position:relative; min-width:0; }
+        .adm-col i { width:100%; max-width:26px; background:rgba(37,99,235,.22); border-radius:6px 6px 3px 3px; position:relative; display:flex; align-items:flex-end; min-height:2px; }
+        .adm-col i em { display:block; width:100%; background:#2563eb; border-radius:6px 6px 3px 3px; }
+        .adm-col small { font-size:.62rem; color:var(--text-sec); margin-top:4px; } .adm-col-v { font-size:.6rem; font-weight:800; color:var(--text-sec); margin-bottom:2px; }
+        .adm-legend { display:flex; gap:14px; margin-top:8px; font-size:.7rem; color:var(--text-sec); } .adm-legend i { display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:5px; vertical-align:-1px; }
+        .adm-legend i.a { background:rgba(37,99,235,.22); } .adm-legend i.b { background:#2563eb; }
+        .adm-bar { display:grid; grid-template-columns:minmax(90px, 38%) 1fr 34px; align-items:center; gap:8px; margin:6px 0; font-size:.78rem; }
+        .adm-bar-l { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--text-main); font-weight:600; }
+        .adm-bar-t { height:9px; background:var(--bg); border-radius:999px; overflow:hidden; } .adm-bar-t i { display:block; height:100%; border-radius:999px; background:#2563eb; }
+        .adm-bar-t i.red { background:linear-gradient(90deg,#f97316,#dc2626); } .adm-bar-t i.violet { background:#7c3aed; } .adm-bar b { text-align:right; color:var(--text-main); }
+        .adm-sts { display:grid; grid-template-columns:1fr 1fr; gap:0 18px; }
+        .adm-st { display:flex; align-items:center; gap:9px; padding:9px 0; border-bottom:1px dashed var(--border); font-size:.8rem; min-width:0; }
+        .adm-st span:nth-child(2) { color:var(--text-sec); flex:none; } .adm-st b { margin-left:auto; text-align:right; color:var(--text-main); font-weight:700; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .adm-dot { width:9px; height:9px; border-radius:50%; flex:none; background:#94a3b8; } .adm-dot.ok { background:#16a34a; box-shadow:0 0 0 3px rgba(22,163,74,.15); } .adm-dot.warn { background:#d97706; box-shadow:0 0 0 3px rgba(217,119,6,.15); } .adm-dot.err { background:#dc2626; box-shadow:0 0 0 3px rgba(220,38,38,.15); }
+        .adm-toolbar { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-bottom:14px; }
+        .adm-seg { display:inline-flex; background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:3px; gap:2px; flex-wrap:wrap; }
+        .adm-seg button { border:none; background:none; padding:6px 11px; border-radius:7px; font:700 .76rem 'Plus Jakarta Sans',sans-serif; color:var(--text-sec); cursor:pointer; }
+        .adm-seg button.on { background:var(--primary); color:#fff; }
+        .adm-check { display:inline-flex; align-items:center; gap:6px; font-size:.78rem; font-weight:600; color:var(--text-sec); cursor:pointer; }
+        .adm-search { display:flex; align-items:center; gap:6px; height:36px; padding:0 10px; border-radius:10px; border:1px solid var(--border); background:var(--bg-card); flex:1; min-width:200px; max-width:340px; }
+        .adm-search .material-icons-round { font-size:18px; color:var(--text-sec); } .adm-search input { flex:1; min-width:0; border:none; background:none; outline:none; color:var(--text-main); font:600 .82rem 'Plus Jakarta Sans',sans-serif; }
+        .adm-note { display:flex; gap:10px; align-items:flex-start; padding:11px 14px; margin-bottom:14px; border-radius:12px; background:rgba(37,99,235,.07); border:1px solid rgba(37,99,235,.2); font-size:.78rem; line-height:1.45; color:var(--text-main); }
+        .adm-note > .material-icons-round { color:#2563eb; font-size:19px; }
+        .adm-empty { text-align:center; padding:34px 16px; color:var(--text-sec); font-size:.85rem; } .adm-empty .material-icons-round { display:block; font-size:36px; margin:0 auto 8px; opacity:.6; }
+        .adm-empty.ok .material-icons-round { color:#16a34a; opacity:1; } .adm-empty.sm { padding:14px; } .adm-empty.sm .material-icons-round { font-size:24px; }
+        .adm-err { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; margin-bottom:8px; box-shadow:inset 4px 0 0 #dc2626; overflow:hidden; }
+        .adm-err.sev-warn { box-shadow:inset 4px 0 0 #d97706; } .adm-err.resolved { opacity:.65; box-shadow:inset 4px 0 0 #16a34a; }
+        .adm-err summary { display:flex; align-items:center; gap:12px; padding:12px 14px; cursor:pointer; list-style:none; } .adm-err summary::-webkit-details-marker { display:none; }
+        .adm-err-ico { color:#dc2626; font-size:22px !important; } .adm-err.sev-warn .adm-err-ico { color:#d97706; }
+        .adm-err-main { flex:1; min-width:0; } .adm-err-top { display:flex; align-items:baseline; gap:8px; min-width:0; } .adm-err-top b { font-size:.84rem; color:var(--text-main); word-break:break-word; }
+        .adm-err-main small { display:block; font-size:.72rem; color:var(--text-sec); margin-top:3px; } .adm-ok-txt { color:#16a34a; font-weight:700; }
+        .adm-err-n { min-width:30px; height:26px; border-radius:8px; background:var(--bg); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:.8rem; color:var(--text-main); }
+        .adm-err-body { padding:4px 14px 14px 48px; border-top:1px dashed var(--border); }
+        .adm-kv { display:flex; gap:12px; font-size:.78rem; padding:5px 0; } .adm-kv span { width:150px; flex:none; color:var(--text-sec); } .adm-kv b { color:var(--text-main); font-weight:600; word-break:break-word; }
+        .adm-pre { margin:8px 0; padding:10px; border-radius:8px; background:#0f172a; color:#cbd5e1; font:500 .7rem/1.45 ui-monospace,Consolas,monospace; white-space:pre-wrap; word-break:break-word; max-height:180px; overflow:auto; }
+        .adm-row-act { display:flex; justify-content:flex-end; gap:8px; margin-top:8px; }
+        .adm-tag { flex:none; font-size:.62rem; font-weight:800; text-transform:uppercase; letter-spacing:.04em; padding:2px 7px; border-radius:6px; background:rgba(220,38,38,.12); color:#dc2626; } .adm-tag.warn { background:rgba(217,119,6,.14); color:#b45309; }
+        .adm-pill { display:inline-flex; align-items:center; font-size:.66rem; font-weight:800; padding:2px 8px; border-radius:999px; white-space:nowrap; vertical-align:1px; }
+        .adm-pill.ok { background:rgba(22,163,74,.13); color:#15803d; } .adm-pill.warn { background:rgba(217,119,6,.15); color:#b45309; } .adm-pill.err { background:rgba(220,38,38,.12); color:#dc2626; }
+        .adm-pill.info { background:rgba(37,99,235,.12); color:#1d4ed8; } .adm-pill.muted { background:var(--bg); color:var(--text-sec); border:1px solid var(--border); } .adm-pill.violet { background:rgba(124,58,237,.12); color:#6d28d9; }
+        .adm-table { border:1px solid var(--border); border-radius:12px; overflow:hidden; background:var(--bg-card); }
+        .adm-tr { display:grid; grid-template-columns:1.1fr 1fr 1.2fr 1fr; gap:10px; align-items:center; padding:9px 14px; border-top:1px solid var(--border); font-size:.8rem; color:var(--text-main); }
+        .adm-tr:first-child { border-top:none; } .adm-th { background:var(--bg); font-size:.66rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--text-sec); }
+        .adm-id-table .adm-tr { grid-template-columns:1.2fr 1.3fr .8fr 1.5fr 110px; }
+        .adm-id-name { display:flex; align-items:center; gap:9px; min-width:0; } .adm-id-name i { width:30px; height:30px; border-radius:9px; background:rgba(37,99,235,.12); color:#1d4ed8; display:flex; align-items:center; justify-content:center; font-style:normal; font-size:.7rem; font-weight:800; flex:none; }
+        .adm-id-name b { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .adm-day { font-size:.74rem; font-weight:800; text-transform:capitalize; color:var(--text-main); margin:16px 0 8px; display:flex; gap:8px; align-items:center; } .adm-day span { font-weight:600; color:var(--text-sec); text-transform:none; }
+        .adm-log { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; margin-bottom:6px; overflow:hidden; }
+        .adm-log summary { display:flex; align-items:center; gap:12px; padding:10px 14px; cursor:pointer; list-style:none; } .adm-log summary::-webkit-details-marker { display:none; }
+        .adm-log summary > div { flex:1; min-width:0; font-size:.82rem; } .adm-log summary small { display:block; font-size:.72rem; color:var(--text-sec); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .adm-log-t { font-weight:800; font-size:.8rem; color:var(--primary); width:44px; flex:none; } .adm-log-n { min-width:30px; height:24px; border-radius:7px; background:var(--bg); display:flex; align-items:center; justify-content:center; font-size:.74rem; font-weight:800; color:var(--text-main); }
+        .adm-log-body { padding:6px 14px 12px 70px; border-top:1px dashed var(--border); max-height:260px; overflow:auto; }
+        .adm-log-body div { display:flex; align-items:center; gap:8px; font-size:.74rem; padding:3px 0; color:var(--text-main); } .adm-log-body div > span:first-child { width:190px; flex:none; color:var(--text-sec); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .adm-log-body code { font:600 .72rem ui-monospace,Consolas,monospace; background:var(--bg); padding:1px 6px; border-radius:5px; } .adm-log-body .material-icons-round { font-size:14px; color:var(--text-sec); }
+        #admin-panel-modal .access-row { background:var(--bg-card); border-radius:12px; padding:11px 14px; margin-bottom:8px; }
+        #admin-panel-modal .access-row:hover { border-color:var(--primary); }
+        .adm-av { width:34px; height:34px; border-radius:10px; background:rgba(37,99,235,.12); color:#1d4ed8; display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:800; flex:none; }
+        #admin-panel-modal .access-device { white-space:normal; display:flex; flex-wrap:wrap; align-items:center; gap:6px; }
+        #admin-panel-modal .color-grid, #admin-panel-modal .admin-field-row, #admin-panel-modal .admin-toggle-row { max-width:760px; }
+        #admin-panel-modal .btn-admin-save, #admin-panel-modal .btn-admin-secondary, #admin-panel-modal .btn-admin-add, #admin-panel-modal .btn-export { max-width:760px; }
+        body.dark-mode .adm-kpi > .material-icons-round, body.dark-mode .adm-id-name i, body.dark-mode .adm-av { color:#93c5fd; }
+        body.dark-mode .adm-pill.info { color:#93c5fd; } body.dark-mode .adm-pill.ok { color:#86efac; } body.dark-mode .adm-pill.warn { color:#fcd34d; } body.dark-mode .adm-pill.err, body.dark-mode .adm-tag { color:#fca5a5; }
+        @media (max-width:900px) {
+            #admin-panel-modal { padding:0; align-items:stretch; }
+            #admin-panel-modal .modal-content.adm-shell { height:100%; border-radius:0; flex-direction:column; }
+            .adm-side { width:auto; flex-direction:row; align-items:center; padding:8px 8px calc(8px); gap:8px; padding-top:calc(8px + env(safe-area-inset-top,0px)); }
+            .adm-brand { padding:0 4px; border:none; margin:0; } .adm-brand div { display:none; } .adm-brand-ico { width:34px; height:34px; }
+            #admin-panel-modal .admin-tabs.adm-nav { flex-direction:row; overflow-x:auto; scrollbar-width:none; gap:4px; }
+            #admin-panel-modal .admin-tabs.adm-nav::-webkit-scrollbar { display:none; }
+            .adm-nav-grp, .adm-side-foot { display:none; }
+            #admin-panel-modal .admin-tab-btn { width:auto; flex:none; padding:8px 11px; white-space:nowrap; font-size:.78rem; }
+            #admin-panel-modal .admin-tab-btn.active { box-shadow:inset 0 -3px 0 #3b82f6; }
+            .adm-top { padding:12px 14px; } .adm-updated { display:none; }
+            #admin-panel-modal .admin-tab-panel { padding:14px 14px calc(24px + env(safe-area-inset-bottom,0px)); }
+            .adm-kpis { grid-template-columns:repeat(2, minmax(0,1fr)); gap:8px; } .adm-kpis.three { grid-template-columns:repeat(3, minmax(0,1fr)); }
+            .adm-grid2, .adm-sts { grid-template-columns:1fr; }
+            .adm-kpi { padding:11px; gap:9px; } .adm-kpi > .material-icons-round { width:32px; height:32px; font-size:18px; } .adm-kpi b { font-size:1.05rem; }
+            .adm-tr, .adm-id-table .adm-tr { grid-template-columns:1fr 1fr; } .adm-th { display:none; }
+            .adm-err-body, .adm-log-body { padding-left:14px; } .adm-kv span { width:110px; } .adm-log-body div > span:first-child { width:120px; }
+        }
+        @media (max-width:520px) { .adm-kpis.three { grid-template-columns:1fr 1fr 1fr; } .adm-kpis.three .adm-kpi { flex-direction:column; } .adm-hero .adm-btn span:not(.material-icons-round) { display:none; } }
         #access-detail-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:6500; backdrop-filter:blur(8px); align-items:flex-end; justify-content:center; opacity:0; transition:opacity 0.3s; }
         #access-detail-modal.open { opacity:1; }
         #access-detail-modal .modal-content { max-width:520px; }
@@ -2509,32 +2653,54 @@
 </div>
 
 <div id="admin-panel-modal" onclick="closeAdminPanel(event)">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <div class="modal-header admin-header-badge">
-            <div class="header-text">
-                <h3><span class="material-icons-round" style="margin-right:10px">admin_panel_settings</span> PANNELLO ADMIN</h3>
-                <span>Gestione e Configurazione App</span>
+    <div class="modal-content adm-shell" onclick="event.stopPropagation()">
+        <aside class="adm-side">
+            <div class="adm-brand"><span class="adm-brand-ico"><span class="material-icons-round">admin_panel_settings</span></span><div><b>Pannello di controllo</b><small>Turni Infermieri · admin</small></div></div>
+            <nav class="admin-tabs adm-nav" aria-label="Sezioni del pannello">
+                <div class="adm-nav-grp">Controllo</div>
+                <button class="admin-tab-btn active" data-tab="panoramica" onclick="switchAdminTab('panoramica',this)"><span class="material-icons-round">dashboard</span><span class="adm-nav-l">Panoramica</span><b class="adm-badge" id="adm-badge-panoramica"></b></button>
+                <button class="admin-tab-btn" data-tab="errori" onclick="switchAdminTab('errori',this)"><span class="material-icons-round">bug_report</span><span class="adm-nav-l">Errori e problemi</span><b class="adm-badge" id="adm-badge-errori"></b></button>
+                <button class="admin-tab-btn" data-tab="accessi" onclick="switchAdminTab('accessi',this)"><span class="material-icons-round">insights</span><span class="adm-nav-l">Accessi</span><b class="adm-badge" id="adm-badge-accessi"></b></button>
+                <button class="admin-tab-btn" data-tab="identita" onclick="switchAdminTab('identita',this)"><span class="material-icons-round">how_to_reg</span><span class="adm-nav-l">Nomi e identità</span><b class="adm-badge" id="adm-badge-identita"></b></button>
+                <button class="admin-tab-btn" data-tab="ruota" onclick="switchAdminTab('ruota',this)"><span class="material-icons-round">casino</span><span class="adm-nav-l">Ruota della sfiga</span></button>
+                <button class="admin-tab-btn" data-tab="registro" onclick="switchAdminTab('registro',this)"><span class="material-icons-round">history</span><span class="adm-nav-l">Registro modifiche</span></button>
+                <div class="adm-nav-grp">Configurazione</div>
+                <button class="admin-tab-btn" data-tab="aspetto" onclick="switchAdminTab('aspetto',this)"><span class="material-icons-round">palette</span><span class="adm-nav-l">Aspetto</span></button>
+                <button class="admin-tab-btn" data-tab="operatori" onclick="switchAdminTab('operatori',this)"><span class="material-icons-round">badge</span><span class="adm-nav-l">Nomi operatori</span></button>
+                <button class="admin-tab-btn" data-tab="turni" onclick="switchAdminTab('turni',this)"><span class="material-icons-round">schedule</span><span class="adm-nav-l">Orari turni</span></button>
+                <button class="admin-tab-btn" data-tab="testi" onclick="switchAdminTab('testi',this)"><span class="material-icons-round">campaign</span><span class="adm-nav-l">Avvisi</span></button>
+                <button class="admin-tab-btn" data-tab="esporta" onclick="switchAdminTab('esporta',this)"><span class="material-icons-round">file_download</span><span class="adm-nav-l">Esporta</span></button>
+            </nav>
+            <div class="adm-side-foot"><button onclick="closeAdminPanel()"><span class="material-icons-round">logout</span>Esci dal pannello</button></div>
+        </aside>
+        <section class="adm-main">
+            <div class="adm-top">
+                <div class="adm-top-t"><h3 id="adm-title">Panoramica</h3><span id="adm-sub">Stato dell’app e cose da guardare</span></div>
+                <span class="adm-updated" id="adm-updated"></span>
+                <button class="adm-icon-btn adm-refresh" onclick="admRefresh()" title="Aggiorna i dati" aria-label="Aggiorna i dati"><span class="material-icons-round">refresh</span></button>
+                <button class="adm-icon-btn" onclick="closeAdminPanel()" title="Chiudi" aria-label="Chiudi"><span class="material-icons-round">close</span></button>
             </div>
-            <button class="btn-close-modal" onclick="closeAdminPanel()">
-                <span class="material-icons-round">close</span>
-            </button>
-        </div>
-        <div class="admin-tabs">
-            <button class="admin-tab-btn active" data-tab="accessi" onclick="switchAdminTab('accessi',this)"><span class="material-icons-round">insights</span> Accessi</button>
-            <button class="admin-tab-btn" data-tab="aspetto" onclick="switchAdminTab('aspetto',this)"><span class="material-icons-round">palette</span> Aspetto</button>
-            <button class="admin-tab-btn" data-tab="operatori" onclick="switchAdminTab('operatori',this)"><span class="material-icons-round">badge</span> Operatori</button>
-            <button class="admin-tab-btn" data-tab="turni" onclick="switchAdminTab('turni',this)"><span class="material-icons-round">schedule</span> Turni</button>
-            <button class="admin-tab-btn" data-tab="testi" onclick="switchAdminTab('testi',this)"><span class="material-icons-round">campaign</span> Testi</button>
-            <button class="admin-tab-btn" data-tab="esporta" onclick="switchAdminTab('esporta',this)"><span class="material-icons-round">file_download</span> Esporta</button>
-        </div>
-        <div class="modal-body" style="padding:0;">
+        <div class="modal-body adm-body" style="padding:0;">
 
-            <div class="admin-tab-panel active" id="admin-tab-accessi">
-                <div class="admin-stat-row">
-                    <div class="admin-stat-box"><div class="admin-stat-num" id="admin-stat-online">0</div><div class="admin-stat-lbl">Online Ora</div></div>
-                    <div class="admin-stat-box"><div class="admin-stat-num" id="admin-stat-total">0</div><div class="admin-stat-lbl">Accessi Totali</div></div>
+            <div class="admin-tab-panel active" id="admin-tab-panoramica"><div id="adm-panoramica"></div></div>
+            <div class="admin-tab-panel" id="admin-tab-errori"><div id="adm-errori"></div></div>
+            <div class="admin-tab-panel" id="admin-tab-identita"><div id="adm-identita"></div></div>
+            <div class="admin-tab-panel" id="admin-tab-ruota"><div id="adm-ruota"></div></div>
+            <div class="admin-tab-panel" id="admin-tab-registro"><div id="adm-registro"></div></div>
+
+            <div class="admin-tab-panel" id="admin-tab-accessi">
+                <div class="adm-kpis three">
+                    <div class="adm-kpi tone-ok"><span class="material-icons-round">wifi_tethering</span><div><b id="admin-stat-online">0</b><small>Online ora</small></div></div>
+                    <div class="adm-kpi tone-info"><span class="material-icons-round">devices</span><div><b id="admin-stat-total">0</b><small>Sessioni mostrate</small></div></div>
+                    <div class="adm-kpi tone-info"><span class="material-icons-round">groups</span><div><b id="adm-acc-people">0</b><small>Persone diverse</small></div></div>
                 </div>
-                <div class="admin-section-label"><span class="material-icons-round" style="font-size:14px">devices</span> Sessioni Recenti</div>
+                <div class="adm-toolbar">
+                    <div class="adm-search"><span class="material-icons-round">search</span><input type="search" placeholder="Cerca un nome o un dispositivo" oninput="admAccSearch=this.value;renderAdminAccessList()"></div>
+                    <div class="adm-seg" id="adm-acc-seg">
+                        <button class="on" data-f="tutti" onclick="admAccSet('tutti')">Tutti</button><button data-f="online" onclick="admAccSet('online')">Online</button><button data-f="oggi" onclick="admAccSet('oggi')">Oggi</button><button data-f="errori" onclick="admAccSet('errori')">Con problemi</button><button data-f="coord" onclick="admAccSet('coord')">Coordinatore</button>
+                    </div>
+                    <label class="adm-check"><input type="checkbox" checked onchange="admAccHideTests=this.checked;renderAdminAccessList()"> Nascondi le prove automatiche</label>
+                </div>
                 <div id="admin-access-list"></div>
             </div>
 
@@ -2625,6 +2791,7 @@
             </div>
 
         </div>
+        </section>
     </div>
 </div>
 
@@ -3165,6 +3332,26 @@
 </div>
 
 <script>
+    // ── Registro errori per il pannello admin: gli errori finiscono nella sessione su Firebase (campo "errors").
+    // Nessun effetto visibile: si raccolgono e si inviano in silenzio (al massimo 25 diversi per sessione).
+    const APP_ERR = { queue: [], seen: new Set(), max: 25 };
+    function appErrRecord(kind, msg, src, stack) {
+        try {
+            msg = String(msg || '').slice(0, 300); if(!msg) return;
+            const sig = kind + '|' + msg.slice(0, 120); if(APP_ERR.seen.has(sig) || APP_ERR.seen.size >= APP_ERR.max) return; APP_ERR.seen.add(sig);
+            APP_ERR.queue.push({ t: Date.now(), kind, msg, src: String(src || '').slice(0, 200), stack: String(stack || '').slice(0, 600), view: (() => { try { return currentViewLabel; } catch(e) { return ''; } })(), ver: document.lastModified || '' });
+            setTimeout(() => { try { appErrFlush(); } catch(e) {} }, 0);
+        } catch(e) {}
+    }
+    window.addEventListener('error', e => { if(e && e.message) appErrRecord('errore', e.message, String(e.filename || '').split('/').pop() + ':' + (e.lineno || '') + ':' + (e.colno || ''), e.error && e.error.stack); });
+    window.addEventListener('unhandledrejection', e => { const r = e && e.reason; appErrRecord('promessa', (r && (r.message || r.code)) || String(r), '', r && r.stack); });
+    (function() {
+        const orig = console.error;
+        console.error = function(...a) {
+            try { appErrRecord('console', a.map(x => x && x.message ? x.message + (x.code ? ' (' + x.code + ')' : '') : (x && typeof x === 'object' ? (() => { try { return JSON.stringify(x); } catch(e) { return String(x); } })() : String(x))).join(' '), '', (a.find(x => x && x.stack) || {}).stack); } catch(e) {}
+            return orig.apply(console, a);
+        };
+    })();
     const FILE_NAME = "infermieri.xlsx?v=" + new Date().getTime();
     const MONTH_MAP = { "GENNAIO":0,"FEBBRAIO":1,"MARZO":2,"APRILE":3,"MAGGIO":4,"GIUGNO":5,"LUGLIO":6,"AGOSTO":7,"SETTEMBRE":8,"OTTOBRE":9,"NOVEMBRE":10,"DICEMBRE":11 };
     const FIXED_HOLIDAYS = {
@@ -3314,6 +3501,7 @@
         try { await fbAuth.signInAnonymously(); } catch(e) { console.error("Auth anonima fallita:", e); }
         if(SERVER_MODE) return;
         identityRecoveryPromise = tryRecoverIdentityFromUid();
+        setTimeout(() => { try { appErrFlush(); } catch(e) {} }, 1500);   // errori capitati prima del collegamento
         // impostazioni e reperibilità subito: non aspettano la scrittura della sessione (connessione lenta o assente)
         listenConfigChanges();
         listenReperibilita();   // le richieste in arrivo si ascoltano solo sul telefono del coordinatore
@@ -3388,13 +3576,14 @@
             const myUid = fbAuth.currentUser && fbAuth.currentUser.uid;
             const cutoffMs = Date.now() - IDENTITY_CLAIM_MAX_AGE_MS;
             const snap = await db.collection('infermieri26_identities').get();
+            let rel = {}; try { const st = await cfgRef('settings').get(); rel = (st.exists && st.data().identityReleases) || {}; } catch(e) {}   // nomi liberati dall'admin
             const locked = new Set();
             snap.forEach(doc => {
                 if(doc.id === myUid) return;
                 const d = doc.data();
                 if(!d.name || d.name === 'Ospite') return;
                 const ms = tsToMillis(d.updatedAt);
-                if(ms && ms > cutoffMs) locked.add(d.name);
+                if(ms && ms > cutoffMs && !(rel[d.name] && ms <= rel[d.name])) locked.add(d.name);
             });
             console.log('[Identità] Nomi risultati in uso (prenotazione permanente):', [...locked]);
             return locked;
@@ -3472,6 +3661,11 @@
         }, { merge:true }).catch(()=>{});
     }
 
+    function appErrFlush() {
+        if(SERVER_MODE || !fbReady || !APP_ERR.queue.length || !fbAuth || !fbAuth.currentUser) return;
+        const items = APP_ERR.queue.splice(0), FV = firebase.firestore.FieldValue;
+        db.collection('infermieri26_accessi').doc(sessionId).set({ errors: FV.arrayUnion(...items), errCount: FV.increment(items.length), lastErrorAt: FV.serverTimestamp() }, { merge:true }).catch(() => {});
+    }
     function setCurrentView(label) {
         const changed = currentViewLabel !== label;
         currentViewLabel = label;
@@ -3683,7 +3877,8 @@
     function openAdminPanel() {
         let m = document.getElementById('admin-panel-modal'); m.style.display = 'flex';
         setTimeout(() => m.classList.add('open'), 10);
-        switchAdminTab('accessi', document.querySelector('.admin-tab-btn[data-tab="accessi"]'));
+        switchAdminTab('panoramica', document.querySelector('.admin-tab-btn[data-tab="panoramica"]'));
+        admData = null; admRefresh(true);
         if(pendingAdminTab) { const t = pendingAdminTab; pendingAdminTab = null; switchAdminTab(t, document.querySelector(`.admin-tab-btn[data-tab="${t}"]`)); }
         startAdminAccessListener();
         populateAdminColorInputs();
@@ -3707,6 +3902,7 @@
         document.querySelectorAll('.admin-tab-panel').forEach(p => p.classList.remove('active'));
         if(btnEl) btnEl.classList.add('active');
         document.getElementById('admin-tab-' + tab).classList.add('active');
+        admOnTab(tab);
     }
     function showAdminToast(text) {
         const t = document.getElementById('admin-save-toast');
@@ -3719,7 +3915,7 @@
     function startAdminAccessListener() {
         if(!fbReady) return;
         if(adminAccessUnsub) adminAccessUnsub();
-        adminAccessUnsub = db.collection('infermieri26_accessi').orderBy('lastActive','desc').limit(50)
+        adminAccessUnsub = db.collection('infermieri26_accessi').orderBy('lastActive','desc').limit(200)
             .onSnapshot(snap => {
                 adminAccessDocs = snap.docs.map(d => ({ id:d.id, ...d.data() }));
                 renderAdminAccessList();
@@ -3730,20 +3926,31 @@
     }
     function renderAdminAccessList() {
         const c = document.getElementById('admin-access-list'); if(!c) return;
-        if(adminAccessDocs.length === 0) { c.innerHTML = `<div class="admin-empty"><span class="material-icons-round">devices_other</span><br>Nessun accesso registrato.</div>`; document.getElementById('admin-stat-online').innerText = 0; document.getElementById('admin-stat-total').innerText = 0; return; }
-        let onlineCount = 0;
-        c.innerHTML = adminAccessDocs.map(a => {
-            const isOnline = a.online && a.lastActive && (Date.now() - tsToMillis(a.lastActive)) < 100000;
-            if(isOnline) onlineCount++;
-            const start = tsToMillis(a.startTime) || Date.now();
+        document.querySelectorAll('#adm-acc-seg button').forEach(b => b.classList.toggle('on', b.dataset.f === admAccFilter));
+        const now = Date.now(), dayStart = new Date().setHours(0, 0, 0, 0), q = admAccSearch.trim().toLowerCase();
+        const isOn = a => a.online && a.lastActive && (now - tsToMillis(a.lastActive)) < 100000;
+        const docs = adminAccessDocs.filter(a => !(admAccHideTests && admIsTest(a))).filter(a => {
+            if(admAccFilter === 'online' && !isOn(a)) return false;
+            if(admAccFilter === 'oggi' && (tsToMillis(a.startTime) || 0) < dayStart) return false;
+            if(admAccFilter === 'errori' && !(a.errCount > 0)) return false;
+            if(admAccFilter === 'coord' && !(a.currentView === 'Area Coordinatore' || (a.viewHistory || []).some(v => v && v.view === 'Area Coordinatore'))) return false;
+            return !q || [a.identity, a.device, a.currentView].some(x => String(x || '').toLowerCase().includes(q));
+        });
+        document.getElementById('admin-stat-online').innerText = docs.filter(isOn).length;
+        document.getElementById('admin-stat-total').innerText = docs.length;
+        const pp = document.getElementById('adm-acc-people'); if(pp) pp.innerText = new Set(docs.map(a => a.identity).filter(x => x && x !== 'Ospite')).size;
+        if(!docs.length) { c.innerHTML = `<div class="admin-empty"><span class="material-icons-round">devices_other</span><br>Nessuna sessione con questi filtri.</div>`; return; }
+        c.innerHTML = docs.map(a => {
+            const on = isOn(a), start = tsToMillis(a.startTime) || now;
             const mainLabel = a.identity ? a.identity : 'Non identificato';
-            const subLabel = a.identity ? (a.device || '') : (a.device || 'Sconosciuto');
+            const tags = (a.errCount ? `<span class="adm-pill err">${a.errCount} ${a.errCount === 1 ? 'problema' : 'problemi'}</span>` : '') + (a.wheelSpins ? `<span class="adm-pill violet">ruota ×${a.wheelSpins}</span>` : '') + (admIsTest(a) ? '<span class="adm-pill muted">prova</span>' : '');
             return `<div class="access-row" data-start="${start}" onclick="openAccessDetail('${a.id}')">
-                <span class="access-dot ${isOnline?'online':''}"></span>
+                <span class="access-dot ${on?'online':''}"></span>
+                <span class="adm-av">${esc(mainLabel.substring(0, 2).toUpperCase())}</span>
                 <div class="access-info">
-                    <div class="access-device">${mainLabel}</div>
-                    <div class="access-view">${a.currentView || '—'}</div>
-                    <div class="access-meta">${subLabel} • Ultimo accesso: ${formatLastActive(a.lastActive)}</div>
+                    <div class="access-device">${esc(mainLabel)} ${tags}</div>
+                    <div class="access-view">${esc(a.currentView || '—')}</div>
+                    <div class="access-meta">${esc(a.device || 'Dispositivo sconosciuto')} • Ultimo accesso: ${formatLastActive(a.lastActive)}</div>
                 </div>
                 <div class="access-duration">
                     <div class="access-duration-inner"><b class="admin-dur-val">--:--</b><span>Sessione</span></div>
@@ -3751,15 +3958,362 @@
                 </div>
             </div>`;
         }).join('');
-        document.getElementById('admin-stat-online').innerText = onlineCount;
-        document.getElementById('admin-stat-total').innerText = adminAccessDocs.length;
         refreshAdminDurations();
+        if(typeof admBadges === 'function' && admData) admBadges();
     }
     function tsToMillis(ts) { if(!ts) return null; if(typeof ts.toMillis === 'function') return ts.toMillis(); if(ts.seconds) return ts.seconds*1000; return null; }
     function formatLastActive(ts) {
         const ms = tsToMillis(ts); if(!ms) return "—";
         return new Date(ms).toLocaleString('it-IT', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
     }
+
+
+    // ═══ PANNELLO DI CONTROLLO ADMIN ═════════════════════════════════════
+    // Raccoglie in un solo posto lo stato dell'app: errori arrivati dai telefoni (salvati nella
+    // sessione, campo "errors"), accessi, nomi occupati in "Chi sei?" (con la possibilità di
+    // liberarli), statistiche della ruota (campo "wheelLog" della sessione), registro delle
+    // modifiche, motore delle notifiche su GitHub, richieste del portale e copie di sicurezza.
+    const ADM_MOTORE_REPO = 'centrale118rsm-code/Turni-Infermieri-2026';   // dove gira il motore delle notifiche
+    const ADM_DAYS = 14;
+    const ADM_TABS = {
+        panoramica: ['Panoramica', 'Stato dell’app e cose da guardare'],
+        errori:     ['Errori e problemi', 'Quello che è andato storto sui telefoni negli ultimi 14 giorni'],
+        accessi:    ['Accessi', 'Chi usa l’app, da quale dispositivo e cosa guarda'],
+        identita:   ['Nomi e identità', 'I nomi occupati nella schermata “Chi sei?”'],
+        ruota:      ['Ruota della sfiga', 'Statistiche delle estrazioni'],
+        registro:   ['Registro modifiche', 'Chi ha cambiato cosa negli ultimi 7 giorni'],
+        aspetto:    ['Aspetto', 'Colori dell’app per tutti'],
+        operatori:  ['Nomi operatori', 'Nome mostrato nell’app per ogni colonna'],
+        turni:      ['Orari turni', 'Orari standard dei turni'],
+        testi:      ['Avvisi', 'Avviso all’apertura e avvisi aggiuntivi'],
+        esporta:    ['Esporta', 'Copia del file con le impostazioni attuali']
+    };
+    let admData = null, admLoading = null, admTab = 'panoramica';
+    let admErrPeriod = 1, admErrKind = 'tutti', admErrShowResolved = false, admAccFilter = 'tutti', admAccSearch = '', admAccHideTests = true;
+    const admEsc = s => esc(s == null ? '' : String(s));
+    const admIsTest = s => /Headless/i.test(String((s && s.userAgent) || ''));
+    const admMs = v => { if(!v) return 0; if(typeof v === 'number') return v; if(typeof v === 'string') { const t = Date.parse(v); return isNaN(t) ? 0 : t; } return tsToMillis(v) || 0; };
+    function admAgo(ms) {
+        if(!ms) return '—';
+        const d = Date.now() - ms, m = Math.round(d / 60000);
+        if(m < 1) return 'adesso'; if(m < 60) return m + ' min fa';
+        const h = Math.round(m / 60); if(h < 24) return h + (h === 1 ? ' ora fa' : ' ore fa');
+        const g = Math.round(h / 24); return g + (g === 1 ? ' giorno fa' : ' giorni fa');
+    }
+    const admWhen = ms => ms ? new Date(ms).toLocaleString('it-IT', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—';
+    function admHash(s) { let h = 5381; for(let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return 'e' + (h >>> 0).toString(36); }
+    function admSessName(s) { return s.identity && s.identity !== 'Ospite' ? s.identity : (s.identity === 'Ospite' ? 'Ospite' : 'Non identificato'); }
+
+    // ── caricamento dei dati (sola lettura) ──
+    async function admLoad() {
+        if(!fbReady) return null;
+        const since = firebase.firestore.Timestamp.fromMillis(Date.now() - ADM_DAYS * 864e5);
+        const safe = p => p.catch(e => { console.warn('Pannello admin:', e && (e.code || e.message)); return null; });
+        const dates = []; for(let i = 0; i < 7; i++) { const d = new Date(); d.setDate(d.getDate() - i); dates.push(ymd(d)); }
+        const [sess, ids, set, push, saldi, snap, req, runs, mstate, ...logs] = await Promise.all([
+            safe(db.collection('infermieri26_accessi').where('startTime', '>=', since).orderBy('startTime', 'desc').limit(1500).get()),
+            safe(db.collection('infermieri26_identities').get()),
+            safe(cfgRef('settings').get()), safe(cfgRef('push').get()), safe(cfgRef('saldi').get()), safe(cfgRef('snapindex').get()),
+            safe(db.collection('richieste_infermieri').orderBy('timestamp', 'desc').limit(80).get()),
+            safe(Promise.race([fetch(`https://api.github.com/repos/${ADM_MOTORE_REPO}/actions/workflows/motore.yml/runs?per_page=40`).then(r => r.ok ? r.json() : null), new Promise(res => setTimeout(() => res(null), 7000))])),
+            safe(Promise.race([fetch(`https://raw.githubusercontent.com/${ADM_MOTORE_REPO}/main/push/state.json?t=${Date.now()}`).then(r => r.ok ? r.json() : null), new Promise(res => setTimeout(() => res(null), 7000))])),
+            ...dates.map(d => safe(cfgRef('log_' + d).get()))
+        ]);
+        const S = set && set.exists ? (set.data() || {}) : {};
+        return {
+            at: Date.now(),
+            sessions: sess ? sess.docs.map(d => Object.assign({ id: d.id }, d.data())) : [],
+            identities: ids ? ids.docs.map(d => Object.assign({ uid: d.id }, d.data())) : [],
+            settings: S, releases: S.identityReleases || {}, errResolved: S.adminErrorsResolved || {},
+            subs: push && push.exists ? ((push.data() || {}).subs || {}) : {},
+            saldi: saldi && saldi.exists ? (saldi.data() || {}) : null,
+            snaps: snap && snap.exists ? Object.entries((snap.data() || {}).items || {}).map(([id, v]) => Object.assign({ id }, v)) : [],
+            requests: req ? req.docs.map(d => Object.assign({ id: d.id }, d.data())) : [],
+            runs: runs && runs.workflow_runs ? runs.workflow_runs : null, motoreProblem: mstate && mstate.problem ? String(mstate.problem) : '',
+            logs: logs.map((x, i) => ({ date: dates[i], entries: x && x.exists ? Object.entries((x.data() || {}).entries || {}).map(([id, e]) => Object.assign({ id }, e)) : [] })),
+            sessionsOk: !!sess
+        };
+    }
+    async function admRefresh(quiet) {
+        if(admLoading) return admLoading;
+        const btns = document.querySelectorAll('.adm-refresh'); btns.forEach(b => b.classList.add('spin'));
+        admLoading = admLoad().then(d => { if(d) admData = d; }).catch(e => console.warn(e)).finally(() => {
+            admLoading = null; btns.forEach(b => b.classList.remove('spin'));
+            admRenderTab(); admBadges();
+            const u = document.getElementById('adm-updated'); if(u && admData) u.textContent = 'Dati delle ' + new Date(admData.at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+            if(!quiet && admData) showAdminToast('Dati aggiornati');
+        });
+        return admLoading;
+    }
+    function admOnTab(tab) {
+        admTab = tab;
+        const t = ADM_TABS[tab] || [tab, ''];
+        const h = document.getElementById('adm-title'), s = document.getElementById('adm-sub');
+        if(h) h.textContent = t[0]; if(s) s.textContent = t[1];
+        const b = document.querySelector('#admin-panel-modal .adm-body'); if(b) b.scrollTop = 0;
+        admRenderTab();
+    }
+    function admRenderTab() {
+        if(!document.getElementById('admin-panel-modal') || document.getElementById('admin-panel-modal').style.display === 'none') return;
+        const f = { panoramica: admRenderPanoramica, errori: admRenderErrori, identita: admRenderIdentita, ruota: admRenderRuota, registro: admRenderRegistro, accessi: renderAdminAccessList }[admTab];
+        if(f) { try { f(); } catch(e) { console.warn('Pannello admin:', e); } }
+    }
+    const admLoadingHtml = () => `<div class="adm-empty"><span class="material-icons-round adm-spin">autorenew</span>Carico i dati…</div>`;
+    const admReal = () => (admData ? admData.sessions : []).filter(s => !admIsTest(s));
+
+    // ── errori ──
+    function admErrorGroups(periodDays) {
+        const from = Date.now() - periodDays * 864e5, G = {};
+        admReal().forEach(s => (s.errors || []).forEach(e => {
+            if(!e || !e.msg || (e.t || 0) < from) return;
+            const kind = e.kind || 'errore', sig = admHash(kind + '|' + String(e.msg).slice(0, 160));
+            const g = G[sig] || (G[sig] = { sig, kind, msg: e.msg, n: 0, people: new Set(), devices: new Set(), views: new Set(), vers: new Set(), first: e.t, last: e.t, src: e.src, stack: e.stack });
+            g.n++; g.people.add(admSessName(s)); if(s.device) g.devices.add(s.device); if(e.view) g.views.add(e.view); if(e.ver) g.vers.add(e.ver);
+            g.first = Math.min(g.first, e.t); if(e.t >= g.last) { g.last = e.t; g.src = e.src || g.src; g.stack = e.stack || g.stack; }
+        }));
+        return Object.values(G).map(g => Object.assign(g, { resolved: (admData.errResolved[g.sig] || 0) >= g.last })).sort((a, b) => b.last - a.last);
+    }
+    const ADM_KIND = { errore: ['Errore', 'err', 'error'], promessa: ['Errore (operazione)', 'err', 'error'], console: ['Avviso', 'warn', 'warning'] };
+    function admRenderErrori() {
+        const box = document.getElementById('adm-errori'); if(!box) return;
+        if(!admData) { box.innerHTML = admLoadingHtml(); return; }
+        const all = admErrorGroups(admErrPeriod);
+        const list = all.filter(g => (admErrShowResolved || !g.resolved) && (admErrKind === 'tutti' || (admErrKind === 'errori' ? g.kind !== 'console' : g.kind === 'console')));
+        const seg = (val, cur, fn, items) => `<div class="adm-seg">${items.map(([v, l]) => `<button class="${v === cur ? 'on' : ''}" onclick="${fn}(${typeof v === 'number' ? v : `'${v}'`})">${l}</button>`).join('')}</div>`;
+        const nRes = all.filter(g => g.resolved).length;
+        let html = `<div class="adm-toolbar">${seg(0, admErrPeriod, 'admErrSetPeriod', [[1, '24 ore'], [7, '7 giorni'], [14, '14 giorni']])}${seg(0, admErrKind, 'admErrSetKind', [['tutti', 'Tutti'], ['errori', 'Errori'], ['avvisi', 'Avvisi']])}
+            <label class="adm-check"><input type="checkbox" ${admErrShowResolved ? 'checked' : ''} onchange="admErrShowResolved=this.checked;admRenderErrori()"> Mostra i risolti${nRes ? ` (${nRes})` : ''}</label></div>
+            <div class="adm-note"><span class="material-icons-round">info</span><div>Gli errori arrivano dai telefoni di chi usa l’app, senza che se ne accorga. <b>Errore</b> = qualcosa si è rotto; <b>Avviso</b> = un problema gestito (per esempio connessione assente o un salvataggio non riuscito). “Segna risolto” lo nasconde finché non si ripresenta.</div></div>`;
+        if(!list.length) html += `<div class="adm-empty ok"><span class="material-icons-round">verified</span>${all.length ? 'Nessun problema da mostrare con questi filtri.' : 'Nessun errore registrato in questo periodo.'}</div>`;
+        else html += list.map(g => {
+            const K = ADM_KIND[g.kind] || ADM_KIND.errore;
+            return `<details class="adm-err sev-${K[1]} ${g.resolved ? 'resolved' : ''}">
+                <summary><span class="material-icons-round adm-err-ico">${K[2]}</span>
+                    <div class="adm-err-main"><div class="adm-err-top"><span class="adm-tag ${K[1]}">${K[0]}</span><b>${admEsc(g.msg.length > 140 ? g.msg.slice(0, 140) + '…' : g.msg)}</b></div>
+                    <small>${g.n} ${g.n === 1 ? 'volta' : 'volte'} · ${g.people.size} ${g.people.size === 1 ? 'persona' : 'persone'} · ultima ${admAgo(g.last)}${g.resolved ? ' · <span class="adm-ok-txt">risolto</span>' : ''}</small></div>
+                    <span class="adm-err-n">${g.n}</span></summary>
+                <div class="adm-err-body">
+                    <div class="adm-kv"><span>Chi</span><b>${admEsc([...g.people].join(', '))}</b></div>
+                    <div class="adm-kv"><span>Dispositivi</span><b>${admEsc([...g.devices].join(', ') || '—')}</b></div>
+                    <div class="adm-kv"><span>Dove nell’app</span><b>${admEsc([...g.views].join(', ') || '—')}</b></div>
+                    <div class="adm-kv"><span>Prima / ultima volta</span><b>${admWhen(g.first)} · ${admWhen(g.last)}</b></div>
+                    ${g.src ? `<div class="adm-kv"><span>Punto del codice</span><b>${admEsc(g.src)}</b></div>` : ''}
+                    ${g.stack ? `<pre class="adm-pre">${admEsc(g.stack)}</pre>` : ''}
+                    <div class="adm-row-act">${g.resolved ? `<button class="adm-btn" onclick="admErrResolve('${g.sig}', false)"><span class="material-icons-round">undo</span>Riapri</button>` : `<button class="adm-btn primary" onclick="admErrResolve('${g.sig}', true)"><span class="material-icons-round">done</span>Segna risolto</button>`}</div>
+                </div></details>`;
+        }).join('');
+        box.innerHTML = html;
+    }
+    function admErrSetPeriod(p) { vibrate(); admErrPeriod = p; admRenderErrori(); }
+    function admErrSetKind(k) { vibrate(); admErrKind = k; admRenderErrori(); }
+    async function admErrResolve(sig, on) {
+        vibrate();
+        try {
+            await cfgRef('settings').update(new firebase.firestore.FieldPath('adminErrorsResolved', sig), on ? Date.now() : firebase.firestore.FieldValue.delete());
+            if(on) admData.errResolved[sig] = Date.now(); else delete admData.errResolved[sig];
+            admRenderErrori(); admBadges(); showAdminToast(on ? 'Segnato come risolto' : 'Riaperto');
+        } catch(e) { showAdminToast('Non salvato: ' + (e.code || e.message)); }
+    }
+
+    // ── nomi e identità ──
+    function admIdentityRows() {
+        const cut = Date.now() - IDENTITY_CLAIM_MAX_AGE_MS;
+        const names = (drivers || []).map(d => d.name).concat(IDENTITY_EXTRA_OPTIONS.filter(n => n !== 'Ospite'));
+        const sessBy = {}; admReal().forEach(s => { if(s.identity) (sessBy[s.identity] = sessBy[s.identity] || []).push(s); });
+        return names.map(nm => {
+            const rel = admMs(admData.releases[nm]);
+            const claims = admData.identities.filter(c => c.name === nm).map(c => ({ uid: c.uid, ms: admMs(c.updatedAt) })).filter(c => c.ms > cut);
+            const active = claims.filter(c => !(rel && c.ms <= rel));
+            const ss = (sessBy[nm] || []).sort((a, b) => admMs(b.lastActive) - admMs(a.lastActive));
+            return { nm, rel, claims, active, last: Math.max(0, ...claims.map(c => c.ms), ...ss.map(s => admMs(s.lastActive))), devices: [...new Set(ss.map(s => s.device).filter(Boolean))], sessions: ss.length };
+        });
+    }
+    function admRenderIdentita() {
+        const box = document.getElementById('adm-identita'); if(!box) return;
+        if(!admData) { box.innerHTML = admLoadingHtml(); return; }
+        const rows = admIdentityRows(), busy = rows.filter(r => r.active.length), multi = rows.filter(r => r.active.length > 1);
+        box.innerHTML = `<div class="adm-kpis three">
+                ${admKpi('how_to_reg', busy.length, 'Nomi occupati', `su ${rows.length}`, 'info')}
+                ${admKpi('devices', multi.length, 'Su più dispositivi', 'possibile nome preso per errore', multi.length ? 'warn' : 'ok')}
+                ${admKpi('lock_open', rows.filter(r => r.rel).length, 'Liberati a mano', 'dal pannello', 'info')}</div>
+            <div class="adm-note"><span class="material-icons-round">info</span><div>Quando qualcuno sceglie un nome in “Chi sei?”, quel nome resta occupato per 5 giorni sugli altri telefoni. Se un collega trova il suo nome già preso, premi <b>Libera</b>: da quel momento il nome torna disponibile per chiunque apra la schermata. Chi lo stava usando non viene disconnesso e non vede nulla.</div></div>
+            <div class="adm-table adm-id-table">
+                <div class="adm-tr adm-th"><span>Nome</span><span>Stato</span><span>Ultimo uso</span><span>Dispositivi (14 giorni)</span><span></span></div>
+                ${rows.map(r => {
+                    const st = r.active.length > 1 ? `<span class="adm-pill warn">Occupato su ${r.active.length} dispositivi</span>` : r.active.length ? `<span class="adm-pill info">Occupato</span>` : r.rel ? `<span class="adm-pill ok">Liberato ${admAgo(r.rel)}</span>` : `<span class="adm-pill muted">Libero</span>`;
+                    return `<div class="adm-tr"><span class="adm-id-name"><i>${admEsc(r.nm.slice(0, 2).toUpperCase())}</i><b>${admEsc(r.nm)}</b></span><span>${st}</span><span>${r.last ? admAgo(r.last) : '—'}</span>
+                        <span class="adm-muted">${admEsc(r.devices.slice(0, 3).join(', ') || '—')}${r.devices.length > 3 ? ' +' + (r.devices.length - 3) : ''}</span>
+                        <span>${r.active.length ? `<button class="adm-btn primary sm" onclick="admReleaseName(${JSON.stringify(r.nm).replace(/"/g, '&quot;')})"><span class="material-icons-round">lock_open</span>Libera</button>` : ''}</span></div>`;
+                }).join('')}
+            </div>`;
+    }
+    async function admReleaseName(nm) {
+        vibrate();
+        if(!confirm(`Liberare il nome ${nm}?\n\nTornerà disponibile nella schermata “Chi sei?” per tutti i telefoni da adesso.`)) return;
+        try {
+            const now = Date.now();
+            await cfgRef('settings').update(new firebase.firestore.FieldPath('identityReleases', nm), now);
+            admData.releases[nm] = now; admRenderIdentita(); admBadges(); showAdminToast(nm + ' è di nuovo libero');
+        } catch(e) { showAdminToast('Non riuscito: ' + (e.code || e.message)); }
+    }
+
+    // ── ruota ──
+    function admRenderRuota() {
+        const box = document.getElementById('adm-ruota'); if(!box) return;
+        if(!admData) { box.innerHTML = admLoadingHtml(); return; }
+        const real = admReal(), spins = [];
+        let opens = 0;
+        real.forEach(s => { (s.viewHistory || []).forEach(v => { if(v && v.view === 'Ruota della Sfiga') opens++; }); (s.wheelLog || []).forEach(w => w && w.winner && spins.push(Object.assign({ who: admSessName(s) }, w))); });
+        spins.sort((a, b) => b.t - a.t);
+        const slots = spins.filter(x => x.mode === 'slots'), fun = spins.filter(x => x.mode !== 'slots');
+        const count = arr => { const c = {}; arr.forEach(x => c[x] = (c[x] || 0) + 1); return Object.entries(c).sort((a, b) => b[1] - a[1]); };
+        const bars = (rows, tone) => { const mx = Math.max(1, ...rows.map(r => r[1])); return rows.length ? rows.slice(0, 12).map(([n, v], i) => `<div class="adm-bar"><span class="adm-bar-l">${i < 3 ? ['🥇', '🥈', '🥉'][i] + ' ' : ''}${admEsc(n)}</span><span class="adm-bar-t"><i class="${tone}" style="width:${Math.max(4, v / mx * 100)}%"></i></span><b>${v}</b></div>`).join('') : '<div class="adm-empty sm">Ancora nessuna estrazione.</div>'; };
+        const hours = {}; slots.forEach(x => { if(x.slot) hours[x.slot] = (hours[x.slot] || 0) + 1; });
+        box.innerHTML = `<div class="adm-kpis">
+                ${admKpi('casino', opens, 'Aperture della ruota', 'ultimi 14 giorni', 'info')}
+                ${admKpi('touch_app', spins.length, 'Estrazioni', 'registrate', 'info')}
+                ${admKpi('schedule', slots.length, 'Fasce assegnate', 'modalità fasce orarie', 'info')}
+                ${admKpi('theater_comedy', fun.length, 'Estrazioni per ridere', 'modalità random', 'info')}</div>
+            ${spins.length ? '' : `<div class="adm-note"><span class="material-icons-round">info</span><div>Le estrazioni si registrano da adesso: appena qualcuno gira la ruota, qui compaiono la classifica e lo storico. Le aperture della ruota invece si contano già dagli accessi degli ultimi 14 giorni.</div></div>`}
+            <div class="adm-grid2">
+                <div class="adm-card"><h4><span class="material-icons-round">emoji_events</span>Classifica della sfiga</h4><small class="adm-muted">Chi è uscito più volte (tutte le modalità)</small>${bars(count(spins.map(x => x.winner)), 'red')}</div>
+                <div class="adm-card"><h4><span class="material-icons-round">record_voice_over</span>Chi gira la ruota</h4><small class="adm-muted">Estrazioni avviate da ogni persona</small>${bars(count(spins.map(x => x.by || x.who)), 'blue')}</div>
+            </div>
+            ${Object.keys(hours).length ? `<div class="adm-card"><h4><span class="material-icons-round">bedtime</span>Fasce orarie estratte</h4>${bars(Object.entries(hours).sort((a, b) => a[0].localeCompare(b[0])), 'violet')}</div>` : ''}
+            <div class="adm-card"><h4><span class="material-icons-round">history</span>Ultime estrazioni</h4>
+                ${spins.length ? `<div class="adm-table"><div class="adm-tr adm-th"><span>Quando</span><span>Uscito</span><span>Modalità</span><span>Avviata da</span></div>${spins.slice(0, 25).map(x => `<div class="adm-tr"><span>${admWhen(x.t)}</span><b>${admEsc(x.winner)}</b><span>${x.mode === 'slots' ? 'Fascia ' + admEsc(x.slot || '') : 'Per ridere'} <span class="adm-muted">· ${x.n || '?'} nomi</span></span><span class="adm-muted">${admEsc(x.by || x.who)}</span></div>`).join('')}</div>` : '<div class="adm-empty sm">Nessuna estrazione registrata.</div>'}
+            </div>`;
+    }
+
+    // ── registro modifiche ──
+    function admRenderRegistro() {
+        const box = document.getElementById('adm-registro'); if(!box) return;
+        if(!admData) { box.innerHTML = admLoadingHtml(); return; }
+        const kindName = (k, n) => ({ rep: ['reperibilità', 'reperibilità'], repc: ['cessione', 'cessioni'], cell: ['casella', 'caselle'] })[k || 'cell']?.[n === 1 ? 0 : 1] || k;
+        const val = v => v == null ? '—' : typeof v === 'object' ? ((v.v || '') + (v.subV ? ' ' + v.subV : '') || '—') : String(v || '—');
+        let html = '';
+        admData.logs.forEach(day => {
+            if(!day.entries.length) return;
+            const es = day.entries.sort((a, b) => String(b.t).localeCompare(String(a.t)));
+            html += `<div class="adm-day">${new Date(day.date + 'T12:00').toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' })} <span>${es.length} salvataggi</span></div>`;
+            html += es.map(e => {
+                const it = e.items || [], k = {}; it.forEach(x => k[x.k || 'cell'] = (k[x.k || 'cell'] || 0) + 1);
+                const what = Object.entries(k).map(([a, b]) => `${b} ${kindName(a, b)}`).join(', ') || 'nessuna casella';
+                return `<details class="adm-log"><summary><span class="adm-log-t">${new Date(e.t).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}</span>
+                    <div><b>${admEsc(String(e.who || '—').split(' · ')[0])}</b> <span class="adm-muted">${admEsc(String(e.who || '').split(' · ')[1] || '')}</span><small>${admEsc(e.note || what)}${e.note && it.length ? ' · ' + what : ''}</small></div><span class="adm-log-n">${it.length}</span></summary>
+                    ${it.length ? `<div class="adm-log-body">${it.slice(0, 60).map(x => `<div><span>${admEsc(String(x.key || '').replace('__', ' · ').replace('@', ' '))}</span><code>${admEsc(val(x.prev))}</code><span class="material-icons-round">arrow_forward</span><code>${admEsc(val(x.next))}</code></div>`).join('')}${it.length > 60 ? `<small class="adm-muted">e altre ${it.length - 60}</small>` : ''}</div>` : ''}</details>`;
+            }).join('');
+        });
+        box.innerHTML = html || '<div class="adm-empty"><span class="material-icons-round">history</span>Nessuna modifica negli ultimi 7 giorni.</div>';
+    }
+
+    // ── panoramica ──
+    function admKpi(icon, val, label, sub, tone) { return `<div class="adm-kpi tone-${tone || 'info'}"><span class="material-icons-round">${icon}</span><div><b>${val}</b><small>${label}</small>${sub ? `<em>${sub}</em>` : ''}</div></div>`; }
+    function admMotore() {
+        const runs = admData && admData.runs; if(!runs) return null;
+        const day = Date.now() - 864e5, last = runs[0];
+        return { last: last ? Date.parse(last.created_at) : 0, ok: last ? last.conclusion === 'success' : false, running: last && last.status !== 'completed', event: last ? last.event : '', auto24: runs.filter(r => r.event === 'schedule' && Date.parse(r.created_at) > day).length, all24: runs.filter(r => Date.parse(r.created_at) > day).length, failed24: runs.filter(r => r.conclusion === 'failure' && Date.parse(r.created_at) > day).length };
+    }
+    function admIssues() {
+        const out = [], add = (sev, icon, title, detail, act, actLbl) => out.push({ sev, icon, title, detail, act, actLbl });
+        const errs = admErrorGroups(1).filter(g => !g.resolved), hard = errs.filter(g => g.kind !== 'console');
+        if(hard.length) add('err', 'bug_report', `${hard.length} ${hard.length === 1 ? 'errore' : 'errori'} nelle ultime 24 ore`, hard.slice(0, 2).map(g => g.msg.slice(0, 80)).join(' · '), "admGo('errori')", 'Vedi errori');
+        else if(errs.length) add('warn', 'report', `${errs.length} ${errs.length === 1 ? 'avviso' : 'avvisi'} nelle ultime 24 ore`, errs.slice(0, 2).map(g => g.msg.slice(0, 80)).join(' · '), "admGo('errori')", 'Vedi');
+        const M = admMotore();
+        if(!M) add('info', 'cloud_off', 'Motore delle notifiche: stato non disponibile', 'GitHub non ha risposto. Riprova con “Aggiorna”.', '', '');
+        else if(!M.last || Date.now() - M.last > 6 * 36e5) add('err', 'notifications_off', 'Il motore delle notifiche è fermo', `Ultimo giro ${admAgo(M.last)}. Senza il motore niente notifiche ad app chiusa e i calendari del telefono non si aggiornano.`, `window.open('https://github.com/${ADM_MOTORE_REPO}/actions/workflows/motore.yml','_blank')`, 'Apri GitHub');
+        else if(Date.now() - M.last > 36e5) add('warn', 'notifications_paused', 'Il motore delle notifiche è in ritardo', `Ultimo giro ${admAgo(M.last)} (dovrebbe girare ogni 15 minuti).`, `window.open('https://github.com/${ADM_MOTORE_REPO}/actions/workflows/motore.yml','_blank')`, 'Apri GitHub');
+        if(admData.motoreProblem) add('err', 'notifications_off', 'Le notifiche sul telefono non partono', admData.motoreProblem + ' Rimetti il secret VAPID_PRIVATE su GitHub (Settings › Secrets › Actions): solo la chiave privata, senza spazi né scritte.', `window.open('https://github.com/${ADM_MOTORE_REPO}/settings/secrets/actions','_blank')`, 'Apri i secret');
+        if(M && M.failed24) add('err', 'error', `${M.failed24} giri del motore falliti nelle ultime 24 ore`, 'Controlla il registro del motore su GitHub.', `window.open('https://github.com/${ADM_MOTORE_REPO}/actions','_blank')`, 'Apri GitHub');
+        const owners = Object.values(admData.subs).map(s => String(s.owner || '').toUpperCase());
+        if(coordinatorName && !owners.includes(String(coordinatorName).toUpperCase())) add('warn', 'phonelink_erase', `Il coordinatore (${coordinatorName}) non ha le notifiche attive`, 'Non riceve sul telefono le richieste dal portale ad app chiusa: deve scegliere il suo nome e attivarle in Opzioni.', '', '');
+        const coordAsGuest = admReal().filter(s => s.identity === 'Ospite' && (s.viewHistory || []).some(v => v && v.view === 'Area Coordinatore') && admMs(s.lastActive) > Date.now() - 3 * 864e5);
+        if(coordAsGuest.length) add('info', 'no_accounts', 'L’Area coordinatore viene usata come “Ospite”', `${coordAsGuest.length} sessioni negli ultimi 3 giorni: nel registro le modifiche risultano di “Ospite” e su quel dispositivo non arrivano gli avvisi delle richieste.`, "admGo('accessi')", 'Vedi accessi');
+        const multi = admIdentityRows().filter(r => r.active.length > 1);
+        if(multi.length) add('warn', 'how_to_reg', `${multi.length} ${multi.length === 1 ? 'nome è occupato' : 'nomi sono occupati'} da più dispositivi`, multi.slice(0, 5).map(r => `${r.nm} (${r.active.length})`).join(', ') + ': se qualcuno non riesce a scegliere il suo nome, liberalo.', "admGo('identita')", 'Gestisci');
+        const pend = admData.requests.filter(r => !r.obscured && !r.insertedInShifts), old = pend.filter(r => admMs(r.timestamp) < Date.now() - 3 * 864e5);
+        if(old.length) add('warn', 'pending_actions', `${old.length} ${old.length === 1 ? 'richiesta aspetta' : 'richieste aspettano'} da più di 3 giorni`, old.slice(0, 4).map(r => `${r.name || '—'} (${(RICHIESTE_TYPE_LABELS[r.type] || r.type || '').toLowerCase()})`).join(', '), 'window.openRichiestePanel && (closeAdminPanel(), window.openRichiestePanel())', 'Apri richieste');
+        try {
+            const today = ymd(new Date()), lim = repDateAdd(today, 30), R = repData(), C = dayChecks(); let cov = 0, norep = 0;
+            for(let r = 1; r < finalData.length; r++) { const iso = repRowDate(r); if(!iso || iso < today || iso > lim) continue; const c = C.rows[r]; if(c && c.day.length) cov++; if(!R.tit[iso]) norep++; }
+            if(norep) add('warn', 'phone_disabled', `${norep} giorni senza reperibile nei prossimi 30`, 'Si sistemano in Modifica turni.', '', '');
+            if(cov) add('warn', 'groups', `${cov} giorni con avvisi sul calendario nei prossimi 30`, 'Copertura, riposi o giorni di fila: li trovi nella Panoramica dell’Area coordinatore.', '', '');
+        } catch(e) {}
+        try { const n = chkOpenCount(); if(n) add('info', 'fact_check', `${n} ${n === 1 ? 'casella' : 'caselle'} da controllare nei conteggi`, 'Sono nella finestra “Da controllare” dell’Area coordinatore.', '', ''); } catch(e) {}
+        const lastSnap = Math.max(0, ...admData.snaps.map(s => admMs(s.createdAt)));
+        if(!lastSnap || Date.now() - lastSnap > 3 * 864e5) add('warn', 'backup', 'Nessuna copia di sicurezza recente', `Ultima copia ${admAgo(lastSnap)}. Si crea da sola aprendo l’Area coordinatore.`, '', '');
+        const salAt = admData.saldi ? admMs(admData.saldi.updatedAt || admData.saldi.at) : 0;
+        if(!salAt || Date.now() - salAt > 2 * 864e5) add('info', 'account_balance_wallet', 'Saldi per il portale Richieste non aggiornati di recente', `Ultimo aggiornamento ${admAgo(salAt)}.`, '', '');
+        if(dataSourceMode === 'excel') add('info', 'table_view', 'I turni arrivano dal file Excel', 'L’app è in modalità Excel: le modifiche si fanno sul file.', '', '');
+        const rank = { err: 0, warn: 1, info: 2 }; return out.sort((a, b) => rank[a.sev] - rank[b.sev]);
+    }
+    function admGo(tab) { const b = document.querySelector(`#admin-panel-modal .admin-tab-btn[data-tab="${tab}"]`); switchAdminTab(tab, b); }
+    function admRenderPanoramica() {
+        const box = document.getElementById('adm-panoramica'); if(!box) return;
+        if(!admData) { box.innerHTML = admLoadingHtml(); return; }
+        const real = admReal(), now = Date.now(), today = new Date(); today.setHours(0, 0, 0, 0);
+        const online = real.filter(s => s.online && admMs(s.lastActive) > now - 100000);
+        const todayS = real.filter(s => admMs(s.startTime) >= today.getTime());
+        const people = new Set(todayS.map(s => s.identity).filter(x => x && x !== 'Ospite'));
+        const errs = admErrorGroups(1).filter(g => !g.resolved), errN = errs.reduce((a, g) => a + g.n, 0);
+        const M = admMotore(), subs = Object.values(admData.subs);
+        const pend = admData.requests.filter(r => !r.obscured && !r.insertedInShifts);
+        let chk = 0; try { chk = chkOpenCount(); } catch(e) {}
+        const issues = admIssues(), worst = issues.length ? issues[0].sev : 'ok';
+        const head = { ok: ['verified', 'Tutto funziona', 'Nessun problema da segnalare.'], info: ['verified', 'Tutto funziona', 'Ci sono solo informazioni da leggere.'], warn: ['error_outline', 'Qualcosa da guardare', (n => n === 1 ? 'Un punto richiede attenzione.' : n + ' punti richiedono attenzione.')(issues.filter(i => i.sev !== 'info').length)], err: ['report', 'Ci sono problemi', (n => n === 1 ? 'Un problema da risolvere.' : n + ' problemi da risolvere.')(issues.filter(i => i.sev === 'err').length)] }[worst];
+        // attività degli ultimi 14 giorni
+        const days = []; for(let i = ADM_DAYS - 1; i >= 0; i--) { const d = new Date(today); d.setDate(d.getDate() - i); days.push({ d, s: 0, p: new Set() }); }
+        real.forEach(s => { const ms = admMs(s.startTime); const i = days.findIndex((x, k) => ms >= x.d.getTime() && (k === days.length - 1 || ms < days[k + 1].d.getTime())); if(i >= 0) { days[i].s++; if(s.identity && s.identity !== 'Ospite') days[i].p.add(s.identity); } });
+        const mx = Math.max(1, ...days.map(x => x.s));
+        const chart = `<div class="adm-chart">${days.map(x => `<div class="adm-col" title="${x.d.toLocaleDateString('it-IT', { day: 'numeric', month: 'short' })}: ${x.s} accessi, ${x.p.size} persone"><span class="adm-col-v">${x.s || ''}</span><i style="height:${x.s / mx * 100}%"><em style="height:${x.s ? x.p.size / x.s * 100 : 0}%"></em></i><small>${x.d.getDate()}</small></div>`).join('')}</div>
+            <div class="adm-legend"><span><i class="a"></i>accessi</span><span><i class="b"></i>persone diverse</span></div>`;
+        const views = {}; real.forEach(s => (s.viewHistory || []).forEach(v => { if(v && v.view && v.view !== 'Avvio app') views[v.view] = (views[v.view] || 0) + 1; }));
+        const topV = Object.entries(views).sort((a, b) => b[1] - a[1]).slice(0, 7), vmx = Math.max(1, ...topV.map(x => x[1]));
+        const status = (ok, label, value) => `<div class="adm-st"><span class="adm-dot ${ok}"></span><span>${label}</span><b>${value}</b></div>`;
+        const lastSnap = Math.max(0, ...admData.snaps.map(s => admMs(s.createdAt)));
+        const salAt = admData.saldi ? admMs(admData.saldi.updatedAt || admData.saldi.at) : 0;
+        const coordSub = coordinatorName && subs.some(s => String(s.owner || '').toUpperCase() === String(coordinatorName).toUpperCase());
+        box.innerHTML = `<div class="adm-hero sev-${worst}"><span class="material-icons-round">${head[0]}</span><div><b>${head[1]}</b><small>${head[2]}</small></div><button class="adm-btn ghost adm-refresh" onclick="admRefresh()"><span class="material-icons-round">refresh</span>Aggiorna</button></div>
+            <div class="adm-kpis">
+                ${admKpi('wifi_tethering', online.length, 'Online ora', online.map(admSessName).slice(0, 3).join(', '), online.length ? 'ok' : 'muted')}
+                ${admKpi('login', todayS.length, 'Accessi oggi', `${people.size} persone con nome`, 'info')}
+                ${admKpi('bug_report', errN, 'Problemi in 24 ore', errs.length ? `${errs.length} tipi diversi` : 'nessuno', errs.some(g => g.kind !== 'console') ? 'err' : errs.length ? 'warn' : 'ok')}
+                ${admKpi('notifications_active', subs.length, 'Telefoni con notifiche', coordSub ? 'coordinatore incluso' : 'coordinatore escluso', coordSub ? 'ok' : 'warn')}
+                ${admKpi('smart_toy', M ? admAgo(M.last) : '—', 'Ultimo giro motore', M ? `${M.auto24} automatici in 24 ore` : 'GitHub non risponde', !M ? 'muted' : (now - M.last > 6 * 36e5 ? 'err' : now - M.last > 36e5 ? 'warn' : 'ok'))}
+                ${admKpi('inbox', pend.length, 'Richieste da gestire', admData.requests.length ? 'ultima ' + admAgo(admMs(admData.requests[0].timestamp)) : 'nessuna', pend.length ? 'warn' : 'ok')}
+                ${admKpi('fact_check', chk, 'Caselle da controllare', 'nei conteggi', chk ? 'warn' : 'ok')}
+                ${admKpi('backup', admAgo(lastSnap), 'Ultima copia', `${admData.snaps.length} copie salvate`, lastSnap && now - lastSnap < 3 * 864e5 ? 'ok' : 'warn')}
+            </div>
+            <div class="adm-sec-h"><span class="material-icons-round">assignment_late</span>Cose da guardare <b>${issues.length}</b></div>
+            ${issues.length ? issues.map(i => `<div class="adm-issue sev-${i.sev}"><span class="material-icons-round">${i.icon}</span><div><b>${admEsc(i.title)}</b><p>${admEsc(i.detail)}</p></div>${i.act ? `<button class="adm-btn sm" onclick="${i.act}">${admEsc(i.actLbl)}</button>` : ''}</div>`).join('') : '<div class="adm-empty ok sm"><span class="material-icons-round">verified</span>Niente da segnalare.</div>'}
+            <div class="adm-grid2">
+                <div class="adm-card"><h4><span class="material-icons-round">insights</span>Attività ultimi 14 giorni</h4>${chart}</div>
+                <div class="adm-card"><h4><span class="material-icons-round">touch_app</span>Cosa guardano di più</h4>${topV.length ? topV.map(([n, v]) => `<div class="adm-bar"><span class="adm-bar-l">${admEsc(n)}</span><span class="adm-bar-t"><i class="blue" style="width:${v / vmx * 100}%"></i></span><b>${v}</b></div>`).join('') : '<div class="adm-empty sm">Nessun dato.</div>'}</div>
+            </div>
+            <div class="adm-card"><h4><span class="material-icons-round">dns</span>Stato del sistema</h4><div class="adm-sts">
+                ${status(fbReady && fbAuth && fbAuth.currentUser ? 'ok' : 'err', 'Collegamento a Firebase', fbReady && fbAuth && fbAuth.currentUser ? 'attivo' : 'assente')}
+                ${status(admData.sessionsOk ? 'ok' : 'err', 'Lettura dei dati', admData.sessionsOk ? 'regolare' : 'non riuscita')}
+                ${status('ok', 'Origine dei turni', dataSourceMode === 'firebase' ? 'solo app' : 'file Excel')}
+                ${status('ok', 'Anno attivo', activeYear + (archivedYears.length ? ` · archiviati ${archivedYears.join(', ')}` : ''))}
+                ${status(coordinatorName ? (coordSub ? 'ok' : 'warn') : 'warn', 'Coordinatore designato', coordinatorName ? coordinatorName + (coordSub ? ' · notifiche attive' : ' · notifiche spente') : 'nessuno')}
+                ${status(!M ? 'muted' : (M.ok ? (now - M.last > 36e5 ? 'warn' : 'ok') : 'err'), 'Motore notifiche (GitHub)', M ? `ultimo giro ${admWhen(M.last)} · ${M.event === 'schedule' ? 'automatico' : 'avviato a mano'} · ${M.ok ? 'riuscito' : 'fallito'}${M.running ? ' · in corso' : ''}` : 'non disponibile')}
+                ${status(admData.motoreProblem ? 'err' : 'ok', 'Invio notifiche', admData.motoreProblem ? 'bloccato: chiave non valida' : 'regolare')}
+                ${status(subs.length ? 'ok' : 'warn', 'Notifiche attive', subs.length ? [...new Set(subs.map(s => s.owner || '?'))].join(', ') : 'nessun telefono')}
+                ${status(salAt && now - salAt < 2 * 864e5 ? 'ok' : 'warn', 'Saldi per il portale', admAgo(salAt))}
+                ${status(lastSnap && now - lastSnap < 3 * 864e5 ? 'ok' : 'warn', 'Copia di sicurezza', admWhen(lastSnap))}
+                ${status('ok', 'Versione dell’app', admEsc(document.lastModified || '—'))}
+            </div></div>`;
+    }
+    function admBadges() {
+        if(!admData) return;
+        const set = (id, n, tone) => { const b = document.getElementById(id); if(b) { b.textContent = n ? n : ''; b.className = 'adm-badge ' + (tone || ''); } };
+        const errs = admErrorGroups(1).filter(g => !g.resolved);
+        set('adm-badge-errori', errs.length, errs.some(g => g.kind !== 'console') ? 'err' : 'warn');
+        const iss = admIssues().filter(i => i.sev !== 'info'); set('adm-badge-panoramica', iss.length, iss.some(i => i.sev === 'err') ? 'err' : 'warn');
+        set('adm-badge-identita', admIdentityRows().filter(r => r.active.length > 1).length, 'warn');
+        const on = admReal().filter(s => s.online && admMs(s.lastActive) > Date.now() - 100000).length; set('adm-badge-accessi', on, 'ok');
+    }
+    function admAccSet(f) { vibrate(); admAccFilter = f; renderAdminAccessList(); }
 
     // ── Dettaglio singolo accesso ────────────────────────────────────────
     let accessDetailTicker = null;
@@ -11751,6 +12305,7 @@
     }
 
     function onWheelSpinResolved(winnerName) {
+        admWheelLog(winnerName);
         if(wheelMode === 'slots') {
             const slotTime = wheelSlots[wheelCurrentSlotIdx];
             wheelAssignments.push({ time: slotTime, name: winnerName });
@@ -11776,6 +12331,15 @@
         }
     }
 
+    // Ogni estrazione finisce nella sessione (campo "wheelLog") per le statistiche del pannello admin.
+    function admWheelLog(winner) {
+        try {
+            if(SERVER_MODE || !fbReady) return;
+            const e = { t: Date.now(), mode: wheelMode, winner: String(winner || ''), slot: wheelMode === 'slots' ? String(wheelSlots[wheelCurrentSlotIdx] || '') : '', n: (wheelNamesOnWheel || []).length, by: userIdentity || '' };
+            const FV = firebase.firestore.FieldValue;
+            db.collection('infermieri26_accessi').doc(sessionId).set({ wheelLog: FV.arrayUnion(e), wheelSpins: FV.increment(1) }, { merge:true }).catch(() => {});
+        } catch(e) {}
+    }
     function renderWheelAssignList() {
         const c = document.getElementById('wheel-assign-list'); c.innerHTML = '';
         wheelAssignments.forEach(a => { c.innerHTML += `<div class="wheel-assign-item"><span class="wa-time">${a.time}</span><span class="wa-name">${a.name}</span></div>`; });

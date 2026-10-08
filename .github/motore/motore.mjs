@@ -110,8 +110,11 @@ function buildMessages(X, old) {
 async function sendAll(X, messages, state) {
   const subs = Object.entries(X.subs || {});
   if (!messages.length) { log('nessuna notifica da mandare'); return []; }
-  if (!VAPID_PRIVATE) { log(`${messages.length} notifiche pronte ma manca il secret VAPID_PRIVATE: non mandate`); return []; }
-  webpush.setVapidDetails('mailto:centrale118rsm-code@users.noreply.github.com', VAPID_PUBLIC, VAPID_PRIVATE);
+  if (!VAPID_PRIVATE) { log(`${messages.length} notifiche pronte ma manca il secret VAPID_PRIVATE: non mandate`); state.problem = 'Manca il secret VAPID_PRIVATE: le notifiche non partono.'; return []; }
+  // una chiave sbagliata non deve fermare tutto: i calendari si salvano lo stesso e il problema resta scritto
+  // in push/state.json (lo mostra il pannello admin dell'app)
+  try { webpush.setVapidDetails('mailto:centrale118rsm-code@users.noreply.github.com', VAPID_PUBLIC, VAPID_PRIVATE); }
+  catch (e) { log('CHIAVE VAPID_PRIVATE NON VALIDA:', e.message, '- nel secret va solo la chiave privata, senza spazi ne scritte'); state.problem = 'Chiave VAPID_PRIVATE non valida (' + e.message + '): le notifiche non partono.'; return []; }
   const coords = new Set(X.coordinators || []);
   const matches = (owner, p) => { const o = String(owner || '').toUpperCase(); return o && (o === String(p).toUpperCase() || X.people.some(x => x.orig === p && x.name.toUpperCase() === o)); };
   const dead = new Set();
@@ -146,7 +149,9 @@ async function main() {
     const state = { schedule: X.schedule, reqIds: X.requests.map(r => r.id), sent: {} };
     const limit = Date.now() - 4 * 86400000;
     Object.entries(old.sent || {}).forEach(([k, t]) => { if (t > limit) state.sent[k] = t; });
-    const dead = await sendAll(X, buildMessages(X, old), state);
+    let dead = [];
+    try { dead = await sendAll(X, buildMessages(X, old), state); }
+    catch (e) { log('invio delle notifiche non riuscito:', e.message); state.problem = 'Invio delle notifiche non riuscito: ' + e.message; }
     if (dead.length) await app.removeSubs(dead);
     fs.mkdirSync(path.dirname(STATE_FILE), { recursive: true });
     const json = JSON.stringify(state, null, 1);
