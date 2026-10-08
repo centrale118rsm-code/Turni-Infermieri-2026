@@ -3798,12 +3798,16 @@
     function notifyCoordinatorOfNewRequest(r, reqId, quiet) {
         if(!isCoordinator) return;
         if(reqId && notifHistory.some(n => n.reqId === reqId && n.owner === prefOwner())) return;   // già notificata su questo telefono
-        const { label, periodo, swap } = reqParts(r);
-        const msg = `<b>${r.name || '—'}</b><br><span style="font-size:0.85rem;color:var(--text-sec)">${label}${swap}${periodo ? ' · ' + periodo : ''}</span>`;
-        notifHistory.unshift({ id: Date.now()+Math.random(), ts: Date.now(), text: msg, read:false, archived:false, date:new Date().toLocaleString(), type:'richiesta', reqId: reqId || null, owner: prefOwner() });
+        const { label, periodo, swap } = reqParts(r), info = reqIsAutoCessione(r);
+        const msg = `<b>${r.name || '—'}</b><br><span style="font-size:0.85rem;color:var(--text-sec)">${label}${swap}${periodo ? ' · ' + periodo : ''}${info ? ' · inserita in automatico' : ''}</span>`;
+        // la cessione di reperibilità è già nel calendario: solo un avviso informativo (tra turni e reperibilità)
+        const extra = info ? { kind: 'rep', title: 'Cessione di reperibilit\u00e0', detail: `${r.name || '—'}${swap} · ${periodo} · gi\u00e0 inserita in automatico` } : {};
+        notifHistory.unshift(Object.assign({ id: Date.now()+Math.random(), ts: Date.now(), text: msg, read:false, archived:false, date:new Date().toLocaleString(), type:'richiesta', reqId: reqId || null, owner: prefOwner() }, extra));
         saveNotifications(); updateBadge();
-        if(!quiet) showRichiestaAlert(r.name, label, swap, periodo, reqId);
+        if(!quiet) showRichiestaAlert(r.name, label, swap, periodo, reqId, info);
     }
+    // Cessione di reperibilità dal portale: entra da sola nel calendario (nessuna approvazione).
+    function reqIsAutoCessione(r) { return !!r && r.type === 'copertura_reperibilita' && !r.obscured && r.autoApplied !== false; }
     // Ultima richiesta già vista dal coordinatore su questo telefono (data di invio della richiesta).
     function reqSeenKey() { return 'req_seen_ts_' + normalizeNameForMatch(coordinatorName || ''); }
     function reqMarkSeen(ts) {
@@ -3823,10 +3827,12 @@
         docs.forEach(d => reqMarkSeen((d.data() || {}).timestamp));
         if(!fresh.length) return;
         if(fresh.length === 1) { notifyCoordinatorOfNewRequest(fresh[0].r, fresh[0].id); return; }
+        const allInfo = fresh.every(x => reqIsAutoCessione(x.r));
         fresh.forEach(x => notifyCoordinatorOfNewRequest(x.r, x.id, true));
         lastRichiestaAlertReqId = null;
-        const rows = fresh.slice(-6).reverse().map(x => { const p = reqParts(x.r); return `<div style="background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:9px 12px; text-align:left; margin-bottom:6px;"><div style="font-weight:900;">${esc(x.r.name || '—')}</div><div style="font-size:0.84rem; color:var(--text-sec);">${esc(p.label + p.swap)}${p.periodo ? ' · ' + esc(p.periodo) : ''}</div></div>`; }).join('');
-        document.getElementById('richiesta-alert-text').innerHTML = `<div style="font-weight:800; margin-bottom:10px;">${fresh.length} richieste arrivate mentre l’app era chiusa</div>${rows}${fresh.length > 6 ? `<div style="font-size:0.8rem; color:var(--text-sec);">e altre ${fresh.length - 6}: le trovi tutte nelle notifiche</div>` : ''}<div style="font-size:0.8rem; color:var(--text-sec); margin-top:10px;">Da approvare come coordinatore.</div>`;
+        const rows = fresh.slice(-6).reverse().map(x => { const p = reqParts(x.r); return `<div style="background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:9px 12px; text-align:left; margin-bottom:6px;"><div style="font-weight:900;">${esc(x.r.name || '—')}</div><div style="font-size:0.84rem; color:var(--text-sec);">${esc(p.label + p.swap)}${p.periodo ? ' · ' + esc(p.periodo) : ''}${reqIsAutoCessione(x.r) ? ' · inserita in automatico' : ''}</div></div>`; }).join('');
+        document.getElementById('richiesta-alert-text').innerHTML = `<div style="font-weight:800; margin-bottom:10px;">${fresh.length} richieste arrivate mentre l’app era chiusa</div>${rows}${fresh.length > 6 ? `<div style="font-size:0.8rem; color:var(--text-sec);">e altre ${fresh.length - 6}: le trovi tutte nelle notifiche</div>` : ''}<div style="font-size:0.8rem; color:var(--text-sec); margin-top:10px;">${allInfo ? 'Cessioni di reperibilit\u00e0 gi\u00e0 inserite in automatico: solo per informazione.' : 'Da approvare come coordinatore (le cessioni di reperibilit\u00e0 sono gi\u00e0 inserite).'}</div>`;
+        reqAlertTitle(allInfo);
         const m = document.getElementById('richiesta-alert-modal'); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 100);
         if(navigator.vibrate) navigator.vibrate([40,60,40]);
     }
@@ -4231,7 +4237,7 @@
         if(coordAsGuest.length) add('info', 'no_accounts', 'L’Area coordinatore viene usata come “Ospite”', `${coordAsGuest.length} sessioni negli ultimi 3 giorni: nel registro le modifiche risultano di “Ospite” e su quel dispositivo non arrivano gli avvisi delle richieste.`, "admGo('accessi')", 'Vedi accessi');
         const multi = admIdentityRows().filter(r => r.active.length > 1);
         if(multi.length) add('warn', 'how_to_reg', `${multi.length} ${multi.length === 1 ? 'nome è occupato' : 'nomi sono occupati'} da più dispositivi`, multi.slice(0, 5).map(r => `${r.nm} (${r.active.length})`).join(', ') + ': se qualcuno non riesce a scegliere il suo nome, liberalo.', "admGo('identita')", 'Gestisci');
-        const pend = admData.requests.filter(r => !r.obscured && !r.insertedInShifts), old = pend.filter(r => admMs(r.timestamp) < Date.now() - 3 * 864e5);
+        const pend = admData.requests.filter(r => !r.obscured && !r.insertedInShifts && !reqIsAutoCessione(r)), old = pend.filter(r => admMs(r.timestamp) < Date.now() - 3 * 864e5);
         if(old.length) add('warn', 'pending_actions', `${old.length} ${old.length === 1 ? 'richiesta aspetta' : 'richieste aspettano'} da più di 3 giorni`, old.slice(0, 4).map(r => `${r.name || '—'} (${(RICHIESTE_TYPE_LABELS[r.type] || r.type || '').toLowerCase()})`).join(', '), 'window.openRichiestePanel && (closeAdminPanel(), window.openRichiestePanel())', 'Apri richieste');
         try {
             const today = ymd(new Date()), lim = repDateAdd(today, 30), R = repData(), C = dayChecks(); let cov = 0, norep = 0;
@@ -4257,7 +4263,7 @@
         const people = new Set(todayS.map(s => s.identity).filter(x => x && x !== 'Ospite'));
         const errs = admErrorGroups(1).filter(g => !g.resolved), errN = errs.reduce((a, g) => a + g.n, 0);
         const M = admMotore(), subs = Object.values(admData.subs);
-        const pend = admData.requests.filter(r => !r.obscured && !r.insertedInShifts);
+        const pend = admData.requests.filter(r => !r.obscured && !r.insertedInShifts && !reqIsAutoCessione(r));
         let chk = 0; try { chk = chkOpenCount(); } catch(e) {}
         const issues = admIssues(), worst = issues.length ? issues[0].sev : 'ok';
         const head = { ok: ['verified', 'Tutto funziona', 'Nessun problema da segnalare.'], info: ['verified', 'Tutto funziona', 'Ci sono solo informazioni da leggere.'], warn: ['error_outline', 'Qualcosa da guardare', (n => n === 1 ? 'Un punto richiede attenzione.' : n + ' punti richiedono attenzione.')(issues.filter(i => i.sev !== 'info').length)], err: ['report', 'Ci sono problemi', (n => n === 1 ? 'Un problema da risolvere.' : n + ' problemi da risolvere.')(issues.filter(i => i.sev === 'err').length)] }[worst];
@@ -5340,14 +5346,16 @@
 
     // ── Popup dedicato alle nuove richieste dal portale Richieste ───────────
     let lastRichiestaAlertReqId = null;
-    function showRichiestaAlert(name, label, swap, periodo, reqId) {
+    function reqAlertTitle(info) { const t = document.querySelector('#richiesta-alert-modal .alert-title'); if(t) t.textContent = info ? 'CESSIONE REPERIBILIT\u00c0' : 'NUOVA RICHIESTA'; }
+    function showRichiestaAlert(name, label, swap, periodo, reqId, info) {
         lastRichiestaAlertReqId = reqId || null;
+        reqAlertTitle(info);
         document.getElementById('richiesta-alert-text').innerHTML =
             `<div style="background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:12px 14px; text-align:left;">
                 <div style="font-weight:900; font-size:1rem; margin-bottom:4px;">${name || '—'}</div>
                 <div style="font-size:0.88rem; color:var(--text-sec);">${label}${swap}${periodo ? ' · ' + periodo : ''}</div>
              </div>
-             <div style="font-size:0.8rem; color:var(--text-sec); margin-top:12px;">Da approvare come coordinatore.</div>`;
+             <div style="font-size:0.8rem; color:var(--text-sec); margin-top:12px;">${info ? 'Gi\u00e0 inserita in automatico nel calendario delle reperibilit\u00e0: \u00e8 solo un avviso, non serve fare nulla.' : 'Da approvare come coordinatore.'}</div>`;
         let m = document.getElementById('richiesta-alert-modal'); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 100);
         if(navigator.vibrate) navigator.vibrate([40,60,40]); // vibrazione doppia: si distingue da un avviso normale
     }
@@ -6919,7 +6927,7 @@
         try { const p = await cfgRef('push').get(); subs = p.exists ? (p.data().subs || {}) : {}; } catch(e) {}
         try {
             const q = await db.collection('richieste_infermieri').orderBy('timestamp', 'desc').limit(80).get();
-            requests = q.docs.map(x => { const r = x.data(); return { id: x.id, name: r.name || '', type: (RICHIESTE_TYPE_LABELS && RICHIESTE_TYPE_LABELS[r.type]) || String(r.type || '').replace(/_/g, ' '), dateFrom: r.dateFrom || '', dateTo: r.dateTo || '', swapWith: r.swapWith || '', inserted: !!r.insertedInShifts }; });
+            requests = q.docs.map(x => { const r = x.data(); return { id: x.id, name: r.name || '', type: (RICHIESTE_TYPE_LABELS && RICHIESTE_TYPE_LABELS[r.type]) || String(r.type || '').replace(/_/g, ' '), kind: r.type || '', timeSlot: r.timeSlot || '', auto: reqIsAutoCessione(r), dateFrom: r.dateFrom || '', dateTo: r.dateTo || '', swapWith: r.swapWith || '', inserted: !!r.insertedInShifts }; });
         } catch(e) {}
         // il coordinatore con tutti i nomi con cui può aver scelto "chi sei" (nome mostrato e nome originale)
         const cd = coordinatorName ? drivers.find(d => normalizeNameForMatch(d.name) === normalizeNameForMatch(coordinatorName) || normalizeNameForMatch(d.originalName) === normalizeNameForMatch(coordinatorName)) : null;

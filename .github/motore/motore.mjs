@@ -101,7 +101,9 @@ function buildMessages(X, old) {
     const seen = new Set(old.reqIds);
     for (const r of X.requests.filter(r => !seen.has(r.id)).reverse()) {
       const when = r.dateFrom ? ' dal ' + dayLabel(r.dateFrom) + (r.dateTo && r.dateTo !== r.dateFrom ? ' al ' + dayLabel(r.dateTo) : '') : '';
-      out.push({ owner: '*coord*', title: 'Nuova richiesta dal portale', body: `${r.name || '—'}: ${r.type}${r.swapWith ? ' con ' + r.swapWith : ''}${when}`, tag: 'req-' + r.id });
+      // cessione di reperibilità: è già nel calendario, al coordinatore arriva solo come informazione
+      if (r.kind === 'copertura_reperibilita' && r.auto !== false) out.push({ owner: '*coord*', title: 'Cessione di reperibilità (già inserita)', body: `${r.name || '—'} cede a ${r.swapWith || '—'}${r.dateFrom ? ' il ' + dayLabel(r.dateFrom) : ''}${r.timeSlot ? ' (' + r.timeSlot + ')' : ''}. Inserita in automatico: non serve fare nulla.`, tag: 'req-' + r.id });
+      else out.push({ owner: '*coord*', title: 'Nuova richiesta dal portale', body: `${r.name || '—'}: ${r.type}${r.swapWith ? ' con ' + r.swapWith : ''}${when}`, tag: 'req-' + r.id });
     }
   }
   return out;
