@@ -2324,6 +2324,51 @@
         .btn-spin { width:calc(100% - 40px); margin:4px 20px 20px; background:linear-gradient(135deg,#16a34a,#15803d); color:white; border:none; border-radius:14px; padding:16px; font-weight:800; font-size:1.05rem; letter-spacing:0.5px; box-shadow:0 6px 16px rgba(21,128,61,0.4); }
         .btn-spin:active { transform:scale(0.97); }
         .btn-spin:disabled { opacity:0.5; }
+        /* ruota nuova: anello con luci, puntatore che scatta a ogni spicchio, centro "GIRA" */
+        .wh-stage { display:flex; flex-direction:column; align-items:center; padding:6px 16px 0; }
+        .wh-progress { display:flex; gap:8px; width:100%; max-width:420px; justify-content:center; margin:4px 0 2px; }
+        .wh-progress:empty { display:none; }
+        .wh-step { flex:1; min-width:0; border-radius:14px; padding:8px 10px; background:var(--bg); border:1.5px solid var(--border); text-align:center; }
+        .wh-step small { display:block; font-size:0.66rem; font-weight:800; color:var(--text-sec); letter-spacing:0.02em; }
+        .wh-step b { display:block; font-size:0.86rem; font-weight:900; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px; }
+        .wh-step.cur { border-color:#f97316; background:rgba(249,115,22,0.1); box-shadow:0 6px 16px -10px rgba(234,88,12,0.9); }
+        .wh-step.cur small { color:#ea580c; }
+        .wh-step.done { border-color:rgba(22,163,74,0.45); background:rgba(22,163,74,0.08); }
+        .wh-step.done b { color:#15803d; }
+        .wh-wheel { position:relative; width:min(76vw, 300px); aspect-ratio:1; margin:34px auto 14px; }
+        .wh-rim { position:absolute; inset:-16px; border-radius:50%; background:radial-gradient(circle at 50% 35%, #334155, #0f172a 72%); box-shadow:0 22px 40px -16px rgba(15,23,42,0.75), inset 0 0 0 2px rgba(255,255,255,0.08); }
+        .wh-lights { position:absolute; inset:-16px; border-radius:50%; pointer-events:none; }
+        .wh-light { position:absolute; left:50%; top:50%; width:8px; height:8px; margin:-4px; border-radius:50%; background:#fde68a; box-shadow:0 0 6px 1px rgba(253,230,138,0.85); opacity:0.35; }
+        .wh-light.on { opacity:1; }
+        .wh-wheel.spinning .wh-light { animation:whBlink 0.5s steps(1) infinite; }
+        .wh-wheel.spinning .wh-light:nth-child(even) { animation-delay:0.25s; }
+        @keyframes whBlink { 0% { opacity:1; } 50% { opacity:0.25; } }
+        #wheel-svg-holder.wh-rotor { position:absolute; inset:0; width:100%; height:100%; border-radius:50%; overflow:hidden; box-shadow:0 0 0 4px #f8fafc, inset 0 0 18px rgba(0,0,0,0.25); transition:none !important; will-change:transform; }
+        .wh-rotor svg { width:100%; height:100%; display:block; }
+        .wh-seg.wh-win { animation:whWin 0.7s ease-in-out 3; }
+        @keyframes whWin { 50% { filter:brightness(1.45) saturate(1.2); } }
+        .wh-pointer { position:absolute; top:-34px; left:50%; width:38px; height:50px; margin-left:-19px; z-index:6; transform-origin:50% 14px; filter:drop-shadow(0 4px 6px rgba(0,0,0,0.4)); }
+        .wh-pointer svg { width:100%; height:100%; display:block; }
+        .wh-hub { position:absolute; left:50%; top:50%; width:72px; height:72px; margin:-36px; border-radius:50%; z-index:5; border:4px solid #0f172a; background:radial-gradient(circle at 50% 30%, #ffffff, #e2e8f0 70%); color:#0f172a; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0; cursor:pointer; box-shadow:0 6px 16px rgba(0,0,0,0.35); font-family:inherit; padding:0; }
+        .wh-hub .material-icons-round { font-size:22px; color:#ea580c; } .wh-hub b { font-size:0.66rem; font-weight:900; letter-spacing:0.08em; }
+        .wh-hub:active { transform:scale(0.94); } .wh-hub:disabled { cursor:default; opacity:0.85; }
+        .wh-result { width:100%; max-width:420px; text-align:center; }
+        .wh-result.show { margin:6px 0 4px; padding:14px 16px; border-radius:18px; background:linear-gradient(135deg,#f97316,#db2777); color:#fff; box-shadow:0 14px 30px -14px rgba(219,39,119,0.8); animation:whPop 0.45s cubic-bezier(0.34,1.56,0.64,1); }
+        .wh-result small { display:block; font-size:0.74rem; font-weight:800; opacity:0.9; text-transform:uppercase; letter-spacing:0.06em; }
+        .wh-result b { display:block; font-size:1.55rem; font-weight:900; margin-top:2px; line-height:1.15; }
+        .wh-result span { display:block; font-size:0.8rem; font-weight:700; opacity:0.92; margin-top:3px; }
+        .wh-result.auto { background:linear-gradient(135deg,#2563eb,#7c3aed); box-shadow:0 14px 30px -14px rgba(37,99,235,0.8); }
+        @keyframes whPop { from { transform:scale(0.85); opacity:0; } to { transform:none; opacity:1; } }
+        .wh-confetti { position:absolute; inset:-20px; pointer-events:none; overflow:visible; z-index:7; }
+        .wh-confetti i { position:absolute; top:40%; width:8px; height:12px; border-radius:2px; opacity:0; animation:whFall 1.9s cubic-bezier(0.2,0.7,0.4,1) forwards; }
+        @keyframes whFall { 0% { opacity:1; transform:translate(0,0) rotate(0); } 100% { opacity:0; transform:translate(var(--dx), var(--dy)) rotate(var(--rot)); } }
+        /* in modalità leggera le animazioni sono spente: per la ruota restano accese */
+        body.lite #wheel-modal .wh-wheel.spinning .wh-light { animation:whBlink 0.5s steps(1) infinite !important; }
+        body.lite #wheel-modal .wh-wheel.spinning .wh-light:nth-child(even) { animation-delay:0.25s !important; }
+        body.lite #wheel-modal .wh-seg.wh-win { animation:whWin 0.7s ease-in-out 3 !important; }
+        body.lite #wheel-modal .wh-result.show { animation:whPop 0.45s cubic-bezier(0.34,1.56,0.64,1) !important; }
+        body.lite #wheel-modal .wh-confetti i { animation:whFall 1.9s cubic-bezier(0.2,0.7,0.4,1) forwards !important; }
+        body.lite #wheel-modal .character-reveal.show { animation:charPop 0.45s cubic-bezier(0.34,1.56,0.64,1) !important; }
         .wheel-assign-list { padding:0 20px 8px; display:flex; flex-direction:column; gap:8px; }
         .wheel-assign-item { background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:12px 14px; display:flex; justify-content:space-between; align-items:center; font-weight:700; }
         .wheel-assign-item .wa-time { color:#ea580c; font-weight:900; }
@@ -3215,13 +3260,17 @@
             <!-- STEP 3b/4: la ruota vera e propria -->
             <div id="wheel-step-spin" style="display:none;">
                 <div class="wheel-steps-nav" onclick="goToWheelStep(2)"><span class="material-icons-round" style="font-size:18px">arrow_back</span> Cambia modalità</div>
-                <div class="wheel-arena-wrap">
+                <div class="wh-stage">
+                    <div class="wh-progress" id="wh-progress"></div>
                     <div class="wheel-current-slot" id="wheel-current-slot-label" style="display:none;">Sto assegnando la fascia<b id="wheel-current-slot-time">--:--</b></div>
-                    <div class="wheel-arena">
-                        <div class="wheel-pointer"></div>
-                        <div class="wheel-svg-holder" id="wheel-svg-holder"></div>
-                        <div class="wheel-hub"><span class="material-icons-round">favorite</span></div>
+                    <div class="wh-wheel" id="wh-wheel">
+                        <div class="wh-rim"></div>
+                        <div class="wh-lights" id="wh-lights"></div>
+                        <div class="wh-rotor" id="wheel-svg-holder"></div>
+                        <div class="wh-pointer" id="wh-pointer"><svg viewBox="0 0 40 52" aria-hidden="true"><path d="M20 50 L5 14 A16 16 0 1 1 35 14 Z" fill="#ef4444" stroke="#fff" stroke-width="3" stroke-linejoin="round"/><circle cx="20" cy="15" r="5" fill="#fff"/></svg></div>
+                        <button class="wh-hub" id="wh-hub" onclick="doSpin()" aria-label="Gira la ruota"><span class="material-icons-round">casino</span><b>GIRA</b></button>
                     </div>
+                    <div class="wh-result" id="wh-result"></div>
                 </div>
                 <button class="btn-spin" id="wheel-spin-btn" onclick="doSpin()">GIRA LA RUOTA!</button>
                 <div id="wheel-assign-list" class="wheel-assign-list"></div>
@@ -12278,6 +12327,7 @@
         if(mode === 'slots') {
             document.getElementById('wheel-step-3-slots').style.display = 'block';
         } else {
+            whFreshRun();
             wheelNamesOnWheel = wheelSelectedNurses.slice();
             document.getElementById('wheel-step-spin').style.display = 'block';
             document.getElementById('wheel-current-slot-label').style.display = 'none';
@@ -12311,6 +12361,7 @@
     }
     function startSlotWheel() {
         vibrate();
+        whFreshRun();
         wheelSlotPool = shuffleArr(wheelSelectedNurses); wheelAssignments = []; wheelCurrentSlotIdx = 0;
         wheelNamesOnWheel = wheelSlotPool.slice();
         hideAllWheelSteps(); document.getElementById('wheel-step-spin').style.display = 'block';
@@ -12336,7 +12387,7 @@
         const segments = buildWheelLayout(uniqueNames);
         wheelExpandedSegments = segments;
         const n = segments.length, seg = 360/n, cx=150, cy=150, r=150; let paths = '';
-        const fontSize = n > 12 ? 12 : (n > 8 ? 14 : 16);
+        const fontSize = n > 14 ? 11 : n > 10 ? 12.5 : n > 6 ? 14.5 : 17;
         segments.forEach((name, i) => {
             const start = -90 + i*seg, end = -90 + (i+1)*seg;
             const sr = start*Math.PI/180, er = end*Math.PI/180;
@@ -12347,63 +12398,135 @@
             const mid = start + seg/2;
             const textRadius = r * 0.66;
             let label = name.length > 14 ? name.substring(0,13) + '…' : name;
-            paths += `<path d="M${cx},${cy} L${x1.toFixed(2)},${y1.toFixed(2)} A${r},${r} 0 ${largeArc} 1 ${x2.toFixed(2)},${y2.toFixed(2)} Z" fill="${color}" stroke="#fff" stroke-width="2"/>`;
-            paths += `<text x="${textRadius.toFixed(2)}" y="0" transform="translate(${cx},${cy}) rotate(${mid.toFixed(2)})" fill="#fff" font-size="${fontSize}" font-weight="800" text-anchor="middle" dominant-baseline="middle" font-family="'Plus Jakarta Sans',sans-serif" style="letter-spacing:0.2px;">${label}</text>`;
+            paths += n === 1 ? `<circle class="wh-seg" data-i="0" cx="${cx}" cy="${cy}" r="${r}" fill="${color}"/>` : `<path class="wh-seg" data-i="${i}" d="M${cx},${cy} L${x1.toFixed(2)},${y1.toFixed(2)} A${r},${r} 0 ${largeArc} 1 ${x2.toFixed(2)},${y2.toFixed(2)} Z" fill="${color}" stroke="rgba(255,255,255,0.85)" stroke-width="1.5"/>`;
+            paths += `<text x="${textRadius.toFixed(2)}" y="0" transform="translate(${cx},${cy}) rotate(${mid.toFixed(2)})" fill="#fff" font-size="${fontSize}" font-weight="800" text-anchor="middle" dominant-baseline="middle" font-family="'Plus Jakarta Sans',sans-serif" style="letter-spacing:0.3px;paint-order:stroke;stroke:rgba(0,0,0,0.28);stroke-width:2.5px;">${label}</text>`;
         });
-        return `<svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block;">${paths}</svg>`;
+        // luce e ombra sopra gli spicchi: la ruota sembra in rilievo
+        const shade = `<defs><radialGradient id="whShade" cx="50%" cy="38%" r="62%"><stop offset="0" stop-color="#fff" stop-opacity="0.28"/><stop offset="0.55" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.28"/></radialGradient></defs>`;
+        return `<svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">${shade}${paths}<circle cx="150" cy="150" r="150" fill="url(#whShade)" pointer-events="none"/></svg>`;
     }
-    function renderWheelGraphic(names) {
+    let whAngle = 0;
+    function renderWheelGraphic(names, keepResult) {
         const holder = document.getElementById('wheel-svg-holder');
-        holder.style.transition = 'none'; holder.style.transform = 'rotate(0deg)';
+        whAngle = 0; holder.style.transform = 'rotate(0deg)';
         holder.innerHTML = buildWheelSVG(names);
-        holder.getBoundingClientRect();
-        holder.style.transition = 'transform 4.2s cubic-bezier(0.12,0.83,0.14,1)';
+        whLights(); whProgress();
+        const res = document.getElementById('wh-result'); if(res && !keepResult) { res.className = 'wh-result'; res.innerHTML = ''; }
+        const hub = document.getElementById('wh-hub'); if(hub) hub.disabled = false;
+    }
+    // nuova estrazione: si riparte puliti (pulsanti, riepilogo, risultato)
+    function whFreshRun() {
+        wheelAssignments = []; wheelCurrentSlotIdx = 0; wheelSpinning = false;
+        const sb = document.getElementById('wheel-spin-btn'); if(sb) { sb.style.display = 'inline-flex'; sb.disabled = false; sb.innerText = 'GIRA LA RUOTA!'; }
+        ['wheel-restart-btn', 'wheel-done-banner'].forEach(id => { const el = document.getElementById(id); if(el) el.style.display = 'none'; });
+        const al = document.getElementById('wheel-assign-list'); if(al) al.innerHTML = '';
+        const rev = document.getElementById('wheel-character-reveal'); if(rev) rev.classList.remove('show');
+    }
+    // luci intorno alla ruota
+    function whLights() {
+        const box = document.getElementById('wh-lights'); if(!box || box.childElementCount) return;
+        const N = 24; let h = '';
+        for(let i = 0; i < N; i++) h += `<i class="wh-light ${i % 2 ? '' : 'on'}" style="transform:rotate(${i * 360 / N}deg) translateY(calc(-1 * (min(76vw, 300px) / 2 + 8px)))"></i>`;
+        box.innerHTML = h;
+    }
+    // fasce orarie: a che punto siamo (fatte, quella in corso, da fare)
+    function whProgress() {
+        const box = document.getElementById('wh-progress'); if(!box) return;
+        if(wheelMode !== 'slots' || !wheelSlots.length) { box.innerHTML = ''; return; }
+        box.innerHTML = wheelSlots.map((sl, i) => { const a = wheelAssignments[i]; const cls = a ? 'done' : i === wheelCurrentSlotIdx ? 'cur' : '';
+            return `<div class="wh-step ${cls}"><small>${esc(sl)}</small><b>${a ? esc(a.name) : i === wheelCurrentSlotIdx ? 'in corso…' : '—'}</b></div>`; }).join('');
+    }
+    function whResult(title, name, sub, auto) {
+        const res = document.getElementById('wh-result'); if(!res) return;
+        res.className = 'wh-result'; void res.offsetWidth;
+        res.innerHTML = `<small>${esc(title)}</small><b>${esc(name)}</b>${sub ? `<span>${esc(sub)}</span>` : ''}`;
+        res.className = 'wh-result show' + (auto ? ' auto' : '');
+    }
+    function whConfetti() {
+        const wheel = document.getElementById('wh-wheel'); if(!wheel) return;
+        const box = document.createElement('div'); box.className = 'wh-confetti';
+        const cols = ['#f97316', '#db2777', '#2563eb', '#16a34a', '#facc15', '#7c3aed'];
+        let h = ''; for(let i = 0; i < 34; i++) { const ang = Math.random() * Math.PI * 2, dist = 120 + Math.random() * 120;
+            h += `<i style="left:${45 + Math.random() * 10}%;background:${cols[i % cols.length]};--dx:${Math.round(Math.cos(ang) * dist)}px;--dy:${Math.round(Math.sin(ang) * dist + 80)}px;--rot:${Math.round(Math.random() * 720 - 360)}deg;animation-delay:${Math.round(Math.random() * 120)}ms"></i>`; }
+        box.innerHTML = h; wheel.appendChild(box); setTimeout(() => box.remove(), 2300);
     }
 
+    // Il giro è animato a mano (requestAnimationFrame): gira anche in modalità leggera e su iPhone,
+    // dove le transizioni CSS sono spente. Il puntatore scatta a ogni spicchio, con il suo "tic".
     function doSpin() {
         if(wheelSpinning) return;
         const segments = wheelExpandedSegments;
         if(!segments || segments.length === 0) return;
         wheelSpinning = true; vibrate();
+        try { const ac = getWheelAudioCtx(); if(ac.state === 'suspended') ac.resume(); } catch(e) {}
         document.getElementById('wheel-spin-btn').disabled = true;
-        const total = segments.length, seg = 360/total;
-        const winnerIndex = Math.floor(Math.random()*total);
-        const winnerName = segments[winnerIndex];
-        const segCenterFromTop = winnerIndex*seg + seg/2;
-        const needed = (360 - segCenterFromTop) % 360;
-        const extraSpins = 6 + Math.floor(Math.random()*3);
-        const target = extraSpins*360 + needed;
-        document.getElementById('wheel-svg-holder').style.transform = `rotate(${target}deg)`;
-        scheduleWheelTicks(4200);
-        setTimeout(() => {
+        const hub = document.getElementById('wh-hub'); if(hub) hub.disabled = true;
+        const res = document.getElementById('wh-result'); if(res) { res.className = 'wh-result'; res.innerHTML = ''; }
+        document.querySelectorAll('#wheel-svg-holder .wh-win').forEach(x => x.classList.remove('wh-win'));
+        const holder = document.getElementById('wheel-svg-holder'), pointer = document.getElementById('wh-pointer'), wheel = document.getElementById('wh-wheel');
+        const total = segments.length, seg = 360 / total;
+        const winnerIndex = Math.floor(Math.random() * total), winnerName = segments[winnerIndex];
+        // si ferma in un punto a caso dentro lo spicchio (non sempre al centro)
+        const within = seg * (0.18 + Math.random() * 0.64);
+        const start = whAngle, targetMod = (360 - (winnerIndex * seg + within) % 360) % 360;
+        const target = start - (start % 360) + 360 * (6 + Math.floor(Math.random() * 3)) + targetMod;
+        const dur = 5200 + Math.random() * 900, t0 = performance.now();
+        const ease = t => 1 - Math.pow(1 - t, 4);
+        let lastSeg = Math.floor(start / seg), kick = 0;
+        if(wheel) wheel.classList.add('spinning');
+        const frame = now => {
+            const t = Math.min(1, (now - t0) / dur), a = start + (target - start) * ease(t);
+            holder.style.transform = `rotate(${a.toFixed(2)}deg)`;
+            const sNow = Math.floor(a / seg);
+            if(sNow !== lastSeg) { lastSeg = sNow; kick = 1; wheelTickSound(); }
+            kick *= 0.8; if(pointer) pointer.style.transform = `rotate(${(-22 * kick).toFixed(1)}deg)`;
+            if(t < 1) { requestAnimationFrame(frame); return; }
+            whAngle = target; if(pointer) pointer.style.transform = '';
+            if(wheel) wheel.classList.remove('spinning');
+            const win = document.querySelector(`#wheel-svg-holder .wh-seg[data-i="${winnerIndex}"]`); if(win) win.classList.add('wh-win');
             wheelFunnySound();
             if(navigator.vibrate) navigator.vibrate([40,60,40,120]);
+            whConfetti();
             wheelSpinning = false;
             onWheelSpinResolved(winnerName);
-        }, 4200);
+        };
+        requestAnimationFrame(frame);
     }
 
-    function onWheelSpinResolved(winnerName) {
+    function onWheelSpinResolved(winnerName, auto) {
         admWheelLog(winnerName);
         if(wheelMode === 'slots') {
             const slotTime = wheelSlots[wheelCurrentSlotIdx];
             wheelAssignments.push({ time: slotTime, name: winnerName });
-            renderWheelAssignList();
+            if(!auto) whResult('La fascia ' + slotTime + ' tocca a', winnerName, '');
             wheelSlotPool = wheelSlotPool.filter(nm => nm !== winnerName);
             wheelCurrentSlotIdx++;
+            whProgress(); renderWheelAssignList();
             if(wheelCurrentSlotIdx >= wheelSlots.length) {
                 document.getElementById('wheel-spin-btn').style.display = 'none';
                 document.getElementById('wheel-current-slot-label').style.display = 'none';
                 document.getElementById('wheel-done-banner').style.display = 'block';
                 document.getElementById('wheel-restart-btn').style.display = 'flex';
+                const hub = document.getElementById('wh-hub'); if(hub) hub.disabled = true;
             } else {
                 if(wheelSlotPool.length === 0) wheelSlotPool = shuffleArr(wheelSelectedNurses);
-                wheelNamesOnWheel = wheelSlotPool.slice();
-                document.getElementById('wheel-current-slot-time').innerText = wheelSlots[wheelCurrentSlotIdx];
-                renderWheelGraphic(wheelNamesOnWheel);
-                document.getElementById('wheel-spin-btn').disabled = false;
+                // si lascia vedere il risultato, poi la ruota si prepara per la fascia dopo
+                setTimeout(() => {
+                    wheelNamesOnWheel = wheelSlotPool.slice();
+                    document.getElementById('wheel-current-slot-time').innerText = wheelSlots[wheelCurrentSlotIdx];
+                    renderWheelGraphic(wheelNamesOnWheel, true);   // il risultato di prima resta visibile fino al prossimo giro
+                    if(wheelSlotPool.length === 1) {
+                        // rimane un solo infermiere: niente giro, la fascia è sua
+                        const only = wheelSlotPool[0], time = wheelSlots[wheelCurrentSlotIdx];
+                        document.getElementById('wheel-spin-btn').disabled = true;
+                        const hub = document.getElementById('wh-hub'); if(hub) hub.disabled = true;
+                        whResult('Rimane solo', only, 'La fascia ' + time + ' è sua, senza girare la ruota', true);
+                        setTimeout(() => onWheelSpinResolved(only, true), 1600);
+                    } else document.getElementById('wheel-spin-btn').disabled = false;
+                }, auto ? 300 : 1500);
             }
         } else {
+            whResult('La sfiga ha scelto', winnerName, '');
             showWheelCharacterReveal(winnerName);
             const spinBtn = document.getElementById('wheel-spin-btn'); spinBtn.innerText = 'GIRA ANCORA!'; spinBtn.disabled = false;
             document.getElementById('wheel-restart-btn').style.display = 'flex';
@@ -12421,6 +12544,7 @@
     }
     function renderWheelAssignList() {
         const c = document.getElementById('wheel-assign-list'); c.innerHTML = '';
+        if(wheelCurrentSlotIdx < wheelSlots.length) return;   // durante l'estrazione basta la barra in alto; alla fine il riepilogo
         wheelAssignments.forEach(a => { c.innerHTML += `<div class="wheel-assign-item"><span class="wa-time">${a.time}</span><span class="wa-name">${a.name}</span></div>`; });
     }
 
