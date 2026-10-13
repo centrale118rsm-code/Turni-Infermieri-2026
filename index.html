@@ -2062,7 +2062,7 @@
         .adm-side-foot { border-top:1px solid rgba(148,163,184,.14); padding-top:10px; }
         .adm-side-foot button { width:100%; display:flex; align-items:center; gap:8px; padding:9px 10px; border:none; border-radius:10px; background:none; color:#94a3b8; font:600 .8rem 'Plus Jakarta Sans',sans-serif; cursor:pointer; }
         .adm-side-foot button:hover { background:rgba(148,163,184,.1); color:#fff; }
-        .adm-main { flex:1; min-width:0; display:flex; flex-direction:column; background:var(--bg); }
+        .adm-main { flex:1; min-width:0; min-height:0; display:flex; flex-direction:column; background:var(--bg); }
         .adm-top { display:flex; align-items:center; gap:10px; padding:16px 20px 14px 24px; border-bottom:1px solid var(--border); background:var(--bg-card); }
         .adm-top-t { flex:1; min-width:0; } .adm-top-t h3 { margin:0; font-size:1.2rem; font-weight:800; color:var(--text-main); letter-spacing:-.01em; } .adm-top-t span { display:block; font-size:.78rem; color:var(--text-sec); margin-top:2px; }
         .adm-updated { font-size:.72rem; color:var(--text-sec); white-space:nowrap; }
@@ -2070,7 +2070,7 @@
         .adm-icon-btn:hover { border-color:var(--primary); color:var(--primary); }
         .adm-refresh.spin .material-icons-round, .adm-spin { animation:admSpin 1s linear infinite; }
         @keyframes admSpin { to { transform:rotate(360deg); } }
-        #admin-panel-modal .adm-body { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+        #admin-panel-modal .adm-body { flex:1; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; touch-action:pan-y; }
         #admin-panel-modal .admin-tab-panel { padding:20px 24px 28px; max-width:1040px; }
         #admin-panel-modal .admin-section-label { color:var(--text-sec); }
         .adm-kpis { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:12px; margin-bottom:18px; }
@@ -2130,7 +2130,7 @@
         .adm-empty { text-align:center; padding:34px 16px; color:var(--text-sec); font-size:.85rem; } .adm-empty .material-icons-round { display:block; font-size:36px; margin:0 auto 8px; opacity:.6; }
         .adm-empty.ok .material-icons-round { color:#16a34a; opacity:1; } .adm-empty.sm { padding:14px; } .adm-empty.sm .material-icons-round { font-size:24px; }
         .adm-err { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; margin-bottom:8px; box-shadow:inset 4px 0 0 #dc2626; overflow:hidden; }
-        .adm-err.sev-warn { box-shadow:inset 4px 0 0 #d97706; } .adm-err.resolved { opacity:.65; box-shadow:inset 4px 0 0 #16a34a; }
+        .adm-err.sev-warn { box-shadow:inset 4px 0 0 #d97706; } .adm-err.sev-info { box-shadow:inset 4px 0 0 #2563eb; } .adm-err.sev-info .adm-err-ico { color:#2563eb; } .adm-err.resolved { opacity:.65; box-shadow:inset 4px 0 0 #16a34a; }
         .adm-err summary { display:flex; align-items:center; gap:12px; padding:12px 14px; cursor:pointer; list-style:none; } .adm-err summary::-webkit-details-marker { display:none; }
         .adm-err-ico { color:#dc2626; font-size:22px !important; } .adm-err.sev-warn .adm-err-ico { color:#d97706; }
         .adm-err-main { flex:1; min-width:0; } .adm-err-top { display:flex; align-items:baseline; gap:8px; min-width:0; } .adm-err-top b { font-size:.84rem; color:var(--text-main); word-break:break-word; }
@@ -2140,7 +2140,7 @@
         .adm-kv { display:flex; gap:12px; font-size:.78rem; padding:5px 0; } .adm-kv span { width:150px; flex:none; color:var(--text-sec); } .adm-kv b { color:var(--text-main); font-weight:600; word-break:break-word; }
         .adm-pre { margin:8px 0; padding:10px; border-radius:8px; background:#0f172a; color:#cbd5e1; font:500 .7rem/1.45 ui-monospace,Consolas,monospace; white-space:pre-wrap; word-break:break-word; max-height:180px; overflow:auto; }
         .adm-row-act { display:flex; justify-content:flex-end; gap:8px; margin-top:8px; }
-        .adm-tag { flex:none; font-size:.62rem; font-weight:800; text-transform:uppercase; letter-spacing:.04em; padding:2px 7px; border-radius:6px; background:rgba(220,38,38,.12); color:#dc2626; } .adm-tag.warn { background:rgba(217,119,6,.14); color:#b45309; }
+        .adm-tag { flex:none; font-size:.62rem; font-weight:800; text-transform:uppercase; letter-spacing:.04em; padding:2px 7px; border-radius:6px; background:rgba(220,38,38,.12); color:#dc2626; } .adm-tag.warn { background:rgba(217,119,6,.14); color:#b45309; } .adm-tag.info { background:rgba(37,99,235,.12); color:#1d4ed8; }
         .adm-pill { display:inline-flex; align-items:center; font-size:.66rem; font-weight:800; padding:2px 8px; border-radius:999px; white-space:nowrap; vertical-align:1px; }
         .adm-pill.ok { background:rgba(22,163,74,.13); color:#15803d; } .adm-pill.warn { background:rgba(217,119,6,.15); color:#b45309; } .adm-pill.err { background:rgba(220,38,38,.12); color:#dc2626; }
         .adm-pill.info { background:rgba(37,99,235,.12); color:#1d4ed8; } .adm-pill.muted { background:var(--bg); color:var(--text-sec); border:1px solid var(--border); } .adm-pill.violet { background:rgba(124,58,237,.12); color:#6d28d9; }
@@ -3354,7 +3354,7 @@
     window.addEventListener('resize', () => { twVP.w = window.innerWidth; twVP.h = window.innerHeight; }, { passive: true });
     function appErrRecord(kind, msg, src, stack) {
         try {
-            msg = String(msg || '').slice(0, 300); if(!msg) return;
+            msg = String(msg || '').replace(/^\[\d{4}-\d{2}-\d{2}T[^\]]*\]\s*/, '').slice(0, 300); if(!msg) return;
             const sig = kind + '|' + msg.slice(0, 120); if(APP_ERR.seen.has(sig) || APP_ERR.seen.size >= APP_ERR.max) return; APP_ERR.seen.add(sig);
             APP_ERR.queue.push({ t: Date.now(), kind, msg, src: String(src || '').slice(0, 200), stack: String(stack || '').slice(0, 600), view: (() => { try { return currentViewLabel; } catch(e) { return ''; } })(), ver: document.lastModified || '' });
             setTimeout(() => { try { appErrFlush(); } catch(e) {} }, 0);
@@ -4094,28 +4094,42 @@
     const admReal = () => (admData ? admData.sessions : []).filter(s => !admIsTest(s));
 
     // ── errori ──
+    // L'ora davanti al messaggio si toglie; "Firebase non raggiungibile" e simili sono la rete del telefono,
+    // non un errore dell'app: finiscono nel tipo "rete" e non contano tra i problemi.
+    const ADM_NET = /Could not reach Cloud Firestore backend|client is offline|operate in offline mode|Failed to fetch|NetworkError|Load failed|net::ERR|ERR_INTERNET_DISCONNECTED|\bunavailable\b/i;
+    // avvisi di Firebase senza conseguenze per i dati: solo informazioni
+    const ADM_INFO = [
+        [/Failed to obtain primary lease/i, 'Firebase: l’app era aperta in più schede sullo stesso dispositivo (normale, nessun effetto sui dati)'],
+        [/update time that is in the future/i, 'Firebase: l’orologio del dispositivo non è sincronizzato (nessun effetto sui turni)'],
+        [/^Script error\.?$/i, 'Errore in uno script esterno (estensione del browser o libreria), senza dettagli: di solito non riguarda l’app']
+    ];
+    function admNormMsg(m) { return String(m || '').replace(/^\[\d{4}-\d{2}-\d{2}T[^\]]*\]\s*/, '').replace(/^@firebase\/firestore:\s*Firestore \([\d.]+\):\s*/, 'Firebase: ').trim(); }
     function admErrorGroups(periodDays) {
         const from = Date.now() - periodDays * 864e5, G = {};
         admReal().forEach(s => (s.errors || []).forEach(e => {
             if(!e || !e.msg || (e.t || 0) < from) return;
-            const kind = e.kind || 'errore', sig = admHash(kind + '|' + String(e.msg).slice(0, 160));
-            const g = G[sig] || (G[sig] = { sig, kind, msg: e.msg, n: 0, people: new Set(), devices: new Set(), views: new Set(), vers: new Set(), first: e.t, last: e.t, src: e.src, stack: e.stack });
+            const raw = admNormMsg(e.msg), net = ADM_NET.test(raw), info = ADM_INFO.find(x => x[0].test(raw));
+            const kind = net ? 'rete' : info ? 'info' : (e.kind || 'errore');
+            const msg = net ? 'Connessione a Firebase assente o lenta: per un po’ il dispositivo ha lavorato offline (poi si risincronizza da solo)' : info ? info[1] : raw;
+            const sig = admHash(kind + '|' + msg.replace(/\d+/g, '#').slice(0, 160));   // stessi messaggi con numeri diversi = un solo gruppo
+            const g = G[sig] || (G[sig] = { sig, kind, msg, orig: raw, n: 0, people: new Set(), devices: new Set(), views: new Set(), vers: new Set(), first: e.t, last: e.t, src: e.src, stack: e.stack });
             g.n++; g.people.add(admSessName(s)); if(s.device) g.devices.add(s.device); if(e.view) g.views.add(e.view); if(e.ver) g.vers.add(e.ver);
             g.first = Math.min(g.first, e.t); if(e.t >= g.last) { g.last = e.t; g.src = e.src || g.src; g.stack = e.stack || g.stack; }
         }));
         return Object.values(G).map(g => Object.assign(g, { resolved: (admData.errResolved[g.sig] || 0) >= g.last })).sort((a, b) => b.last - a.last);
     }
-    const ADM_KIND = { errore: ['Errore', 'err', 'error'], promessa: ['Errore (operazione)', 'err', 'error'], console: ['Avviso', 'warn', 'warning'] };
+    const ADM_KIND = { errore: ['Errore', 'err', 'error'], promessa: ['Errore (operazione)', 'err', 'error'], console: ['Avviso', 'warn', 'warning'], rete: ['Rete', 'info', 'wifi_off'], info: ['Info', 'info', 'info'] };
+    const admProblems = days => admErrorGroups(days).filter(g => !g.resolved && g.kind !== 'rete' && g.kind !== 'info');   // errori e avvisi veri (senza rete e informazioni)
     function admRenderErrori() {
         const box = document.getElementById('adm-errori'); if(!box) return;
         if(!admData) { box.innerHTML = admLoadingHtml(); return; }
         const all = admErrorGroups(admErrPeriod);
-        const list = all.filter(g => (admErrShowResolved || !g.resolved) && (admErrKind === 'tutti' || (admErrKind === 'errori' ? g.kind !== 'console' : g.kind === 'console')));
+        const list = all.filter(g => (admErrShowResolved || !g.resolved) && (admErrKind === 'tutti' || (admErrKind === 'errori' ? !['console', 'rete', 'info'].includes(g.kind) : admErrKind === 'rete' ? (g.kind === 'rete' || g.kind === 'info') : g.kind === 'console')));
         const seg = (val, cur, fn, items) => `<div class="adm-seg">${items.map(([v, l]) => `<button class="${v === cur ? 'on' : ''}" onclick="${fn}(${typeof v === 'number' ? v : `'${v}'`})">${l}</button>`).join('')}</div>`;
         const nRes = all.filter(g => g.resolved).length;
-        let html = `<div class="adm-toolbar">${seg(0, admErrPeriod, 'admErrSetPeriod', [[1, '24 ore'], [7, '7 giorni'], [14, '14 giorni']])}${seg(0, admErrKind, 'admErrSetKind', [['tutti', 'Tutti'], ['errori', 'Errori'], ['avvisi', 'Avvisi']])}
+        let html = `<div class="adm-toolbar">${seg(0, admErrPeriod, 'admErrSetPeriod', [[1, '24 ore'], [7, '7 giorni'], [14, '14 giorni']])}${seg(0, admErrKind, 'admErrSetKind', [['tutti', 'Tutti'], ['errori', 'Errori'], ['avvisi', 'Avvisi'], ['rete', 'Rete e info']])}
             <label class="adm-check"><input type="checkbox" ${admErrShowResolved ? 'checked' : ''} onchange="admErrShowResolved=this.checked;admRenderErrori()"> Mostra i risolti${nRes ? ` (${nRes})` : ''}</label></div>
-            <div class="adm-note"><span class="material-icons-round">info</span><div>Gli errori arrivano dai telefoni di chi usa l’app, senza che se ne accorga. <b>Errore</b> = qualcosa si è rotto; <b>Avviso</b> = un problema gestito (per esempio connessione assente o un salvataggio non riuscito). “Segna risolto” lo nasconde finché non si ripresenta.</div></div>`;
+            <div class="adm-note"><span class="material-icons-round">info</span><div>Gli errori arrivano dai telefoni di chi usa l’app, senza che se ne accorga. <b>Errore</b> = qualcosa si è rotto; <b>Avviso</b> = un problema gestito (per esempio un salvataggio non riuscito); <b>Rete</b> = il dispositivo è rimasto senza collegamento a Firebase per un po’ (succede con poco segnale: non è un errore dell’app e non conta tra i problemi). “Segna risolto” lo nasconde finché non si ripresenta.</div></div>`;
         if(!list.length) html += `<div class="adm-empty ok"><span class="material-icons-round">verified</span>${all.length ? 'Nessun problema da mostrare con questi filtri.' : 'Nessun errore registrato in questo periodo.'}</div>`;
         else html += list.map(g => {
             const K = ADM_KIND[g.kind] || ADM_KIND.errore;
@@ -4129,6 +4143,7 @@
                     <div class="adm-kv"><span>Dispositivi</span><b>${admEsc([...g.devices].join(', ') || '—')}</b></div>
                     <div class="adm-kv"><span>Dove nell’app</span><b>${admEsc([...g.views].join(', ') || '—')}</b></div>
                     <div class="adm-kv"><span>Prima / ultima volta</span><b>${admWhen(g.first)} · ${admWhen(g.last)}</b></div>
+                    ${g.orig && g.orig !== g.msg ? `<div class="adm-kv"><span>Messaggio originale</span><b>${admEsc(g.orig.slice(0, 300))}</b></div>` : ''}
                     ${g.src ? `<div class="adm-kv"><span>Punto del codice</span><b>${admEsc(g.src)}</b></div>` : ''}
                     ${g.stack ? `<pre class="adm-pre">${admEsc(g.stack)}</pre>` : ''}
                     <div class="adm-row-act">${g.resolved ? `<button class="adm-btn" onclick="admErrResolve('${g.sig}', false)"><span class="material-icons-round">undo</span>Riapri</button>` : `<button class="adm-btn primary" onclick="admErrResolve('${g.sig}', true)"><span class="material-icons-round">done</span>Segna risolto</button>`}</div>
@@ -4248,7 +4263,9 @@
     }
     function admIssues() {
         const out = [], add = (sev, icon, title, detail, act, actLbl) => out.push({ sev, icon, title, detail, act, actLbl });
-        const errs = admErrorGroups(1).filter(g => !g.resolved), hard = errs.filter(g => g.kind !== 'console');
+        const errs = admProblems(1), hard = errs.filter(g => g.kind !== 'console');
+        const net = admErrorGroups(1).filter(g => g.kind === 'rete'), netPeople = new Set(); net.forEach(g => g.people.forEach(p => netPeople.add(p)));
+        if(netPeople.size >= 3) add('info', 'wifi_off', `Connessione lenta su ${netPeople.size} dispositivi nelle ultime 24 ore`, 'Hanno lavorato offline per un po’ e poi si sono risincronizzati: di solito è poco segnale, non un errore dell’app.', "admGo('errori')", 'Vedi');
         if(hard.length) add('err', 'bug_report', `${hard.length} ${hard.length === 1 ? 'errore' : 'errori'} nelle ultime 24 ore`, hard.slice(0, 2).map(g => g.msg.slice(0, 80)).join(' · '), "admGo('errori')", 'Vedi errori');
         else if(errs.length) add('warn', 'report', `${errs.length} ${errs.length === 1 ? 'avviso' : 'avvisi'} nelle ultime 24 ore`, errs.slice(0, 2).map(g => g.msg.slice(0, 80)).join(' · '), "admGo('errori')", 'Vedi');
         const M = admMotore();
@@ -4287,7 +4304,7 @@
         const online = real.filter(s => s.online && admMs(s.lastActive) > now - 100000);
         const todayS = real.filter(s => admMs(s.startTime) >= today.getTime());
         const people = new Set(todayS.map(s => s.identity).filter(x => x && x !== 'Ospite'));
-        const errs = admErrorGroups(1).filter(g => !g.resolved), errN = errs.reduce((a, g) => a + g.n, 0);
+        const errs = admProblems(1), errN = errs.reduce((a, g) => a + g.n, 0);
         const M = admMotore(), subs = Object.values(admData.subs);
         const pend = admData.requests.filter(r => !r.obscured && !r.insertedInShifts && !reqIsAutoCessione(r));
         let chk = 0; try { chk = chkOpenCount(); } catch(e) {}
@@ -4339,7 +4356,7 @@
     function admBadges() {
         if(!admData) return;
         const set = (id, n, tone) => { const b = document.getElementById(id); if(b) { b.textContent = n ? n : ''; b.className = 'adm-badge ' + (tone || ''); } };
-        const errs = admErrorGroups(1).filter(g => !g.resolved);
+        const errs = admProblems(1);
         set('adm-badge-errori', errs.length, errs.some(g => g.kind !== 'console') ? 'err' : 'warn');
         const iss = admIssues().filter(i => i.sev !== 'info'); set('adm-badge-panoramica', iss.length, iss.some(i => i.sev === 'err') ? 'err' : 'warn');
         set('adm-badge-identita', admIdentityRows().filter(r => r.active.length > 1).length, 'warn');
