@@ -22,7 +22,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;450;500;600&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add_circle,arrow_downward,arrow_selector_tool,arrow_upward,backup,badge,balance,beach_access,bedtime,calendar_month,check,check_circle,chevron_left,chevron_right,close,cloud_done,cloud_download,cloud_off,cloud_upload,delete,delete_forever,description,done_all,download,drag_indicator,edit,edit_calendar,edit_note,error,event_busy,event_upcoming,expand_less,expand_more,fact_check,filter_list,group,help,history,hourglass_top,info,ink_eraser,inventory_2,layers,login,logout,manage_accounts,move_down,nights_stay,notifications_active,notifications_off,open_in_new,open_with,person_add,person_off,person_remove,person_search,phone_in_talk,picture_as_pdf,print,redo,remove_circle,repeat,restart_alt,restore,save,save_as,schedule,search,settings,shield,space_dashboard,summarize,swap_horiz,sync,table_view,task_alt,today,tune,undo,upload,upload_file,verified,view_agenda,view_compact,visibility,visibility_off,warning,wb_twilight&display=block" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add_circle,arrow_downward,arrow_selector_tool,arrow_upward,backup,badge,balance,beach_access,bedtime,calendar_month,campaign,check,check_circle,chevron_left,chevron_right,close,cloud_done,cloud_download,cloud_off,cloud_upload,delete,delete_forever,description,diversity_3,done_all,download,drag_indicator,edit,edit_calendar,edit_note,error,event_busy,event_upcoming,expand_less,expand_more,fact_check,filter_list,group,help,history,hourglass_top,info,ink_eraser,inventory_2,layers,login,logout,manage_accounts,move_down,nights_stay,notifications_active,notifications_off,open_in_new,open_with,person_add,person_off,person_remove,person_search,phone_in_talk,picture_as_pdf,print,redo,remove_circle,repeat,restart_alt,restore,save,save_as,schedule,search,settings,shield,space_dashboard,sticky_note_2,summarize,swap_horiz,sync,table_view,task_alt,today,tune,undo,upload,upload_file,verified,view_agenda,view_compact,visibility,visibility_off,warning,wb_twilight&display=block" rel="stylesheet">
     <style>
         * { -webkit-tap-highlight-color: transparent; user-select: none; box-sizing: border-box; outline: none; }
         :root {
@@ -1838,14 +1838,147 @@
         .ed-al-head b { flex:1; font-size:13.5px; }
         .ed-al-head button { width:28px; height:28px; border:none; background:transparent; color:inherit; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
         .ed-al-head button:hover { background:rgba(0,0,0,.06); }
-        #ed-alert ul { list-style:none; margin:0; padding:4px 0; max-height:260px; overflow:auto; }
-        #ed-alert li { padding:7px 14px 7px 30px; font-size:12.5px; line-height:1.35; position:relative; cursor:pointer; }
+        #ed-alert { width:min(380px, calc(100vw - 28px)); }
+        #ed-alert .ed-al-list { max-height:min(52vh, 420px); overflow:auto; padding-bottom:4px; }
+        #ed-alert ul { list-style:none; margin:0; padding:0 0 4px; }
+        #ed-alert li { padding:7px 30px 7px 30px; font-size:12.5px; line-height:1.35; position:relative; cursor:pointer; }
+        #ed-alert li > .msym { position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:18px; color:var(--cc-muted); }
+        #ed-alert li.on { background:var(--cc-surface-2); box-shadow:inset 3px 0 0 var(--cc-accent); }
+        .ed-al-grp { display:flex; align-items:center; gap:6px; padding:8px 14px 3px; font-size:11px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; color:var(--cc-muted); }
+        .ed-al-grp .msym { font-size:16px; }
+        .ed-al-grp em { font-style:normal; margin-left:auto; background:var(--cc-surface-2); border-radius:999px; padding:0 7px; font-size:11px; }
+        .ed-al-head b small { font-weight:600; font-size:11.5px; margin-left:6px; opacity:.8; }
+        .ed-al-foot { padding:7px 14px 9px; border-top:1px solid var(--cc-line); font-size:11.5px; color:var(--cc-muted); display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; }
+        .ed-al-foot button { border:none; background:none; color:var(--cc-accent); font:inherit; font-weight:700; cursor:pointer; padding:0; }
         #ed-alert li:hover { background:var(--cc-surface-2); }
         #ed-alert li::before { content:''; position:absolute; left:14px; top:12px; width:7px; height:7px; border-radius:50%; background:#f59e0b; }
         #ed-alert li.err::before { background:#dc2626; }
         #ed-alert li.more { color:var(--cc-muted); cursor:default; }
         #ed-alert li.more::before { display:none; }
 
+
+
+        /* ══ Note degli operatori per il coordinatore ══════════════════════ */
+        #main-table td[data-col] { position:relative; }
+        .note-flag { position:absolute; bottom:2px; right:2px; z-index:4; width:18px; height:18px; border-radius:6px; background:#0d9488; color:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 2px var(--bg-card); pointer-events:none; }
+        .note-flag .material-icons-round { font-size:12px; }
+        .note-flag.done { background:#94a3b8; }
+        .note-pref { display:inline-block; border-radius:999px; padding:1px 8px; font-size:0.68rem; font-weight:800; vertical-align:1px; }
+        #note-modal { display:none; position:fixed; inset:0; z-index:7000; background:rgba(15,23,42,.55); align-items:center; justify-content:center; padding:16px; opacity:0; transition:opacity .18s; }
+        #note-modal.open { opacity:1; }
+        .note-box { width:min(460px, 100%); max-height:calc(100vh - 32px); overflow:auto; background:var(--cc-surface); color:var(--cc-text); border-radius:16px; box-shadow:0 24px 60px -20px rgba(15,23,42,.6); }
+        .note-head { display:flex; align-items:center; gap:12px; padding:14px 14px 12px 16px; border-bottom:1px solid var(--cc-line); }
+        .note-head > div { flex:1; } .note-head h4 { margin:0; font-size:1rem; } .note-head small { color:var(--cc-muted); text-transform:capitalize; }
+        .note-hico { width:38px; height:38px; border-radius:12px; background:#ccfbf1; color:#0f766e; display:flex; align-items:center; justify-content:center; }
+        .note-body { padding:12px 16px; display:flex; flex-direction:column; gap:8px; }
+        .note-lbl { font-size:12px; font-weight:800; color:var(--cc-muted); } .note-lbl small { font-weight:500; }
+        .note-prefs { display:flex; flex-wrap:wrap; gap:6px; }
+        .note-prefs button { border:1px solid var(--cc-line); background:var(--cc-surface); color:var(--cc-text); border-radius:999px; padding:7px 14px; font:inherit; font-size:13px; font-weight:700; cursor:pointer; }
+        .note-prefs button.on { background:#0d9488; border-color:#0d9488; color:#fff; }
+        #note-text { width:100%; box-sizing:border-box; border:1px solid var(--cc-line); border-radius:10px; padding:10px 12px; font:inherit; font-size:15px; background:var(--cc-surface); color:var(--cc-text); resize:vertical; }
+        .note-priv { display:flex; align-items:center; gap:6px; margin:0; font-size:12px; color:var(--cc-muted); } .note-priv .material-icons-round { font-size:15px; }
+        .note-st { margin:0; font-size:12px; font-weight:700; color:#0f766e; }
+        .note-old { border-top:1px solid var(--cc-line); padding-top:8px; display:flex; flex-direction:column; gap:6px; font-size:12px; }
+        .note-it { display:flex; flex-wrap:wrap; align-items:center; gap:6px; padding:7px 9px; border-radius:8px; background:var(--cc-surface-2); cursor:pointer; } .note-it small { color:var(--cc-muted); width:100%; }
+        .note-foot { display:flex; align-items:center; gap:8px; padding:10px 16px 14px; border-top:1px solid var(--cc-line); }
+        .note-foot .cc-spacer { flex:1; }
+        .note-foot .material-icons-round, .note-row .material-icons-round { font-size:17px; }
+        .note-day { margin-top:14px; display:flex; flex-direction:column; gap:8px; }
+        .note-day-it { display:flex; gap:10px; padding:10px 12px; border-radius:12px; background:#f0fdfa; border:1px solid #99f6e4; color:#134e4a; font-size:0.85rem; cursor:pointer; text-align:left; }
+        .note-day-it small { color:#0f766e; font-size:0.72rem; font-weight:700; }
+        body.dark-mode .note-day-it { background:rgba(13,148,136,.15); border-color:rgba(45,212,191,.35); color:#ccfbf1; }
+        .note-day-btn { display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:center; width:100%; padding:12px; border-radius:12px; border:1px dashed #14b8a6; background:transparent; color:#0f766e; font:inherit; font-weight:800; font-size:0.88rem; cursor:pointer; }
+        .note-day-btn small { width:100%; font-weight:600; font-size:0.7rem; color:var(--text-sec); }
+        body.dark-mode .note-day-btn { color:#5eead4; }
+        .note-row { padding:10px 12px; border:1px solid var(--cc-line); border-radius:12px; background:var(--cc-surface); cursor:pointer; display:flex; flex-direction:column; gap:4px; }
+        .note-row:hover { border-color:#14b8a6; }
+        .note-row.st-nuova { border-left:4px solid #0d9488; }
+        .note-row.st-fatta { opacity:.65; }
+        .note-r1 { display:flex; flex-wrap:wrap; align-items:center; gap:6px 8px; font-size:13px; }
+        .note-date { color:var(--cc-muted); font-weight:600; text-transform:capitalize; }
+        .note-new { background:#0d9488; color:#fff; border-radius:999px; padding:0 7px; font-size:10.5px; font-weight:800; }
+        .note-row p { margin:0; font-size:13px; line-height:1.4; white-space:pre-wrap; }
+        .note-r3 { display:flex; align-items:center; gap:4px; } .note-r3 small { flex:1; color:var(--cc-muted); font-size:11px; }
+        .note-r3 button { width:30px; height:30px; border:none; border-radius:8px; background:transparent; color:var(--cc-muted); cursor:pointer; display:flex; align-items:center; justify-content:center; }
+        .note-r3 button:hover { background:var(--cc-surface-2); color:#0d9488; }
+        .note-cc { display:flex; flex-direction:column; gap:8px; margin-top:12px; }
+        .note-sec { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--cc-muted); margin-top:6px; }
+        #ed-notes { position:fixed; left:14px; bottom:calc(62px + env(safe-area-inset-bottom,0px)); z-index:3100; width:min(360px, calc(100vw - 28px)); max-height:min(60vh, 520px); display:flex; flex-direction:column; background:var(--cc-surface); color:var(--cc-text); border:1px solid var(--cc-line); border-radius:14px; box-shadow:0 18px 40px -12px rgba(15,23,42,.5); transform:translateY(14px); opacity:0; pointer-events:none; transition:transform .2s ease, opacity .2s ease; }
+        #ed-notes.show { transform:none; opacity:1; pointer-events:auto; }
+        .edn-tabs { width:100%; display:flex; gap:4px; }
+        .edn-head { flex-wrap:wrap; display:flex; align-items:center; gap:6px; padding:9px 8px 9px 12px; background:#f0fdfa; color:#115e59; border-bottom:1px solid #99f6e4; border-radius:14px 14px 0 0; }
+        body.dark-mode .edn-head { background:#11302d; color:#99f6e4; border-bottom-color:#134e4a; }
+        .edn-head b { flex:1; font-size:13.5px; } .edn-head .material-icons-round { font-size:18px; }
+        .edn-head button { border:1px solid transparent; background:transparent; color:inherit; font:inherit; font-size:11.5px; font-weight:700; border-radius:999px; padding:3px 8px; cursor:pointer; }
+        .edn-head button.on { background:#0d9488; color:#fff; }
+        .edn-head .edn-x { width:28px; height:28px; padding:0; display:flex; align-items:center; justify-content:center; border-radius:8px; }
+        .edn-list { overflow:auto; padding:8px; display:flex; flex-direction:column; gap:6px; }
+        .edn-empty { padding:16px; text-align:center; font-size:12.5px; color:var(--cc-muted); }
+        .edn-foot { padding:6px 12px 8px; font-size:11.5px; color:var(--cc-muted); border-top:1px solid var(--cc-line); }
+        #coord-edit-strip #ces-notes { position:relative; }
+        .ces-badge { position:absolute; top:-5px; right:-5px; min-width:16px; height:16px; padding:0 4px; border-radius:999px; background:#14b8a6; color:#fff; font-size:10px; font-weight:800; line-height:16px; text-align:center; }
+        .me-note { display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; padding:8px 0; border-bottom:1px solid var(--border); font-size:0.85rem; cursor:pointer; }
+        .me-note .when { font-weight:800; text-transform:capitalize; min-width:78px; } .me-note .what { flex:1; min-width:120px; } .me-note small { width:100%; color:var(--text-sec); font-size:0.72rem; }
+        .me-note-hint { margin:8px 0 0; font-size:0.74rem; color:var(--text-sec); }
+        .note-to { display:inline-block; border-radius:999px; padding:1px 8px; font-size:0.68rem; font-weight:800; background:#ede9fe; color:#5b21b6; }
+        .note-to.all { background:#fef3c7; color:#92400e; }
+        .note-who, .note-date-in { height:38px; border:1px solid var(--cc-line); border-radius:10px; background:var(--cc-surface); color:var(--cc-text); font:inherit; font-size:14px; padding:0 10px; }
+        .me-note-sec { font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--text-sec); margin:10px 0 2px; }
+        #announce-progress { height:5px; margin:0 22px 14px; border-radius:999px; background:#dbeafe; overflow:hidden; }
+        #announce-progress i { display:block; height:100%; width:100%; background:#2563eb; border-radius:999px; }
+        .cm-list { display:flex; flex-direction:column; gap:10px; margin-top:4px; }
+        .cm-card { background:var(--cc-surface); border:1px solid var(--cc-line); border-radius:12px; padding:12px; display:flex; flex-direction:column; gap:8px; }
+        .cm-card.on { border-left:4px solid #2563eb; }
+        .cm-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+        .cm-row > .cc-input:first-child { flex:1; min-width:180px; font-weight:700; }
+        .cm-st { font-size:11.5px; font-weight:700; color:var(--cc-muted); }
+        .cm-text { width:100%; box-sizing:border-box; resize:vertical; min-height:70px; }
+        .cm-opts label { display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--cc-muted); }
+        .cm-opts .cc-input { width:auto; height:32px; }
+        .cm-secs { width:64px !important; }
+        .cm-opts .cc-spacer { flex:1; }
+        /* ══ Chi lavora con chi ═══════════════════════════════════════════ */
+        .pw { --pw-card:var(--bg-card); --pw-line:var(--border); --pw-tx:var(--text-main); --pw-mut:var(--text-sec); --pw-soft:var(--bg); --pw-acc:var(--primary); display:flex; flex-direction:column; gap:10px; color:var(--pw-tx); }
+        .cc-scope .pw { --pw-card:var(--cc-surface); --pw-line:var(--cc-line); --pw-tx:var(--cc-text); --pw-mut:var(--cc-muted); --pw-soft:var(--cc-surface-2); --pw-acc:var(--cc-accent); margin-top:12px; }
+        #eq-pairs { padding:0 12px 12px; }
+        .pw-title { padding:0 12px; display:flex; align-items:center; gap:8px; margin:22px 0 8px; font-size:0.95rem; font-weight:900; color:var(--text-main); }
+        .pw-top { display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px; }
+        .pw-top label { display:flex; align-items:center; gap:8px; font-size:0.8rem; font-weight:700; color:var(--pw-mut); }
+        .pw-top select, .pw-month { height:34px; border:1px solid var(--pw-line, var(--cc-line)); border-radius:8px; background:var(--pw-card, var(--cc-surface)); color:var(--pw-tx, var(--cc-text)); font:inherit; font-weight:700; padding:0 8px; }
+        .pw-month { width:auto; }
+        .pw-kind { display:inline-flex; border:1px solid var(--pw-line); border-radius:999px; overflow:hidden; }
+        .pw-kind button { border:none; background:transparent; color:var(--pw-mut); font:inherit; font-size:0.78rem; font-weight:700; padding:6px 12px; cursor:pointer; }
+        .pw-kind button.on { background:var(--pw-acc); color:#fff; }
+        .pw-card { background:var(--pw-card); border:1px solid var(--pw-line); border-radius:14px; padding:12px 14px; }
+        .pw-h { font-size:0.85rem; color:var(--pw-mut); margin-bottom:10px; line-height:1.5; }
+        .pw-h b { color:var(--pw-tx); }
+        .pw-tag { display:inline-block; border-radius:999px; padding:0 8px; font-size:0.72rem; font-weight:800; }
+        .pw-tag.hi { background:#fff1e6; color:#c2410c; } .pw-tag.lo { background:#e8f4ff; color:#1d4ed8; }
+        .pw-bars { display:flex; flex-direction:column; gap:4px; }
+        .pw-bar { display:grid; grid-template-columns:minmax(80px, 130px) 1fr 34px 34px; align-items:center; gap:8px; font-size:0.8rem; }
+        .pw-bn { font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .pw-bt { position:relative; height:14px; background:var(--pw-soft); border-radius:4px; }
+        .pw-bt i { position:absolute; left:0; top:0; bottom:0; border-radius:4px; background:#14b8a6; }
+        .pw-bar.hi .pw-bt i { background:#fb923c; } .pw-bar.lo .pw-bt i { background:#60a5fa; }
+        .pw-bt u { position:absolute; top:-3px; bottom:-3px; width:2px; margin-left:-1px; background:var(--pw-tx); opacity:.55; }
+        .pw-bar b { text-align:right; font-variant-numeric:tabular-nums; }
+        .pw-bar small { color:var(--pw-mut); font-variant-numeric:tabular-nums; }
+        .pw-bar.hi small { color:#c2410c; font-weight:800; } .pw-bar.lo small { color:#1d4ed8; font-weight:800; }
+        .pw-note { font-size:0.74rem; color:var(--pw-mut); margin:8px 0 0; line-height:1.45; }
+        .pw-tw { overflow:auto; max-height:70vh; border:1px solid var(--pw-line); border-radius:12px; background:var(--pw-card); }
+        .pw-t { border-collapse:separate; border-spacing:0; font-size:0.74rem; font-variant-numeric:tabular-nums; }
+        .pw-t th, .pw-t td { border-bottom:1px solid var(--pw-line); border-right:1px solid var(--pw-line); min-width:30px; height:28px; text-align:center; padding:0 3px; }
+        .pw-t thead th { position:sticky; top:0; z-index:2; background:var(--pw-card); height:96px; vertical-align:bottom; padding-bottom:6px; }
+        .pw-t thead th span { writing-mode:vertical-rl; transform:rotate(180deg); white-space:nowrap; font-weight:800; }
+        .pw-t tbody th { position:sticky; left:0; z-index:1; background:var(--pw-card); text-align:left; padding:0 10px; white-space:nowrap; font-weight:800; cursor:pointer; }
+        .pw-t thead th:first-child { left:0; z-index:3; }
+        .pw-t tr.on th, .pw-t tr.on td { box-shadow:inset 0 2px 0 var(--pw-acc), inset 0 -2px 0 var(--pw-acc); }
+        .pw-t td.hi { background:#ffedd5; color:#9a3412; font-weight:800; } .pw-t td.lo { background:#dbeafe; color:#1e40af; font-weight:800; }
+        .pw-t td.pw-self { background:var(--pw-soft); } .pw-t td.pw-other { color:var(--pw-mut); opacity:.5; }
+        .pw-t .pw-avg { font-weight:800; color:var(--pw-mut); }
+        body.dark-mode .pw-t td.hi, body.dark-mode .pw-tag.hi { background:rgba(251,146,60,.2); color:#fdba74; } body.dark-mode .pw-t td.lo, body.dark-mode .pw-tag.lo { background:rgba(96,165,250,.2); color:#93c5fd; }
+        .pw-empty { padding:16px; text-align:center; color:var(--text-sec); font-size:0.85rem; }
+        @media (max-width:640px) { .pw-bar { grid-template-columns:86px 1fr 28px 30px; gap:6px; } }
         /* ══ Area coordinatore: aspetto rinnovato ══════════════════════════ */
         .cc-scope { --cc-font:'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; --cc-font-c:'Plus Jakarta Sans', system-ui, sans-serif;
             --cc-r:14px; --cc-accent:#1d4ed8; --cc-accent-hover:#1e40af; --cc-accent-soft:#e8efff; --cc-bg:#f2f5fa; --cc-line:#dfe5ee; --cc-line-2:#edf1f6; }
@@ -2928,6 +3061,8 @@
             </div>
             <div class="hg-wrap" id="eq-grid"></div>
             <p class="hg-note" id="eq-note"></p>
+            <h4 class="pw-title"><span class="material-icons-round">groups</span> Chi lavora con chi</h4>
+            <div id="eq-pairs"></div>
         </div>
     </div>
 </div>
@@ -3046,6 +3181,9 @@
                 <div class="cc-nav-group">Personale</div>
                 <button data-sec="operatori" onclick="ccGo('operatori')"><span class="msym">group</span><span>Operatori</span></button>
                 <button data-sec="ore" onclick="ccGo('ore')"><span class="msym">schedule</span><span>Conteggio ore</span></button>
+                <button data-sec="note" onclick="ccGo('note')"><span class="msym">sticky_note_2</span><span>Note</span><span class="cc-count" id="cc-count-note"></span></button>
+                <button data-sec="messaggi" onclick="ccGo('messaggi')"><span class="msym">campaign</span><span>Messaggi all’apertura</span></button>
+                <button data-sec="coppie" onclick="ccGo('coppie')"><span class="msym">diversity_3</span><span>Chi lavora con chi</span></button>
                 <button data-sec="reperibilita" onclick="ccGo('reperibilita')"><span class="msym">phone_in_talk</span><span>Report reperibilità</span></button>
                 <button data-sec="ferie" onclick="ccGo('ferie')"><span class="msym">beach_access</span><span>Regole ferie</span></button>
                 <div class="cc-nav-group">Sistema</div>
@@ -3111,6 +3249,7 @@
         <div class="ces-btns">
             <button class="cc-btn" id="ces-sum" onclick="edSumToggle()" title="Resoconto di ferie, permessi e reperibilità per persona"><span class="msym">summarize</span><span class="ces-sum-l">Resoconto</span></button>
             <button class="cc-btn ces-ico" id="ces-sumf" onclick="edSumMenu(event)" title="Scegli cosa mostrare nel resoconto" aria-label="Filtro del resoconto"><span class="msym">filter_list</span></button>
+            <button class="cc-btn ces-ico" id="ces-notes" onclick="edNotesToggle()" title="Note degli operatori" aria-label="Note degli operatori"><span class="msym">sticky_note_2</span><span class="ces-badge" style="display:none"></span></button>
             <button class="cc-btn ces-ico" id="ces-alert" onclick="edAlertsToggle()" title="Avvisi" aria-label="Avvisi"><span class="msym">notifications_active</span></button>
             <button class="cc-btn ces-ico" id="ces-hdr" onclick="edHdrToggle()" title="Nascondi la barra in alto" aria-label="Nascondi o mostra la barra in alto"><span class="msym">expand_less</span></button>
         </div>
@@ -3622,6 +3761,7 @@
         // impostazioni e reperibilità subito: non aspettano la scrittura della sessione (connessione lenta o assente)
         listenConfigChanges();
         listenReperibilita();   // le richieste in arrivo si ascoltano solo sul telefono del coordinatore
+        listenOpNotes();        // note degli operatori per il coordinatore
         try {
             await db.collection('infermieri26_accessi').doc(sessionId).set({
                 device: getDeviceLabel(),
@@ -3834,6 +3974,7 @@
             if(data.scheduleOverride) { scheduleOverride = data.scheduleOverride; applyScheduleOverride(); }
             if(data.welcome) { welcomeConfig = Object.assign({}, DEFAULT_WELCOME_BAKED, data.welcome); }
             if(data.announcements) { customAnnouncements = data.announcements; }
+            if(data.coordMessages !== undefined) { coordMessages = Array.isArray(data.coordMessages) ? data.coordMessages : []; }
             if(dataSourceMode === 'excel' && data.manualOverrides !== undefined) {
                 // le modifiche degli altri si fondono con quelle in sospeso su questo dispositivo
                 mergeRemoteOverrides(data.manualOverrides || {}, null);
@@ -3872,6 +4013,7 @@
     function checkIfIAmCoordinator() {
         isCoordinator = !!(userIdentity && coordinatorName && normalizeNameForMatch(userIdentity) === normalizeNameForMatch(coordinatorName));
         if(isCoordinator && !richiesteListenerStarted && fbReady) { richiesteListenerStarted = true; listenIncomingRequests(); }
+        if(opNotesVer) { notesAfterChange(); noteNotify(); }
     }
 
     // ── Notifiche richieste in arrivo dal portale Richieste Infermieri ──────
@@ -3954,7 +4096,7 @@
         if(fresh.length === 1) { notifyCoordinatorOfNewRequest(fresh[0].r, fresh[0].id); return; }
         const allInfo = fresh.every(x => reqIsAutoCessione(x.r));
         fresh.forEach(x => notifyCoordinatorOfNewRequest(x.r, x.id, true));
-        lastRichiestaAlertReqId = null;
+        lastRichiestaAlertReqId = null; lastAlertNote = '';
         const rows = fresh.slice(-6).reverse().map(x => { const p = reqParts(x.r); return `<div style="background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:9px 12px; text-align:left; margin-bottom:6px;"><div style="font-weight:900;">${esc(x.r.name || '—')}</div><div style="font-size:0.84rem; color:var(--text-sec);">${esc(p.label + p.swap)}${p.periodo ? ' · ' + esc(p.periodo) : ''}${reqIsAutoCessione(x.r) ? ' · inserita in automatico' : ''}</div></div>`; }).join('');
         document.getElementById('richiesta-alert-text').innerHTML = `<div style="font-weight:800; margin-bottom:10px;">${fresh.length} richieste arrivate mentre l’app era chiusa</div>${rows}${fresh.length > 6 ? `<div style="font-size:0.8rem; color:var(--text-sec);">e altre ${fresh.length - 6}: le trovi tutte nelle notifiche</div>` : ''}<div style="font-size:0.8rem; color:var(--text-sec); margin-top:10px;">${allInfo ? 'Cessioni di reperibilit\u00e0 gi\u00e0 inserite in automatico: solo per informazione.' : 'Da approvare come coordinatore (le cessioni di reperibilit\u00e0 sono gi\u00e0 inserite).'}</div>`;
         reqAlertTitle(allInfo);
@@ -4677,7 +4819,7 @@
     }
     function showStartupMessages() {
         applyWelcomeConfig();
-        announcementQueue = (customAnnouncements || []).filter(a => a.active !== false).slice();
+        announcementQueue = (customAnnouncements || []).filter(a => a.active !== false).concat(cmStartupItems());   // + messaggi del coordinatore
         if(welcomeConfig.active === false) { showNextAnnouncement(); return; }
         const durationSec = welcomeConfig.duration && welcomeConfig.duration > 0 ? welcomeConfig.duration : 3;
         let wm = document.getElementById('welcome-modal');
@@ -4695,9 +4837,18 @@
         document.getElementById('announce-body-text').innerHTML = (item.text || "").replace(/\n/g,'<br>');
         document.getElementById('announce-icon-el').innerText = item.icon || "campaign";
         let m = document.getElementById('custom-announce-modal');
+        // messaggio a tempo (dall'Area Coordinatore): barra che si accorcia e chiusura da sola
+        let bar = document.getElementById('announce-progress');
+        if(!bar) { bar = document.createElement('div'); bar.id = 'announce-progress'; bar.innerHTML = '<i></i>'; m.querySelector('.alert-body').after(bar); }
+        clearTimeout(announceTimer);
+        const secs = +item.secs || 0, i = bar.querySelector('i');
+        bar.style.display = secs ? '' : 'none'; i.style.transition = 'none'; i.style.width = '100%';
+        if(secs) { requestAnimationFrame(() => requestAnimationFrame(() => { i.style.transition = `width ${secs}s linear`; i.style.width = '0%'; })); announceTimer = setTimeout(() => { if(m.classList.contains('open')) closeAnnounceModal(); }, secs * 1000 + 80); }
         m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 30);
     }
+    let announceTimer = null;
     function closeAnnounceModal() {
+        clearTimeout(announceTimer);
         vibrate();
         let m = document.getElementById('custom-announce-modal');
         m.classList.remove('open');
@@ -5343,6 +5494,7 @@
         rep:        { icon:'phone_in_talk',   color:'#e11d48', title:'Reperibilit\u00e0' },
         domani:     { icon:'event',           color:'#0891b2', title:'Turno di domani' },
         richiesta:  { icon:'assignment',      color:'#7c3aed', title:'Nuova richiesta' },
+        nota:       { icon:'sticky_note_2',   color:'#0d9488', title:'Nota per il coordinatore' },
         altro:      { icon:'notifications',   color:'#64748b', title:'Avviso' }
     };
     function notifKind(n) {
@@ -5384,7 +5536,7 @@
             c.innerHTML = intro + `<div class="nt-empty"><span class="material-icons-round">${currentNotifTab === 'nuove' ? 'mark_email_read' : 'notifications_none'}</span>${msg}</div>`;
             return;
         }
-        const rich = items.filter(n => notifKind(n) === 'richiesta'), rest = items.filter(n => notifKind(n) !== 'richiesta');
+        const rich = items.filter(n => ['richiesta', 'nota'].includes(notifKind(n))), rest = items.filter(n => !['richiesta', 'nota'].includes(notifKind(n)));
         let html = intro;
         if(rich.length) html += `<div class="nt-section">Richieste da gestire <span>${rich.length}</span></div>` + renderNotifGroup(rich);
         if(rest.length) html += `<div class="nt-section">Turni e reperibilit\u00e0 <span>${rest.length}</span></div>` + renderNotifGroup(rest);
@@ -5403,6 +5555,7 @@
             const list = (item.items || []).map(it => `<li><span>${esc(it.label)}</span><b>${esc(it.value)}</b></li>`).join('');
             let actions = '';
             if(currentNotifTab === 'archivio') actions = `<button class="nt-act" title="Ripristina" onclick="event.stopPropagation();restoreNotif(${item.id})"><span class="material-icons-round">unarchive</span></button><button class="nt-act danger" title="Elimina" onclick="event.stopPropagation();permanentDeleteNotif(${item.id})"><span class="material-icons-round">delete_forever</span></button>`;
+            else if(k === 'nota') actions = `<button class="nt-act" title="Apri le note" onclick="event.stopPropagation();noteOpenFromNotif('${item.noteId || ''}')"><span class="material-icons-round">open_in_new</span></button><button class="nt-act ok" title="Letta: archivia" onclick="event.stopPropagation();checkOffRichiesta(${item.id})"><span class="material-icons-round">check_circle</span></button>`;
             else if(k === 'richiesta') actions = `<button class="nt-act" title="Apri nel portale Richieste" onclick="event.stopPropagation();openRequestFromNotif(${item.reqId ? `'${item.reqId}'` : 'null'})"><span class="material-icons-round">open_in_new</span></button><button class="nt-act ok" title="Gestita: archivia" onclick="event.stopPropagation();checkOffRichiesta(${item.id})"><span class="material-icons-round">check_circle</span></button>`;
             else actions = `<button class="nt-act" title="Archivia" onclick="event.stopPropagation();deleteNotif(${item.id})"><span class="material-icons-round">archive</span></button>`;
             html += `<div class="nt-card notif-item ${item.read ? '' : 'unread'} ${list ? 'has-list' : ''}" data-id="${item.id}" onclick="notifTap('${item.id}')">
@@ -5491,7 +5644,7 @@
     let lastRichiestaAlertReqId = null;
     function reqAlertTitle(info) { const t = document.querySelector('#richiesta-alert-modal .alert-title'); if(t) t.textContent = info ? 'CESSIONE REPERIBILIT\u00c0' : 'NUOVA RICHIESTA'; }
     function showRichiestaAlert(name, label, swap, periodo, reqId, info) {
-        lastRichiestaAlertReqId = reqId || null;
+        lastRichiestaAlertReqId = reqId || null; lastAlertNote = '';
         reqAlertTitle(info);
         document.getElementById('richiesta-alert-text').innerHTML =
             `<div style="background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:12px 14px; text-align:left;">
@@ -5509,6 +5662,7 @@
     function openRequestFromAlert() {
         const reqId = lastRichiestaAlertReqId;
         closeRichiestaAlert();
+        if(lastAlertNote) { const w = lastAlertNote; lastAlertNote = ''; setTimeout(() => noteOpenList(w), 320); return; }
         setTimeout(() => { window.openRichiestePanel(reqId); }, 320);
     }
 
@@ -7073,6 +7227,11 @@
             const q = await db.collection('richieste_infermieri').orderBy('timestamp', 'desc').limit(80).get();
             requests = q.docs.map(x => { const r = x.data(); return { id: x.id, name: r.name || '', type: (RICHIESTE_TYPE_LABELS && RICHIESTE_TYPE_LABELS[r.type]) || String(r.type || '').replace(/_/g, ' '), kind: r.type || '', timeSlot: r.timeSlot || '', auto: reqIsAutoCessione(r), dateFrom: r.dateFrom || '', dateTo: r.dateTo || '', swapWith: r.swapWith || '', inserted: !!r.insertedInShifts }; });
         } catch(e) {}
+        // note degli operatori ancora da gestire: al coordinatore arrivano come le richieste (id nuovo se la nota cambia)
+        const notes = (prefsDoc && prefsDoc[NOTE_FIELD]) || {};
+        Object.keys(notes).forEach(k => { const n = notes[k] || {}; if(!n.date || !n.author || n.status === 'fatta' || (n.to && n.to !== 'COORD')) return;
+            requests.push({ id: 'nota-' + k + '-' + (n.updatedAt || ''), name: noteName(n), type: 'nota per il coordinatore' + (NOTE_PREFS[n.pref] ? ' (preferisce ' + NOTE_PREFS[n.pref].label.toLowerCase() + ')' : '') + (n.text ? ': ' + String(n.text).slice(0, 140) : ''), kind: 'nota', timeSlot: '', auto: false, dateFrom: n.date, dateTo: n.date, swapWith: '', inserted: false }); });
+        prefsDoc = Object.assign({}, prefsDoc); delete prefsDoc[NOTE_FIELD];
         // il coordinatore con tutti i nomi con cui può aver scelto "chi sei" (nome mostrato e nome originale)
         const cd = coordinatorName ? drivers.find(d => normalizeNameForMatch(d.name) === normalizeNameForMatch(coordinatorName) || normalizeNameForMatch(d.originalName) === normalizeNameForMatch(coordinatorName)) : null;
         const coordinators = [coordinatorName, cd && cd.name, cd && cd.originalName].concat(typeof AS_OPERATORI !== 'undefined' ? AS_OPERATORI : []).filter(Boolean).map(x => String(x).toUpperCase());
@@ -7450,7 +7609,7 @@
         vibrate(); edSumOpen = !edSumOpen;
         try { localStorage.setItem('ed_sum_v1', edSumOpen ? '1' : '0'); } catch(e) {}
         edSumUi(); renderTableHead();
-        if(edSumOpen) ccToast('Resoconto: CO ferie, P permessi straord., PN perm. notte, PL ore perm. legge (rimasti) · REP reperibilità dell’anno (anche quelle in programma, si aggiornano mentre le inserisci), h loro ore, DOM di domenica/festivo');
+        if(edSumOpen) ccToast('Resoconto: CO ferie, P permessi straord., PN perm. notte, PL ore perm. legge (rimasti) · REP reperibilità dell’anno come le inserisci tu (anche in programma; le cessioni tra colleghi non le cambiano), h loro ore, DOM di domenica/festivo');
     }
     function edSumUi() { const b = document.getElementById('ces-sum'); if(b) { b.classList.toggle('on', edSumOpen); b.title = edSumOpen ? 'Chiudi il resoconto' : 'Resoconto di ferie, permessi e reperibilità per persona'; } const f = document.getElementById('ces-sumf'); if(f) f.style.display = edSumOpen ? '' : 'none'; }
     function edSumCtx() { return { days: buildDaysIndex(), R: repData(), today: ymd(new Date()), y: SHIFT_YEAR + '-' }; }
@@ -7498,25 +7657,30 @@
         { id: 'p',   lbl: 'P',   name: 'Permessi straordinari rimasti', grp: 'abs', bg: '--bg-perm', fg: '--t-perm' },
         { id: 'pn',  lbl: 'PN',  name: 'Permessi notte rimasti', grp: 'abs', bg: '--bg-pn', fg: '--t-pn' },
         { id: 'pl',  lbl: 'PL',  name: 'Ore di permesso legge rimaste', grp: 'abs', bg: '--bg-pl', fg: '--t-pl' },
-        { id: 'rep', lbl: 'REP', name: 'Reperibilità nell’anno (fatte e in programma)', grp: 'rep' },
-        { id: 'h',   lbl: 'h',   name: 'Ore di reperibilità nell’anno', grp: 'rep' },
+        { id: 'rep', lbl: 'REP', name: 'Reperibilità inserite nell’anno (le cessioni tra colleghi non le cambiano)', grp: 'rep' },
+        { id: 'h',   lbl: 'h',   name: 'Ore delle reperibilità inserite nell’anno', grp: 'rep' },
         { id: 'dom', lbl: 'DOM', name: 'Reperibilità di domenica o festivo nell’anno', grp: 'rep' }
     ];
     let edSumShow = (() => { try { const a = JSON.parse(localStorage.getItem('ed_sum_items_v1') || 'null'); if(Array.isArray(a)) return new Set(a); } catch(e) {} return new Set(EDSUM_ITEMS.map(x => x.id)); })();
     function edSumHtml(d, ctx) {
         const a = absCountFor(d, ctx.days), o = d.originalName;
         const pl = Math.round((PERM_HOURLY.pl.max - a.hours.pl) * 100) / 100;
-        let rep = 0, repAll = 0, dom = 0, domAll = 0, min = 0, minAll = 0;
+        // Reperibilità come le ha inserite il coordinatore (titolare, 24 h ciascuna): le cessioni
+        // di fasce tra colleghi non cambiano questi numeri, sono indicate solo nel suggerimento.
+        let rep = 0, repAll = 0, dom = 0, domAll = 0, cedute = 0, ricevute = 0;
+        const REP_DAY_MIN = REP_SLOTS.reduce((a, x) => a + x.minutes, 0);
         Object.keys(ctx.R.tit).forEach(dt => { if(ctx.R.tit[dt] !== o || !dt.startsWith(ctx.y)) return; const fest = repIsFestive(dt); repAll++; if(fest) domAll++; if(dt <= ctx.today) { rep++; if(fest) dom++; } });
-        Object.keys(ctx.R.days).forEach(dt => { if(!dt.startsWith(ctx.y)) return; ctx.R.days[dt].forEach((w, s) => { if(w !== o) return; minAll += REP_SLOTS[s].minutes; if(dt <= ctx.today) min += REP_SLOTS[s].minutes; }); });
+        Object.keys(ctx.R.ces).forEach(k => { if(!k.startsWith(ctx.y)) return; const i = k.lastIndexOf('_'), who = repToOrig(ctx.R.ces[k].newDriver), tit = repTitolareOfSlot(ctx.R, k.slice(0, i), +k.slice(i + 1)); if(who === tit) return; if(tit === o) cedute++; if(who === o) ricevute++; });
+        const min = rep * REP_DAY_MIN, minAll = repAll * REP_DAY_MIN;
+        const cesTxt = cedute || ricevute ? ` · cessioni tra colleghi non contate: ${cedute} fasce cedute, ${ricevute} ricevute` : '';
         const val = {
             co: [ABS_ALLOW.co - a.allow.co, `Congedo ordinario: restano ${ABS_ALLOW.co - a.allow.co} giorni su ${ABS_ALLOW.co}`],
             p: [ABS_ALLOW.sp - a.allow.sp, `Permessi straordinari: restano ${ABS_ALLOW.sp - a.allow.sp} su ${ABS_ALLOW.sp}`],
             pn: [ABS_ALLOW.pn - a.allow.pn, `Permessi notte: restano ${ABS_ALLOW.pn - a.allow.pn} su ${ABS_ALLOW.pn}`],
             pl: [pl, `Permesso legge: restano ${permHFmt(Math.max(0, pl))} su 14h${pl < 0 ? ' (oltre di ' + permHFmt(-pl) + ')' : ''}`],
-            rep: [repAll, `Reperibilità nell'anno: ${repAll} (fatte fino a oggi ${rep}, in programma ${repAll - rep})`],
-            h: [Math.round(minAll / 60), `Ore di reperibilità nell'anno: ${repHours(minAll)} (fatte fino a oggi ${repHours(min)})`],
-            dom: [domAll, `Reperibilità di domenica o festivo nell'anno: ${domAll} (fatte fino a oggi ${dom})`]
+            rep: [repAll, `Reperibilità inserite nell'anno: ${repAll} (fino a oggi ${rep}, in programma ${repAll - rep})${cesTxt}`],
+            h: [Math.round(minAll / 60), `Ore delle reperibilità inserite nell'anno: ${repHours(minAll)} (fino a oggi ${repHours(min)})${cesTxt}`],
+            dom: [domAll, `Reperibilità inserite di domenica o festivo nell'anno: ${domAll} (fino a oggi ${dom})${cesTxt}`]
         };
         const cell = it => { const [v, tip] = val[it.id], neg = it.grp === 'abs' && v < 0;
             const txt = it.id === 'pl' ? permHFmt(Math.max(0, v)) : v;
@@ -7585,56 +7749,157 @@
         (repDates || []).forEach(iso => { if(byIso[iso]) rows.add(byIso[iso]); });
         return [...rows].sort((a, b) => a - b);
     }
+    // Precedenza degli avvisi (richiesta del coordinatore): prima la mattina, poi i riposi,
+    // poi il pomeriggio; dopo la notte, le reperibilità e il resto.
+    const ED_AL_CATS = [
+        { id: 'M',   label: 'Mattina',      icon: 'wb_twilight' },
+        { id: 'R',   label: 'Riposi',       icon: 'bedtime' },
+        { id: 'P',   label: 'Pomeriggio',   icon: 'schedule' },
+        { id: 'N',   label: 'Notte',        icon: 'nights_stay' },
+        { id: 'REP', label: 'Reperibilità', icon: 'phone_in_talk' },
+        { id: 'X',   label: 'Altro',        icon: 'info' }
+    ];
+    const ED_MAX_RUN = 6;        // oltre 6 giorni di fila senza un riposo scatta l'avviso
+    const ED_REP_MIN_GAP = 3;    // due reperibilità della stessa persona a 3 giorni o meno sono "ravvicinate"
+    function edRestDay(r, idx) {
+        // giorno senza lavoro: riposo, smonto, casella vuota, ferie, malattia… (come la regola del 7° giorno)
+        const c = workCode(r, idx);
+        if(['M', 'P', 'N', 'm', 'p', 'M+N'].includes(c)) return false;
+        return !(customCodes[c] && customCodes[c].kind === 'work');
+    }
     function edAlertCollect(rows) {
-        const out = [], names = { M: 'mattina', P: 'pomeriggio', N: 'notte' }, chk = dayChecks();
+        const out = [], names = { M: 'mattina', P: 'pomeriggio', N: 'notte' }, chk = dayChecks(), R = repData();
         const active = drivers.filter(d => !d.hidden);
+        const runSeen = new Set(), repSeen = new Set();
         rows.forEach(r => {
             const iso = repRowDate(r); if(!iso) return;
             const when = repDateLabel(iso), cov = dayTurnistiCover(r), any = cov.cnt.M + cov.cnt.P + cov.cnt.N > 0;
             ['M', 'P', 'N'].forEach(s => {
                 const n = cov.cnt[s];
-                if(n > TURNISTI_PER_TURNO) out.push({ r, err: true, t: `${when}: ${n} turnisti di ${names[s]}, devono essere ${TURNISTI_PER_TURNO}` });
-                else if(n < TURNISTI_PER_TURNO && (n > 0 || any)) out.push({ r, err: n === 0, t: `${when}: ${n ? 'solo ' + n : 'nessun'} turnist${n === 1 ? 'a' : 'i'} di ${names[s]}` });
+                if(n > TURNISTI_PER_TURNO) out.push({ r, cat: s, err: true, t: `${when}: ${n} turnisti di ${names[s]}, devono essere ${TURNISTI_PER_TURNO}` });
+                else if(n < TURNISTI_PER_TURNO && (n > 0 || any)) out.push({ r, cat: s, err: n === 0, t: `${when}: ${n ? 'solo ' + n : 'nessun'} turnist${n === 1 ? 'a' : 'i'} di ${names[s]}` });
             });
             const c = chk.rows[r];
             if(c) {
-                c.day.filter(m => !/^(mattina|pomeriggio|notte):/.test(m)).forEach(m => out.push({ r, err: false, t: `${when}: ${m}` }));
-                Object.keys(c.cells).forEach(idx => { const d = getDriverByIdx(+idx); c.cells[idx].msgs.forEach(m => out.push({ r, err: c.cells[idx].err, t: `${when} · ${d ? d.name : ''}: ${m}` })); });
+                c.day.filter(m => !/^(mattina|pomeriggio|notte):/.test(m)).forEach(m => out.push({ r, cat: /reperibil/.test(m) ? 'REP' : 'X', err: false, t: `${when}: ${m}` }));
+                Object.keys(c.cells).forEach(idx => { const d = getDriverByIdx(+idx); c.cells[idx].msgs.forEach(m => {
+                    if(/giorno lavorato di fila/.test(m)) return;   // sostituito dal conteggio qui sotto
+                    out.push({ r, idx: +idx, cat: /smonto|riposo/.test(m) ? 'R' : 'X', err: c.cells[idx].err, t: `${when} · ${d ? d.name : ''}: ${m}` });
+                }); });
             }
+            // troppi giorni di fila senza riposo (contando anche i giorni prima e dopo quelli toccati)
+            active.forEach(d => {
+                if(edRestDay(r, d.idx)) return;
+                let a = r, b = r;
+                while(a > 1 && repRowDate(a - 1) && !edRestDay(a - 1, d.idx)) a--;
+                while(finalData[b + 1] && repRowDate(b + 1) && !edRestDay(b + 1, d.idx)) b++;
+                const len = b - a + 1, k = d.idx + ':' + a;
+                if(len <= ED_MAX_RUN || runSeen.has(k)) return; runSeen.add(k);
+                out.push({ r: a + ED_MAX_RUN, idx: d.idx, cat: 'R', err: true, t: `${d.name}: ${len} giorni di fila senza riposo (dal ${repDateLabel(repRowDate(a))} al ${repDateLabel(repRowDate(b))})` });
+            });
+            // reperibilità ravvicinate della stessa persona
+            [iso, repDateAdd(iso, -1)].forEach(x => {
+                const t = R.tit[x]; if(!t) return;
+                for(let g = -ED_REP_MIN_GAP; g <= ED_REP_MIN_GAP; g++) {
+                    if(!g) continue;
+                    const y = repDateAdd(x, g); if(R.tit[y] !== t) continue;
+                    const p = [x, y].sort(), k = t + p.join(); if(repSeen.has(k)) continue; repSeen.add(k);
+                    const d = drivers.find(z => z.originalName === t), gap = Math.abs(g);
+                    out.push({ r: repRowOfDate(p[1]) || r, idx: d ? d.idx : undefined, cat: 'REP', err: gap === 1, t: `${repDisplayName(t)}: reperibilità ravvicinate, ${repDateLabel(p[0])} e ${repDateLabel(p[1])} (${gap === 1 ? 'una dopo l’altra' : 'a ' + gap + ' giorni'})` });
+                }
+            });
             // casella vuota: solo per chi nei 7 giorni prima e dopo ha dei turni (chi non è in servizio non conta)
             const busyNear = d => { for(let q = Math.max(1, r - 7); q <= Math.min(finalData.length - 1, r + 7); q++) { if(q !== r && computeDayInfo(q, d.idx).code) return true; } return false; };
-            if(any) { const empty = active.filter(d => !computeDayInfo(r, d.idx).code && busyNear(d)).map(d => d.name); if(empty.length) out.push({ r, err: false, t: `${when}: casella vuota per ${empty.slice(0, 4).join(', ')}${empty.length > 4 ? ` e altri ${empty.length - 4}` : ''}` }); }
+            if(any) { const empty = active.filter(d => !computeDayInfo(r, d.idx).code && busyNear(d)); if(empty.length) out.push({ r, idx: empty.length === 1 ? empty[0].idx : undefined, cat: 'X', err: false, t: `${when}: casella vuota per ${empty.slice(0, 4).map(d => d.name).join(', ')}${empty.length > 4 ? ` e altri ${empty.length - 4}` : ''}` }); }
         });
-        const seen = new Set(); return out.filter(x => !seen.has(x.t) && seen.add(x.t)).sort((a, b) => b.err - a.err);
+        const seen = new Set(), ord = id => ED_AL_CATS.findIndex(c => c.id === id);
+        return out.filter(x => !seen.has(x.t) && seen.add(x.t)).sort((a, b) => ord(a.cat) - ord(b.cat) || b.err - a.err || a.r - b.r);
     }
+    let edAlertLast = null, edAlertPinned = false;   // ultimo controllo (per "tutto il mese") e vignetta fermata da un tocco
     function edAlertCheck(keys, repDates) {
         if(!edAlertsOn || !coordEditModeActive) return;
         clearTimeout(edAlertTimer);
         edAlertTimer = setTimeout(() => {
             const rows = edRowsOf(keys, repDates); if(!rows.length) return;
+            edAlertLast = { rows, month: false };
             const items = edAlertCollect(rows);
-            if(items.length) edAlertShow(items); else edAlertHide();
+            if(items.length) edAlertShow(items); else if(!edAlertPinned) edAlertHide();
         }, 160);
+    }
+    // controlla tutti i giorni del mese dell'ultima modifica (o di quello in vista)
+    function edAlertMonth() {
+        vibrate();
+        let r0 = edAlertLast && edAlertLast.rows[0];
+        if(!r0) { const tr = [...document.querySelectorAll('#table-body tr[data-row]')].find(t => t.getBoundingClientRect().top > 120); r0 = tr ? +tr.dataset.row : 1; }
+        const m = finalData[r0] && finalData[r0][0].v, y = shiftRowYear(r0), rows = [];
+        for(let r = 1; r < finalData.length; r++) if(finalData[r][0].v === m && shiftRowYear(r) === y && repRowDate(r)) rows.push(r);
+        edAlertLast = { rows, month: m };
+        const items = edAlertCollect(rows);
+        edAlertPinned = true;
+        if(items.length) edAlertShow(items); else { edAlertHide(); ccToast(`${String(m).charAt(0) + String(m).slice(1).toLowerCase()}: nessun avviso`); }
     }
     function edAlertShow(items) {
         let v = document.getElementById('ed-alert');
         if(!v) { v = document.createElement('div'); v.id = 'ed-alert'; v.className = 'cc-scope'; document.body.appendChild(v);
-            v.addEventListener('pointerenter', () => clearTimeout(edAlertHideTimer)); v.addEventListener('pointerleave', () => { edAlertHideTimer = setTimeout(edAlertHide, 6000); }); }
-        const nErr = items.filter(x => x.err).length;
-        v.innerHTML = `<div class="ed-al-head ${nErr ? 'err' : ''}"><span class="msym">${nErr ? 'error' : 'warning'}</span><b>${items.length === 1 ? '1 avviso' : items.length + ' avvisi'}</b><button onclick="edAlertHide()" aria-label="Chiudi"><span class="msym">close</span></button></div>
-            <ul>${items.slice(0, 6).map(x => `<li class="${x.err ? 'err' : ''}" onclick="edAlertGo(${x.r})">${esc(x.t)}</li>`).join('')}${items.length > 6 ? `<li class="more">e altri ${items.length - 6}</li>` : ''}</ul>`;
+            v.addEventListener('pointerdown', () => { edAlertPinned = true; clearTimeout(edAlertHideTimer); });
+            v.addEventListener('pointerenter', () => clearTimeout(edAlertHideTimer));
+            v.addEventListener('pointerleave', () => { if(!edAlertPinned) edAlertHideTimer = setTimeout(edAlertHide, 8000); }); }
+        edAlertItems = items;
+        const nErr = items.filter(x => x.err).length, month = edAlertLast && edAlertLast.month;
+        const groups = ED_AL_CATS.map(c => ({ c, list: items.map((x, i) => Object.assign({ i }, x)).filter(x => x.cat === c.id) })).filter(g => g.list.length);
+        v.innerHTML = `<div class="ed-al-head ${nErr ? 'err' : ''}"><span class="msym">${nErr ? 'error' : 'warning'}</span><b>${items.length === 1 ? '1 avviso' : items.length + ' avvisi'}${month ? `<small>${esc(String(month).toLowerCase())}</small>` : ''}</b>
+                <button onclick="edAlertMonth()" title="Controlla tutto il mese" aria-label="Controlla tutto il mese"><span class="msym">fact_check</span></button>
+                <button onclick="edAlertHide()" aria-label="Chiudi"><span class="msym">close</span></button></div>
+            <div class="ed-al-list">${groups.map(g => `<div class="ed-al-grp"><span class="msym">${g.c.icon}</span>${g.c.label}<em>${g.list.length}</em></div>
+                <ul>${g.list.map(x => `<li class="${x.err ? 'err' : ''}" data-i="${x.i}" onclick="edAlertGo(${x.i})" title="Vai al giorno">${esc(x.t)}<span class="msym">chevron_right</span></li>`).join('')}</ul>`).join('')}</div>
+            <div class="ed-al-foot">Tocca un avviso per andare al giorno.${month ? '' : ' <button onclick="edAlertMonth()">Controlla tutto il mese</button>'}</div>`;
         // se la ruota è in basso a destra, la vignetta si mette alla sua sinistra
         v.style.right = '';
         const tw = document.getElementById('tool-wheel');
         if(tw && tw.classList.contains('show')) {
             const w = tw.getBoundingClientRect(), vw = window.innerWidth, room = w.left - 24;
-            if(w.right > vw - 360 && w.bottom > window.innerHeight - 320 && room >= 280) v.style.right = (vw - w.left + 10) + 'px';
+            if(w.right > vw - 380 && w.bottom > window.innerHeight - 320 && room >= 300) v.style.right = (vw - w.left + 10) + 'px';
         }
         v.classList.add('show');
-        clearTimeout(edAlertHideTimer); edAlertHideTimer = setTimeout(edAlertHide, 12000);
+        clearTimeout(edAlertHideTimer); if(!edAlertPinned) edAlertHideTimer = setTimeout(edAlertHide, 15000);
     }
-    function edAlertHide() { const v = document.getElementById('ed-alert'); if(v) v.classList.remove('show'); }
-    function edAlertGo(r) { const tr = document.querySelector(`#table-body tr[data-row="${r}"]`); if(tr) tr.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+    let edAlertItems = [];
+    function edAlertHide() { edAlertPinned = false; clearTimeout(edAlertHideTimer); const v = document.getElementById('ed-alert'); if(v) v.classList.remove('show'); }
+    function edAlertGo(i) {
+        const x = edAlertItems[i]; if(!x) return;
+        vibrate(); edAlertPinned = true; clearTimeout(edAlertHideTimer);
+        document.querySelectorAll('#ed-alert li.on').forEach(li => li.classList.remove('on'));
+        const li = document.querySelector(`#ed-alert li[data-i="${i}"]`); if(li) li.classList.add('on');
+        calGoToCell(x.r, x.idx);
+    }
+    // la casella raggiunta non deve restare sotto una vignetta aperta (avvisi, note): si sposta a sinistra
+    function calUncover(td) {
+        const pops = ['ed-alert', 'ed-notes'].map(id => document.getElementById(id)).filter(p => p && p.classList.contains('show'));
+        let sc = td.parentElement; while(sc && sc !== document.body && !(sc.scrollWidth > sc.clientWidth + 2 && /auto|scroll/.test(getComputedStyle(sc).overflowX))) sc = sc.parentElement;
+        pops.forEach(p => {
+            const a = td.getBoundingClientRect(), b = p.getBoundingClientRect();
+            if(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom) return;
+            const dx = a.right - b.left + 16;
+            if(sc && sc !== document.body && a.left - dx > 80) sc.scrollLeft += dx;
+            else window.scrollBy(0, a.bottom - b.top + 16);
+        });
+    }
+    // Porta il calendario sul giorno (riga) e, se indicata, sulla casella della persona, che lampeggia.
+    function calGoToCell(r, idx) {
+        if(calOverview) setCalView('dettaglio');
+        if(liteOn()) liteShowRow(r);
+        setTimeout(() => {
+            const tr = document.querySelector(`#table-body tr[data-row="${r}"]`);
+            const td = idx !== undefined && idx !== null ? document.querySelector(`#main-table td[data-row="${r}"][data-col="${idx}"]`) : null;
+            liteQuietUntil = Date.now() + 1500;
+            const el = td || (tr && tr.querySelector('td'));
+            if(td) { td.scrollIntoView({ block: 'center', inline: 'center', behavior: 'auto' }); calUncover(td); }
+            else if(tr) tr.scrollIntoView({ block: 'center', behavior: 'auto' });
+            const flash = td ? [td] : (tr ? [...tr.querySelectorAll('td')] : []);
+            flash.forEach(c => { c.classList.remove('chk-flash'); void c.offsetWidth; c.classList.add('chk-flash'); setTimeout(() => c.classList.remove('chk-flash'), 2600); });
+            if(!el) ccToast('Giorno non visibile nel calendario.', true);
+        }, liteOn() ? 120 : 0);
+    }
 
     // ═══ RUOTA A QUATTRO FACCE ═══════════════════════════════════════════════
     // Turni (turni singoli + sequenze), Assenze, Reperibilità, Operatori (nomi e colonne).
@@ -7852,7 +8117,435 @@
                 if(c.signed) return `<div class="eq-m ${Math.abs(v) < 30 ? '' : (v < 0 ? 'neg' : 'pos')}"><small>${c.label}</small><b>${txt(c, v)}</b></div>`;
                 return `<div class="eq-m ${dv.cls}"><small>${c.label}</small><b>${txt(c, v)}${dv.d && dv.d !== '=' ? `<sup>${dv.d}</sup>` : ''}</b><i style="width:${Math.round(Math.abs(v) / max[c.k] * 100)}%"></i></div>`; }).join('')}</div></div>`).join('');
         document.getElementById('eq-grid').innerHTML = summary + `<div class="eq-wide">${xgHtml('eq-table', headL, headR, items, 860)}</div><div class="eq-cards">${cards}</div>`;
+        const pw = document.getElementById('eq-pairs'); if(pw) pw.innerHTML = pairsHtml(eqPeriod, 'eq');
         document.getElementById('eq-note').innerHTML = `${days.length} giorni considerati. Il numerino accanto è lo scarto dalla media della squadra. <span class="eq-key hi"></span> oltre il 20% sopra la media, <span class="eq-key lo"></span> oltre il 20% sotto. Per le notti la media conta solo chi ne fa. Tocca un titolo o un riquadro in alto per ordinare.`;
+    }
+
+    // ═══ NOTE: AL COORDINATORE, AI COLLEGHI, A TUTTI ════════════════════════
+    // Un operatore tocca un giorno del calendario e scrive una nota:
+    //  • al coordinatore (con una preferenza facoltativa: mattina, pomeriggio…): la vedono solo
+    //    lui e il coordinatore, che la ritrova nell'Area Coordinatore ("Note degli operatori"),
+    //    come notifica e, in Modifica turni, dall'icona della barra in basso;
+    //  • a un collega: la vedono solo lui e il collega;
+    //  • a tutti: la vede chiunque.
+    // Il coordinatore scrive le sue dall'Area Coordinatore (a un collega o a tutti, con o senza giorno).
+    // Dove: campo "noteCoordinatore" del documento prefs (già ammesso dalle regole di Firebase),
+    // { id: { id, author: nome originale (o 'COORD'), authorName, to: 'COORD' | 'ALL' | nome originale,
+    //   date: 'YYYY-MM-DD' o '', text, pref: 'M'|'P'|'N'|'R'|'', status: 'nuova'|'vista'|'fatta',
+    //   createdAt, updatedAt, seenBy, doneBy } }   (le note senza "to" sono per il coordinatore)
+    const NOTE_FIELD = 'noteCoordinatore';
+    const NOTE_PREFS = { M: { label: 'Mattina', bg: '#dbeafe', fg: '#1e40af' }, P: { label: 'Pomeriggio', bg: '#ffedd5', fg: '#9a3412' }, N: { label: 'Notte', bg: '#1e293b', fg: '#f8fafc' }, R: { label: 'Riposo', bg: '#dcfce7', fg: '#166534' } };
+    const NOTE_STATUS = { nuova: 'Inviata', vista: 'Vista dal coordinatore', fatta: 'Gestita dal coordinatore' };
+    let opNotes = {}, opNotesVer = 0, noteIdxCache = null, noteEditCtx = null, edNotesOpen = false, edNotesAll = false;
+    function noteIsCoord() { return !!isCoordinator || isCoordLoggedIn(); }
+    function noteTo(n) { return (n && n.to) || 'COORD'; }
+    function noteMeDriver() { return myCalDriver(); }
+    function noteIsMe(key) {
+        if(!key || prefOwner() === 'OSPITE') return false;
+        const d = noteMeDriver(); key = String(key).toUpperCase();
+        return key === prefOwner() || (!!d && (key === String(d.originalName).toUpperCase() || key === String(d.name).toUpperCase()));
+    }
+    function noteMine(n) { return !!n && (n.author === 'COORD' ? noteIsCoord() : noteIsMe(n.author)); }
+    function noteForMe(n) { const t = noteTo(n); return t === 'ALL' || (t === 'COORD' ? noteIsCoord() : noteIsMe(t)); }
+    function noteVisible(n) { return noteMine(n) || noteForMe(n); }
+    function noteDriverOf(key) { const a = String(key || '').toUpperCase(); return drivers.find(d => String(d.originalName).toUpperCase() === a || String(d.name).toUpperCase() === a) || null; }
+    function noteDriver(n) { return n.author === 'COORD' ? null : noteDriverOf(n.author); }
+    function noteName(n) { if(n.author === 'COORD') return 'Coordinatore' + (n.authorName ? ' (' + n.authorName + ')' : ''); const d = noteDriver(n); return d ? d.name : (n.author || '—'); }
+    function noteToName(n) { const t = noteTo(n); if(t === 'ALL') return 'tutti'; if(t === 'COORD') return 'il coordinatore'; const d = noteDriverOf(t); return d ? d.name : t; }
+    function noteList(onlyVisible = true) { return Object.values(opNotes).filter(n => !onlyVisible || noteVisible(n)).sort((a, b) => (a.date || '9').localeCompare(b.date || '9') || String(a.createdAt).localeCompare(String(b.createdAt))); }
+    function notePrefChip(n) { const p = NOTE_PREFS[n.pref]; return p && noteTo(n) === 'COORD' ? `<span class="note-pref" style="background:${p.bg};color:${p.fg}">${p.label}</span>` : ''; }
+    function noteToChip(n) { const t = noteTo(n); if(t === 'COORD') return ''; return `<span class="note-to ${t === 'ALL' ? 'all' : ''}">${t === 'ALL' ? 'a tutti' : 'a ' + esc(noteToName(n))}</span>`; }
+    function noteWhen(iso, long) { return iso ? repDateObj(iso).toLocaleDateString('it-IT', long ? { weekday: 'long', day: 'numeric', month: 'long' } : { weekday: 'short', day: 'numeric', month: 'short' }) : 'senza giorno'; }
+    function noteStatusTxt(n) {
+        const t = noteTo(n);
+        if(t === 'COORD') return NOTE_STATUS[n.status] || '';
+        if(t === 'ALL') return 'Visibile a tutti';
+        return n.status === 'vista' ? `Letta da ${noteToName(n)}` : `Visibile solo a ${noteToName(n)}`;
+    }
+    // casella dove compare il segno: per un collega la sua colonna, altrimenti quella di chi scrive
+    function noteColumn(n) { const t = noteTo(n); return t !== 'COORD' && t !== 'ALL' ? noteDriverOf(t) : noteDriver(n); }
+    function noteIndex() {
+        if(noteIdxCache && noteIdxCache.v === opNotesVer && noteIdxCache.drv === drivers && noteIdxCache.who === prefOwner() + noteIsCoord()) return noteIdxCache.map;
+        const map = {};
+        noteList().forEach(n => { if(!n.date) return; const d = noteColumn(n); if(!d) return; ((map[n.date] = map[n.date] || {})[d.idx] = map[n.date][d.idx] || []).push(n); });
+        noteIdxCache = { v: opNotesVer, drv: drivers, who: prefOwner() + noteIsCoord(), map };
+        return map;
+    }
+    function noteFlagHtml(iso, idx) {
+        if(!opNotesVer) return '';
+        const l = (noteIndex()[iso] || {})[idx]; if(!l || !l.length) return '';
+        const open = l.some(n => !(noteTo(n) === 'COORD' && n.status === 'fatta'));
+        return `<span class="note-flag ${open ? '' : 'done'}" title="${esc(l.map(n => noteName(n) + ': ' + (NOTE_PREFS[n.pref] && noteTo(n) === 'COORD' ? NOTE_PREFS[n.pref].label + '. ' : '') + n.text).join(' · '))}"><span class="material-icons-round">sticky_note_2</span></span>`;
+    }
+    function listenOpNotes() {
+        if(!fbReady) return;
+        cfgRef('prefs').onSnapshot(doc => {
+            const raw = doc.exists ? ((doc.data() || {})[NOTE_FIELD] || {}) : {}, m = {};
+            Object.keys(raw).forEach(k => { const n = raw[k]; if(n && typeof n === 'object' && /^(\d{4}-\d{2}-\d{2})?$/.test(n.date || '') && n.author) m[k] = Object.assign({ id: k, text: '', pref: '', status: 'nuova', date: '' }, n, { id: k }); });
+            if(JSON.stringify(m) === JSON.stringify(opNotes)) return;
+            opNotes = m; notesAfterChange(); noteNotify();
+        }, err => console.error('Errore ascolto note:', err));
+    }
+    let notesRenderTimer = null;
+    function notesAfterChange() {
+        opNotesVer++; noteIdxCache = null;
+        edNotesUi();
+        clearTimeout(notesRenderTimer);
+        notesRenderTimer = setTimeout(() => {
+            if(finalData.length && document.querySelector('#table-body tr[data-row]')) renderTable();
+            if(edNotesOpen) edNotesRender();
+            const cc = document.getElementById('coord-console');
+            if(cc && cc.classList.contains('open') && ccSection === 'note') renderCcNotes();
+            const me = document.getElementById('me-modal'); if(me && me.classList.contains('open')) renderMyPage();
+            ccUpdateNavCounts();
+        }, 150);
+    }
+    function noteWrite(id, val) {
+        // aggiornamento immediato sul telefono; Firebase manda poi lo stesso stato a tutti
+        if(val) opNotes[id] = Object.assign({}, val, { id }); else delete opNotes[id];
+        notesAfterChange();
+        // senza rete la scrittura resta in coda sul telefono e parte appena torna la connessione
+        const fail = e => { console.error(e); ccToast('Nota non salvata: ' + (e.code || e.message), true); };
+        if(!fbReady) { fail(new Error('nessuna connessione a Firebase')); return false; }
+        try {
+            (val ? cfgRef('prefs').set({ [NOTE_FIELD]: { [id]: val } }, { merge: true })
+                 : cfgRef('prefs').update(new firebase.firestore.FieldPath(NOTE_FIELD, id), firebase.firestore.FieldValue.delete())).catch(fail);
+            return true;
+        } catch(e) { fail(e); return false; }
+    }
+
+    // ── Scrivere una nota ─────────────────────────────────────────────────
+    // iso: giorno toccato nel calendario ('' = senza giorno); asCoord: scritta dall'Area Coordinatore
+    function noteOpenEditor(iso, id, asCoord) {
+        const n = id ? opNotes[id] : null;
+        if(n && !noteMine(n)) return;
+        asCoord = n ? n.author === 'COORD' : !!asCoord;
+        if(!asCoord && prefOwner() === 'OSPITE') { ccToast('Per scrivere una nota scegli prima chi sei.', true); return; }
+        const t0 = n ? noteTo(n) : (asCoord ? 'ALL' : 'COORD');
+        noteEditCtx = { iso: n ? n.date || '' : (iso || ''), id: n ? n.id : null, pref: n ? n.pref || '' : '', asCoord,
+            kind: t0 === 'COORD' ? 'COORD' : (t0 === 'ALL' ? 'ALL' : 'ONE'), who: t0 !== 'COORD' && t0 !== 'ALL' ? t0 : '' };
+        let el = document.getElementById('note-modal');
+        if(!el) {
+            el = document.createElement('div'); el.id = 'note-modal'; el.className = 'cc-scope';
+            el.onclick = e => { if(e.target === el) noteCloseEditor(); };
+            document.body.appendChild(el);
+        }
+        const c = noteEditCtx, me = noteMeDriver();
+        const kinds = (asCoord ? [] : [['COORD', 'Coordinatore']]).concat([['ONE', 'Un collega'], ['ALL', 'Tutti']]);
+        const people = drivers.filter(d => !d.hidden && (!me || d.idx !== me.idx)).map(d => `<option value="${esc(d.originalName)}" ${c.who === d.originalName ? 'selected' : ''}>${esc(d.name)}</option>`).join('');
+        const others = c.iso ? noteList().filter(x => noteMine(x) && x.date === c.iso && x.id !== c.id) : [];
+        el.innerHTML = `<div class="note-box" role="dialog" aria-labelledby="note-title">
+            <div class="note-head"><span class="note-hico"><span class="material-icons-round">sticky_note_2</span></span><div><h4 id="note-title">${n ? 'Modifica la nota' : (asCoord ? 'Nota del coordinatore' : 'Nuova nota')}</h4><small>${c.iso && !asCoord ? esc(noteWhen(c.iso, true)) + ' ' + repDateObj(c.iso).getFullYear() : (asCoord ? 'dall’Area Coordinatore' : '')}</small></div>
+                <button class="cc-icon-btn" onclick="noteCloseEditor()" aria-label="Chiudi"><span class="material-icons-round">close</span></button></div>
+            <div class="note-body">
+                <label class="note-lbl">A chi</label>
+                <div class="note-prefs note-kinds">${kinds.map(([k, l]) => `<button data-k="${k}" class="${c.kind === k ? 'on' : ''}" onclick="noteSetKind('${k}')">${l}</button>`).join('')}</div>
+                <select id="note-who" class="note-who" style="${c.kind === 'ONE' ? '' : 'display:none'}" onchange="noteEditCtx.who=this.value;noteEdPriv()"><option value="">Scegli il collega…</option>${people}</select>
+                ${asCoord ? `<label class="note-lbl" for="note-date">Giorno <small>(facoltativo)</small></label><input type="date" id="note-date" class="note-date-in" value="${esc(c.iso)}" onchange="noteEditCtx.iso=this.value">` : ''}
+                <div id="note-pref-box" style="${c.kind === 'COORD' ? '' : 'display:none'}"><label class="note-lbl">Per questo giorno preferirei <small>(facoltativo)</small></label>
+                <div class="note-prefs">${Object.keys(NOTE_PREFS).map(k => `<button data-p="${k}" class="${c.pref === k ? 'on' : ''}" onclick="noteSetPref('${k}')">${NOTE_PREFS[k].label}</button>`).join('')}</div></div>
+                <label class="note-lbl" for="note-text">Messaggio</label>
+                <textarea id="note-text" maxlength="500" rows="4">${esc(n ? n.text : '')}</textarea>
+                <p class="note-priv"><span class="material-icons-round">lock</span><span id="note-priv-t"></span></p>
+                ${n ? `<p class="note-st">${esc(noteStatusTxt(n))}</p>` : ''}
+                ${others.length ? `<div class="note-old"><b>Altre tue note per questo giorno</b>${others.map(x => `<div class="note-it" onclick="noteOpenEditor('${x.date}','${x.id}')">${notePrefChip(x)}${noteToChip(x)}<span>${esc(x.text || '(senza testo)')}</span><small>${esc(noteStatusTxt(x))}</small></div>`).join('')}</div>` : ''}
+            </div>
+            <div class="note-foot">${n ? `<button class="cc-btn danger" onclick="noteDelete('${n.id}')"><span class="material-icons-round">delete</span>Elimina</button>` : ''}<span class="cc-spacer"></span>
+                <button class="cc-btn" onclick="noteCloseEditor()">Annulla</button><button class="cc-btn primary" onclick="noteSave()"><span class="material-icons-round">send</span>${n ? 'Salva' : 'Invia'}</button></div>
+        </div>`;
+        noteEdPriv();
+        el.style.display = 'flex'; requestAnimationFrame(() => el.classList.add('open'));
+        setTimeout(() => { const t = document.getElementById('note-text'); if(t && !n) t.focus(); }, 120);
+    }
+    function noteEdPriv() {
+        const c = noteEditCtx, t = document.getElementById('note-priv-t'); if(!c || !t) return;
+        const d = c.who ? noteDriverOf(c.who) : null, me = c.asCoord ? 'il coordinatore' : 'tu';
+        t.textContent = c.kind === 'COORD' ? 'La vedete solo tu e il coordinatore. Gli arriva anche come notifica.'
+            : c.kind === 'ALL' ? 'La vedono tutti. Arriva come notifica a tutti.'
+            : `La vedete solo ${me} e ${d ? d.name : 'il collega che scegli'}. Gli arriva anche come notifica.`;
+    }
+    function noteSetKind(k) {
+        vibrate(); const c = noteEditCtx; if(!c) return; c.kind = k;
+        document.querySelectorAll('#note-modal .note-kinds button').forEach(b => b.classList.toggle('on', b.dataset.k === k));
+        document.getElementById('note-who').style.display = k === 'ONE' ? '' : 'none';
+        document.getElementById('note-pref-box').style.display = k === 'COORD' ? '' : 'none';
+        noteEdPriv();
+    }
+    function noteSetPref(k) { vibrate(); if(!noteEditCtx) return; noteEditCtx.pref = noteEditCtx.pref === k ? '' : k; document.querySelectorAll('#note-modal .note-prefs button[data-p]').forEach(b => b.classList.toggle('on', b.dataset.p === noteEditCtx.pref)); }
+    function noteCloseEditor() { const el = document.getElementById('note-modal'); if(!el) return; el.classList.remove('open'); setTimeout(() => { if(!el.classList.contains('open')) el.style.display = 'none'; }, 180); noteEditCtx = null; }
+    function noteSave() {
+        const c = noteEditCtx; if(!c) return;
+        const text = (document.getElementById('note-text').value || '').trim().slice(0, 500);
+        const pref = c.kind === 'COORD' ? c.pref || '' : '';
+        if(!text && !pref) { ccToast('Scrivi il messaggio' + (c.kind === 'COORD' ? ' o scegli una preferenza.' : '.'), true); return; }
+        if(c.kind === 'ONE' && !c.who) { ccToast('Scegli il collega a cui mandarla.', true); return; }
+        vibrate();
+        const now = new Date().toISOString(), old = c.id ? opNotes[c.id] : null, me = noteMeDriver();
+        const id = c.id || ('n' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6));
+        // una nota cambiata torna "nuova": chi la riceve deve rileggerla
+        const val = { author: c.asCoord ? 'COORD' : (me ? me.originalName : prefOwner()), to: c.kind === 'ONE' ? c.who : c.kind, date: c.iso || '', text, pref, status: 'nuova', createdAt: old ? old.createdAt : now, updatedAt: now };
+        if(c.asCoord) val.authorName = (userIdentity && userIdentity !== 'Ospite') ? userIdentity : (coordinatorName || '');
+        noteCloseEditor();
+        if(noteWrite(id, val)) ccToast(old ? 'Nota aggiornata' : 'Nota inviata a ' + noteToName(val));
+    }
+    async function noteDelete(id) {
+        const n = opNotes[id]; if(!n) return;
+        const ok = await ccConfirm('Eliminare la nota?', `${noteName(n)}, ${noteWhen(n.date)}: “${(n.text || NOTE_PREFS[n.pref]?.label || '').slice(0, 80)}”`, 'Elimina', 'solid-danger');
+        if(!ok) return;
+        noteCloseEditor();
+        if(noteWrite(id, null)) ccToast('Nota eliminata');
+    }
+    // il coordinatore segna come vista / gestita una nota per lui; il collega che la riceve la segna letta
+    function noteSetStatus(id, st) {
+        const n = opNotes[id]; if(!n || n.status === st) return;
+        const t = noteTo(n);
+        if(t === 'COORD' ? !noteIsCoord() : !(t !== 'ALL' && noteIsMe(t))) return;
+        vibrate();
+        const who = (userIdentity && userIdentity !== 'Ospite') ? userIdentity : (coordinatorName || 'Coordinatore'), now = new Date().toISOString();
+        const val = Object.assign({}, n, { status: st }, st === 'fatta' ? { doneBy: who, doneAt: now } : {}, st === 'vista' ? { seenBy: who, seenAt: now } : {});
+        delete val.id; noteWrite(id, val);
+    }
+    // aprendo l'elenco chi riceve "vede" le note nuove
+    function noteMarkSeen(list) { list.filter(n => n.status === 'nuova' && noteForMe(n) && !noteMine(n) && noteTo(n) !== 'ALL').forEach(n => noteSetStatus(n.id, 'vista')); }
+
+    // ── Notifiche a chi riceve la nota ────────────────────────────────────
+    let lastAlertNote = '';
+    function noteNotify() {
+        if(prefOwner() === 'OSPITE' && !noteIsCoord()) return;
+        const key = 'note_notified_v2_' + normalizeNameForMatch(prefOwner());
+        let seen = null; try { seen = JSON.parse(localStorage.getItem(key) || 'null'); } catch(e) {}
+        const first = !Array.isArray(seen); seen = new Set(seen || []);
+        const recent = Date.now() - 3 * 864e5;
+        const fresh = noteList().filter(n => noteForMe(n) && !noteMine(n) && !(noteTo(n) === 'COORD' && n.status !== 'nuova') && !seen.has(n.id + '|' + n.updatedAt) && (!first || Date.parse(n.updatedAt || n.createdAt || 0) > recent));
+        Object.values(opNotes).forEach(n => seen.add(n.id + '|' + n.updatedAt));
+        try { localStorage.setItem(key, JSON.stringify([...seen].slice(-400))); } catch(e) {}
+        if(!fresh.length) return;
+        const title = n => noteTo(n) === 'COORD' ? 'Nota per il coordinatore' : (noteTo(n) === 'ALL' ? `Nota per tutti da ${noteName(n)}` : `Nota da ${noteName(n)}`);
+        fresh.forEach(n => notifHistory.unshift({ id: Date.now() + Math.random(), ts: Date.now(), kind: 'nota', type: 'nota', noteId: n.id, title: title(n), detail: `${noteName(n)}${n.date ? ' · ' + noteWhen(n.date) : ''}${NOTE_PREFS[n.pref] && noteTo(n) === 'COORD' ? ' · preferisce ' + NOTE_PREFS[n.pref].label.toLowerCase() : ''}${n.text ? ': ' + n.text : ''}`, read: false, archived: false, date: new Date().toLocaleString(), owner: prefOwner() }));
+        saveNotifications(); updateBadge();
+        lastRichiestaAlertReqId = null; lastAlertNote = fresh.every(n => noteTo(n) === 'COORD') ? 'coord' : 'me';
+        const t = document.querySelector('#richiesta-alert-modal .alert-title'); if(t) t.textContent = fresh.length === 1 ? title(fresh[0]).toUpperCase() : fresh.length + ' NUOVE NOTE';
+        document.getElementById('richiesta-alert-text').innerHTML = fresh.slice(0, 5).map(n => `<div style="background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:10px 12px; text-align:left; margin-bottom:6px;"><div style="font-weight:900;">${esc(noteName(n))}${noteTo(n) === 'ALL' ? ' · a tutti' : ''}${n.date ? ' · ' + esc(noteWhen(n.date)) : ''}</div><div style="font-size:0.86rem; color:var(--text-sec); margin-top:3px;">${NOTE_PREFS[n.pref] && noteTo(n) === 'COORD' ? '<b>Preferisce ' + NOTE_PREFS[n.pref].label.toLowerCase() + '.</b> ' : ''}${esc(n.text || '')}</div></div>`).join('') + (fresh.length > 5 ? `<div style="font-size:0.8rem; color:var(--text-sec);">e altre ${fresh.length - 5}</div>` : '');
+        const m = document.getElementById('richiesta-alert-modal'); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 100);
+        if(navigator.vibrate) navigator.vibrate([40, 60, 40]);
+    }
+    function noteOpenList(where) { if(where === 'coord') openCoordConsole('note'); else { openMyPage(); setTimeout(() => { const c = document.getElementById('me-notes'); if(c) c.scrollIntoView({ block: 'start', behavior: 'smooth' }); }, 450); } }
+    function noteOpenFromNotif(id) { closeNotifCenter(); const n = opNotes[id]; setTimeout(() => noteOpenList(n && noteTo(n) === 'COORD' && noteIsCoord() ? 'coord' : 'me'), 320); }
+
+    // ── Elenco nella barra di Modifica turni (note per il coordinatore) ────
+    function edNotesBase() { return noteList().filter(n => noteTo(n) === 'COORD'); }
+    function edNotesCount() { const t = ymd(new Date()); return edNotesBase().filter(n => n.status !== 'fatta' && (!n.date || n.date >= t)).length; }
+    function edNotesUi() {
+        const b = document.getElementById('ces-notes'); if(!b) return;
+        const n = edNotesCount();
+        b.classList.toggle('on', edNotesOpen); b.title = edNotesOpen ? 'Chiudi le note degli operatori' : 'Note degli operatori';
+        const c = b.querySelector('.ces-badge'); if(c) { c.textContent = n || ''; c.style.display = n ? '' : 'none'; }
+        const k = document.getElementById('cc-count-note'); if(k) { const x = noteIsCoord() ? edNotesBase().filter(z => z.status === 'nuova').length : 0; k.textContent = x || ''; }
+    }
+    function edNotesToggle(force) {
+        vibrate(); edNotesOpen = typeof force === 'boolean' ? force : !edNotesOpen;
+        let p = document.getElementById('ed-notes');
+        if(!p) { p = document.createElement('div'); p.id = 'ed-notes'; p.className = 'cc-scope'; document.body.appendChild(p); }
+        if(edNotesOpen) { edNotesRender(); p.classList.add('show'); noteMarkSeen(edNotesItems()); } else p.classList.remove('show');
+        edNotesUi();
+    }
+    function edNotesItems() { const t = ymd(new Date()); return edNotesBase().filter(n => edNotesAll || (n.status !== 'fatta' && (!n.date || n.date >= t))); }
+    function edNotesRender() {
+        const p = document.getElementById('ed-notes'); if(!p) return;
+        const items = edNotesItems();
+        p.innerHTML = `<div class="edn-head"><span class="material-icons-round">sticky_note_2</span><b>Note degli operatori</b>
+                <button class="edn-x" onclick="edNotesToggle(false)" aria-label="Chiudi"><span class="material-icons-round">close</span></button>
+                <div class="edn-tabs"><button class="${edNotesAll ? '' : 'on'}" onclick="edNotesAll=false;edNotesRender()">Da gestire</button><button class="${edNotesAll ? 'on' : ''}" onclick="edNotesAll=true;edNotesRender()">Tutte</button></div></div>
+            <div class="edn-list">${items.length ? items.map(n => noteItemHtml(n, 'ed')).join('') : `<div class="edn-empty">${edNotesAll ? 'Nessuna nota.' : 'Nessuna nota da gestire per i prossimi giorni.'}</div>`}</div>
+            <div class="edn-foot">Tocca una nota per andare al giorno.</div>`;
+    }
+    function noteItemHtml(n, where) {
+        const st = n.status || 'nuova', t = noteTo(n), forCoord = t === 'COORD';
+        const at = n.createdAt ? new Date(n.createdAt).toLocaleString('it-IT', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+        const acts = [];
+        if(forCoord && noteIsCoord() && where !== 'sent') acts.push(st === 'fatta' ? `<button onclick="event.stopPropagation();noteSetStatus('${n.id}','vista')" title="Riapri"><span class="material-icons-round">undo</span></button>` : `<button onclick="event.stopPropagation();noteSetStatus('${n.id}','fatta')" title="Segna come gestita"><span class="material-icons-round">check_circle</span></button>`);
+        if(noteMine(n)) acts.push(`<button onclick="event.stopPropagation();noteOpenEditor('${n.date}','${n.id}')" title="Modifica"><span class="material-icons-round">edit</span></button>`);
+        if(where === 'cc' || where === 'sent' || noteMine(n)) acts.push(`<button onclick="event.stopPropagation();noteDelete('${n.id}')" title="Elimina"><span class="material-icons-round">delete</span></button>`);
+        return `<div class="note-row st-${forCoord ? st : 'x'}" onclick="noteGo('${n.id}')">
+            <div class="note-r1"><b>${esc(noteName(n))}</b>${noteToChip(n)}<span class="note-date">${esc(noteWhen(n.date))}</span>${notePrefChip(n)}${forCoord && st === 'nuova' ? '<span class="note-new">nuova</span>' : ''}</div>
+            ${n.text ? `<p>${esc(n.text)}</p>` : ''}
+            <div class="note-r3"><small>${at ? 'scritta il ' + esc(at) : ''}${forCoord && st === 'fatta' ? ' · gestita' + (n.doneBy ? ' da ' + esc(n.doneBy) : '') : ''}${!forCoord ? ' · ' + esc(noteStatusTxt(n)) : ''}</small>${acts.join('')}</div>
+        </div>`;
+    }
+    function noteGo(id) {
+        const n = opNotes[id]; if(!n) return;
+        if(!n.date) { if(noteMine(n)) noteOpenEditor('', id); return; }
+        const r = repRowOfDate(n.date), d = noteColumn(n);
+        if(!r) { ccToast('Questo giorno non è nel calendario aperto.', true); return; }
+        vibrate();
+        const cc = document.getElementById('coord-console'), ccOpen = cc && cc.classList.contains('open');
+        if(ccOpen) closeCoordConsole();
+        const me = document.getElementById('me-modal'); if(me && me.classList.contains('open')) closeMyPage();
+        setTimeout(() => calGoToCell(r, d ? d.idx : undefined), ccOpen ? 220 : 0);
+    }
+
+    // ── Area Coordinatore › Note ───────────────────────────────────────────
+    let ccNotesTab = 'aperte';
+    function renderCcNotes() {
+        const main = document.getElementById('cc-main'); if(!main) return;
+        const t = ymd(new Date()), rec = edNotesBase(), sent = noteList().filter(n => n.author === 'COORD');
+        const tabs = { aperte: rec.filter(n => n.status !== 'fatta'), fatte: rec.filter(n => n.status === 'fatta'), inviate: sent };
+        const list = tabs[ccNotesTab] || [], where = ccNotesTab === 'inviate' ? 'sent' : 'cc';
+        // prima i giorni da oggi in poi (e le note senza giorno), poi quelli passati (più recenti in cima)
+        const next = list.filter(n => !n.date || n.date >= t), past = list.filter(n => n.date && n.date < t).reverse();
+        main.innerHTML = `<div class="cc-toolbar"><div class="cc-seg">
+                <button class="${ccNotesTab === 'aperte' ? 'active' : ''}" onclick="ccNotesTab='aperte';renderCcNotes()">Da gestire (${tabs.aperte.length})</button>
+                <button class="${ccNotesTab === 'fatte' ? 'active' : ''}" onclick="ccNotesTab='fatte';renderCcNotes()">Gestite (${tabs.fatte.length})</button>
+                <button class="${ccNotesTab === 'inviate' ? 'active' : ''}" onclick="ccNotesTab='inviate';renderCcNotes()">Inviate da te (${tabs.inviate.length})</button></div></div>
+            <div class="cc-scope note-cc">${list.length ? `${next.length ? `<div class="note-sec">Da oggi in poi</div>${next.map(n => noteItemHtml(n, where)).join('')}` : ''}${past.length ? `<div class="note-sec">Giorni passati</div>${past.map(n => noteItemHtml(n, where)).join('')}` : ''}`
+                : `<div class="cc-empty"><span class="msym">sticky_note_2</span>${ccNotesTab === 'inviate' ? 'Non hai ancora mandato note.' : (ccNotesTab === 'fatte' ? 'Nessuna nota gestita.' : 'Nessuna nota dagli operatori.')}</div>`}</div>
+            <div class="cc-legend"><span>Gli operatori scrivono una nota toccando un giorno nel calendario: quelle per il coordinatore le vedete solo tu e chi le scrive. Le note tra colleghi restano private tra loro. Con “Scrivi una nota” ne mandi una a un collega o a tutti.</span></div>`;
+        document.getElementById('cc-top-actions').innerHTML = `<button class="cc-btn primary" onclick="noteOpenEditor('', null, true)"><span class="msym">edit_note</span>Scrivi una nota</button>`;
+        if(ccNotesTab === 'aperte') noteMarkSeen(tabs.aperte);
+    }
+
+    // ── Dettaglio del giorno (tocco su una casella): note del giorno e pulsante per scriverne una ──
+    function noteDaySectionHtml(iso) {
+        if(!iso) return '';
+        const list = noteList().filter(n => n.date === iso), guest = prefOwner() === 'OSPITE';
+        if(guest && !list.length) return '';
+        const head = n => noteMine(n) ? `La tua nota${noteTo(n) === 'COORD' ? '' : ' ' + noteToChip(n)}` : `${esc(noteName(n))} ${noteToChip(n)}`;
+        return `<div class="note-day">
+            ${list.map(n => `<div class="note-day-it" onclick="${noteMine(n) ? `closeShiftModal();setTimeout(() => noteOpenEditor('${n.date}','${n.id}'), 220)` : `closeShiftModal();setTimeout(() => noteGo('${n.id}'), 220)`}"><span class="material-icons-round">sticky_note_2</span><div><b>${head(n)}</b> ${notePrefChip(n)}<div>${esc(n.text || '')}</div><small>${esc(noteStatusTxt(n))}</small></div></div>`).join('')}
+            ${guest ? '' : `<button class="note-day-btn" onclick="closeShiftModal();setTimeout(() => noteOpenEditor('${iso}'), 220)"><span class="material-icons-round">edit_note</span>Scrivi una nota<small>al coordinatore, a un collega o a tutti</small></button>`}
+        </div>`;
+    }
+    // ── La mia pagina: note ricevute e scritte ─────────────────────────────
+    function myNotesHtml() {
+        const t = ymd(new Date()), keep = n => !n.date || n.date >= t;
+        const rec = noteList().filter(n => noteForMe(n) && !noteMine(n) && noteTo(n) !== 'COORD' && keep(n)), mine = noteList().filter(n => noteMine(n) && n.author !== 'COORD' && keep(n));
+        const row = n => `<div class="me-note" onclick="${noteMine(n) ? `closeMyPage();setTimeout(() => noteOpenEditor('${n.date}','${n.id}'), 260)` : `noteGo('${n.id}')`}"><span class="when">${esc(noteWhen(n.date))}</span>${notePrefChip(n)}${noteMine(n) ? noteToChip(n) : `<span class="note-to">da ${esc(noteName(n))}${noteTo(n) === 'ALL' ? ' a tutti' : ''}</span>`}<span class="what">${esc(n.text || '')}</span><small>${esc(noteStatusTxt(n))}</small></div>`;
+        setTimeout(() => noteMarkSeen(rec), 0);
+        return `<div class="me-card" id="me-notes"><h4><span class="material-icons-round">sticky_note_2</span>Note</h4>
+            ${rec.length ? `<div class="me-note-sec">Ricevute</div>${rec.map(row).join('')}` : ''}
+            <div class="me-note-sec">Scritte da te</div>${mine.length ? mine.map(row).join('') : '<small>Nessuna nota per i prossimi giorni.</small>'}
+            <p class="me-note-hint">Per scriverne una tocca il giorno nel calendario e poi “Scrivi una nota”: al coordinatore, a un collega (la vedete solo voi due) o a tutti.</p></div>`;
+    }
+
+    // ═══ MESSAGGI ALL'APERTURA DELL'APP (dall'Area Coordinatore) ═════════════
+    // Il coordinatore scrive messaggi che compaiono a tutti quando aprono l'app, per i giorni
+    // scelti; ognuno resta a schermo i secondi indicati (0 = finché non si tocca "Ho capito").
+    // Documento impostazioni: coordMessages: [{ id, title, text, secs, from, to, active, by, updatedAt }]
+    let coordMessages = [], cmDraft = null;
+    function cmValidToday(m) { const t = ymd(new Date()); return m && m.active !== false && (m.title || m.text) && (!m.from || m.from <= t) && (!m.to || m.to >= t); }
+    function cmStartupItems() { return (coordMessages || []).filter(cmValidToday).map(m => ({ icon: 'campaign', title: m.title || 'MESSAGGIO DEL COORDINATORE', text: m.text || '', secs: +m.secs || 0 })); }
+    function renderCcMessages() {
+        const main = document.getElementById('cc-main'); if(!main) return;
+        if(!cmDraft) cmDraft = JSON.parse(JSON.stringify(coordMessages || []));
+        const t = ymd(new Date());
+        const card = (m, i) => { const st = m.active === false ? 'spento' : (m.to && m.to < t ? 'scaduto' : (m.from && m.from > t ? 'dal ' + noteWhen(m.from) : 'visibile oggi'));
+            return `<div class="cm-card ${cmValidToday(m) ? 'on' : ''}">
+                <div class="cm-row"><input class="cc-input" placeholder="Titolo (es. Riunione)" maxlength="60" value="${esc(m.title || '')}" oninput="cmSet(${i},'title',this.value)"><span class="cm-st">${esc(st)}</span></div>
+                <textarea class="cc-input cm-text" rows="3" maxlength="600" placeholder="Testo del messaggio" oninput="cmSet(${i},'text',this.value)">${esc(m.text || '')}</textarea>
+                <div class="cm-row cm-opts">
+                    <label>Resta a schermo <input class="cc-input cm-secs" type="number" min="0" max="120" value="${+m.secs || 0}" onchange="cmSet(${i},'secs',Math.max(0,Math.min(120,+this.value||0)))"> secondi <small>(0 = finché non si chiude)</small></label>
+                    <label>Dal <input class="cc-input" type="date" value="${esc(m.from || '')}" onchange="cmSet(${i},'from',this.value)"></label>
+                    <label>al <input class="cc-input" type="date" value="${esc(m.to || '')}" onchange="cmSet(${i},'to',this.value)"></label>
+                    <label class="cm-act"><input type="checkbox" ${m.active !== false ? 'checked' : ''} onchange="cmSet(${i},'active',this.checked)"> Attivo</label>
+                    <span class="cc-spacer"></span>
+                    <button class="cc-btn sm" onclick="cmPreview(${i})"><span class="msym">visibility</span>Anteprima</button>
+                    <button class="cc-btn sm danger" onclick="cmDel(${i})"><span class="msym">delete</span></button>
+                </div></div>`; };
+        main.innerHTML = `<div class="cm-list">${cmDraft.length ? cmDraft.map(card).join('') : `<div class="cc-empty"><span class="msym">campaign</span>Nessun messaggio. Aggiungine uno: lo vedranno tutti all’apertura dell’app.</div>`}</div>
+            <div class="cc-toolbar" style="margin-top:12px"><button class="cc-btn" onclick="cmAdd()"><span class="msym">add_circle</span>Nuovo messaggio</button><span class="cc-spacer"></span><button class="cc-btn primary" onclick="cmSave()"><span class="msym">save</span>Salva i messaggi</button></div>
+            <div class="cc-legend"><span>I messaggi attivi compaiono a tutti quando aprono l’app, nei giorni indicati (senza date: sempre). Se metti dei secondi, il messaggio si chiude da solo con una barra che si accorcia.</span></div>`;
+    }
+    function cmSet(i, k, v) { if(cmDraft && cmDraft[i]) { cmDraft[i][k] = v; if(k === 'active' || k === 'from' || k === 'to') renderCcMessages(); } }
+    function cmAdd() { vibrate(); if(!cmDraft) cmDraft = []; cmDraft.push({ id: 'cm' + Date.now().toString(36), title: '', text: '', secs: 8, from: ymd(new Date()), to: '', active: true }); renderCcMessages(); }
+    async function cmDel(i) { if(!(await ccConfirm('Eliminare il messaggio?', (cmDraft[i].title || cmDraft[i].text || '').slice(0, 80), 'Elimina', 'solid-danger'))) return; cmDraft.splice(i, 1); renderCcMessages(); }
+    function cmPreview(i) { const m = cmDraft[i]; if(!m) return; announcementQueue = [{ icon: 'campaign', title: m.title || 'MESSAGGIO DEL COORDINATORE', text: m.text || '', secs: +m.secs || 0 }]; showNextAnnouncement(); }
+    function cmSave() {
+        vibrate();
+        const now = new Date().toISOString(), by = (userIdentity && userIdentity !== 'Ospite') ? userIdentity : (coordinatorName || '');
+        const list = (cmDraft || []).filter(m => (m.title || '').trim() || (m.text || '').trim()).map(m => Object.assign({}, m, { title: (m.title || '').trim(), text: (m.text || '').trim(), secs: +m.secs || 0, by, updatedAt: now }));
+        coordMessages = list; cmDraft = JSON.parse(JSON.stringify(list)); renderCcMessages();
+        if(!fbReady) { ccToast('Nessuna connessione a Firebase: messaggi non salvati.', true); return; }
+        saveSettingsFields({ coordMessages: list }).catch(e => ccToast('Salvataggio non riuscito: ' + (e.code || e.message), true));
+        ccToast('Messaggi salvati');
+    }
+
+    // ═══ CHI LAVORA CON CHI ══════════════════════════════════════════════
+    // Per ogni coppia di colleghi: quanti turni hanno fatto insieme (stessa mattina, stesso
+    // pomeriggio o stessa notte; M+N conta per mattina e notte, i diurni m/p con mattina e
+    // pomeriggio). Per una persona scelta: grafico a barre con la media dei suoi colleghi,
+    // così si vede con chi lavora troppo spesso o quasi mai. Sotto, la tabella di tutte le coppie.
+    // In "Equità dell'anno" e nell'Area Coordinatore (sezione "Chi lavora con chi").
+    let pwSel = null, pwCcPeriod = 'oggi', pwKind = 'turnisti';
+    const PW_BANDS = { M: ['M'], m: ['M'], P: ['P'], p: ['P'], N: ['N'], 'M+N': ['M', 'N'] };
+    function pairWork(period) {
+        const today = absTodayDate(), all = buildDaysIndex();
+        const days = period === 'oggi' ? all.filter(dd => dd.date <= today) : (typeof period === 'number' ? all.filter(dd => dd.monthIdx === period) : all);
+        const people = drivers.filter(d => !d.hidden), cnt = {}, tot = {}, notti = {};
+        people.forEach(d => { cnt[d.idx] = {}; tot[d.idx] = 0; notti[d.idx] = 0; });
+        days.forEach(dd => {
+            const band = { M: [], P: [], N: [] };
+            people.forEach(d => { const b = PW_BANDS[workCode(dd.rowIdx, d.idx)]; if(!b) return; tot[d.idx]++; b.forEach(x => band[x].push(d.idx)); if(b.includes('N')) notti[d.idx]++; });
+            Object.values(band).forEach(g => { for(let i = 0; i < g.length; i++) for(let j = i + 1; j < g.length; j++) { const a = g[i], b = g[j]; cnt[a][b] = (cnt[a][b] || 0) + 1; cnt[b][a] = (cnt[b][a] || 0) + 1; } });
+        });
+        // turnisti = chi fa notti; i diurnisti si confrontano solo tra loro e con i turnisti di giorno
+        const list = people.filter(d => tot[d.idx] > 0).map(d => ({ d, tot: tot[d.idx], turnista: notti[d.idx] > 0 }));
+        return { days, list, cnt };
+    }
+    // media dei turni insieme di una persona con i colleghi dello stesso gruppo
+    function pairRow(P, x) {
+        const set = P.list.filter(y => y.d.idx !== x.d.idx && (pwKind === 'tutti' || y.turnista === x.turnista));
+        const vals = set.map(y => ({ y, n: P.cnt[x.d.idx][y.d.idx] || 0 }));
+        const avg = vals.length ? vals.reduce((a, v) => a + v.n, 0) / vals.length : 0;
+        return { vals, avg };
+    }
+    function pairCls(n, avg) { if(!(avg > 0)) return ''; const q = n / avg; return q >= 1.3 ? 'hi' : (q <= 0.7 ? 'lo' : ''); }
+    function pairsHtml(period, where) {
+        const P = pairWork(period);
+        const shown = P.list.filter(x => pwKind === 'tutti' || x.turnista);
+        if(shown.length < 2) return `<div class="pw-empty">Nel periodo scelto non ci sono abbastanza turni per confrontare i colleghi.</div>`;
+        const me = prefMe();
+        let sel = shown.find(x => x.d.originalName === pwSel) || (me && shown.find(x => x.d.idx === me.idx)) || shown[0];
+        pwSel = sel.d.originalName;
+        const R = pairRow(P, sel), max = Math.max(1, ...R.vals.map(v => v.n));
+        const f1 = v => (Math.round(v * 10) / 10).toString().replace('.', ',');
+        const bars = R.vals.slice().sort((a, b) => b.n - a.n || a.y.d.name.localeCompare(b.y.d.name)).map(v => {
+            const c = pairCls(v.n, R.avg), diff = Math.round(v.n - R.avg);
+            return `<div class="pw-bar ${c}" title="${esc(sel.d.name)} e ${esc(v.y.d.name)}: ${v.n} turni insieme (media ${f1(R.avg)})"><span class="pw-bn">${esc(v.y.d.name)}</span>
+                <span class="pw-bt"><i style="width:${Math.round(v.n / max * 100)}%"></i><u style="left:${Math.round(R.avg / max * 100)}%"></u></span>
+                <b>${v.n}</b><small>${diff === 0 ? '=' : (diff > 0 ? '+' : '−') + Math.abs(diff)}</small></div>`;
+        }).join('');
+        // tabella: righe e colonne = colleghi, colore rispetto alla media della riga
+        const head = shown.map(y => `<th title="${esc(y.d.name)}"><span>${esc(y.d.name)}</span></th>`).join('');
+        const rows = shown.map(x => {
+            const rr = pairRow(P, x), on = x.d.idx === sel.d.idx;
+            return `<tr class="${on ? 'on' : ''}"><th onclick="pwPick('${esc(x.d.originalName)}','${where}')">${esc(x.d.name)}</th>${shown.map(y => {
+                if(y.d.idx === x.d.idx) return '<td class="pw-self"></td>';
+                const n = P.cnt[x.d.idx][y.d.idx] || 0, same = pwKind === 'tutti' || y.turnista === x.turnista;
+                return `<td class="${same ? (n || rr.avg >= 3 ? pairCls(n, rr.avg) : '') : 'pw-other'}" title="${esc(x.d.name)} e ${esc(y.d.name)}: ${n} turni insieme">${n || ''}</td>`;
+            }).join('')}<td class="pw-avg">${f1(rr.avg)}</td></tr>`;
+        }).join('');
+        const opts = shown.map(x => `<option value="${esc(x.d.originalName)}" ${x === sel ? 'selected' : ''}>${esc(x.d.name)}</option>`).join('');
+        const hi = R.vals.filter(v => pairCls(v.n, R.avg) === 'hi').length, lo = R.vals.filter(v => pairCls(v.n, R.avg) === 'lo').length;
+        return `<div class="pw">
+            <div class="pw-top"><label>Persona <select onchange="pwPick(this.value,'${where}')">${opts}</select></label>
+                <div class="pw-kind"><button class="${pwKind === 'turnisti' ? 'on' : ''}" onclick="pwSetKind('turnisti','${where}')">Solo turnisti</button><button class="${pwKind === 'tutti' ? 'on' : ''}" onclick="pwSetKind('tutti','${where}')">Anche diurnisti</button></div></div>
+            <div class="pw-card"><div class="pw-h"><b>${esc(sel.d.name)}</b> · ${sel.tot} turni lavorati · in media <b>${f1(R.avg)}</b> turni con ogni collega${hi || lo ? ` · <span class="pw-tag hi">${hi} spesso</span> <span class="pw-tag lo">${lo} poco</span>` : ''}</div>
+                <div class="pw-bars">${bars}</div>
+                <p class="pw-note">La barra è il numero di turni fatti insieme (stessa mattina, pomeriggio o notte); la linea verticale è la media. <span class="eq-key hi"></span> oltre il 30% sopra la media, <span class="eq-key lo"></span> oltre il 30% sotto.</p></div>
+            <div class="pw-tw"><table class="pw-t"><thead><tr><th></th>${head}<th class="pw-avg">Media</th></tr></thead><tbody>${rows}</tbody></table></div>
+            <p class="pw-note">${P.days.length} giorni considerati. In ogni riga i colori sono rispetto alla media di quella persona${pwKind === 'turnisti' ? '' : ' (turnisti e diurnisti a confronto solo con il proprio gruppo; le caselle grigie sono dell’altro gruppo)'}. Tocca un nome per vederne il grafico.</p>
+        </div>`;
+    }
+    function pwRefresh(where) { if(where === 'cc') renderCcPairs(); else renderEquity(); }
+    function pwPick(orig, where) { vibrate(); pwSel = orig; pwRefresh(where); }
+    function pwSetKind(k, where) { vibrate(); pwKind = k; pwRefresh(where); }
+    function pwCcSetPeriod(p) { vibrate(); pwCcPeriod = p === 'oggi' || p === 'anno' ? p : +p; renderCcPairs(); }
+    function renderCcPairs() {
+        const main = document.getElementById('cc-main'); if(!main) return;
+        const p = pwCcPeriod, months = MONTH_NAMES_IT.map((m, i) => `<option value="${i}" ${p === i ? 'selected' : ''}>${m.charAt(0).toUpperCase() + m.slice(1)}</option>`).join('');
+        main.innerHTML = `<div class="cc-toolbar"><div class="cc-seg"><button class="${p === 'oggi' ? 'active' : ''}" onclick="pwCcSetPeriod('oggi')">Fino a oggi</button><button class="${p === 'anno' ? 'active' : ''}" onclick="pwCcSetPeriod('anno')">Anno intero</button></div>
+            <select class="cc-input pw-month" onchange="pwCcSetPeriod(this.value)"><option value="" ${typeof p === 'number' ? '' : 'selected'} disabled>Un mese…</option>${months}</select></div>
+            ${pairsHtml(p, 'cc')}`;
     }
 
     // ═══ CONTEGGIO ORE › VISTA "FOGLIO" (come il file Excel) ════════════════
@@ -8350,6 +9043,7 @@
                 <div class="me-kv" style="margin-top:0"><span>Ore di reperibilit\u00e0 a ${MONTH_NAMES_IT[mi]}</span><b>${repHours(repMin)} h</b></div>
                 <div class="me-kv"><span>Prossime</span><b>${future.length ? future.map(k => repDateObj(k).toLocaleDateString('it-IT', { day:'numeric', month:'short' })).join(', ') : 'nessuna in calendario'}</b></div>
             </div>
+            ${myNotesHtml()}
             <div class="me-btns">
                 <button onclick="closeMyPage();setTimeout(() => { openHoursModal(); setTimeout(() => openHoursDetail(${d.idx}, ${mi}), 350); }, 250)"><span class="material-icons-round">query_stats</span>Le mie ore</button>
                 <button onclick="closeMyPage();setTimeout(() => { openAbsModal(); setTimeout(() => absOpenDetail(${d.idx}), 350); }, 250)"><span class="material-icons-round">event_busy</span>Le mie assenze</button>
@@ -9742,6 +10436,7 @@
     function coordSessionSet(on) {
         try { if(on) sessionStorage.setItem(COORD_SESSION_KEY, coordToken(COORD_PASSWORD)); else sessionStorage.removeItem(COORD_SESSION_KEY); } catch(e) {}
         updateCoordExitBtn();
+        if(opNotesVer) notesAfterChange();   // le note degli operatori si vedono solo da coordinatore
     }
     function isCoordLoggedIn() { try { return sessionStorage.getItem(COORD_SESSION_KEY) === coordToken(COORD_PASSWORD); } catch(e) { return false; } }
     function updateCoordExitBtn() { document.body.classList.toggle('coord-session', isCoordLoggedIn()); }
@@ -9913,6 +10608,9 @@
         importa:      { title:'Importa da Excel', sub:'Porta nell’app i turni aggiornati dal file Excel, controllando prima cosa cambia.' },
         operatori:    { title:'Operatori', sub:'Aggiungi, rimuovi, riordina le colonne o nascondi temporaneamente un operatore.' },
         ore:          { title:'Conteggio ore', sub:'Ore lavorate rispetto al contratto (6 giorni, 36 h), per settimana, mese e anno.' },
+        note:         { title:'Note', sub:'Note degli operatori per te (richieste e preferenze per un giorno) e note che mandi tu a un collega o a tutti.' },
+        messaggi:     { title:'Messaggi all’apertura', sub:'Messaggi che tutti vedono quando aprono l’app, per i giorni scelti e per i secondi che decidi.' },
+        coppie:       { title:'Chi lavora con chi', sub:'Quanti turni ognuno ha fatto insieme a ogni collega, per distribuire le coppie in modo equo.' },
         reperibilita: { title:'Report reperibilità', sub:'Ore di reperibilità di ogni operatore, giorno per giorno, per l’ufficio personale.' },
         ferie:        { title:'Regole ferie e permessi', sub:'Quante persone in ferie insieme, assenze incompatibili e periodi bloccati: gli operatori vedono i periodi consigliati.' },
         riportare:    { title:'Da riportare su Excel', sub:'Modifiche fatte nell\u2019app che vanno inserite anche nel file infermieri.xlsx.' },
@@ -9921,6 +10619,7 @@
     };
     function ccGo(section) {
         if(!CC_SECTIONS[section]) section = 'panoramica';
+        if(section !== 'messaggi') cmDraft = null;
         if(section === 'riportare' && dataSourceMode === 'firebase') section = 'panoramica';
         if(['modifica','operatori'].includes(section) && isViewingArchive()) section = 'panoramica';
         if(section !== 'ferie') frDraft = null;
@@ -9936,7 +10635,7 @@
     function ccRenderSection() {
         const main = document.getElementById('cc-main'); if(!main) return;
         if(!finalData.length) { main.innerHTML = `<div class="cc-empty"><span class="msym">hourglass_top</span>Sto caricando il file dei turni…</div>`; return; }
-        ({ panoramica:renderCcOverview, modifica:renderCcEdit, bozza:renderCcDraft, importa:renderCcImport, operatori:renderCcOperators, ore:renderCcHours, reperibilita:renderCcReperibilita, ferie:renderCcFerie, riportare:renderCcSync, dati:renderCcData, impostazioni:renderCcSettings })[ccSection]();
+        ({ panoramica:renderCcOverview, modifica:renderCcEdit, bozza:renderCcDraft, importa:renderCcImport, operatori:renderCcOperators, ore:renderCcHours, reperibilita:renderCcReperibilita, coppie:renderCcPairs, note:renderCcNotes, messaggi:renderCcMessages, ferie:renderCcFerie, riportare:renderCcSync, dati:renderCcData, impostazioni:renderCcSettings })[ccSection]();
         ccUpdateNavCounts();
     }
     function ccRefreshIfOpen() {
@@ -10761,7 +11460,7 @@
     function toggleCoordEditMode(active) {
         if(active && calOverview) setCalView('dettaglio');
         coordEditModeActive = active;
-        calCompactUi(); edSumUi(); edHdrUi(); edAlertsUi(); if(!active) { edAlertHide(); const m = document.getElementById('ed-sum-menu'); if(m) m.remove(); }
+        calCompactUi(); edSumUi(); edHdrUi(); edAlertsUi(); edNotesUi(); if(!active) { edAlertHide(); if(edNotesOpen) edNotesToggle(false); const m = document.getElementById('ed-sum-menu'); if(m) m.remove(); }
         document.body.classList.toggle('coord-edit-mode', active);
         document.getElementById('coord-edit-strip').classList.toggle('show', active);
         document.getElementById('tool-wheel').classList.toggle('show', active);
@@ -11011,7 +11710,7 @@
             markSelectedCell(rowIndex, colIdx); openShiftEditPopup(colIdx, rowIndex); return;
         }
         let hasSub = (finalData[rowIndex] && finalData[rowIndex][colIdx] && finalData[rowIndex][colIdx].subV) ? finalData[rowIndex][colIdx].subV.toString().trim() : "";
-        if(!cellValue && !hasSub) return;
+        if(!cellValue && !hasSub) { const iso = repRowDate(rowIndex); if(iso && prefOwner() !== 'OSPITE') noteOpenEditor(iso); return; }
         openShiftModal(rowIndex, cellValue, month, day, weekDay);
     }
 
@@ -12053,7 +12752,7 @@
             const click = `handleCellClick(${i},${d.idx},'${mName}',${dNum},'${dayWeek}','${rawVal.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')`.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
             const sel = coordEditModeActive && coordSelectedCell && coordSelectedCell.row === i && coordSelectedCell.col === d.idx;
             const tdCls = [sel ? 'coord-selected' : '', d.idx === rtMeIdx ? 'me-col' : '', cover ? cover.cls[d.idx] || '' : ''].filter(Boolean).join(' ');
-            html += `<td${tdCls ? ` class="${tdCls}"` : ''} data-row="${i}" data-col="${d.idx}" data-month="${mName}" data-day="${dNum}" data-orig="${orig}" onclick="${click}">${chk && chk.cells[d.idx] ? `<span class="chk-flag ${chk.cells[d.idx].err ? 'err' : ''}" title="${esc(chk.cells[d.idx].msgs.join(' \u00b7 '))}">!</span>` : ''}${calCompactOn() ? miniCellHtml(formatCell(cellInfo, prevCellInfo, false, repCellHtml(d.originalName || d.name, isoDate))) : formatCell(cellInfo, prevCellInfo, showGraziella, repCellHtml(d.originalName || d.name, isoDate))}</td>`;
+            html += `<td${tdCls ? ` class="${tdCls}"` : ''} data-row="${i}" data-col="${d.idx}" data-month="${mName}" data-day="${dNum}" data-orig="${orig}" onclick="${click}">${noteFlagHtml(isoDate, d.idx)}${chk && chk.cells[d.idx] ? `<span class="chk-flag ${chk.cells[d.idx].err ? 'err' : ''}" title="${esc(chk.cells[d.idx].msgs.join(' \u00b7 '))}">!</span>` : ''}${calCompactOn() ? miniCellHtml(formatCell(cellInfo, prevCellInfo, false, repCellHtml(d.originalName || d.name, isoDate))) : formatCell(cellInfo, prevCellInfo, showGraziella, repCellHtml(d.originalName || d.name, isoDate))}</td>`;
         });
         tr.innerHTML = html;
         return tr;
@@ -12411,6 +13110,7 @@
         }
         list.innerHTML += otherTeamHtml(rowIndex, uShift);
         list.innerHTML += repDaySectionHtml(repRowDate(rowIndex));
+        list.innerHTML += noteDaySectionHtml(repRowDate(rowIndex));
         modal.style.display = 'flex'; setTimeout(() => modal.classList.add('open'), 10);
     }
     function closeShiftModal(e) { if(e && e.target !== e.currentTarget) return; let m = document.getElementById('shift-modal'); m.classList.remove('open'); setTimeout(() => m.style.display='none', 200); }
