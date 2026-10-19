@@ -819,6 +819,42 @@
         .me-btns { display:flex; gap:8px; margin:10px 14px 18px; }
         .me-btns button { flex:1; height:42px; border-radius:12px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-main); font-weight:700; font-size:0.82rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; font-family:inherit; }
         .me-btns button .material-icons-round { font-size:18px; color:var(--primary); }
+        /* ── I miei turni: stampa, PDF, WhatsApp ── */
+        #mycal-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:6300; backdrop-filter:blur(8px); align-items:flex-end; justify-content:center; opacity:0; transition:opacity 0.3s; }
+        #mycal-modal.open { opacity:1; }
+        #mycal-modal .modal-content { max-width:720px; max-height:94vh; }
+        #mycal-modal.open .modal-content { transform:translateY(0); }
+        .mc-pick { padding:14px 14px 4px; }
+        .mc-quick { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
+        .mc-quick button, .mc-months button { border:1px solid var(--border); background:var(--bg-card); color:var(--text-main); font-family:inherit; font-weight:700; font-size:0.78rem; border-radius:999px; padding:7px 12px; cursor:pointer; }
+        .mc-quick button.on { background:var(--primary); border-color:var(--primary); color:#fff; }
+        .mc-months { display:grid; grid-template-columns:repeat(6,1fr); gap:6px; }
+        .mc-months button { border-radius:10px; padding:8px 2px; text-transform:capitalize; }
+        .mc-months button.on { background:var(--primary); border-color:var(--primary); color:#fff; }
+        .mc-months button:disabled { opacity:.35; cursor:default; }
+        @media (max-width:480px) { .mc-months { grid-template-columns:repeat(4,1fr); } }
+        .mc-hint { font-size:0.75rem; color:var(--text-sec); font-weight:600; margin:8px 2px 0; }
+        .mc-actions { display:flex; gap:8px; padding:10px 14px; position:sticky; top:0; z-index:2; background:var(--bg-card); border-bottom:1px solid var(--border); }
+        .mc-actions button { flex:1; min-width:0; height:44px; border-radius:12px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-main); font-weight:700; font-size:0.8rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; font-family:inherit; }
+        .mc-actions button .material-icons-round { font-size:18px; color:var(--primary); }
+        .mc-actions button.wa { background:#16a34a; border-color:#16a34a; color:#fff; }
+        .mc-actions button.wa .material-icons-round { color:#fff; }
+        .mc-actions button:disabled { opacity:.45; cursor:default; }
+        .mc-month { margin:12px 14px 16px; }
+        .mc-month h4 { margin:0 0 6px; font-size:0.95rem; font-weight:800; color:var(--text-main); text-transform:capitalize; display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
+        .mc-month h4 small { font-size:0.7rem; font-weight:700; color:var(--text-sec); text-transform:none; }
+        .mc-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
+        .mc-wd { text-align:center; font-size:0.62rem; font-weight:800; color:var(--text-sec); text-transform:uppercase; padding:2px 0; }
+        .mc-wd.fest { color:#dc2626; }
+        .mc-cell { position:relative; min-height:58px; border-radius:8px; border:1px solid var(--border); background:var(--bg); padding:3px; display:flex; flex-direction:column; align-items:center; gap:2px; overflow:hidden; }
+        .mc-cell.out { visibility:hidden; }
+        .mc-cell .n { align-self:flex-start; font-size:0.66rem; font-weight:800; color:var(--text-sec); line-height:1; }
+        .mc-cell.fest .n { color:#dc2626; }
+        .mc-cell.today { box-shadow:inset 0 0 0 2px var(--primary); }
+        .mc-cell .c { width:100%; text-align:center; border-radius:6px; padding:3px 0; font-weight:800; font-size:0.78rem; background:var(--sw, transparent); color:var(--sf, var(--text-main)); }
+        .mc-cell .h { font-size:0.52rem; font-weight:700; color:var(--text-sec); text-align:center; line-height:1.1; }
+        .mc-cell .r { position:absolute; top:2px; right:2px; font-size:0.5rem; font-weight:800; color:#fff; background:#dc2626; border-radius:4px; padding:1px 3px; }
+        .mc-empty { margin:30px 16px; text-align:center; color:var(--text-sec); font-weight:600; font-size:0.85rem; }
         /* ── Controlli (copertura e regole), in modifica turni ── */
         body.coord-edit-mode .td-date.chk-warn { box-shadow: inset 0 0 0 3px #dc2626 !important; }
         body.coord-edit-mode .td-date.chk-warn::after { content:"!"; position:absolute; top:2px; right:3px; width:15px; height:15px; border-radius:50%; background:#dc2626; color:#fff; font-size:10px; font-weight:900; line-height:15px; text-align:center; }
@@ -2856,6 +2892,20 @@
             <button class="btn-close-modal" onclick="closeMyPage()"><span class="material-icons-round">close</span></button>
         </div>
         <div class="modal-body" id="me-body"></div>
+    </div>
+</div>
+
+<!-- ══════════════ I MIEI TURNI: STAMPA, PDF, WHATSAPP ══════════════ -->
+<div id="mycal-modal" onclick="closeMyCal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header hc-header-badge">
+            <div class="header-text">
+                <h3><span class="material-icons-round" style="margin-right:10px">print</span> I MIEI TURNI</h3>
+                <span>Stampa, scarica in PDF o invia con WhatsApp</span>
+            </div>
+            <button class="btn-close-modal" onclick="closeMyCal()"><span class="material-icons-round">close</span></button>
+        </div>
+        <div class="modal-body" id="mycal-body"></div>
     </div>
 </div>
 
@@ -8306,7 +8356,229 @@
             </div>
             <div class="me-btns" style="margin-top:-8px">
                 <button onclick="closeMyPage();setTimeout(openOptionsCal, 250)"><span class="material-icons-round">calendar_month</span>Turni nel calendario del telefono</button>
+            </div>
+            <div class="me-btns" style="margin-top:-8px">
+                <button onclick="openMyCal()"><span class="material-icons-round">print</span>Stampa, PDF o WhatsApp dei miei turni</button>
             </div>`;
+    }
+
+    // ═══ I MIEI TURNI: STAMPA, PDF, WHATSAPP ═════════════════════════════
+    // Calendario mensile dei propri turni (uno o più mesi, o tutto l'anno), da stampare,
+    // scaricare in PDF o mandare con WhatsApp (il PDF dove il telefono lo permette, se no il testo).
+    let myCalSel = new Set();
+    const MYCAL_WD = ['Lun','Mar','Mer','Gio','Ven','Sab','Dom'];
+    function myCalDriver() { return userIdentity && userIdentity !== 'Ospite' ? drivers.find(x => x.name === userIdentity || x.originalName === userIdentity.toUpperCase()) : null; }
+    function openMyCal() {
+        vibrate();
+        const d = myCalDriver(); if(!d) { ccToast('Scegli prima chi sei.', true); return; }
+        if(!myCalSel.size) { const now = new Date(); myCalSel = new Set([now.getFullYear() === SHIFT_YEAR ? now.getMonth() : 0]); }
+        renderMyCal();
+        const m = document.getElementById('mycal-modal'); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 10);
+    }
+    function closeMyCal(e) {
+        if(e && e.target !== e.currentTarget) return;
+        const m = document.getElementById('mycal-modal'); m.classList.remove('open'); setTimeout(() => m.style.display = 'none', 300);
+    }
+    function myCalToggle(mi) { vibrate(); if(myCalSel.has(mi)) myCalSel.delete(mi); else myCalSel.add(mi); renderMyCal(); }
+    function myCalQuick(k) {
+        vibrate();
+        const now = new Date(), cur = now.getFullYear() === SHIFT_YEAR ? now.getMonth() : 0;
+        const avail = myCalMonthsAvail();
+        myCalSel = new Set(k === 'anno' ? avail : k === 'prossimo' ? [Math.min(11, cur + 1)] : k === 'tre' ? [cur, cur + 1, cur + 2].filter(m => m <= 11) : [cur]);
+        renderMyCal();
+    }
+    function myCalMonthsAvail() { return [...new Set(buildDaysIndex().map(dd => dd.monthIdx))].sort((a, b) => a - b); }
+    // Un giorno del calendario personale: sigla, colori, orario e reperibilità.
+    function myCalEntry(d, dd, R) {
+        const info = computeDayInfo(dd.rowIdx, d.idx), meta = ccCodeMeta(info), iso = ymd(dd.date), me = d.originalName;
+        const sched = info.code && (/^[mpr]$/.test(info.code) ? diurniSched(info.code, dd.date) : SCHEDULE[info.code]);
+        const label = meta.kind === 'abs' ? ((ABS_TYPES[info.code] || {}).label || meta.label) : (SHIFT_NAMES[info.code === 'S' ? 'SM' : info.code] || info.label || '');
+        const slots = (R.days[iso] || []).map((w, s) => w === me ? REP_SLOTS[s].label : null).filter(Boolean);
+        return {
+            dd, meta, minutes: info.minutes || 0, code: info.code || '',
+            short: meta.short || '', label: label ? label.charAt(0).toUpperCase() + label.slice(1) : '',
+            sched: sched && sched !== 'RIPOSO' && meta.kind !== 'abs' ? sched : '',
+            rep: R.tit[iso] === me ? 'REP' : (slots.length ? 'REP ' + slots.join(' ') : ''),
+            fest: dd.date.getDay() === 0 || !!HOLIDAYS[`${dd.date.getMonth()}-${dd.date.getDate()}`]
+        };
+    }
+    function myCalData() {
+        const d = myCalDriver(); if(!d) return null;
+        const R = repData(), all = buildDaysIndex();
+        const months = [...myCalSel].sort((a, b) => a - b).map(mi => {
+            const days = all.filter(dd => dd.monthIdx === mi).map(dd => myCalEntry(d, dd, R));
+            const tot = days.reduce((a, e) => a + e.minutes, 0);
+            const notti = days.filter(e => e.code === 'N' || e.code === 'M+N').length, reps = days.filter(e => e.rep).length;
+            return { mi, title: MONTH_NAMES_IT[mi] + ' ' + SHIFT_YEAR, days, tot, notti, reps };
+        }).filter(m => m.days.length);
+        return { d, months };
+    }
+    function myCalSummary(m) { return `${fmtHM(m.tot)} h` + (m.notti ? ` · ${m.notti} nott${m.notti === 1 ? 'e' : 'i'}` : '') + (m.reps ? ` · ${m.reps} reperibilità` : ''); }
+    function myCalRangeTxt(months) {
+        if(!months.length) return '';
+        if(months.length === 12) return 'Anno ' + SHIFT_YEAR;
+        const n = (mi, i) => i ? MONTH_NAMES_IT[mi] : MONTH_NAMES_IT[mi].charAt(0).toUpperCase() + MONTH_NAMES_IT[mi].slice(1);
+        const contiguous = months.every((m, i) => !i || m.mi === months[i - 1].mi + 1);
+        if(months.length === 1) return n(months[0].mi, 0) + ' ' + SHIFT_YEAR;
+        return (contiguous ? n(months[0].mi, 0) + ' - ' + n(months[months.length - 1].mi, 1) : months.map((m, i) => n(m.mi, i)).join(', ')) + ' ' + SHIFT_YEAR;
+    }
+    function renderMyCal() {
+        const body = document.getElementById('mycal-body');
+        const data = myCalData(); if(!data) { body.innerHTML = '<div class="mc-empty">Scegli prima chi sei.</div>'; return; }
+        const avail = new Set(myCalMonthsAvail()), now = new Date(), cur = now.getFullYear() === SHIFT_YEAR ? now.getMonth() : 0;
+        const sel = [...myCalSel].sort((a, b) => a - b), same = arr => arr.length === sel.length && arr.every((m, i) => m === sel[i]);
+        const quick = [['mese', 'Questo mese', [cur]], ['prossimo', 'Prossimo mese', [Math.min(11, cur + 1)]], ['tre', '3 mesi', [cur, cur + 1, cur + 2].filter(m => m <= 11)], ['anno', 'Tutto l’anno', [...avail].sort((a, b) => a - b)]];
+        const today = ymd(now), none = !data.months.length;
+        const grid = m => {
+            const lead = (m.days[0].dd.date.getDay() + 6) % 7;
+            const cells = Array(lead).fill('<div class="mc-cell out"></div>').concat(m.days.map(e => `<div class="mc-cell ${e.fest ? 'fest' : ''} ${ymd(e.dd.date) === today ? 'today' : ''}" title="${esc(e.label)}"><span class="n">${e.dd.day}</span>${e.short ? `<span class="c" style="${swatchStyle(e.meta.colors)}">${esc(e.short)}</span>` : ''}${e.sched ? `<span class="h">${esc(e.sched.replace(/\s/g, ''))}</span>` : ''}${e.rep ? '<span class="r">REP</span>' : ''}</div>`));
+            return `<div class="mc-month"><h4>${esc(m.title)}<small>${esc(myCalSummary(m))}</small></h4><div class="mc-grid">${MYCAL_WD.map((w, i) => `<div class="mc-wd ${i === 6 ? 'fest' : ''}">${w}</div>`).join('')}${cells.join('')}</div></div>`;
+        };
+        body.innerHTML = `
+            <div class="mc-actions">
+                <button onclick="myCalPrint()" ${none ? 'disabled' : ''}><span class="material-icons-round">print</span>Stampa</button>
+                <button onclick="myCalPdf()" ${none ? 'disabled' : ''}><span class="material-icons-round">picture_as_pdf</span>PDF</button>
+                <button class="wa" onclick="myCalWhatsApp()" ${none ? 'disabled' : ''}><span class="material-icons-round">send</span>WhatsApp</button>
+            </div>
+            <div class="mc-pick">
+                <div class="mc-quick">${quick.map(([k, l, arr]) => `<button class="${same(arr) ? 'on' : ''}" onclick="myCalQuick('${k}')">${l}</button>`).join('')}</div>
+                <div class="mc-months">${MONTH_NAMES_IT.map((n, mi) => `<button class="${myCalSel.has(mi) ? 'on' : ''}" ${avail.has(mi) ? '' : 'disabled'} onclick="myCalToggle(${mi})">${n.slice(0, 3)}</button>`).join('')}</div>
+                <div class="mc-hint">Tocca i mesi per sceglierne uno o più.</div>
+            </div>
+            ${none ? '<div class="mc-empty">Scegli almeno un mese.</div>' : data.months.map(grid).join('')}`;
+    }
+    // Colore di una variabile CSS come [r,g,b], sempre con il tema chiaro (le variabili del tema scuro sono sul body).
+    function myCalRgb(v) {
+        if(!v) return null;
+        const p = document.createElement('span'); p.style.cssText = 'position:absolute;visibility:hidden'; p.style.color = `var(${v}, rgb(1, 2, 3))`;
+        document.documentElement.appendChild(p); const c = getComputedStyle(p).color; p.remove();
+        const m = /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?/.exec(c);
+        if(!m || c === 'rgb(1, 2, 3)' || (m[4] !== undefined && +m[4] === 0)) return null;
+        return [+m[1], +m[2], +m[3]];
+    }
+    function myCalFileName(data) { return `turni-${(data.d.name || 'infermiere').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}-${myCalRangeTxt(data.months).replace(/[^a-z0-9]+/gi, '-').toLowerCase()}.pdf`; }
+    function myCalPrint() {
+        vibrate();
+        const data = myCalData(); if(!data || !data.months.length) return;
+        const css = c => c ? `rgb(${c.join(',')})` : '';
+        const month = m => {
+            const lead = (m.days[0].dd.date.getDay() + 6) % 7;
+            const cells = Array(lead).fill('<td class="out"></td>').concat(m.days.map(e => {
+                const bg = e.meta.colors ? css(myCalRgb(e.meta.colors.bg)) : '', fg = e.meta.colors ? css(myCalRgb(e.meta.colors.fg)) : '';
+                return `<td class="${e.fest ? 'fest' : ''}"><div class="n">${e.dd.day}${e.rep ? `<span class="r">${esc(e.rep)}</span>` : ''}</div>${e.short ? `<div class="c" style="${bg ? 'background:' + bg + ';' : ''}${fg ? 'color:' + fg : ''}">${esc(e.short)}</div>` : ''}<div class="l">${esc(e.label)}</div>${e.sched ? `<div class="h">${esc(e.sched)}</div>` : ''}</td>`;
+            }));
+            while(cells.length % 7) cells.push('<td class="out"></td>');
+            const rows = []; for(let i = 0; i < cells.length; i += 7) rows.push('<tr>' + cells.slice(i, i + 7).join('') + '</tr>');
+            return `<section><h2>${esc(m.title)}<small>${esc(myCalSummary(m))}</small></h2><table><thead><tr>${MYCAL_WD.map((w, i) => `<th class="${i === 6 ? 'fest' : ''}">${w}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></section>`;
+        };
+        const html = `<!doctype html><html lang="it"><head><meta charset="utf-8"><title>Turni di ${esc(data.d.name)}</title><style>
+            @page { size:A4 portrait; margin:10mm; }
+            * { box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+            body { font-family:Helvetica,Arial,sans-serif; color:#0f172a; margin:0; }
+            header { display:flex; justify-content:space-between; align-items:baseline; border-bottom:2px solid #0b2257; padding-bottom:4px; margin-bottom:6px; }
+            header b { font-size:16pt; } header span { font-size:8pt; color:#475569; }
+            section { break-inside:avoid; page-break-inside:avoid; margin-bottom:6mm; }
+            h2 { font-size:12pt; margin:0 0 3px; text-transform:capitalize; display:flex; justify-content:space-between; align-items:baseline; }
+            h2 small { font-size:8pt; color:#475569; font-weight:600; text-transform:none; }
+            table { width:100%; border-collapse:collapse; table-layout:fixed; }
+            th { font-size:8pt; background:#0b2257; color:#fff; padding:3px 0; }
+            th.fest { background:#b91c1c; }
+            td { border:1px solid #cbd5e1; height:${data.months.length === 1 ? 32 : 17}mm; vertical-align:top; padding:2px 3px; }
+            td.out { background:#f8fafc; }
+            td.fest .n { color:#b91c1c; }
+            .n { font-size:8pt; font-weight:700; display:flex; justify-content:space-between; }
+            .r { font-size:6pt; background:#dc2626; color:#fff; border-radius:3px; padding:0 3px; }
+            .c { text-align:center; font-weight:800; font-size:11pt; border-radius:3px; margin:1px 0; padding:1px 0; }
+            .l { font-size:6pt; text-align:center; color:#334155; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+            .h { font-size:6pt; text-align:center; color:#475569; }
+        </style></head><body><header><b>Turni di ${esc(data.d.name)}</b><span>${esc(myCalRangeTxt(data.months))} · stampato il ${new Date().toLocaleDateString('it-IT')}</span></header>${data.months.map(month).join('')}</body></html>`;
+        const old = document.getElementById('mycal-print-frame'); if(old) old.remove();
+        const fr = document.createElement('iframe');
+        fr.id = 'mycal-print-frame'; fr.setAttribute('aria-hidden', 'true');
+        fr.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
+        document.body.appendChild(fr);
+        const doc = fr.contentWindow.document; doc.open(); doc.write(html); doc.close();
+        setTimeout(() => { try { fr.contentWindow.focus(); fr.contentWindow.print(); } catch(e) { ccToast('Stampa non riuscita.', true); } }, 250);
+    }
+    // PDF A4 verticale: un mese grande se è uno solo, altrimenti due mesi per pagina.
+    async function myCalBuildPdf(data) {
+        const jsPDF = await repEnsurePdfLib();
+        const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+        const W = 210, L = 10, CW = (W - 2 * L) / 7, one = data.months.length === 1, RH = one ? 32 : 17.5;
+        const txt = s => String(s).replace(/·/g, '-').replace(/[–—]/g, '-').replace(/’/g, "'");
+        const header = () => {
+            doc.setFont('helvetica', 'bold'); doc.setFontSize(15); doc.setTextColor(11, 34, 87); doc.text(txt(`Turni di ${data.d.name}`), L, 13);
+            doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(90);
+            doc.text(txt(`${myCalRangeTxt(data.months)} - stampato il ${new Date().toLocaleDateString('it-IT')}`), W - L, 13, { align:'right' });
+            doc.setDrawColor(11, 34, 87); doc.setLineWidth(0.5); doc.line(L, 15.5, W - L, 15.5); doc.setLineWidth(0.1);
+        };
+        const colorCache = {}, rgb = v => (v in colorCache) ? colorCache[v] : (colorCache[v] = myCalRgb(v));
+        let y = 0;
+        data.months.forEach((m, i) => {
+            if(one || i % 2 === 0) { if(i) doc.addPage(); header(); y = 20; }
+            doc.setFont('helvetica', 'bold'); doc.setFontSize(12); doc.setTextColor(15, 23, 42);
+            const t = m.title.charAt(0).toUpperCase() + m.title.slice(1); doc.text(t, L, y + 4);
+            doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(90); doc.text(txt(myCalSummary(m)), W - L, y + 4, { align:'right' });
+            y += 6;
+            MYCAL_WD.forEach((w, c) => {
+                doc.setFillColor(...(c === 6 ? [185, 28, 28] : [11, 34, 87])); doc.rect(L + c * CW, y, CW, 5.5, 'F');
+                doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(255); doc.text(w, L + c * CW + CW / 2, y + 3.9, { align:'center' });
+            });
+            y += 5.5;
+            const lead = (m.days[0].dd.date.getDay() + 6) % 7, nRows = Math.ceil((lead + m.days.length) / 7);
+            doc.setDrawColor(203, 213, 225);
+            for(let k = 0; k < nRows * 7; k++) {
+                const x = L + (k % 7) * CW, cy = y + Math.floor(k / 7) * RH, e = m.days[k - lead];
+                if(!e) { doc.setFillColor(248, 250, 252); doc.rect(x, cy, CW, RH, 'FD'); continue; }
+                doc.rect(x, cy, CW, RH, 'S');
+                doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(...(e.fest ? [185, 28, 28] : [15, 23, 42])); doc.text(String(e.dd.day), x + 1.5, cy + 3.6);
+                if(e.rep) {
+                    doc.setFontSize(5.5); const rw = doc.getTextWidth(e.rep) + 2;
+                    doc.setFillColor(220, 38, 38); doc.roundedRect(x + CW - rw - 1, cy + 1, rw, 3.4, 0.8, 0.8, 'F');
+                    doc.setTextColor(255); doc.text(e.rep, x + CW - 2 - rw / 2 + 1, cy + 3.3, { align:'center' });
+                }
+                const ch = one ? 9 : 6.5, cy2 = cy + (one ? 7 : 5);
+                if(e.short) {
+                    const bg = e.meta.colors && rgb(e.meta.colors.bg), fg = e.meta.colors && rgb(e.meta.colors.fg);
+                    if(bg) { doc.setFillColor(...bg); doc.roundedRect(x + 1.2, cy2, CW - 2.4, ch, 1, 1, 'F'); }
+                    doc.setFont('helvetica', 'bold'); doc.setFontSize(one ? 14 : 11); doc.setTextColor(...(fg || [15, 23, 42]));
+                    doc.text(e.short, x + CW / 2, cy2 + ch / 2 + (one ? 1.8 : 1.4), { align:'center' });
+                }
+                doc.setFont('helvetica', 'normal'); doc.setTextColor(71, 85, 105); doc.setFontSize(one ? 7 : 5.5);
+                const lines = [];
+                if(one && e.label) lines.push(doc.splitTextToSize(txt(e.label), CW - 2)[0]);
+                if(e.sched) lines.push(txt(e.sched));
+                lines.forEach((s, li) => doc.text(s, x + CW / 2, cy2 + ch + (one ? 3.6 : 2.6) + li * (one ? 3.4 : 2.4), { align:'center' }));
+            }
+            y += nRows * RH + 9;
+        });
+        const pages = doc.getNumberOfPages();
+        for(let p = 1; p <= pages; p++) { doc.setPage(p); doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(140); doc.text(txt('M mattina - P pomeriggio - N notte - SM smonto - R riposo - lettere minuscole = diurni - REP reperibilita'), L, 290); doc.text(`${p}/${pages}`, W - L, 290, { align:'right' }); }
+        return doc;
+    }
+    async function myCalPdf() {
+        vibrate();
+        const data = myCalData(); if(!data || !data.months.length) return;
+        try { ccToast('Preparo il PDF…'); const doc = await myCalBuildPdf(data); doc.save(myCalFileName(data)); ccToast('PDF scaricato'); }
+        catch(e) { console.error(e); ccToast('PDF non creato: controlla la connessione.', true); }
+    }
+    function myCalText(data) {
+        const wd = ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
+        return `Turni di ${data.d.name} · ${myCalRangeTxt(data.months)}\n` + data.months.map(m => `\n*${m.title.charAt(0).toUpperCase() + m.title.slice(1)}* (${myCalSummary(m)})\n` + m.days.map(e => `${wd[e.dd.date.getDay()]} ${String(e.dd.day).padStart(2, '0')}  ${e.short || '—'}${e.sched ? ' ' + e.sched.replace(/\s/g, '') : ''}${e.rep ? '  📞 ' + e.rep : ''}`).join('\n')).join('\n');
+    }
+    // Sul telefono si manda il PDF (scegliendo WhatsApp dal menu Condividi); dove non si può, il testo dei turni.
+    async function myCalWhatsApp() {
+        vibrate();
+        const data = myCalData(); if(!data || !data.months.length) return;
+        try {
+            if(navigator.canShare && window.File) {
+                ccToast('Preparo il PDF…');
+                const doc = await myCalBuildPdf(data);
+                const file = new File([doc.output('blob')], myCalFileName(data), { type:'application/pdf' });
+                if(navigator.canShare({ files:[file] })) { await navigator.share({ files:[file], title:`Turni di ${data.d.name}`, text:`Turni di ${data.d.name} · ${myCalRangeTxt(data.months)}` }); return; }
+            }
+        } catch(e) { if(e && e.name === 'AbortError') return; console.warn('Condivisione PDF non riuscita:', e); }
+        window.open('https://wa.me/?text=' + encodeURIComponent(myCalText(data)), '_blank');
     }
 
     // ═══ STAMPA DEL MESE (PDF per la bacheca) ═════════════════════════════
