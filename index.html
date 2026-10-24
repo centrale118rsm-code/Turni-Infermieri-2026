@@ -3963,7 +3963,11 @@
             if(!doc.exists) { seedNamespaceSettings(); resolveConfigReady(); return; }
             const data = doc.data();
             if(data.dataSource !== undefined) dataSourceMode = data.dataSource === 'firebase' ? 'firebase' : 'excel';
-            if(data.activeYear !== undefined && data.activeYear) activeYear = +data.activeYear;
+            if(data.activeYear !== undefined && data.activeYear) {
+                const prevYear = activeYear; activeYear = +data.activeYear;
+                // un altro telefono ha aperto l'anno nuovo (capodanno): si riapre l'app sull'anno nuovo
+                if(appBooted && bootMode === 'firebase' && prevYear !== activeYear && !isViewingArchive() && !pendingChangesCount()) { location.reload(); return; }
+            }
             if(data.archivedYears !== undefined) archivedYears = (data.archivedYears || []).map(Number);
             // è stato attivato il passaggio a Firebase mentre questa app girava ancora sull'Excel
             if(appBooted && bootMode === 'excel' && dataSourceMode === 'firebase' && !sessionStorage.getItem('fb_mode_reloaded')) {
@@ -3999,10 +4003,6 @@
             if(data.customCodes !== undefined && JSON.stringify(data.customCodes || {}) !== JSON.stringify(customCodes)) {
                 customCodes = data.customCodes || {}; applyCustomCodes();
                 if(finalData.length && document.querySelector('#table-body tr[data-row]')) renderTable();
-            }
-            if(data.oreAssenze !== undefined) {   // ore delle assenze importate dal file Excel principale
-                const m = (data.oreAssenze || {}).min || {};
-                if(JSON.stringify(m) !== JSON.stringify(absMinImported)) { absMinImported = m; if(finalData.length) refreshAfterRemoteOverrides(); }
             }
             if(data.ferieRules) { ferieRules = Object.assign({}, FERIE_DEFAULT, data.ferieRules); if(calOverview) renderOverviewSoon(); }
             if(data.coordinatorName !== undefined) {
@@ -5088,13 +5088,13 @@
             { group:'Per te' },
             { id:'me', icon:'person', label:'La mia pagina', desc: (userIdentity && userIdentity !== 'Ospite') ? 'Prossimi turni, ore, assenze, reperibilit\u00e0' : 'Scegli prima chi sei', color:'#1d4ed8', run: () => openMyPage() },
             { group:'Calendario' },
-            { id:'cal', icon:'calendar_month', label:'Calendario', desc:'Oggi, mesi, operatori' + (hasYears ? ', anni passati' : ''), color: MN_COLORS.cal, children: [
+            { id:'cal', icon:'calendar_month', label:'Calendario', desc:'Oggi, mesi, operatori', color: MN_COLORS.cal, children: [
                 { id:'today', icon:'today', label:'Vai a oggi', desc:'Torna al giorno corrente', color: MN_COLORS.cal, run: () => scrollToToday() },
                 { id:'month', icon:'event', label:'Vai a un mese', desc:'Scegli il mese da vedere', color: MN_COLORS.cal, run: () => toggleMonthDropdown() },
                 { id:'filter', icon:'groups', label:'Filtra operatori', desc:'Mostra solo alcuni colleghi', color: MN_COLORS.cal, run: () => toggleDriverFilterDropdown() },
-                { id:'print', icon:'print', label:'Stampa del mese', desc:'PDF dei turni per la bacheca', color: MN_COLORS.cal, run: () => printMonthPick() },
-                hasYears ? { id:'years', icon:'history', label:'Anni passati', desc:'Consulta gli anni archiviati (sola lettura)', color: MN_COLORS.cal, run: () => openYearPicker() } : null
+                { id:'print', icon:'print', label:'Stampa del mese', desc:'PDF dei turni per la bacheca', color: MN_COLORS.cal, run: () => printMonthPick() }
             ] },
+            hasYears ? { id:'years', icon:'history', label:'Anni passati', desc:'Il calendario degli anni conclusi, solo da vedere', color: MN_COLORS.cal, run: () => openYearPicker() } : null,
             { id:'view', icon: calOverview ? 'view_agenda' : 'grid_view', label: calOverview ? 'Vista dettagliata' : 'Vista d’insieme', desc: calOverview ? 'Torna al calendario giorno per giorno' : 'Tutto l’anno a colpo d’occhio', color: MN_COLORS.cal, run: () => toggleCalView() },
             { id:'ferie', icon:'beach_access', label:'Ferie e permessi', desc:'Quando prenderli: giorni e periodi consigliati', color:'#16a34a', run: () => openFerieAdvice() },
             { id:'ore', icon:'query_stats', label:'Conteggio orario', desc:'Ore lavorate e saldo rispetto al contratto', color: MN_COLORS.ore, run: () => openHoursModal() },
@@ -5779,72 +5779,18 @@
         return (year && year !== SHIFT_YEAR) ? `${k}@${year}` : k;
     }
 
-    // Giornata di contratto: ore settimanali ÷ 6 nei giorni lun–sab (6 h con 36 h); la domenica vale 0.
-    function contractDayMinutesAt(rowIdx, colIdx) {
+    // Assenze giustificate (ferie, recupero, congedo, malattia, permessi, festivi, gravidanza,
+    // sostituzione coordinatore…): coprono l'intera giornata di contratto, cioè ore settimanali
+    // ÷ 6 nei giorni lun–sab (6 h con 36 h); la domenica non matura ore e vale 0.
+    // Il permesso notte invece vale le ore vere della notte (19:45-00:00, come nel file Excel);
+    // le 7:20 dopo mezzanotte si contano il giorno dopo.
+    function justifiedDayMinutes(rowIdx, colIdx) {
         const row = finalData[rowIdx]; if(!row) return 0;
+        if(String((row[colIdx] || {}).subV || '').trim().toLowerCase() === 'pn') return minutesFromRange(SCHEDULE["N"]);
         const mi = MONTH_MAP[row[0].v], dn = parseInt(row[1].v);
         if(mi === undefined || isNaN(dn)) return 0;
         if(!isContractDay(new Date(shiftRowYear(rowIdx), mi, dn))) return 0;
         return getContractHours(colIdx) * 60 / CONTRACT_WORKDAYS;
-    }
-    // ── Ore delle assenze come nel file Excel principale (m-Infermieri 2026.xlsm, foglio CONTEGGI ORARI) ──
-    // Un'assenza (ferie, recupero, congedo, malattia, permessi, gravidanza…) vale l'orario del turno
-    // che si sarebbe fatto quel giorno secondo il giro P › M › N › S › R, non 6 ore fisse.
-    // 1) Se è stato importato il file principale, si usano le ore già scritte lì (al minuto).
-    // 2) Se sopra c'è scritto il turno, vale quel turno; un riposo vale 0.
-    // 3) Dentro un'assenza lunga i riposi restano scritti (R sopra, f sotto): il più vicino, entro 6
-    //    giorni, dice a che punto del giro si è. 4) Altrimenti vale l'ultimo turno da turnista prima
-    //    dell'assenza (i giorni da diurno non contano: il giro da turnista va avanti lo stesso), o il
-    //    primo dopo. Confrontato con le ore scritte nel file Excel del 2026 ci azzecca 94 volte su 100.
-    // Sostituzione coordinatore (z) = giornata da diurno; festivo non goduto (ng) = giornata di contratto.
-    let absMinImported = {};   // "YYYY-MM-DD|NOME" -> minuti, dal file principale (campo oreAssenze delle impostazioni)
-    const ABS_CYCLE = ['P', 'M', 'N', 'SM', 'R'];
-    function absOwnCode(cell) {
-        let v = String((cell && cell.v) || '').trim(); const si = v.indexOf('/'); if(si !== -1) v = v.slice(0, si).trim();
-        return v;
-    }
-    // posizione nel giro di una casella: codice del giro, 'Rabs' = riposo scritto dentro un'assenza, null = non dice niente
-    function absCycleCode(cell) {
-        if(!cell) return null;
-        const sub = String(cell.subV || '').trim().toLowerCase(), v = absOwnCode(cell);
-        if(sub && Object.prototype.hasOwnProperty.call(SPECIAL_SUBCODES, sub)) return v === 'R' ? 'Rabs' : null;
-        if(!v) return null;
-        const u = v.toUpperCase().replace(/\s+/g, '');
-        if(v !== u) return null;   // minuscoli = giorno da diurno
-        if(u === 'M+N' || u === 'MN') return 'N';
-        if(u === 'S') return 'SM';
-        return ABS_CYCLE.includes(u) ? u : null;
-    }
-    function plannedShiftMinutes(rowIdx, colIdx) {
-        const fromCode = (c, off) => {   // turno di oggi sapendo che a "off" giorni di distanza c'è il codice c
-            const code = ABS_CYCLE[((ABS_CYCLE.indexOf(c) - off) % 5 + 5) % 5];
-            return code === 'R' ? 0 : minutesFromRange(SCHEDULE[code]);
-        };
-        const at = off => absCycleCode((finalData[rowIdx + off] || [])[colIdx]);
-        for(let k = 1; k <= 6; k++) for(const dir of [-1, 1]) if(at(dir * k) === 'Rabs') return fromCode('R', dir * k);
-        for(let k = 1; rowIdx - k >= 1; k++) { const c = at(-k); if(c && c !== 'Rabs') return fromCode(c, -k); }
-        for(let k = 1; rowIdx + k < finalData.length; k++) { const c = at(k); if(c && c !== 'Rabs') return fromCode(c, k); }
-        return null;
-    }
-    function absImportedMinutes(rowIdx, colIdx) {
-        const iso = repRowDate(rowIdx), d = getDriverByIdx(colIdx);
-        if(!iso || !d) return null;
-        const v = absMinImported[iso + '|' + d.originalName];
-        return typeof v === 'number' ? v : null;
-    }
-    function justifiedDayMinutes(rowIdx, colIdx) {
-        const cell = (finalData[rowIdx] || [])[colIdx] || {};
-        const own = absOwnCode(cell), sub = String(cell.subV || '').trim().toLowerCase();
-        const imp = absImportedMinutes(rowIdx, colIdx); if(imp !== null) return imp;
-        if(/^(r|riposo)$/i.test(own)) return 0;
-        if(sub === 'ng') return contractDayMinutesAt(rowIdx, colIdx);
-        if(sub === 'z') return minutesFromRange(diurniSched('m', repRowDate(rowIdx)));
-        if(own && own !== '-') {
-            const t = /^[a-z]/.test(own) ? diurniSched(own, repRowDate(rowIdx)) : SCHEDULE[own.toUpperCase().replace(/\s+/g, '')];
-            if(t !== undefined) return minutesFromRange(t);
-        }
-        const pm = plannedShiftMinutes(rowIdx, colIdx); if(pm !== null) return pm;
-        return contractDayMinutesAt(rowIdx, colIdx);
     }
     // Il giorno dopo un permesso notte è libero se non ha un turno suo né un'altra assenza
     function pnTailFree(cell) {
@@ -5944,8 +5890,11 @@
         if(rawU === "M+N" || rawU === "MN") return minutesFromRange(SCHEDULE["M"]) + minutesFromRange(SCHEDULE["N"]);
         let sub = (cell.subV||"").toString().trim().toLowerCase();
         if(Object.prototype.hasOwnProperty.call(SPECIAL_SUBCODES, sub)) {
-            // assenza giustificata: l'orario del turno che avrebbe fatto (come nel file Excel principale)
-            return justifiedDayMinutes(rowIdx, colIdx);
+            // assenza giustificata: copre la giornata (6 h con 36 h/sett.), la domenica 0; il permesso notte le ore della notte
+            if(sub === 'pn') return minutesFromRange(SCHEDULE["N"]);
+            const r = finalData[rowIdx], mi = MONTH_MAP[r[0].v], dn = parseInt(r[1].v);
+            if(mi === undefined || isNaN(dn) || new Date(shiftRowYear(rowIdx), mi, dn).getDay() === 0) return 0;
+            return getContractHours(colIdx) * 60 / CONTRACT_WORKDAYS;
         }
         let v = raw; let si = v.indexOf('/'); if(si !== -1) v = v.substring(0,si).trim();
         if(!v || v === "-") return 0;
@@ -7409,81 +7358,6 @@
         const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.xlsx';
         inp.onchange = () => { const f = inp.files[0]; if(!f) return; const r = new FileReader(); r.onload = () => importLoadBuffer(r.result, f.name); r.readAsArrayBuffer(f); };
         inp.click();
-    }
-    // ═══ FILE EXCEL PRINCIPALE (m-Infermieri 2026.xlsm) ═══════════════════
-    // Dal file principale si leggono: i turni dal foglio CARTELLINO (stesso contenuto e stessa forma del
-    // file piccolo infermieri.xlsx) e le ore delle assenze dal foglio CONTEGGI ORARI (per ogni infermiere,
-    // 5 colonne: codice assenza, turno, ore lavorate, ore di assenza, settimana). Le ore delle assenze si
-    // salvano subito (campo oreAssenze delle impostazioni) e il conteggio orario dell'app le usa al minuto; i turni
-    // passano dal solito confronto di "Importa da Excel" prima di finire nel calendario.
-    function xlCellVal(v) {
-        if(v && typeof v === 'object' && !(v instanceof Date)) v = v.result !== undefined ? v.result : (v.richText ? v.richText.map(t => t.text).join('') : (v.text || ''));
-        return v === undefined || v === null ? '' : v;
-    }
-    function xlMinutes(v) {
-        v = xlCellVal(v);
-        if(v instanceof Date) return Math.round(((v.getTime() / 60000) % 1440 + 1440) % 1440);
-        if(typeof v === 'number') return Math.round(v * 1440);
-        const m = String(v).trim().match(/^(-?)(\d{1,2}):(\d{2})/); if(!m) return null;
-        return (m[1] ? -1 : 1) * (+m[2] * 60 + +m[3]);
-    }
-    function mainParseWorkbook(wb) {
-        const ct = wb.getWorksheet('CONTEGGI ORARI'), car = wb.getWorksheet('CARTELLINO');
-        if(!ct || !car) throw new Error('non è il file principale: mancano i fogli CONTEGGI ORARI o CARTELLINO');
-        const year = parseInt(xlCellVal(ct.getCell('A2').value)) || activeYear;
-        // ore delle assenze: riga 2 = nomi ("Mosca M.P.", uno ogni 5 colonne), dalla riga 6 un giorno per riga
-        const people = [], surname = n => normalizeNameForMatch(String(n).split(/\s+/)[0]);
-        for(let c = 1; c <= 130; c++) {
-            const n = String(xlCellVal(ct.getCell(2, c).value)).trim(); if(!n || n.length < 3 || n.startsWith('#')) continue;
-            const d = drivers.find(x => normalizeNameForMatch(x.originalName) === normalizeNameForMatch(n) || normalizeNameForMatch(x.name) === normalizeNameForMatch(n))
-                || drivers.find(x => normalizeNameForMatch(x.originalName) === surname(n) || normalizeNameForMatch(x.name) === surname(n));
-            if(d && !people.some(p => p.d === d)) people.push({ c, d });
-        }
-        const min = {}; let y = year, month = -1, nAbs = 0;
-        for(let r = 6; r <= ct.rowCount; r++) {
-            const mTxt = String(xlCellVal(ct.getCell(r, 1).value)).toUpperCase();
-            const mk = Object.keys(MONTH_MAP).find(m => mTxt.includes(m));
-            if(mk !== undefined) { const mi = MONTH_MAP[mk]; if(mi < month) y++; month = mi; }
-            const dn = parseInt(xlCellVal(ct.getCell(r, 2).value)); if(month < 0 || isNaN(dn) || dn < 1 || dn > 31) continue;
-            const iso = ymd(new Date(y, month, dn));
-            people.forEach(p => {
-                const code = String(xlCellVal(ct.getCell(r, p.c).value)).trim();
-                if(!code || code === '0' || code.startsWith('#')) return;
-                const m = xlMinutes(ct.getCell(r, p.c + 3).value); if(m === null) return;   // "X" o vuoto: ore non ancora scritte
-                min[iso + '|' + p.d.originalName] = m; nAbs++;
-            });
-        }
-        return { raw: importReadRaw(car), min, nAbs, people: people.length };
-    }
-    async function importMainBuffer(buf, fileName) {
-        ccToast('Leggo il file principale… (qualche secondo)');
-        try {
-            await loadLib('excel');
-            const wb = new ExcelJS.Workbook(); await wb.xlsx.load(buf);
-            const res = mainParseWorkbook(wb);
-            if(!res.people) throw new Error('nel foglio CONTEGGI ORARI non trovo gli infermieri dell’app');
-            absMinImported = res.min; refreshAfterRemoteOverrides();
-            // nelle impostazioni (documento già ammesso dalle regole di Firebase); update sostituisce tutto il campo
-            if(fbReady) await cfgRef('settings').update({ oreAssenze: { min: res.min, fileName, importedAt: new Date().toISOString(), by: whoAmI() } });
-            if(dataSourceMode === 'firebase') {
-                importAnalyze(importParseRaw(res.raw), fileName);
-                ccGo('importa');
-                ccToast(`Ore di ${res.nAbs} assenze prese dal file principale. Controlla qui sotto i turni che cambiano, poi Porta nel calendario.`);
-            } else {
-                ccToast(`Ore di ${res.nAbs} assenze prese dal file principale: il conteggio orario ora le usa al minuto. I turni restano quelli di infermieri.xlsx.`);
-                ccRefreshIfOpen();
-            }
-        } catch(e) { console.error(e); ccToast('File principale non leggibile: ' + (e.message || e), true); }
-    }
-    function importPickMain() {
-        const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.xlsm,.xlsx';
-        inp.onchange = () => { const f = inp.files[0]; if(!f) return; const r = new FileReader(); r.onload = () => importMainBuffer(r.result, f.name); r.readAsArrayBuffer(f); };
-        inp.click();
-    }
-    function absImportInfoHtml() {
-        const n = Object.keys(absMinImported).length;
-        return n ? `<p class="cc-note" style="margin-top:10px">Ore delle assenze dal file principale: <b>${n}</b> giorni. Il conteggio orario usa queste ore, al minuto; per le altre assenze ricava il turno dal giro.</p>`
-            : `<p class="cc-note" style="margin-top:10px">Ore delle assenze dal file principale: non ancora importate. Per le assenze l’app ricava il turno che si sarebbe fatto dal giro P › M › N › S › R.</p>`;
     }
     async function importFromOfficial() {
         try {
@@ -10361,6 +10235,7 @@
         excelParsedData = buildBlankYearData(activeYear, operatorConfig.baseNames || [], NEXT_YEAR_MONTHS);
         rebuildDataFromExcel(); initApp(); updateYearUi();
         appBooted = true;
+        setTimeout(autoNewYearCheck, 3000);   // capodanno: se l'anno è finito si passa al nuovo
         if(splashMinTime) await splashMinTime;
         document.getElementById('loader').style.opacity = '0';
         setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
@@ -10414,32 +10289,63 @@
         } catch(e) { console.error('Migrazione non riuscita:', e); ccToast('Passaggio non riuscito: ' + (e.code || e.message) + '. Nulla è stato cambiato.', true); }
     }
     // Anno nuovo: l'anno attivo viene chiuso (sola lettura, con la sua squadra e le ore di contratto)
-    // e si apre il successivo, vuoto, con la stessa squadra.
+    // e si apre il successivo, vuoto, con la stessa squadra. Succede da solo a capodanno (il primo
+    // telefono che apre l'app dal 1° gennaio lo fa per tutti) oppure a mano dall'Area Coordinatore.
     async function ccStartNewYear() {
         if(dataSourceMode !== 'firebase' || isViewingArchive()) return;
         if(pendingChangesCount()) { ccToast('Prima salva o scarta le modifiche in sospeso.', true); return; }
         const next = activeYear + 1;
-        const ok = await ccConfirm(`Aprire il ${next}?`, `Il ${activeYear} viene chiuso: resta consultabile da tutti in sola lettura. Il ${next} parte con i turni già inseriti, la stessa squadra e le stesse ore di contratto; le ferie del ${activeYear} messe tra gennaio e marzo del ${next} diventano «ferie residue anno prima». Prima faccio una copia di sicurezza.`, `Apri il ${next}`, 'solid-danger');
+        const ok = await ccConfirm(`Aprire il ${next}?`, `Il ${activeYear} viene chiuso: resta consultabile da tutti in sola lettura dal menu, alla voce «Anni passati». Il ${next} parte con i turni già inseriti, la stessa squadra e le stesse ore di contratto; le ferie del ${activeYear} messe tra gennaio e marzo del ${next} diventano «ferie residue anno prima». Prima faccio una copia di sicurezza. A capodanno succede anche da solo.`, `Apri il ${next}`, 'solid-danger');
         if(!ok) return;
         try {
-            await takeSnapshot('prima-del-nuovo-anno');
-            const header = (finalData[0] || []).slice(3);
-            const newBase = header.filter(n => !operatorConfig.removed[n]);
-            const batch = db.batch(), now = new Date().toISOString();
-            batch.set(cfgRef('anno_' + activeYear), { year: activeYear, baseNames: header, contract: operatorConfig.contract || {}, removed: operatorConfig.removed || {}, nameOverrides, closedAt: now, closedBy: whoAmI() });
-            batch.update(cfgRef('settings'), { activeYear: next, archivedYears: [...new Set(archivedYears.concat([activeYear]))], operatorConfig: Object.assign({}, operatorConfig, { baseNames: newBase, added: [], removed: {} }) });
-            let conv = 0;
-            for(let m = 0; m < CO_CARRY_MONTHS; m++) {
-                const doc = await cfgRef(monthDocName(next, m)).get(); const cells = doc.exists ? (doc.data().cells || {}) : {}, upd = {};
-                Object.keys(cells).forEach(k => { const c = cells[k] || {}; if(String(c.subV || '').trim().toLowerCase() === 'f' && !/^r(iposo)?$/i.test(String(c.v || '').trim())) { upd[k] = Object.assign({}, c, { subV: 'v' }); conv++; } });
-                if(Object.keys(upd).length) batch.set(cfgRef(monthDocName(next, m)), { cells: upd }, { merge:true });
-            }
-            addLogWrite(batch, [], `Chiuso il ${activeYear}, aperto il ${next}${conv ? ` (${conv} giorni di ferie del ${activeYear} diventati ferie residue)` : ''}`);
-            await batch.commit();
-            ccToast(`Fatto: da ora si lavora sul ${next}.`);
+            const done = await startNewYearCore(activeYear, false);
+            if(!done) { ccToast('L’anno è già stato cambiato da un altro telefono: riapro l’app.'); setTimeout(() => location.reload(), 1000); return; }
+            ccToast(`Fatto: da ora si lavora sul ${done}.`);
             setTimeout(() => location.reload(), 1000);
         } catch(e) { console.error(e); ccToast('Operazione non riuscita: ' + (e.code || e.message), true); }
     }
+    // Chiude l'anno "from" e apre il successivo. Dentro una transazione: se intanto un altro telefono
+    // ha già cambiato anno non fa niente e restituisce null, altrimenti restituisce l'anno nuovo.
+    async function startNewYearCore(from, auto) {
+        const next = from + 1;
+        await takeSnapshot(auto ? 'prima-del-capodanno' : 'prima-del-nuovo-anno');
+        const header = (finalData[0] || []).slice(3);
+        const newBase = header.filter(n => !operatorConfig.removed[n]);
+        const now = new Date().toISOString();
+        return db.runTransaction(async t => {
+            const s = await t.get(cfgRef('settings'));
+            if(!s.exists || +(s.data().activeYear || 0) !== from) return null;
+            const archived = (s.data().archivedYears || []).map(Number);
+            const months = [];
+            for(let m = 0; m < CO_CARRY_MONTHS; m++) months.push(await t.get(cfgRef(monthDocName(next, m))));
+            t.set(cfgRef('anno_' + from), { year: from, baseNames: header, contract: operatorConfig.contract || {}, removed: operatorConfig.removed || {}, nameOverrides, closedAt: now, closedBy: auto ? 'capodanno automatico · ' + whoAmI() : whoAmI() });
+            t.update(cfgRef('settings'), { activeYear: next, archivedYears: [...new Set(archived.concat([from]))], operatorConfig: Object.assign({}, operatorConfig, { baseNames: newBase, added: [], removed: {} }) });
+            let conv = 0;
+            months.forEach((doc, m) => {
+                const cells = doc.exists ? (doc.data().cells || {}) : {}, upd = {};
+                Object.keys(cells).forEach(k => { const c = cells[k] || {}; if(String(c.subV || '').trim().toLowerCase() === 'f' && !/^r(iposo)?$/i.test(String(c.v || '').trim())) { upd[k] = Object.assign({}, c, { subV: 'v' }); conv++; } });
+                if(Object.keys(upd).length) t.set(cfgRef(monthDocName(next, m)), { cells: upd }, { merge:true });
+            });
+            addLogWrite(t, [], `${auto ? 'Capodanno: ' : ''}chiuso il ${from}, aperto il ${next}${conv ? ` (${conv} giorni di ferie del ${from} diventati ferie residue)` : ''}`);
+            return next;
+        });
+    }
+    // Capodanno automatico: all'apertura e ogni 10 minuti, se l'anno del calendario è finito si passa
+    // al nuovo (solo con i turni su Firebase; con modifiche non salvate su questo telefono si aspetta).
+    let autoNewYearBusy = false;
+    async function autoNewYearCheck() {
+        if(autoNewYearBusy || !fbReady || !appBooted || bootMode !== 'firebase' || dataSourceMode !== 'firebase') return;
+        if(isViewingArchive() || coordEditModeActive || pendingChangesCount()) return;
+        if(new Date().getFullYear() <= activeYear || !finalData.length) return;
+        autoNewYearBusy = true;
+        try {
+            const done = await startNewYearCore(activeYear, true);
+            if(done) console.log('Capodanno: aperto il ' + done);
+            location.reload();
+        } catch(e) { console.error('Capodanno automatico non riuscito:', e); }
+        finally { autoNewYearBusy = false; }
+    }
+    setInterval(autoNewYearCheck, 10 * 60 * 1000);
 
     // ── Consultazione degli anni passati (per tutti, sola lettura) ──────────
     let ccArchiveBackup = null;
@@ -10541,13 +10447,6 @@
                     <button class="cc-btn" onclick="takeSnapshot('manuale').then(id => { if(id) { ccToast('Copia creata'); ccRefreshIfOpen(); } })"><span class="msym">save_as</span>Crea copia adesso</button>
                     <button class="cc-btn danger" onclick="pickBackupFile()"><span class="msym">upload</span>Ripristina da file…</button>
                 </div>
-            </div></div>
-            <div class="cc-panel"><div class="cc-panel-head"><h3>Importa da Excel</h3></div><div class="cc-panel-body">
-                <p class="cc-note" style="margin-bottom:12px">Facoltativo, basta una volta: il file principale porta le ore esatte di ferie, permessi e malattie già scritte nell’Excel (il turno che si sarebbe fatto). Per le assenze nuove l’app calcola da sola il turno dal giro P › M › N › S › R.</p>
-                <div class="cc-inline-form">
-                    <button class="cc-btn primary" onclick="importPickMain()"><span class="msym">upload_file</span>File principale (m-Infermieri 2026.xlsm)</button>
-                </div>
-                ${absImportInfoHtml()}
             </div></div>
             <div class="cc-panel"><div class="cc-panel-head"><h3>Copie automatiche</h3><span class="cc-hint">una al giorno, ultime 14</span></div><div class="cc-panel-body" id="dat-snaps"><p class="cc-note">Carico…</p></div></div>
             <div class="cc-panel"><div class="cc-panel-head"><h3>Storico modifiche</h3><span class="cc-hint">ultimi 7 giorni</span></div><div class="cc-panel-body" id="dat-log"><p class="cc-note">Carico…</p></div></div>
