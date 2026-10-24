@@ -464,7 +464,7 @@
         .spec-xa     { background: var(--bg-matr);   color: var(--t-matr);   border: 1px solid var(--b-matr);   font-size: 0.66rem; }
         .spec-cong.spec-cong-prev { background: linear-gradient(135deg, var(--bg-cong) 0 50%, var(--bg-ferie) 50% 100%); color: #1f1300; border-color: var(--b-ferie); text-shadow: 0 0 3px rgba(255,255,255,.65); }
         .hg-viewsw { margin: 0 auto 6px; }
-        .hs-wrap { overflow: auto; max-height: calc(94vh - 260px); border: 1px solid var(--border); border-radius: 12px; background: var(--bg-card); -webkit-overflow-scrolling: touch; }
+        .hs-wrap { overflow: auto; max-height: calc(94vh - 260px); border: 1px solid var(--border); border-radius: 12px; background: var(--bg-card); -webkit-overflow-scrolling: touch; overflow-anchor: none; }
         .hs-table { border-collapse: separate; border-spacing: 0; font-size: 0.72rem; font-variant-numeric: tabular-nums; }
         .hs-table th, .hs-table td { padding: 0 4px; height: 24px; border-bottom: 1px solid var(--border); border-right: 1px solid rgba(148,163,184,.25); white-space: nowrap; text-align: center; }
         .hs-table thead th { position: sticky; z-index: 3; background: var(--bg-card); }
@@ -1077,6 +1077,12 @@
         #hours-modal.open { opacity:1; }
         #hours-modal .modal-content { max-width:680px; max-height:94vh; }
         #hours-modal.open .modal-content { transform:translateY(0); }
+        /* conteggio orario a tutto schermo */
+        .hm-head-btns { display:flex; gap:8px; align-items:center; }
+        #hours-modal.hm-full { align-items:stretch; }
+        #hours-modal.hm-full .modal-content { max-width:none; width:100vw; max-height:none; height:100vh; height:100dvh; border-radius:0; }
+        #hours-modal.hm-full .modal-body { flex:1; }
+        #hours-modal.hm-full .hs-wrap { max-height:calc(100dvh - 230px); }
         .hc-header-badge { background:linear-gradient(135deg,#0f172a,#1e293b); color:#fff; }
         /* ── Centro notifiche ── */
         .nt-tabs { display:flex; gap:6px; padding:12px 16px; border-bottom:1px solid var(--border); background:var(--bg); }
@@ -3105,7 +3111,10 @@
                 <h3><span class="material-icons-round" style="margin-right:10px">query_stats</span> CONTEGGIO ORARIO</h3>
                 <span>Ore del mese di tutti, settimana per settimana</span>
             </div>
-            <button class="btn-close-modal" onclick="closeHoursModal()"><span class="material-icons-round">close</span></button>
+            <div class="hm-head-btns">
+                <button class="btn-close-modal" id="hm-full-btn" onclick="hoursToggleFull()" title="Tutto schermo" aria-label="Tutto schermo"><span class="material-icons-round">open_in_full</span></button>
+                <button class="btn-close-modal" onclick="closeHoursModal()"><span class="material-icons-round">close</span></button>
+            </div>
         </div>
         <div class="modal-body">
             <div id="hc-list-view">
@@ -3954,7 +3963,11 @@
             if(!doc.exists) { seedNamespaceSettings(); resolveConfigReady(); return; }
             const data = doc.data();
             if(data.dataSource !== undefined) dataSourceMode = data.dataSource === 'firebase' ? 'firebase' : 'excel';
-            if(data.activeYear !== undefined && data.activeYear) activeYear = +data.activeYear;
+            if(data.activeYear !== undefined && data.activeYear) {
+                const prevYear = activeYear; activeYear = +data.activeYear;
+                // un altro telefono ha aperto l'anno nuovo (capodanno): si riapre l'app sull'anno nuovo
+                if(appBooted && bootMode === 'firebase' && prevYear !== activeYear && !isViewingArchive() && !pendingChangesCount()) { location.reload(); return; }
+            }
             if(data.archivedYears !== undefined) archivedYears = (data.archivedYears || []).map(Number);
             // è stato attivato il passaggio a Firebase mentre questa app girava ancora sull'Excel
             if(appBooted && bootMode === 'excel' && dataSourceMode === 'firebase' && !sessionStorage.getItem('fb_mode_reloaded')) {
@@ -5075,13 +5088,13 @@
             { group:'Per te' },
             { id:'me', icon:'person', label:'La mia pagina', desc: (userIdentity && userIdentity !== 'Ospite') ? 'Prossimi turni, ore, assenze, reperibilit\u00e0' : 'Scegli prima chi sei', color:'#1d4ed8', run: () => openMyPage() },
             { group:'Calendario' },
-            { id:'cal', icon:'calendar_month', label:'Calendario', desc:'Oggi, mesi, operatori' + (hasYears ? ', anni passati' : ''), color: MN_COLORS.cal, children: [
+            { id:'cal', icon:'calendar_month', label:'Calendario', desc:'Oggi, mesi, operatori', color: MN_COLORS.cal, children: [
                 { id:'today', icon:'today', label:'Vai a oggi', desc:'Torna al giorno corrente', color: MN_COLORS.cal, run: () => scrollToToday() },
                 { id:'month', icon:'event', label:'Vai a un mese', desc:'Scegli il mese da vedere', color: MN_COLORS.cal, run: () => toggleMonthDropdown() },
                 { id:'filter', icon:'groups', label:'Filtra operatori', desc:'Mostra solo alcuni colleghi', color: MN_COLORS.cal, run: () => toggleDriverFilterDropdown() },
-                { id:'print', icon:'print', label:'Stampa del mese', desc:'PDF dei turni per la bacheca', color: MN_COLORS.cal, run: () => printMonthPick() },
-                hasYears ? { id:'years', icon:'history', label:'Anni passati', desc:'Consulta gli anni archiviati (sola lettura)', color: MN_COLORS.cal, run: () => openYearPicker() } : null
+                { id:'print', icon:'print', label:'Stampa del mese', desc:'PDF dei turni per la bacheca', color: MN_COLORS.cal, run: () => printMonthPick() }
             ] },
+            hasYears ? { id:'years', icon:'history', label:'Anni passati', desc:'Il calendario degli anni conclusi, solo da vedere', color: MN_COLORS.cal, run: () => openYearPicker() } : null,
             { id:'view', icon: calOverview ? 'view_agenda' : 'grid_view', label: calOverview ? 'Vista dettagliata' : 'Vista d’insieme', desc: calOverview ? 'Torna al calendario giorno per giorno' : 'Tutto l’anno a colpo d’occhio', color: MN_COLORS.cal, run: () => toggleCalView() },
             { id:'ferie', icon:'beach_access', label:'Ferie e permessi', desc:'Quando prenderli: giorni e periodi consigliati', color:'#16a34a', run: () => openFerieAdvice() },
             { id:'ore', icon:'query_stats', label:'Conteggio orario', desc:'Ore lavorate e saldo rispetto al contratto', color: MN_COLORS.ore, run: () => openHoursModal() },
@@ -5769,8 +5782,11 @@
     // Assenze giustificate (ferie, recupero, congedo, malattia, permessi, festivi, gravidanza,
     // sostituzione coordinatore…): coprono l'intera giornata di contratto, cioè ore settimanali
     // ÷ 6 nei giorni lun–sab (6 h con 36 h); la domenica non matura ore e vale 0.
+    // Il permesso notte invece vale le ore vere della notte (19:45-00:00, come nel file Excel);
+    // le 7:20 dopo mezzanotte si contano il giorno dopo.
     function justifiedDayMinutes(rowIdx, colIdx) {
         const row = finalData[rowIdx]; if(!row) return 0;
+        if(String((row[colIdx] || {}).subV || '').trim().toLowerCase() === 'pn') return minutesFromRange(SCHEDULE["N"]);
         const mi = MONTH_MAP[row[0].v], dn = parseInt(row[1].v);
         if(mi === undefined || isNaN(dn)) return 0;
         if(!isContractDay(new Date(shiftRowYear(rowIdx), mi, dn))) return 0;
@@ -5874,7 +5890,8 @@
         if(rawU === "M+N" || rawU === "MN") return minutesFromRange(SCHEDULE["M"]) + minutesFromRange(SCHEDULE["N"]);
         let sub = (cell.subV||"").toString().trim().toLowerCase();
         if(Object.prototype.hasOwnProperty.call(SPECIAL_SUBCODES, sub)) {
-            // assenza giustificata: copre la giornata (6 h con 36 h/sett.), la domenica 0
+            // assenza giustificata: copre la giornata (6 h con 36 h/sett.), la domenica 0; il permesso notte le ore della notte
+            if(sub === 'pn') return minutesFromRange(SCHEDULE["N"]);
             const r = finalData[rowIdx], mi = MONTH_MAP[r[0].v], dn = parseInt(r[1].v);
             if(mi === undefined || isNaN(dn) || new Date(shiftRowYear(rowIdx), mi, dn).getDay() === 0) return 0;
             return getContractHours(colIdx) * 60 / CONTRACT_WORKDAYS;
@@ -6029,7 +6046,7 @@
         if(/^\d+([.,]\d+)?$/.test(subRaw) && !(cell.perm && cell.perm.k)) {
             const h = parseFloat(subRaw.replace(',', '.'));
             if(h > 0 && h <= 24) {
-                let v = (cell.v || '').toString().trim(); if(isRepStr(v)) v = v.slice(0, v.indexOf('/')).trim();
+                let v = (cell.v || '').toString().trim(); if(isRepStr(v) || /^\/\s*r$/i.test(v)) v = v.slice(0, v.indexOf('/')).trim();   // "/R" da solo = solo reperibile, nessun turno
                 const onShift = v && v !== '-' && !/^r(iposo)?$/i.test(v);
                 return Object.assign({}, cell, onShift ? { subV: '', perm: { k: 'pl', h } } : { subV: 'pl', perm: { k: 'pl', h } }, { writtenAs: subRaw });
             }
@@ -6047,7 +6064,20 @@
         const now = new Date(); hgMonth = now.getFullYear() === SHIFT_YEAR ? now.getMonth() : (now.getFullYear() > SHIFT_YEAR ? 11 : 0);
         renderHoursGrid();
         let m = document.getElementById('hours-modal'); m.style.display = 'flex';
+        hoursApplyFull();
         setTimeout(()=>m.classList.add('open'),10);
+    }
+    // Tutto schermo: la finestra occupa tutto lo schermo (si ricorda la scelta su questo telefono)
+    let hoursFull = (() => { try { return localStorage.getItem('hours_full_v1') === '1'; } catch(e) { return false; } })();
+    function hoursApplyFull() {
+        const m = document.getElementById('hours-modal'), b = document.getElementById('hm-full-btn');
+        if(m) m.classList.toggle('hm-full', hoursFull);
+        if(b) { b.querySelector('.material-icons-round').textContent = hoursFull ? 'close_fullscreen' : 'open_in_full'; b.title = hoursFull ? 'Esci da tutto schermo' : 'Tutto schermo'; b.setAttribute('aria-label', b.title); }
+    }
+    function hoursToggleFull() {
+        vibrate(); hoursFull = !hoursFull; try { localStorage.setItem('hours_full_v1', hoursFull ? '1' : '0'); } catch(e) {}
+        hoursApplyFull();
+        if(hoursChartInstance) setTimeout(() => { try { hoursChartInstance.resize(); } catch(e) {} }, 50);
     }
     function closeHoursModal(e) {
         if(e && e.target !== e.currentTarget) return;
@@ -6840,6 +6870,7 @@
         { k: 'fest', label: 'Festivi' },
         { k: 'repT', label: 'Reperibilità', sub: 'turni' },
         { k: 'repH', label: 'Ore rep.', fmt: m => Math.round(m / 60) },
+        { k: 'repCop', label: 'Rep. coperte', sub: 'ore per colleghi', fmt: m => Math.round(m / 60), onlyDoers: true },
         { k: 'saldo', label: 'Saldo ore', fmt: m => fmtHM(m, true) || '0:00', signed: true }
     ];
     function openEquity() {
@@ -8060,7 +8091,7 @@
         const all = buildDaysIndex(), days = eqPeriod === 'oggi' ? all.filter(dd => dd.date <= today) : all;
         const R = repData(), me = prefMe();
         const rows = drivers.filter(d => !d.hidden).map(d => {
-            const r = { d, isMe: !!me && me.idx === d.idx, notti: 0, dom: 0, sab: 0, we: 0, fest: 0, repT: 0, repF: 0, repH: 0, worked: 0, active: false };
+            const r = { d, isMe: !!me && me.idx === d.idx, notti: 0, dom: 0, sab: 0, we: 0, fest: 0, repT: 0, repF: 0, repH: 0, repCop: 0, worked: 0, active: false };
             days.forEach(dd => {
                 const info = computeDayInfo(dd.rowIdx, d.idx); r.worked += info.minutes || 0; if(info.code) r.active = true;
                 const c = info.justified ? '' : info.code;
@@ -8073,7 +8104,12 @@
                 }
                 const iso = ymd(dd.date);
                 if(R.tit[iso] === d.originalName) { r.repT++; if(repIsFestive(iso)) r.repF++; }
-                (R.days[iso] || []).forEach((who, s) => { if(who === d.originalName) r.repH += REP_SLOTS[s].minutes; });
+                (R.days[iso] || []).forEach((who, s) => {
+                    if(who !== d.originalName) return;
+                    r.repH += REP_SLOTS[s].minutes;
+                    // fascia ricevuta da un collega con una cessione: ore coperte per altri
+                    const tit = repTitolareOfSlot(R, iso, s); if(tit && tit !== who) r.repCop += REP_SLOTS[s].minutes;
+                });
             });
             r.we = r.sab + r.dom;
             r.saldo = r.worked - contractMinutesFor(getContractHours(d.idx), days.map(dd => dd.date), d.idx);
@@ -8118,7 +8154,7 @@
                 return `<div class="eq-m ${dv.cls}"><small>${c.label}</small><b>${txt(c, v)}${dv.d && dv.d !== '=' ? `<sup>${dv.d}</sup>` : ''}</b><i style="width:${Math.round(Math.abs(v) / max[c.k] * 100)}%"></i></div>`; }).join('')}</div></div>`).join('');
         document.getElementById('eq-grid').innerHTML = summary + `<div class="eq-wide">${xgHtml('eq-table', headL, headR, items, 860)}</div><div class="eq-cards">${cards}</div>`;
         const pw = document.getElementById('eq-pairs'); if(pw) pw.innerHTML = pairsHtml(eqPeriod, 'eq');
-        document.getElementById('eq-note').innerHTML = `${days.length} giorni considerati. Il numerino accanto è lo scarto dalla media della squadra. <span class="eq-key hi"></span> oltre il 20% sopra la media, <span class="eq-key lo"></span> oltre il 20% sotto. Per le notti la media conta solo chi ne fa. Tocca un titolo o un riquadro in alto per ordinare.`;
+        document.getElementById('eq-note').innerHTML = `${days.length} giorni considerati. Il numerino accanto è lo scarto dalla media della squadra. <span class="eq-key hi"></span> oltre il 20% sopra la media, <span class="eq-key lo"></span> oltre il 20% sotto. Per le notti e per le reperibilità coperte (fasce ricevute da un collega con una cessione) la media conta solo chi ne fa. Tocca un titolo o un riquadro in alto per ordinare.`;
     }
 
     // ═══ NOTE: AL COORDINATORE, AI COLLEGHI, A TUTTI ════════════════════════
@@ -8643,9 +8679,11 @@
         const months = Object.keys(parts).map(Number).sort((a, b) => a - b), gen = ++hsGen;
         const tb = m => `<tbody data-m="${m}">${parts[m]}</tbody>`;
         const startM = months.includes(curM) ? curM : months[0], progressive = !keepTop && months.length > 2;
-        el.innerHTML = `<div class="hs-wrap ${one ? 'hs-one' : ''}"><table class="hs-table"><thead>${head1}${head2}</thead>${(progressive ? [startM] : months).map(tb).join('')}</table></div>`;
+        // si parte dal mese corrente più il successivo, così c'è spazio per portare oggi in alto
+        const firstMs = progressive ? months.filter(m => m >= startM).slice(0, 2) : months;
+        el.innerHTML = `<div class="hs-wrap ${one ? 'hs-one' : ''}"><table class="hs-table"><thead>${head1}${head2}</thead>${firstMs.map(tb).join('')}</table></div>`;
         if(progressive) {
-            const after = months.filter(m => m > startM), before = months.filter(m => m < startM).reverse();
+            const after = months.filter(m => m > firstMs[firstMs.length - 1]), before = months.filter(m => m < startM).reverse();
             const step = () => {
                 const w = el.querySelector('.hs-wrap'), table = w && w.querySelector('table');
                 if(gen !== hsGen || !table) return;
@@ -10197,6 +10235,7 @@
         excelParsedData = buildBlankYearData(activeYear, operatorConfig.baseNames || [], NEXT_YEAR_MONTHS);
         rebuildDataFromExcel(); initApp(); updateYearUi();
         appBooted = true;
+        setTimeout(autoNewYearCheck, 3000);   // capodanno: se l'anno è finito si passa al nuovo
         if(splashMinTime) await splashMinTime;
         document.getElementById('loader').style.opacity = '0';
         setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
@@ -10250,32 +10289,63 @@
         } catch(e) { console.error('Migrazione non riuscita:', e); ccToast('Passaggio non riuscito: ' + (e.code || e.message) + '. Nulla è stato cambiato.', true); }
     }
     // Anno nuovo: l'anno attivo viene chiuso (sola lettura, con la sua squadra e le ore di contratto)
-    // e si apre il successivo, vuoto, con la stessa squadra.
+    // e si apre il successivo, vuoto, con la stessa squadra. Succede da solo a capodanno (il primo
+    // telefono che apre l'app dal 1° gennaio lo fa per tutti) oppure a mano dall'Area Coordinatore.
     async function ccStartNewYear() {
         if(dataSourceMode !== 'firebase' || isViewingArchive()) return;
         if(pendingChangesCount()) { ccToast('Prima salva o scarta le modifiche in sospeso.', true); return; }
         const next = activeYear + 1;
-        const ok = await ccConfirm(`Aprire il ${next}?`, `Il ${activeYear} viene chiuso: resta consultabile da tutti in sola lettura. Il ${next} parte con i turni già inseriti, la stessa squadra e le stesse ore di contratto; le ferie del ${activeYear} messe tra gennaio e marzo del ${next} diventano «ferie residue anno prima». Prima faccio una copia di sicurezza.`, `Apri il ${next}`, 'solid-danger');
+        const ok = await ccConfirm(`Aprire il ${next}?`, `Il ${activeYear} viene chiuso: resta consultabile da tutti in sola lettura dal menu, alla voce «Anni passati». Il ${next} parte con i turni già inseriti, la stessa squadra e le stesse ore di contratto; le ferie del ${activeYear} messe tra gennaio e marzo del ${next} diventano «ferie residue anno prima». Prima faccio una copia di sicurezza. A capodanno succede anche da solo.`, `Apri il ${next}`, 'solid-danger');
         if(!ok) return;
         try {
-            await takeSnapshot('prima-del-nuovo-anno');
-            const header = (finalData[0] || []).slice(3);
-            const newBase = header.filter(n => !operatorConfig.removed[n]);
-            const batch = db.batch(), now = new Date().toISOString();
-            batch.set(cfgRef('anno_' + activeYear), { year: activeYear, baseNames: header, contract: operatorConfig.contract || {}, removed: operatorConfig.removed || {}, nameOverrides, closedAt: now, closedBy: whoAmI() });
-            batch.update(cfgRef('settings'), { activeYear: next, archivedYears: [...new Set(archivedYears.concat([activeYear]))], operatorConfig: Object.assign({}, operatorConfig, { baseNames: newBase, added: [], removed: {} }) });
-            let conv = 0;
-            for(let m = 0; m < CO_CARRY_MONTHS; m++) {
-                const doc = await cfgRef(monthDocName(next, m)).get(); const cells = doc.exists ? (doc.data().cells || {}) : {}, upd = {};
-                Object.keys(cells).forEach(k => { const c = cells[k] || {}; if(String(c.subV || '').trim().toLowerCase() === 'f' && !/^r(iposo)?$/i.test(String(c.v || '').trim())) { upd[k] = Object.assign({}, c, { subV: 'v' }); conv++; } });
-                if(Object.keys(upd).length) batch.set(cfgRef(monthDocName(next, m)), { cells: upd }, { merge:true });
-            }
-            addLogWrite(batch, [], `Chiuso il ${activeYear}, aperto il ${next}${conv ? ` (${conv} giorni di ferie del ${activeYear} diventati ferie residue)` : ''}`);
-            await batch.commit();
-            ccToast(`Fatto: da ora si lavora sul ${next}.`);
+            const done = await startNewYearCore(activeYear, false);
+            if(!done) { ccToast('L’anno è già stato cambiato da un altro telefono: riapro l’app.'); setTimeout(() => location.reload(), 1000); return; }
+            ccToast(`Fatto: da ora si lavora sul ${done}.`);
             setTimeout(() => location.reload(), 1000);
         } catch(e) { console.error(e); ccToast('Operazione non riuscita: ' + (e.code || e.message), true); }
     }
+    // Chiude l'anno "from" e apre il successivo. Dentro una transazione: se intanto un altro telefono
+    // ha già cambiato anno non fa niente e restituisce null, altrimenti restituisce l'anno nuovo.
+    async function startNewYearCore(from, auto) {
+        const next = from + 1;
+        await takeSnapshot(auto ? 'prima-del-capodanno' : 'prima-del-nuovo-anno');
+        const header = (finalData[0] || []).slice(3);
+        const newBase = header.filter(n => !operatorConfig.removed[n]);
+        const now = new Date().toISOString();
+        return db.runTransaction(async t => {
+            const s = await t.get(cfgRef('settings'));
+            if(!s.exists || +(s.data().activeYear || 0) !== from) return null;
+            const archived = (s.data().archivedYears || []).map(Number);
+            const months = [];
+            for(let m = 0; m < CO_CARRY_MONTHS; m++) months.push(await t.get(cfgRef(monthDocName(next, m))));
+            t.set(cfgRef('anno_' + from), { year: from, baseNames: header, contract: operatorConfig.contract || {}, removed: operatorConfig.removed || {}, nameOverrides, closedAt: now, closedBy: auto ? 'capodanno automatico · ' + whoAmI() : whoAmI() });
+            t.update(cfgRef('settings'), { activeYear: next, archivedYears: [...new Set(archived.concat([from]))], operatorConfig: Object.assign({}, operatorConfig, { baseNames: newBase, added: [], removed: {} }) });
+            let conv = 0;
+            months.forEach((doc, m) => {
+                const cells = doc.exists ? (doc.data().cells || {}) : {}, upd = {};
+                Object.keys(cells).forEach(k => { const c = cells[k] || {}; if(String(c.subV || '').trim().toLowerCase() === 'f' && !/^r(iposo)?$/i.test(String(c.v || '').trim())) { upd[k] = Object.assign({}, c, { subV: 'v' }); conv++; } });
+                if(Object.keys(upd).length) t.set(cfgRef(monthDocName(next, m)), { cells: upd }, { merge:true });
+            });
+            addLogWrite(t, [], `${auto ? 'Capodanno: ' : ''}chiuso il ${from}, aperto il ${next}${conv ? ` (${conv} giorni di ferie del ${from} diventati ferie residue)` : ''}`);
+            return next;
+        });
+    }
+    // Capodanno automatico: all'apertura e ogni 10 minuti, se l'anno del calendario è finito si passa
+    // al nuovo (solo con i turni su Firebase; con modifiche non salvate su questo telefono si aspetta).
+    let autoNewYearBusy = false;
+    async function autoNewYearCheck() {
+        if(autoNewYearBusy || !fbReady || !appBooted || bootMode !== 'firebase' || dataSourceMode !== 'firebase') return;
+        if(isViewingArchive() || coordEditModeActive || pendingChangesCount()) return;
+        if(new Date().getFullYear() <= activeYear || !finalData.length) return;
+        autoNewYearBusy = true;
+        try {
+            const done = await startNewYearCore(activeYear, true);
+            if(done) console.log('Capodanno: aperto il ' + done);
+            location.reload();
+        } catch(e) { console.error('Capodanno automatico non riuscito:', e); }
+        finally { autoNewYearBusy = false; }
+    }
+    setInterval(autoNewYearCheck, 10 * 60 * 1000);
 
     // ── Consultazione degli anni passati (per tutti, sola lettura) ──────────
     let ccArchiveBackup = null;
