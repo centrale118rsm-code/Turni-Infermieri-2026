@@ -1594,6 +1594,7 @@
         .cc-empty .msym { display:block; margin:0 auto 6px; font-size:26px; color:var(--cc-line); }
         .cc-tag { display:inline-flex; align-items:center; height:20px; padding:0 7px; border-radius:3px; font:500 11.5px/1 var(--cc-font); background:var(--cc-surface-2); color:var(--cc-muted); border:1px solid var(--cc-line-2); white-space:nowrap; }
         .cc-tag.accent { background:var(--cc-accent-soft); color:var(--cc-accent); border-color:transparent; }
+        .cc-tag.danger { background:var(--cc-neg-soft); color:var(--cc-neg); border-color:transparent; }
         .cc-tag.warn { background:var(--cc-warn-soft); color:var(--cc-warn); border-color:transparent; }
         .cc-tag.neg { background:var(--cc-neg-soft); color:var(--cc-neg); border-color:transparent; }
         .cc-num { font-variant-numeric:tabular-nums; font-feature-settings:'tnum'; }
@@ -1683,7 +1684,7 @@
         .cc-add-form { display:grid; grid-template-columns:1fr 130px auto; gap:10px; align-items:end; }
         @media (max-width:640px) { .cc-add-form { grid-template-columns:1fr 110px; } .cc-add-form .cc-btn { grid-column:1 / -1; justify-content:center; } }
         .cc-op-list { border:1px solid var(--cc-line); border-radius:var(--cc-r); background:var(--cc-surface); overflow:hidden; }
-        .cc-op-head, .cc-op-row { display:grid; grid-template-columns:32px 30px minmax(160px,1fr) 120px 240px 150px; align-items:center; gap:10px; padding:0 12px; }
+        .cc-op-head, .cc-op-row { display:grid; grid-template-columns:32px 30px minmax(160px,1fr) 120px 186px 240px 150px; align-items:center; gap:10px; padding:0 12px; }
         .cc-op-head { height:36px; background:var(--cc-surface-2); border-bottom:1px solid var(--cc-line); font:500 12px/1 var(--cc-font-c); color:var(--cc-muted); }
         .cc-op-row { min-height:58px; border-bottom:1px solid var(--cc-line-2); background:var(--cc-surface); position:relative; }
         .cc-op-row:last-child { border-bottom:none; }
@@ -1699,17 +1700,23 @@
         .cc-op-name .cc-input { height:32px; }
         .cc-op-hours { display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--cc-muted); }
         .cc-op-hours input { width:64px; height:32px; text-align:right; font-variant-numeric:tabular-nums; }
+        .cc-op-allow { display:flex; gap:6px; }
+        .cc-op-allow label { display:flex; flex-direction:column; align-items:center; gap:2px; font:500 10.5px/1 var(--cc-font-c); color:var(--cc-muted); }
+        .cc-op-allow input { width:52px; height:30px; text-align:right; font-variant-numeric:tabular-nums; padding:0 6px; }
+        .cc-op-allow input.changed { border-color:var(--cc-accent); color:var(--cc-accent); font-weight:600; }
         .cc-op-vis { display:flex; align-items:center; gap:10px; font-size:13px; flex-wrap:wrap; }
         .cc-op-vis .cc-until { display:flex; align-items:center; gap:6px; color:var(--cc-muted); font-size:12.5px; }
         .cc-op-vis .cc-until input { height:30px; width:140px; font-size:12.5px; padding:0 8px; }
         .cc-op-actions { display:flex; gap:2px; justify-content:flex-end; }
         @media (max-width:980px) {
             .cc-op-head { display:none; }
-            .cc-op-row { grid-template-columns:32px 1fr auto; grid-template-areas:"grip name actions" "grip hours hours" "grip vis vis"; padding:10px 12px; row-gap:8px; }
+            .cc-op-row { grid-template-columns:32px 1fr auto; grid-template-areas:"grip name actions" "grip hours hours" "grip allow allow" "grip vis vis"; padding:10px 12px; row-gap:8px; }
             .cc-op-grip { grid-area:grip; align-self:start; }
             .cc-op-pos { display:none; }
             .cc-op-name { grid-area:name; }
             .cc-op-hours { grid-area:hours; }
+            .cc-op-allow { grid-area:allow; }
+            .cc-op-allow label { flex-direction:row; gap:5px; font-size:12px; }
             .cc-op-vis { grid-area:vis; }
             .cc-op-actions { grid-area:actions; align-self:start; }
         }
@@ -3708,7 +3715,7 @@
     let customAnnouncements = JSON.parse(JSON.stringify(DEFAULT_ANNOUNCEMENTS_BAKED));
     let announcementQueue = [];
     // Operatori gestiti dall'Area Coordinatore (ordine colonne, nascosti, rimossi, aggiunti, ore contratto)
-    let operatorConfig = { order:[], hidden:{}, removed:{}, added:[], contract:{} };
+    let operatorConfig = { order:[], hidden:{}, removed:{}, added:[], contract:{}, allow:{} };
     let excelParsedData = [];              // dati letti dal file Excel, senza colonne aggiunte né modifiche
     applyColorOverrides();
     Object.assign(SCHEDULE, scheduleOverride.SCHEDULE || {});
@@ -7671,15 +7678,15 @@
     function edSumCtx() { return { days: buildDaysIndex(), R: repData(), today: ymd(new Date()), y: SHIFT_YEAR + '-' }; }
     function edSumHtmlOld(d, ctx) {
         const a = absCountFor(d, ctx.days), o = d.originalName;
-        const co = ABS_ALLOW.co - a.allow.co, sp = ABS_ALLOW.sp - a.allow.sp, pn = ABS_ALLOW.pn - a.allow.pn;
+        const co = a.max.co - a.allow.co, sp = a.max.sp - a.allow.sp, pn = a.max.pn - a.allow.pn;
         const pl = Math.round((PERM_HOURLY.pl.max - a.hours.pl) * 100) / 100;
         let rep = 0, repAll = 0, dom = 0, min = 0, minAll = 0;
         Object.keys(ctx.R.tit).forEach(dt => { if(ctx.R.tit[dt] !== o || !dt.startsWith(ctx.y)) return; repAll++; if(dt <= ctx.today) { rep++; if(repIsFestive(dt)) dom++; } });
         Object.keys(ctx.R.days).forEach(dt => { if(!dt.startsWith(ctx.y)) return; ctx.R.days[dt].forEach((w, s) => { if(w !== o) return; minAll += REP_SLOTS[s].minutes; if(dt <= ctx.today) min += REP_SLOTS[s].minutes; }); });
         const t = (lbl, val, tip, neg) => `<span class="${neg ? 'neg' : ''}" title="${esc(tip)}"><i>${lbl}</i>${val}</span>`;
         return `<div class="th-sum">
-            ${t('CO', co, `Congedo ordinario: restano ${co} giorni su ${ABS_ALLOW.co}`, co < 0)}${t('P', sp, `Permessi straordinari: restano ${sp} su ${ABS_ALLOW.sp}`, sp < 0)}
-            ${t('PN', pn, `Permessi notte: restano ${pn} su ${ABS_ALLOW.pn}`, pn < 0)}${t('PL', permHFmt(Math.max(0, pl)), `Permesso legge: restano ${permHFmt(Math.max(0, pl))} su 14h${pl < 0 ? ' (oltre di ' + permHFmt(-pl) + ')' : ''}`, pl < 0)}
+            ${t('CO', co, `Congedo ordinario: restano ${co} giorni su ${a.max.co}`, co < 0)}${t('P', sp, `Permessi straordinari: restano ${sp} su ${a.max.sp}`, sp < 0)}
+            ${t('PN', pn, `Permessi notte: restano ${pn} su ${a.max.pn}`, pn < 0)}${t('PL', permHFmt(Math.max(0, pl)), `Permesso legge: restano ${permHFmt(Math.max(0, pl))} su 14h${pl < 0 ? ' (oltre di ' + permHFmt(-pl) + ')' : ''}`, pl < 0)}
             ${t('REP', rep, `Reperibilità fatte fino a oggi: ${rep} (in calendario nell'anno: ${repAll})`)}${t('h', Math.round(min / 60), `Ore di reperibilità fatte fino a oggi: ${repHours(min)} (nell'anno: ${repHours(minAll)})`)}
             ${t('DOM', dom, `Reperibilità di domenica o festivo fatte fino a oggi: ${dom}`)}
         </div>`;
@@ -7730,9 +7737,9 @@
         const min = rep * REP_DAY_MIN, minAll = repAll * REP_DAY_MIN;
         const cesTxt = cedute || ricevute ? ` · cessioni tra colleghi non contate: ${cedute} fasce cedute, ${ricevute} ricevute` : '';
         const val = {
-            co: [ABS_ALLOW.co - a.allow.co, `Congedo ordinario: restano ${ABS_ALLOW.co - a.allow.co} giorni su ${ABS_ALLOW.co}`],
-            p: [ABS_ALLOW.sp - a.allow.sp, `Permessi straordinari: restano ${ABS_ALLOW.sp - a.allow.sp} su ${ABS_ALLOW.sp}`],
-            pn: [ABS_ALLOW.pn - a.allow.pn, `Permessi notte: restano ${ABS_ALLOW.pn - a.allow.pn} su ${ABS_ALLOW.pn}`],
+            co: [a.max.co - a.allow.co, `Congedo ordinario: restano ${a.max.co - a.allow.co} giorni su ${a.max.co}`],
+            p: [a.max.sp - a.allow.sp, `Permessi straordinari: restano ${a.max.sp - a.allow.sp} su ${a.max.sp}`],
+            pn: [a.max.pn - a.allow.pn, `Permessi notte: restano ${a.max.pn - a.allow.pn} su ${a.max.pn}`],
             pl: [pl, `Permesso legge: restano ${permHFmt(Math.max(0, pl))} su 14h${pl < 0 ? ' (oltre di ' + permHFmt(-pl) + ')' : ''}`],
             rep: [repAll, `Reperibilità inserite nell'anno: ${repAll} (fino a oggi ${rep}, in programma ${repAll - rep})${cesTxt}`],
             h: [Math.round(minAll / 60), `Ore delle reperibilità inserite nell'anno: ${repHours(minAll)} (fino a oggi ${repHours(min)})${cesTxt}`],
@@ -8015,9 +8022,9 @@
     function absQuota(r) {
         const t = absTodayDate(), past = arr => (arr || []).filter(dt => dt <= t).length;
         return {
-            co: { used: r.allow.co, done: past(r.dates.f), max: ABS_ALLOW.co, k: 'f', label: 'Ferie (C.O.)', unit: '' },
-            sp: { used: r.allow.sp, done: past(r.dates.p) + past(r.dates.pn), max: ABS_ALLOW.sp, k: 'p', label: 'Permessi straord.', unit: '' },
-            pn: { used: r.allow.pn, done: past(r.dates.pn), max: ABS_ALLOW.pn, k: 'pn', label: 'Permessi notte', unit: '' },
+            co: { used: r.allow.co, done: past(r.dates.f), max: r.max.co, k: 'f', label: 'Ferie (C.O.)', unit: '' },
+            sp: { used: r.allow.sp, done: past(r.dates.p) + past(r.dates.pn), max: r.max.sp, k: 'p', label: 'Permessi straord.', unit: '' },
+            pn: { used: r.allow.pn, done: past(r.dates.pn), max: r.max.pn, k: 'pn', label: 'Permessi notte', unit: '' },
             pl: { used: r.hours.pl, done: Math.round((r.hdates.pl || []).filter(x => x.date <= t).reduce((a, x) => a + x.h, 0) * 100) / 100, max: PERM_HOURLY.pl.max, k: 'pl', label: 'Permesso legge', unit: 'h' }
         };
     }
@@ -8047,7 +8054,7 @@
         const sum = k => rows.reduce((a, r) => a + (r.counts[k] || 0), 0);
         const t = absTodayDate(), todayRow = buildDaysIndex().find(dd => dd.date.getTime() === t.getTime());
         const absentToday = todayRow ? drivers.filter(d => !d.hidden && computeDayInfo(todayRow.rowIdx, d.idx).justified).map(d => d.name) : [];
-        const kq = (k, label, unit) => { const used = sumQ(k, 'used'), max = Q.length * Q[0][k].max, left = Math.round((max - used) * 100) / 100, done = sumQ(k, 'done');
+        const kq = (k, label, unit) => { const used = sumQ(k, 'used'), max = sumQ(k, 'max'), left = Math.round((max - used) * 100) / 100, done = sumQ(k, 'done');
             return `<div class="ab-kpi2" style="--pc:${typeColor(Q[0][k].k)}"><small>${label}</small><b>${absFmtQ(Math.round(used * 100) / 100, unit)}<span> usati</span></b>
                 <div class="ab3-bar"><i class="done" style="width:${(done / max * 100).toFixed(1)}%"></i><i class="plan" style="width:${(Math.max(0, used - done) / max * 100).toFixed(1)}%"></i></div>
                 <em>restano ${absFmtQ(left, unit)} su ${absFmtQ(max, unit)} · ${absFmtQ(Math.round(done * 100) / 100, unit)} già fatti</em></div>`; };
@@ -8073,7 +8080,7 @@
         });
         document.getElementById('ab-grid').innerHTML = xgHtml('ab2', headL, head, body, year ? 860 + (psShown ? 70 : 0) + (otherShown ? 60 : 0) : 640);
         const note = document.querySelector('#ab-view-grid .hg-note');
-        if(note) note.innerHTML = `${year ? '<span class="ab-leg"><i class="done"></i>già fatti fino a oggi</span><span class="ab-leg"><i class="plan"></i>in programma</span><span class="ab-leg"><i class="free"></i>restano</span><br>' : ''}Ogni anno: ${ABS_ALLOW.co} giorni di congedo ordinario, ${ABS_ALLOW.sp} permessi straordinari, ${ABS_ALLOW.pn} permessi notte (un permesso notte usa anche un permesso straordinario) e ${PERM_HOURLY.pl.max} ore di permesso legge. Le assenze che cadono su un riposo non contano. Tocca un nome per il dettaglio.`;
+        if(note) note.innerHTML = `${year ? '<span class="ab-leg"><i class="done"></i>già fatti fino a oggi</span><span class="ab-leg"><i class="plan"></i>in programma</span><span class="ab-leg"><i class="free"></i>restano</span><br>' : ''}Ogni anno: ${ABS_ALLOW.co} giorni di congedo ordinario, ${ABS_ALLOW.sp} permessi straordinari, ${ABS_ALLOW.pn} permessi notte (un permesso notte usa anche un permesso straordinario) e ${PERM_HOURLY.pl.max} ore di permesso legge; chi ne ha meno (es. i nuovi assunti) ha le sue spettanze in Area coordinatore › Operatori. Le assenze che cadono su un riposo non contano. Tocca un nome per il dettaglio.`;
     }
     // dettaglio della persona: contatori con fatti/in programma/restano e grafico mese per mese
     function renderAbsDetail() {
@@ -8940,9 +8947,9 @@
                 const ds = (dates || []).slice().sort((x, y) => x - y), dt = ds[max] || ds[ds.length - 1] || new Date(SHIFT_YEAR, 11, 31), r = rowOf[ymd(dt)] || null;
                 add('limit', String(SHIFT_YEAR), key + used, r, dt, `${what}: ${used} su ${max}. Il primo oltre il limite è il ${chkDateLbl(dt)}.`);
             };
-            over('co', a.allow.co, ABS_ALLOW.co, a.dates.f, 'Giorni di congedo ordinario');
-            over('sp', a.allow.sp, ABS_ALLOW.sp, [].concat(a.dates.p || [], a.dates.pn || []), 'Permessi straordinari (compresi i permessi notte)');
-            over('pn', a.allow.pn, ABS_ALLOW.pn, a.dates.pn, 'Permessi notte');
+            over('co', a.allow.co, a.max.co, a.dates.f, 'Giorni di congedo ordinario');
+            over('sp', a.allow.sp, a.max.sp, [].concat(a.dates.p || [], a.dates.pn || []), 'Permessi straordinari (compresi i permessi notte)');
+            over('pn', a.allow.pn, a.max.pn, a.dates.pn, 'Permessi notte');
             if(PERM_HOURLY.pl.max && a.hours.pl > PERM_HOURLY.pl.max) {
                 const hd = a.hdates.pl.slice().sort((x, y) => x.date - y.date); let t = 0, dt = hd.length ? hd[hd.length - 1].date : new Date(SHIFT_YEAR, 11, 31);
                 for(const h of hd) { t += h.h; if(t > PERM_HOURLY.pl.max) { dt = h.date; break; } }
@@ -9038,7 +9045,7 @@
         const all = buildDaysIndex(), operatori = {};
         drivers.forEach(d => {
             const a = absCountFor(d, all);
-            operatori[d.originalName] = { name: d.name, co:{ used:a.allow.co, max:ABS_ALLOW.co }, str:{ used:a.allow.sp, max:ABS_ALLOW.sp }, pn:{ used:a.allow.pn, max:ABS_ALLOW.pn } };
+            operatori[d.originalName] = { name: d.name, co:{ used:a.allow.co, max:a.max.co }, str:{ used:a.allow.sp, max:a.max.sp }, pn:{ used:a.allow.pn, max:a.max.pn } };
         });
         const json = stableJson({ year: SHIFT_YEAR, operatori });
         if(json === saldiLast) return;
@@ -9099,7 +9106,7 @@
                 <div class="me-kv"><span>Saldo da gennaio a oggi</span><b class="${bal < 0 ? 'neg' : 'pos'}">${fmtHM(bal, true) || '0:00'}</b></div>
             </div>
             <div class="me-card"><h4><span class="material-icons-round">beach_access</span>Assenze ${SHIFT_YEAR}</h4>
-                <div class="me-counters">${cnt(ab.allow.co, ABS_ALLOW.co, 'C.O.')}${cnt(ab.allow.sp, ABS_ALLOW.sp, 'Straordinari')}${cnt(ab.allow.pn, ABS_ALLOW.pn, 'Notte')}</div>
+                <div class="me-counters">${cnt(ab.allow.co, ab.max.co, 'C.O.')}${cnt(ab.allow.sp, ab.max.sp, 'Straordinari')}${cnt(ab.allow.pn, ab.max.pn, 'Notte')}</div>
                 ${(ab.counts.m || ab.counts.r) ? `<div class="me-kv"><span>Malattia \u00b7 recuperi</span><b>${ab.counts.m || 0} \u00b7 ${ab.counts.r || 0} giorni</b></div>` : ''}
             </div>
             <div class="me-card"><h4><span class="material-icons-round">phone_in_talk</span>Reperibilit\u00e0</h4>
@@ -9393,6 +9400,13 @@
     // Spettanze annue: 31 giorni di C.O., 6 permessi straordinari, 2 permessi notte; ogni
     // permesso notte consuma anche un permesso straordinario.
     const ABS_ALLOW = { co:31, sp:6, pn:2 };
+    // Spettanze della persona: quelle dell'anno salvo diverse in Area coordinatore › Operatori
+    // (es. chi è assunto in corso d'anno ha meno giorni). operatorConfig.allow[nome] = { co, sp, pn }
+    function absAllowFor(d) {
+        const o = (d && operatorConfig.allow && operatorConfig.allow[d.originalName]) || {}, out = {};
+        Object.keys(ABS_ALLOW).forEach(k => { const n = Number(o[k]); out[k] = o[k] !== undefined && o[k] !== null && o[k] !== '' && n >= 0 && n <= 99 ? n : ABS_ALLOW[k]; });
+        return out;
+    }
     const ABS_TYPES = {
         f:  { label:'Congedo ordinario', short:'C.O.',          color:'--bg-cong' },
         p:  { label:'Permessi straordinari', short:'Perm. straord.', color:'--bg-perm' },
@@ -9463,7 +9477,7 @@
         }
         const n = k => counts[k] || 0;
         return { counts, dates, total: ABS_COUNTED.reduce((a, k) => a + n(k), 0),
-                 allow: { co: n('f'), sp: n('p') + n('pn'), pn: n('pn') }, hours, hdates, nextF };
+                 allow: { co: n('f'), sp: n('p') + n('pn'), pn: n('pn') }, max: absAllowFor(d), hours, hdates, nextF };
     }
     function computeAbsences() {
         const all = buildDaysIndex(), days = absPeriod === 'anno' ? all : all.filter(dd => dd.monthIdx === absMonth);
@@ -9496,9 +9510,9 @@
             const c = k => r.counts[k] || 0, other = ABS_OTHER.reduce((a, k) => a + c(k), 0);
             return { attrs: `class="${r.isMe ? 'me' : ''}" onclick="absOpenDetail(${r.d.idx})"`,
                 left: `<th class="ab-op"><div class="ab-who"><span class="ab-av">${esc(absInitials(r.d.name))}</span><span>${esc(r.d.name)}</span>${r.isMe ? '<em>tu</em>' : ''}</div></th>`,
-                right: `<td>${year ? absMeter(r.allow.co, ABS_ALLOW.co, typeColor('f')) : absPill(c('f'), 'f')}</td>
-                <td>${year ? absMeter(r.allow.sp, ABS_ALLOW.sp, typeColor('p')) : absPill(r.allow.sp, 'p')}</td>
-                <td>${year ? absMeter(r.allow.pn, ABS_ALLOW.pn, typeColor('pn')) : absPill(c('pn'), 'pn')}</td>
+                right: `<td>${year ? absMeter(r.allow.co, r.max.co, typeColor('f')) : absPill(c('f'), 'f')}</td>
+                <td>${year ? absMeter(r.allow.sp, r.max.sp, typeColor('p')) : absPill(r.allow.sp, 'p')}</td>
+                <td>${year ? absMeter(r.allow.pn, r.max.pn, typeColor('pn')) : absPill(c('pn'), 'pn')}</td>
                 <td>${year ? permMeterHtml(r.hours.pl, PERM_HOURLY.pl.max, typeColor('pl')) : permPill(r.hours.pl, 'pl')}</td>
                 <td>${permPill(r.hours.ps, 'ps')}</td>
                 <td>${absPill(c('m'), 'm')}</td><td>${absPill(c('r'), 'r')}</td><td>${absPill(c('v'), 'v')}</td>
@@ -9548,9 +9562,9 @@
             <div class="abd-head"><button class="abd-back" onclick="absCloseDetail()" aria-label="Indietro"><span class="material-icons-round">arrow_back</span></button>
                 <span class="ab-av">${esc(absInitials(d.name))}</span><div><b>${esc(d.name)}</b><small>Anno ${SHIFT_YEAR} \u00b7 ${r.total} giorni di assenza</small></div></div>
             <div class="abd-counters">
-                ${counter('f', r.allow.co, ABS_ALLOW.co, 'Congedo ordinario')}
-                ${counter('p', r.allow.sp, ABS_ALLOW.sp, 'Permessi straordinari', (r.counts.pn || 0) ? `di cui ${r.counts.pn} per permessi notte` : '')}
-                ${counter('pn', r.allow.pn, ABS_ALLOW.pn, 'Permessi notte')}
+                ${counter('f', r.allow.co, r.max.co, 'Congedo ordinario')}
+                ${counter('p', r.allow.sp, r.max.sp, 'Permessi straordinari', (r.counts.pn || 0) ? `di cui ${r.counts.pn} per permessi notte` : '')}
+                ${counter('pn', r.allow.pn, r.max.pn, 'Permessi notte')}
                 ${permCounterHtml(r)}
             </div>
             <div class="abd-list">
@@ -10343,8 +10357,8 @@
             const archived = (s.data().archivedYears || []).map(Number);
             const months = [];
             for(let m = 0; m < CO_CARRY_MONTHS; m++) months.push(await t.get(cfgRef(monthDocName(next, m))));
-            t.set(cfgRef('anno_' + from), { year: from, baseNames: header, contract: operatorConfig.contract || {}, removed: operatorConfig.removed || {}, nameOverrides, closedAt: now, closedBy: auto ? 'capodanno automatico · ' + whoAmI() : whoAmI() });
-            t.update(cfgRef('settings'), { activeYear: next, archivedYears: [...new Set(archived.concat([from]))], operatorConfig: Object.assign({}, operatorConfig, { baseNames: newBase, added: [], removed: {} }) });
+            t.set(cfgRef('anno_' + from), { year: from, baseNames: header, contract: operatorConfig.contract || {}, allow: operatorConfig.allow || {}, removed: operatorConfig.removed || {}, nameOverrides, closedAt: now, closedBy: auto ? 'capodanno automatico · ' + whoAmI() : whoAmI() });
+            t.update(cfgRef('settings'), { activeYear: next, archivedYears: [...new Set(archived.concat([from]))], operatorConfig: Object.assign({}, operatorConfig, { baseNames: newBase, added: [], removed: {}, allow: {} }) });
             let conv = 0;
             months.forEach((doc, m) => {
                 const cells = doc.exists ? (doc.data().cells || {}) : {}, upd = {};
@@ -10396,7 +10410,7 @@
                 for(let i = 3; i < header.length; i++) { const ov = cells[overrideKey(header[i], mName, dNum)]; if(ov) finalData[r][i] = normalizeWrittenAbsence(Object.assign({}, finalData[r][i], { v: ov.v || '', subV: ov.subV || '', customMinutes: ov.customMinutes, perm: ov.perm })); }
             }
             drivers = baseNames.map((name, i) => ({ name: (m.nameOverrides || {})[name] || nameOverrides[name] || name, idx: i + 3, originalName: name, virtual:false, hidden:false }));
-            operatorConfig = normalizeOperatorConfig({ contract: m.contract || {}, baseNames });
+            operatorConfig = normalizeOperatorConfig({ contract: m.contract || {}, allow: m.allow || {}, baseNames });
             selectedDrivers = new Set();
             refreshAfterYearSwitch();
             setTimeout(scrollToToday, 300);
@@ -10570,6 +10584,7 @@
             removed: (c.removed && typeof c.removed === 'object') ? Object.assign({}, c.removed) : {},
             added: Array.isArray(c.added) ? c.added.filter(o => o && o.name).map(o => Object.assign({}, o)) : [],
             contract: (c.contract && typeof c.contract === 'object') ? Object.assign({}, c.contract) : {},
+            allow: (c.allow && typeof c.allow === 'object') ? JSON.parse(JSON.stringify(c.allow)) : {},
             baseNames: Array.isArray(c.baseNames) ? c.baseNames.slice() : []
         };
     }
@@ -10940,6 +10955,11 @@
             if(d.virtual) meta.push(`<span class="cc-tag accent">aggiunto</span>`);
             if(d.name !== orig) meta.push(`<span>nome originale: ${esc(orig)}</span>`);
             if(operatorConfig.contract[orig]) meta.push(`<span class="cc-tag">contratto ${getContractHours(d.idx)} h</span>`);
+            const al = absAllowFor(d), alCustom = Object.keys(ABS_ALLOW).some(k => al[k] !== ABS_ALLOW[k]);
+            if(alCustom) meta.push(`<span class="cc-tag accent">spettanze ridotte</span>`);
+            const ov = absOverList(d); if(ov.length) meta.push(`<span class="cc-tag danger" title="Ha già in calendario più di quanto gli spetta nel ${SHIFT_YEAR}">oltre: ${esc(ov.join(', '))}</span>`);
+            const alHtml = [['co', 'C.O.', 'Giorni di congedo ordinario'], ['sp', 'P', 'Permessi straordinari'], ['pn', 'PN', 'Permessi notte']].map(([k, l, t]) =>
+                `<label title="${t} di ${esc(d.name)} nel ${SHIFT_YEAR} (di norma ${ABS_ALLOW[k]})"><span>${l}</span><input type="number" class="cc-input${al[k] !== ABS_ALLOW[k] ? ' changed' : ''}" min="0" max="99" step="1" value="${al[k]}" onchange="ccOpSetAllow(${i},'${k}',this.value)" aria-label="${t} di ${esc(d.name)}"></label>`).join('');
             const visHtml = d.hidden
                 ? `<label class="cc-switch" title="Mostra di nuovo"><input type="checkbox" onchange="ccOpSetVisible(${i},this.checked)"><span></span></label><span>Nascosto</span>
                    <label class="cc-until">fino al <input type="date" class="cc-input" value="${esc(hEntry && hEntry.until || '')}" min="${ymd(new Date())}" onchange="ccOpSetUntil(${i},this.value)"></label>`
@@ -10949,6 +10969,7 @@
                 <span class="cc-op-pos">${i+1}</span>
                 <div class="cc-op-name" id="cc-op-name-${i}"><b>${esc(d.name)}</b><small>${meta.join('')}</small></div>
                 <label class="cc-op-hours"><input type="number" class="cc-input" min="1" max="60" step="0.5" value="${getContractHours(d.idx)}" onchange="ccOpSetContract(${i},this.value)" aria-label="Ore settimanali di ${esc(d.name)}"><span>h/sett.</span></label>
+                <div class="cc-op-allow">${alHtml}</div>
                 <div class="cc-op-vis">${visHtml}</div>
                 <div class="cc-op-actions">
                     <button class="cc-icon-btn" title="Sposta prima" aria-label="Sposta prima" onclick="ccOpMove(${i},-1)" ${i===0?'disabled':''}><span class="msym">arrow_upward</span></button>
@@ -10959,6 +10980,8 @@
             </div>`;
         }).join('');
         const removed = header.filter(o => operatorConfig.removed[o]);
+        const overAll = drivers.filter(d => !d.hidden).map(d => ({ d, ov: absOverList(d) })).filter(x => x.ov.length);
+        const overHtml = overAll.length ? `<div class="cc-check warn" style="margin-bottom:12px"><span class="msym">warning</span><div><b>Già oltre le spettanze del ${SHIFT_YEAR}:</b> ${overAll.map(x => `${esc(x.d.name)} (${esc(x.ov.join(', '))})`).join(' · ')}. Da sistemare in calendario: finché sono oltre non si possono aggiungere altri giorni dello stesso tipo.</div></div>` : '';
         const removedHtml = removed.length ? `
             <div class="cc-panel" style="margin-top:18px"><div class="cc-panel-head"><h3>Rimossi dal calendario</h3><span class="cc-hint">Restano nel file Excel: puoi ripristinarli quando vuoi.</span></div>
                 <ul class="cc-list">${removed.map(o => `<li><span class="cc-grow">${esc(nameOverrides[o] || o)}</span><button class="cc-btn sm" onclick="ccOpRestore('${encodeURIComponent(o)}')"><span class="msym">undo</span>Ripristina</button></li>`).join('')}</ul></div>` : '';
@@ -10971,11 +10994,12 @@
                     <button class="cc-btn primary" type="submit"><span class="msym">person_add</span>Aggiungi</button>
                 </form>
             </div>
+            ${overHtml}
             <div class="cc-op-list" id="cc-op-list">
-                <div class="cc-op-head"><span></span><span>#</span><span>Operatore</span><span>Contratto</span><span>Nel calendario</span><span style="text-align:right">Azioni</span></div>
+                <div class="cc-op-head"><span></span><span>#</span><span>Operatore</span><span>Contratto</span><span title="Giorni che spettano nel ${SHIFT_YEAR}: congedo ordinario, permessi straordinari, permessi notte">Spettanze ${SHIFT_YEAR}</span><span>Nel calendario</span><span style="text-align:right">Azioni</span></div>
                 ${rows || `<div class="cc-empty">Nessun operatore.</div>`}
             </div>
-            <p class="cc-note" style="margin-top:10px">L\u2019ordine qui è l\u2019ordine delle colonne nel calendario, per tutti. Ogni modifica viene salvata subito.</p>
+            <p class="cc-note" style="margin-top:10px">L\u2019ordine qui è l\u2019ordine delle colonne nel calendario, per tutti. Ogni modifica viene salvata subito. Spettanze: giorni di congedo ordinario (C.O.), permessi straordinari (P) e permessi notte (PN) del ${SHIFT_YEAR}; di norma ${ABS_ALLOW.co}, ${ABS_ALLOW.sp} e ${ABS_ALLOW.pn}, meno per chi è assunto in corso d\u2019anno. In Modifica turni non si possono inserire oltre questi numeri. A capodanno tornano quelle normali.</p>
             ${removedHtml}`;
         document.getElementById('cc-top-actions').innerHTML = `<span class="cc-tag cc-num">${drivers.filter(d=>!d.hidden).length} visibili \u00b7 ${drivers.filter(d=>d.hidden).length} nascosti</span>`;
     }
@@ -11043,6 +11067,19 @@
         saveOperatorConfig('Ore di contratto aggiornate');
         refreshAfterOperatorChange();
     }
+    function ccOpSetAllow(i, k, value) {
+        const orig = ccOpRows[i]; if(!orig || ABS_ALLOW[k] === undefined) return;
+        const v = String(value).trim() === '' ? ABS_ALLOW[k] : Number(String(value).replace(',', '.'));
+        if(!(Number.isInteger(v) && v >= 0 && v <= 99)) { ccToast('Scrivi un numero intero di giorni (da 0 a 99).', true); renderCcOperators(); return; }
+        const cur = Object.assign({}, (operatorConfig.allow || {})[orig] || {});
+        if(v === ABS_ALLOW[k]) delete cur[k]; else cur[k] = v;
+        operatorConfig.allow = Object.assign({}, operatorConfig.allow || {});
+        if(Object.keys(cur).length) operatorConfig.allow[orig] = cur; else delete operatorConfig.allow[orig];
+        const d = drivers.find(x => x.originalName === orig);
+        saveOperatorConfig(`Spettanze di ${d ? d.name : orig} aggiornate`);
+        refreshAfterOperatorChange(); publishSaldiSoon();
+        if(ccSection === 'operatori') renderCcOperators();
+    }
     function ccOpRename(i) {
         const orig = ccOpRows[i]; const box = document.getElementById('cc-op-name-' + i); if(!orig || !box) return;
         const cur = nameOverrides[orig] || orig;
@@ -11069,7 +11106,7 @@
             const ok = await ccConfirm(`Eliminare ${name}?`, 'La colonna sparisce dal calendario per tutti. I turni già salvati per questo operatore restano archiviati ma non saranno più visibili.', 'Elimina', 'solid-danger');
             if(!ok) return;
             operatorConfig.added = operatorConfig.added.filter(o => (o.name||'').toUpperCase() !== orig);
-            delete operatorConfig.contract[orig]; delete operatorConfig.hidden[orig];
+            delete operatorConfig.contract[orig]; delete operatorConfig.hidden[orig]; if(operatorConfig.allow) delete operatorConfig.allow[orig];
             operatorConfig.order = operatorConfig.order.filter(o => o !== orig);
             rebuildDataFromExcel();
         } else {
@@ -11508,9 +11545,9 @@
         if(valA.customMinutes === undefined) delete valA.customMinutes;
         if(valB.customMinutes === undefined) delete valB.customMinutes;
         if(cellA.perm) valA.perm = cellA.perm; if(cellB.perm) valB.perm = cellB.perm;
-        let prevA = setOverride(keyA, valB);
-        let prevB = setOverride(keyB, valA);
-        pushUndo({ entries:[{key:keyA, prev:prevA, next:valB},{key:keyB, prev:prevB, next:valA}] });
+        const done = absApplyChecked([{ key: keyA, next: valB, row: a.row, col: a.col }, { key: keyB, next: valA, row: b.row, col: b.col }]);
+        if(!done) return;
+        pushUndo({ entries: done.map(x => ({ key: x.key, prev: x.prev, next: x.next })) });
         afterCoordChange([keyA, keyB]); vibrate();
     }
     function performCoordFill(source, dest) {
@@ -11519,13 +11556,13 @@
         let valSrc = { v: cellSrc.v||"", subV: cellSrc.subV||"" };
         if(cellSrc.customMinutes !== undefined) valSrc.customMinutes = cellSrc.customMinutes;
         if(cellSrc.perm) valSrc.perm = cellSrc.perm;
-        let entries = [];
+        let list = [];
         for(let r=lo; r<=hi; r++) {
             if(!finalData[r]) continue;
-            let key = cellKey(r, source.col);
-            let prev = setOverride(key, valSrc);
-            entries.push({ key, prev, next: valSrc });
+            list.push({ key: cellKey(r, source.col), next: valSrc, row: r, col: source.col });
         }
+        const done = absApplyChecked(list); if(!done) return;
+        let entries = done.map(x => ({ key: x.key, prev: x.prev, next: x.next }));
         pushUndo({ entries });
         afterCoordChange(entries.map(en => en.key)); vibrate();
     }
@@ -11702,14 +11739,12 @@
         const cur = finalData[row][col] || {};
         const same = String(cur.v||'').trim() === String(value.v||'').trim() && String(cur.subV||'').trim() === String(value.subV||'').trim();
         if(same && !coordPaintTouchedKeys.has(key)) { coordPaintTouchedKeys.add(key); return; } // gia' uguale: nessuna modifica inutile
-        if(!coordPaintTouchedKeys.has(key)) {
-            let prev = setOverride(key, value);
-            coordPaintBatchEntries.push({ key, prev, next: value });
-            coordPaintTouchedKeys.add(key);
-        } else setOverride(key, value);
+        if(same) return;
         const tail = coordPaintTouchedKeys.has(cellKey(row + 1, col)) ? null : pnFreeNextDay(row, col, value.subV);   // PN: via l'assenza nascosta il giorno dopo
-        if(tail) { coordPaintBatchEntries.push(tail); coordPaintTouchedKeys.add(tail.key); applyOverrideAt(row + 1, col, tail.key); }
-        if(applyOverrideAt(row, col, key)) { renderTableRows(tail ? [row, row + 1] : [row]); scheduleTableHeadRefresh(600); }
+        const done = absApplyChecked([{ key, next: value, row, col }].concat(tail ? [tail] : []));   // oltre le spettanze: niente
+        if(!done) { coordPaintTouchedKeys.add(key); return; }
+        done.forEach(x => { if(!coordPaintTouchedKeys.has(x.key)) { coordPaintBatchEntries.push({ key: x.key, prev: x.prev, next: x.next }); coordPaintTouchedKeys.add(x.key); } });
+        if(finalData[row] && rawFinalData[row]) { renderTableRows(tail ? [row, row + 1] : [row]); scheduleTableHeadRefresh(600); }
         else { applyManualOverrides(); renderTable(); }
         updateCoordToolbarState();
     }
@@ -11849,10 +11884,10 @@
         const { row, col } = coordEditPopupTarget;
         const key = cellKey(row, col);
         const next = (v === null && subV === null) ? { v:"", subV:"" } : { v: v || "", subV: subV || "" };
-        const prev = setOverride(key, next);
-        const entries = [{ key, prev, next }], keys = [key];
         const tail = pnFreeNextDay(row, col, next.subV);
-        if(tail) { entries.push(tail); keys.push(tail.key); }
+        const done = absApplyChecked([{ key, next, row, col }].concat(tail ? [tail] : []));
+        if(!done) return;
+        const entries = done.map(x => ({ key: x.key, prev: x.prev, next: x.next })), keys = entries.map(x => x.key);
         pushUndo({ entries });
         afterCoordChange(keys); closeShiftEditPopup();
         if(tail) ccToast(`Il permesso notte copre anche il giorno dopo: tolto ${SPECIAL_SUBCODES[tail.was] ? SPECIAL_SUBCODES[tail.was].toLowerCase() : 'l\u2019assenza'} che c\u2019era, così torna disponibile.`);
@@ -11866,7 +11901,44 @@
         if(!sub || sub === 'pn' || SPECIAL_SUBCODES[sub] === undefined) return null;
         const key = cellKey(row + 1, col), next = { v: String(nx.v || ''), subV: '' };
         if(nx.customMinutes !== undefined && nx.customMinutes !== null && nx.customMinutes !== '') next.customMinutes = nx.customMinutes;
-        return { key, prev: setOverride(key, next), next, was: sub };
+        return { key, next, row: row + 1, col, was: sub };
+    }
+    // ── Spettanze: in Modifica turni non si va oltre i C.O. e i permessi che la persona ha ──
+    const ABS_LIMITED = { f: 1, p: 1, pn: 1 };
+    // ["P 8/6", …]: dove la persona è già oltre le spettanze dell'anno
+    function absOverList(d) {
+        const a = absCountFor(d, buildDaysIndex()), L = { co: 'C.O.', sp: 'P', pn: 'PN' };
+        return ['co', 'sp', 'pn'].filter(k => a.allow[k] > a.max[k]).map(k => `${L[k]} ${a.allow[k]}/${a.max[k]}`);
+    }
+    function absUse(col) {
+        const d = getDriverByIdx(col); if(!d) return null;
+        const a = absCountFor(d, buildDaysIndex());
+        return { d, co: a.allow.co, sp: a.allow.sp, pn: a.allow.pn, max: a.max };
+    }
+    function absOverMsg(b, a) {
+        const L = { co: 'giorni di congedo ordinario', sp: 'permessi straordinari (anche i permessi notte ne usano uno)', pn: 'permessi notte' };
+        const k = ['co', 'sp', 'pn'].find(k => a[k] > a.max[k] && a[k] > b[k]); if(!k) return '';
+        const left = Math.max(0, a.max[k] - b[k]);
+        return `${a.d.name} ha ${a.max[k]} ${L[k]} nel ${SHIFT_YEAR}${left ? `: ne restano solo ${left}` : ' e li ha già usati tutti'}. Non inserito. Se la spettanza è sbagliata si cambia in Area coordinatore › Operatori.`;
+    }
+    // Applica le caselle [{ key, next, row, col }] (alle modifiche in sospeso). Se così qualcuno
+    // supera le sue spettanze rimette tutto com'era, avvisa e restituisce null; altrimenti le
+    // voci con il valore di prima, per l'annullamento.
+    function absApplyChecked(list) {
+        const sub = x => String((x && x.subV) || '').trim().toLowerCase();
+        const check = list.some(x => ABS_LIMITED[sub(x.next)]);
+        const cols = check ? [...new Set(list.map(x => x.col))] : [], before = {};
+        cols.forEach(c => before[c] = absUse(c));
+        const done = list.map(x => Object.assign({}, x, { prev: setOverride(x.key, x.next) }));
+        done.forEach(x => applyOverrideAt(x.row, x.col, x.key));
+        for(const c of cols) {
+            const after = absUse(c), msg = before[c] && after ? absOverMsg(before[c], after) : '';
+            if(!msg) continue;
+            done.slice().reverse().forEach(x => { setOverride(x.key, x.prev); applyOverrideAt(x.row, x.col, x.key); });
+            ccToast(msg, true);
+            return null;
+        }
+        return done;
     }
     function describeOverrideValue(ov) {
         if(!ov) return "vuoto";
