@@ -1191,6 +1191,16 @@
         body.pref-hl-me #main-table td.me-col { background: rgba(37,99,235,.09); box-shadow: inset 2px 0 0 rgba(37,99,235,.55), inset -2px 0 0 rgba(37,99,235,.55); }
         body.dark-mode.pref-hl-me #main-table td.me-col { background: rgba(96,165,250,.13); }
         body.pref-hl-me #main-table thead th.me-col { color: var(--primary); box-shadow: inset 0 -3px 0 var(--primary); }
+        /* nomi toccati nell'intestazione: quelle colonne in evidenza, le altre sbiadite */
+        #main-table thead th[data-col] { cursor: pointer; }
+        #main-table td.col-dim { opacity: .28; }
+        /* intestazione: resta piena (è fissa in alto, sbiadita lascerebbe vedere sotto), sbiadisce solo il contenuto */
+        #main-table thead th.col-dim { color: color-mix(in srgb, var(--text-sec) 40%, transparent); }
+        #main-table thead th.col-dim > * { opacity: .4; }
+        #main-table thead th.col-dim:hover { color: var(--text-sec); }
+        #main-table thead th.col-focus { color: var(--primary); box-shadow: inset 0 -3px 0 var(--primary); }
+        #main-table td.col-focus-end, #main-table thead th.col-focus-end { border-right: 3px solid var(--primary); }
+        #main-table thead th.th-focus-clear { cursor: pointer; color: var(--primary); }
         body.pref-no-times #main-table .time-tag, body.pref-no-times #cell-probe .time-tag { display:none; }
         body.pref-no-repbar #main-table .rep-bar, body.pref-no-repbar #cell-probe .rep-bar { display:none; }
 
@@ -12840,14 +12850,42 @@
     const RT_WEEKDAY_FMT = new Intl.DateTimeFormat('it-IT', { weekday:'short' });
     let rtCols = [];
     let rtMeIdx = null;
+    let focusCols = [];   // colonne in evidenza (indici operatore), solo su questo schermo
     function rtVisibleCols() {
         const visibleDrivers = drivers.filter(d => !d.hidden);
         let list = (selectedDrivers.size === 0) ? visibleDrivers : visibleDrivers.filter(d => selectedDrivers.has(d.idx));
         const me = prefMe(); rtMeIdx = me ? me.idx : null;
         // preferenza "la mia colonna per prima" (non in modifica turni: lì resta l'ordine vero)
         if(me && prefs.myColFirst && !coordEditModeActive && list.includes(me)) list = [me].concat(list.filter(d => d !== me));
+        // colonne messe in evidenza toccando i nomi: affiancate per prime, nell'ordine in cui si toccano
+        focusCols = focusCols.filter(i => list.some(d => d.idx === i));
+        if(focusCols.length) list = focusCols.map(i => list.find(d => d.idx === i)).concat(list.filter(d => !focusCols.includes(d.idx)));
         return list;
     }
+    // Tocco su un nome dell'intestazione: aggiunge o toglie la colonna da quelle in evidenza.
+    function colFocusCls(idx) {
+        if(!focusCols.length) return '';
+        const k = focusCols.indexOf(idx);
+        return k < 0 ? 'col-dim' : (k === focusCols.length - 1 ? 'col-focus col-focus-end' : 'col-focus');
+    }
+    function toggleColFocus(idx) {
+        const k = focusCols.indexOf(idx);
+        if(k < 0) focusCols.push(idx); else focusCols.splice(k, 1);
+        renderTable(); vibrate();
+        if(k < 0) {   // le colonne in evidenza sono le prime: si torna all'inizio a sinistra
+            if(focusCols.length === 1) ccToast('Tocca altri nomi per affiancarli · di nuovo per toglierli · DATA per vederli tutti');
+            let el = document.getElementById('main-table');
+            for(; el; el = el.parentElement) if(el.scrollLeft) el.scrollLeft = 0;
+            if(window.scrollX) window.scrollTo(0, window.scrollY);
+        }
+    }
+    function clearColFocus() { if(!focusCols.length) return; focusCols = []; renderTable(); }
+    document.addEventListener('click', e => {
+        const th = e.target.closest && e.target.closest('#table-head th');
+        if(!th || e.target.closest('button, a, input, select, .th-ai-badge')) return;
+        if(th.dataset.col !== undefined) toggleColFocus(+th.dataset.col);
+        else if(focusCols.length) clearColFocus();
+    });
     function renderTableHead() {
         const thead = document.getElementById('table-head'); if(!thead) return;
         const frag = document.createDocumentFragment();
@@ -12859,10 +12897,13 @@
             thD.className = 'th-period-cell';
             thD.innerHTML = `<button class="th-period-btn" onclick="event.stopPropagation();thTogglePeriodMenu(this)" title="Saldo ore: ${esc(P.label)} (tocca per cambiare)"><span class="th-period-top">${esc(P.short)}<span class="material-icons-round">arrow_drop_down</span></span><small>${esc(thPeriodContext())}</small></button>`;
             thRenderedKey = thPeriodKey();
-        } else thD.innerText = "DATA";
+        } else if(focusCols.length) { thD.className = 'th-focus-clear'; thD.title = 'Mostra di nuovo tutte le colonne'; thD.innerHTML = 'DATA<br><span class="material-icons-round" style="font-size:16px">close</span>'; }
+        else thD.innerText = "DATA";
         frag.appendChild(thD);
         rtCols.forEach(d => {
             let th = document.createElement('th'); th.innerText = d.name; if(d.idx === rtMeIdx) th.classList.add('me-col');
+            th.dataset.col = d.idx; const fc = colFocusCls(d.idx); if(fc) th.className += ' ' + fc;
+            th.title = focusCols.includes(d.idx) ? 'Tocca per togliere dall\'evidenza' : 'Tocca per mettere in evidenza';
             if(coordEditModeActive) {
                 let delta = thBalance(d.idx, periodDays);
                 let bEl = document.createElement('div');
@@ -12936,7 +12977,7 @@
             const orig = String(d.originalName || d.name).replace(/&/g,'&amp;').replace(/"/g,'&quot;');
             const click = `handleCellClick(${i},${d.idx},'${mName}',${dNum},'${dayWeek}','${rawVal.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')`.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
             const sel = coordEditModeActive && coordSelectedCell && coordSelectedCell.row === i && coordSelectedCell.col === d.idx;
-            const tdCls = [sel ? 'coord-selected' : '', d.idx === rtMeIdx ? 'me-col' : '', cover ? cover.cls[d.idx] || '' : ''].filter(Boolean).join(' ');
+            const tdCls = [sel ? 'coord-selected' : '', d.idx === rtMeIdx ? 'me-col' : '', cover ? cover.cls[d.idx] || '' : '', colFocusCls(d.idx)].filter(Boolean).join(' ');
             html += `<td${tdCls ? ` class="${tdCls}"` : ''} data-row="${i}" data-col="${d.idx}" data-month="${mName}" data-day="${dNum}" data-orig="${orig}" onclick="${click}">${noteFlagHtml(isoDate, d.idx)}${chk && chk.cells[d.idx] ? `<span class="chk-flag ${chk.cells[d.idx].err ? 'err' : ''}" title="${esc(chk.cells[d.idx].msgs.join(' \u00b7 '))}">!</span>` : ''}${calCompactOn() ? miniCellHtml(formatCell(cellInfo, prevCellInfo, false, repCellHtml(d.originalName || d.name, isoDate))) : formatCell(cellInfo, prevCellInfo, showGraziella, repCellHtml(d.originalName || d.name, isoDate))}</td>`;
         });
         tr.innerHTML = html;
