@@ -11682,7 +11682,9 @@
             coordPaintBatchEntries.push({ key, prev, next: value });
             coordPaintTouchedKeys.add(key);
         } else setOverride(key, value);
-        if(applyOverrideAt(row, col, key)) { renderTableRows([row]); scheduleTableHeadRefresh(600); }
+        const tail = coordPaintTouchedKeys.has(cellKey(row + 1, col)) ? null : pnFreeNextDay(row, col, value.subV);   // PN: via l'assenza nascosta il giorno dopo
+        if(tail) { coordPaintBatchEntries.push(tail); coordPaintTouchedKeys.add(tail.key); applyOverrideAt(row + 1, col, tail.key); }
+        if(applyOverrideAt(row, col, key)) { renderTableRows(tail ? [row, row + 1] : [row]); scheduleTableHeadRefresh(600); }
         else { applyManualOverrides(); renderTable(); }
         updateCoordToolbarState();
     }
@@ -11823,8 +11825,23 @@
         const key = cellKey(row, col);
         const next = (v === null && subV === null) ? { v:"", subV:"" } : { v: v || "", subV: subV || "" };
         const prev = setOverride(key, next);
-        pushUndo({ entries:[{ key, prev, next }] });
-        afterCoordChange([key]); closeShiftEditPopup();
+        const entries = [{ key, prev, next }], keys = [key];
+        const tail = pnFreeNextDay(row, col, next.subV);
+        if(tail) { entries.push(tail); keys.push(tail.key); }
+        pushUndo({ entries });
+        afterCoordChange(keys); closeShiftEditPopup();
+        if(tail) ccToast(`Il permesso notte copre anche il giorno dopo: tolto ${SPECIAL_SUBCODES[tail.was] ? SPECIAL_SUBCODES[tail.was].toLowerCase() : 'l\u2019assenza'} che c\u2019era, così torna disponibile.`);
+    }
+    // Il permesso notte occupa anche il giorno dopo (fino alle 7:20) e la casella di quel giorno
+    // mostra "PERMESSO NOTTE": un'altra assenza rimasta lì sotto (es. il C.O. di prima) non si
+    // vedrebbe ma resterebbe nel conteggio. Quando si mette un PN, quell'assenza si toglie.
+    function pnFreeNextDay(row, col, subV) {
+        if(String(subV || '').trim().toLowerCase() !== 'pn' || !finalData[row + 1]) return null;
+        const nx = finalData[row + 1][col] || {}, sub = String(nx.subV || '').trim().toLowerCase();
+        if(!sub || sub === 'pn' || SPECIAL_SUBCODES[sub] === undefined) return null;
+        const key = cellKey(row + 1, col), next = { v: String(nx.v || ''), subV: '' };
+        if(nx.customMinutes !== undefined && nx.customMinutes !== null && nx.customMinutes !== '') next.customMinutes = nx.customMinutes;
+        return { key, prev: setOverride(key, next), next, was: sub };
     }
     function describeOverrideValue(ov) {
         if(!ov) return "vuoto";
@@ -13036,8 +13053,11 @@
             const ph = info.perm && Number(info.perm.h) > 0 ? `<div class="time-tag perm-h">${permHFmt(info.perm.h)}</div>` : '';
             return `<div class="cell spec-${subVal}"><div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">PERMESSO<br>${subVal === 'pl' ? 'LEGGE' : 'SINDACALE'}${ph}</div>${repHtml}</div>`;
         }
-        if(subVal === "pn" || prevSubVal === "pn")
-            return `<div class="cell spec-pn"><div style="flex:1;display:flex;align-items:center;text-align:center;">PERMESSO<br>NOTTE</div>${repHtml}</div>`;
+        if(subVal === "pn" || prevSubVal === "pn") {
+            // giorno dopo il PN con un'altra assenza rimasta nella casella: si vede (e si conta)
+            const hidden = subVal !== "pn" && SPECIAL_SUBCODES[subVal] !== undefined ? `<div class="riposo-sub" title="Nella casella c\u2019è anche ${esc(SPECIAL_SUBCODES[subVal].toLowerCase())}: conta nel conteggio assenze">+ ${esc(ABS_SHORT[subVal] || subVal.toUpperCase())}</div>` : "";
+            return `<div class="cell spec-pn"><div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">PERMESSO<br>NOTTE${hidden}</div>${repHtml}</div>`;
+        }
         if(subVal === "z")
             return `<div class="cell spec-coord"><div style="flex:1;display:flex;align-items:center;text-align:center;">SOSTITUZIONE<br>COORD.</div>${repHtml}</div>`;
         if(subVal === "v")
