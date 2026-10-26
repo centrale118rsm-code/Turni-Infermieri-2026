@@ -2609,6 +2609,9 @@
         .identity-btn.locked .identity-avatar { background:#a3adc2; }
         .identity-btn.locked .identity-name { text-decoration:line-through; text-decoration-thickness:2px; color:var(--text-sec); }
         .identity-lock-tag { font-size:0.55rem; font-weight:800; color:#dc2626; text-transform:uppercase; }
+        .identity-btn.pending { opacity:0.5; pointer-events:none; animation:identityPulse 1.2s ease-in-out infinite; }
+        .identity-pending-tag { font-size:0.55rem; font-weight:800; color:var(--text-sec); text-transform:uppercase; }
+        @keyframes identityPulse { 50% { opacity:0.3; } }
         .identity-btn.current { background:linear-gradient(135deg, rgba(29,78,216,0.12), rgba(29,78,216,0.03)); border-color:var(--primary); box-shadow:0 3px 10px rgba(29,78,216,0.15); }
         .identity-btn.current .identity-avatar { box-shadow:0 0 0 2px var(--bg-card), 0 0 0 4px var(--primary); }
         .identity-current-tag { font-size:0.55rem; font-weight:800; color:var(--primary); text-transform:uppercase; letter-spacing:0.5px; }
@@ -3853,8 +3856,9 @@
                 if(ms && ms > cutoffMs && !(rel[d.name] && ms <= rel[d.name])) locked.add(d.name);
             });
             identityLockedCache = locked;
+            try { localStorage.setItem('infermieri_identity_locked', JSON.stringify([...locked])); } catch(e) {}
             return locked;
-        } catch(e) { console.error("Errore lettura identità attive:", e); return new Set(); }
+        } catch(e) { console.error("Errore lettura identità attive:", e); return null; }
     }
     function showIdentityInfoPopup() {
         let m = document.getElementById('identity-info-modal'); m.style.display = 'flex';
@@ -3865,16 +3869,22 @@
         let m = document.getElementById('identity-info-modal'); m.classList.remove('open');
         setTimeout(() => { m.style.display = 'none'; openIdentityModal(); }, 300);
     }
-    // La finestra si apre subito; i nomi "In uso" arrivano appena la rete risponde (al massimo 6 s).
+    // La finestra si apre subito con gli ultimi nomi "In uso" conosciuti (salvati sul telefono),
+    // poi si aggiorna appena la rete risponde (al massimo 6 s). Se non si sa ancora nulla,
+    // i nomi restano in attesa invece di sembrare tutti liberi.
     let identityLockedCache = null, identityReleases = {};
+    function savedLockedIdentities() {
+        try { const a = JSON.parse(localStorage.getItem('infermieri_identity_locked') || 'null'); return Array.isArray(a) ? new Set(a) : null; } catch(e) { return null; }
+    }
     async function openIdentityModal() {
-        renderIdentityList(identityLockedCache || new Set());
+        const known = identityLockedCache || savedLockedIdentities();
+        renderIdentityList(known || new Set(), !known);
         const m = document.getElementById('identity-modal'); m.style.display = 'flex';
         setTimeout(() => m.classList.add('open'), 20);
         const fresh = await Promise.race([getLockedIdentities(), new Promise(r => setTimeout(() => r(null), 6000))]);
-        if(fresh && m.style.display !== 'none') renderIdentityList(fresh);
+        if(m.style.display !== 'none' && (fresh || !known)) renderIdentityList(fresh || known || new Set());
     }
-    function renderIdentityList(locked) {
+    function renderIdentityList(locked, pending) {
         const names = (drivers && drivers.length) ? drivers.map(d => d.name) : [];
         const allOptions = names.concat(IDENTITY_EXTRA_OPTIONS);
         const c = document.getElementById('identity-list-container'); c.innerHTML = "";
@@ -3882,14 +3892,16 @@
             const isGuest = name === 'Ospite';
             const isCurrent = name === userIdentity;
             const isLocked = !isGuest && !isCurrent && locked.has(name);
+            const isPending = pending && !isGuest && !isCurrent;
             const initials = name.substring(0,2).toUpperCase();
             const btn = document.createElement('div');
-            btn.className = 'identity-btn' + (isGuest ? ' guest-btn' : '') + (isLocked ? ' locked' : '') + (isCurrent ? ' current' : '');
+            btn.className = 'identity-btn' + (isGuest ? ' guest-btn' : '') + (isLocked ? ' locked' : '') + (isPending ? ' pending' : '') + (isCurrent ? ' current' : '');
             let tag = '';
             if(isCurrent) tag = '<div class="identity-current-tag">TU</div>';
+            else if(isPending) tag = '<div class="identity-pending-tag">Verifica…</div>';
             else if(isLocked) tag = '<div class="identity-lock-tag">In uso</div>';
             btn.innerHTML = `<div class="identity-avatar">${isGuest ? '<span class="material-icons-round" style="font-size:20px">person</span>' : initials}</div><div class="identity-name">${name}</div>${tag}`;
-            if(!isLocked) btn.onclick = () => selectIdentity(name);
+            if(!isLocked && !isPending) btn.onclick = () => selectIdentity(name);
             c.appendChild(btn);
         });
     }
@@ -4164,7 +4176,7 @@
         let m = document.getElementById('admin-panel-modal'); m.style.display = 'flex';
         setTimeout(() => m.classList.add('open'), 10);
         switchAdminTab('panoramica', document.querySelector('.admin-tab-btn[data-tab="panoramica"]'));
-        admData = null; admRefresh(true);
+        admRefresh(true);   // si vedono subito i dati dell'ultima apertura (se ci sono), poi si aggiornano
         if(pendingAdminTab) { const t = pendingAdminTab; pendingAdminTab = null; switchAdminTab(t, document.querySelector(`.admin-tab-btn[data-tab="${t}"]`)); }
         startAdminAccessListener();
         populateAdminColorInputs();
@@ -4296,13 +4308,14 @@
         const since = firebase.firestore.Timestamp.fromMillis(Date.now() - ADM_DAYS * 864e5);
         const safe = p => p.catch(e => { console.warn('Pannello admin:', e && (e.code || e.message)); return null; });
         const dates = []; for(let i = 0; i < 7; i++) { const d = new Date(); d.setDate(d.getDate() - i); dates.push(ymd(d)); }
-        const [sess, ids, set, push, saldi, snap, req, runs, mstate, ...logs] = await Promise.all([
+        // lo stato del motore su GitHub arriva per conto suo: il pannello non lo aspetta
+        admLoadMotore();
+        const [sess, ids, set, push, saldi, snap, req, ...logs] = await Promise.all([
             safe(db.collection('infermieri26_accessi').where('startTime', '>=', since).orderBy('startTime', 'desc').limit(1500).get()),
-            safe(db.collection('infermieri26_identities').get()),
+            // servono solo i nomi presi negli ultimi 5 giorni, non tutti i telefoni di sempre
+            safe(db.collection('infermieri26_identities').where('updatedAt', '>=', firebase.firestore.Timestamp.fromMillis(Date.now() - IDENTITY_CLAIM_MAX_AGE_MS)).get()),
             safe(cfgRef('settings').get()), safe(cfgRef('push').get()), safe(cfgRef('saldi').get()), safe(cfgRef('snapindex').get()),
             safe(db.collection('richieste_infermieri').orderBy('timestamp', 'desc').limit(80).get()),
-            safe(Promise.race([fetch(`https://api.github.com/repos/${ADM_MOTORE_REPO}/actions/workflows/motore.yml/runs?per_page=40`).then(r => r.ok ? r.json() : null), new Promise(res => setTimeout(() => res(null), 7000))])),
-            safe(Promise.race([fetch(`https://raw.githubusercontent.com/${ADM_MOTORE_REPO}/main/push/state.json?t=${Date.now()}`).then(r => r.ok ? r.json() : null), new Promise(res => setTimeout(() => res(null), 7000))])),
             ...dates.map(d => safe(cfgRef('log_' + d).get()))
         ]);
         const S = set && set.exists ? (set.data() || {}) : {};
@@ -4315,15 +4328,26 @@
             saldi: saldi && saldi.exists ? (saldi.data() || {}) : null,
             snaps: snap && snap.exists ? Object.entries((snap.data() || {}).items || {}).map(([id, v]) => Object.assign({ id }, v)) : [],
             requests: req ? req.docs.map(d => Object.assign({ id: d.id }, d.data())) : [],
-            runs: runs && runs.workflow_runs ? runs.workflow_runs : null, motoreProblem: mstate && mstate.problem ? String(mstate.problem) : '',
             logs: logs.map((x, i) => ({ date: dates[i], entries: x && x.exists ? Object.entries((x.data() || {}).entries || {}).map(([id, e]) => Object.assign({ id }, e)) : [] })),
             sessionsOk: !!sess
         };
     }
+    let admMotoreData = { runs: null, motoreProblem: '', pending: false };
+    async function admLoadMotore() {
+        if(admMotoreData.pending) return;
+        admMotoreData.pending = true;
+        const get = url => Promise.race([fetch(url).then(r => r.ok ? r.json() : null).catch(() => null), new Promise(res => setTimeout(() => res(null), 7000))]);
+        const [runs, mstate] = await Promise.all([
+            get(`https://api.github.com/repos/${ADM_MOTORE_REPO}/actions/workflows/motore.yml/runs?per_page=40`),
+            get(`https://raw.githubusercontent.com/${ADM_MOTORE_REPO}/main/push/state.json?t=${Date.now()}`)
+        ]);
+        admMotoreData = { runs: runs && runs.workflow_runs ? runs.workflow_runs : null, motoreProblem: mstate && mstate.problem ? String(mstate.problem) : '', pending: false };
+        if(admData) { Object.assign(admData, { runs: admMotoreData.runs, motoreProblem: admMotoreData.motoreProblem }); admRenderTab(); admBadges(); }
+    }
     async function admRefresh(quiet) {
         if(admLoading) return admLoading;
         const btns = document.querySelectorAll('.adm-refresh'); btns.forEach(b => b.classList.add('spin'));
-        admLoading = admLoad().then(d => { if(d) admData = d; }).catch(e => console.warn(e)).finally(() => {
+        admLoading = admLoad().then(d => { if(d) admData = Object.assign(d, { runs: admMotoreData.runs, motoreProblem: admMotoreData.motoreProblem }); }).catch(e => console.warn(e)).finally(() => {
             admLoading = null; btns.forEach(b => b.classList.remove('spin'));
             admRenderTab(); admBadges();
             const u = document.getElementById('adm-updated'); if(u && admData) u.textContent = 'Dati delle ' + new Date(admData.at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
@@ -4523,7 +4547,8 @@
         if(hard.length) add('err', 'bug_report', `${hard.length} ${hard.length === 1 ? 'errore' : 'errori'} nelle ultime 24 ore`, hard.slice(0, 2).map(g => g.msg.slice(0, 80)).join(' · '), "admGo('errori')", 'Vedi errori');
         else if(errs.length) add('warn', 'report', `${errs.length} ${errs.length === 1 ? 'avviso' : 'avvisi'} nelle ultime 24 ore`, errs.slice(0, 2).map(g => g.msg.slice(0, 80)).join(' · '), "admGo('errori')", 'Vedi');
         const M = admMotore();
-        if(!M) add('info', 'cloud_off', 'Motore delle notifiche: stato non disponibile', 'GitHub non ha risposto. Riprova con “Aggiorna”.', '', '');
+        if(!M && admMotoreData.pending) { /* ancora in verifica */ }
+        else if(!M) add('info', 'cloud_off', 'Motore delle notifiche: stato non disponibile', 'GitHub non ha risposto. Riprova con “Aggiorna”.', '', '');
         else if(!M.last || Date.now() - M.last > 6 * 36e5) add('err', 'notifications_off', 'Il motore delle notifiche è fermo', `Ultimo giro ${admAgo(M.last)}. Senza il motore niente notifiche ad app chiusa e i calendari del telefono non si aggiornano.`, `window.open('https://github.com/${ADM_MOTORE_REPO}/actions/workflows/motore.yml','_blank')`, 'Apri GitHub');
         else if(Date.now() - M.last > 36e5) add('warn', 'notifications_paused', 'Il motore delle notifiche è in ritardo', `Ultimo giro ${admAgo(M.last)} (dovrebbe girare ogni 15 minuti).`, `window.open('https://github.com/${ADM_MOTORE_REPO}/actions/workflows/motore.yml','_blank')`, 'Apri GitHub');
         if(admData.motoreProblem) add('err', 'notifications_off', 'Le notifiche sul telefono non partono', admData.motoreProblem + ' Rimetti il secret VAPID_PRIVATE su GitHub (Settings › Secrets › Actions): solo la chiave privata, senza spazi né scritte.', `window.open('https://github.com/${ADM_MOTORE_REPO}/settings/secrets/actions','_blank')`, 'Apri i secret');
@@ -4582,7 +4607,7 @@
                 ${admKpi('login', todayS.length, 'Accessi oggi', `${people.size} persone con nome`, 'info')}
                 ${admKpi('bug_report', errN, 'Problemi in 24 ore', errs.length ? `${errs.length} tipi diversi` : 'nessuno', errs.some(g => g.kind !== 'console') ? 'err' : errs.length ? 'warn' : 'ok')}
                 ${admKpi('notifications_active', subs.length, 'Telefoni con notifiche', coordSub ? 'coordinatore incluso' : 'coordinatore escluso', coordSub ? 'ok' : 'warn')}
-                ${admKpi('smart_toy', M ? admAgo(M.last) : '—', 'Ultimo giro motore', M ? `${M.auto24} automatici in 24 ore` : 'GitHub non risponde', !M ? 'muted' : (now - M.last > 6 * 36e5 ? 'err' : now - M.last > 36e5 ? 'warn' : 'ok'))}
+                ${admKpi('smart_toy', M ? admAgo(M.last) : '—', 'Ultimo giro motore', M ? `${M.auto24} automatici in 24 ore` : admMotoreData.pending ? 'controllo…' : 'GitHub non risponde', !M ? 'muted' : (now - M.last > 6 * 36e5 ? 'err' : now - M.last > 36e5 ? 'warn' : 'ok'))}
                 ${admKpi('inbox', pend.length, 'Richieste da gestire', admData.requests.length ? 'ultima ' + admAgo(admMs(admData.requests[0].timestamp)) : 'nessuna', pend.length ? 'warn' : 'ok')}
                 ${admKpi('fact_check', chk, 'Caselle da controllare', 'nei conteggi', chk ? 'warn' : 'ok')}
                 ${admKpi('backup', admAgo(lastSnap), 'Ultima copia', `${admData.snaps.length} copie salvate`, lastSnap && now - lastSnap < 3 * 864e5 ? 'ok' : 'warn')}
@@ -4599,7 +4624,7 @@
                 ${status('ok', 'Origine dei turni', dataSourceMode === 'firebase' ? 'solo app' : 'file Excel')}
                 ${status('ok', 'Anno attivo', activeYear + (archivedYears.length ? ` · archiviati ${archivedYears.join(', ')}` : ''))}
                 ${status(coordinatorName ? (coordSub ? 'ok' : 'warn') : 'warn', 'Coordinatore designato', coordinatorName ? coordinatorName + (coordSub ? ' · notifiche attive' : ' · notifiche spente') : 'nessuno')}
-                ${status(!M ? 'muted' : (M.ok ? (now - M.last > 36e5 ? 'warn' : 'ok') : 'err'), 'Motore notifiche (GitHub)', M ? `ultimo giro ${admWhen(M.last)} · ${M.event === 'schedule' ? 'automatico' : 'avviato a mano'} · ${M.ok ? 'riuscito' : 'fallito'}${M.running ? ' · in corso' : ''}` : 'non disponibile')}
+                ${status(!M ? 'muted' : (M.ok ? (now - M.last > 36e5 ? 'warn' : 'ok') : 'err'), 'Motore notifiche (GitHub)', M ? `ultimo giro ${admWhen(M.last)} · ${M.event === 'schedule' ? 'automatico' : 'avviato a mano'} · ${M.ok ? 'riuscito' : 'fallito'}${M.running ? ' · in corso' : ''}` : admMotoreData.pending ? 'controllo…' : 'non disponibile')}
                 ${status(admData.motoreProblem ? 'err' : 'ok', 'Invio notifiche', admData.motoreProblem ? 'bloccato: chiave non valida' : 'regolare')}
                 ${status(subs.length ? 'ok' : 'warn', 'Notifiche attive', subs.length ? [...new Set(subs.map(s => s.owner || '?'))].join(', ') : 'nessun telefono')}
                 ${status(salAt && now - salAt < 2 * 864e5 ? 'ok' : 'warn', 'Saldi per il portale', admAgo(salAt))}
