@@ -5297,9 +5297,7 @@
             excelParsedData = parseHorizontalLayout(rawData);
             rebuildDataFromExcel();            // aggiunge le colonne create dal coordinatore + modifiche manuali
             initApp();
-            if(splashMinTime) await splashMinTime;
-            document.getElementById('loader').style.opacity = '0';
-            setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+            await hideLoader(splashMinTime);
         } catch(e) { alert("Errore file: " + e.message); }
     }
 
@@ -5376,7 +5374,7 @@
         renderDriverFilterDropdown(); updateDriverFilterBadge();
         initNotificationOptions(); loadNotificationHistory(); renderTable(); startLiveClock();
         setCurrentView("Tabella Turni");
-        if(prefs.startToday !== false) setTimeout(scrollToToday, 600);
+        if(prefs.startToday !== false) startAtToday();
         setTimeout(loadOtherTeam, 3000);   // turni dell'altra squadra per il riepilogo del turno
         if(prefs.startPage === 'insieme') setTimeout(() => setCalView('insieme'), 350);
         setTimeout(async () => {
@@ -5721,10 +5719,40 @@
         setTimeout(() => { window.openRichiestePanel(reqId); }, 320);
     }
 
-    function scrollToToday() {
+    // oggi come prima riga: subito sotto barra in alto, nomi e barra del mese (tutti fissi)
+    function todayTopOffset(el) {
+        const hdr = document.querySelector('header'), th = document.querySelector('#main-table thead th');
+        let mh = el.previousElementSibling; while(mh && !mh.classList.contains('month-header')) mh = mh.previousElementSibling;
+        return (hdr ? hdr.offsetHeight : 0) + (th ? th.offsetHeight : 0) + (mh ? mh.offsetHeight : 0);
+    }
+    function scrollToToday(instant) {
         if(calOverview) { ovScrollToday(); return; }
         if(liteOn()) liteShowRow(liteTodayRow());
-        liteScrollTo(document.getElementById('today-row'), 240);
+        const el = document.getElementById('today-row'); if(!el) return;
+        liteScrollTo(el, todayTopOffset(el), instant);
+    }
+    // All'apertura: oggi già in cima, senza vedere i giorni scorrere. Si salta secco (mentre c'è ancora
+    // la schermata di caricamento) e si risalta finché il calendario cambia altezza (caratteri e dati
+    // che arrivano dopo, ridisegni); ci si ferma appena l'utente tocca o scorre.
+    function startAtToday() {
+        const evs = ['touchstart', 'wheel', 'mousedown', 'keydown'], tbl = document.getElementById('main-table');
+        let stopped = false, ro = null;
+        const stop = () => { stopped = true; evs.forEach(e => removeEventListener(e, stop, true)); if(ro) ro.disconnect(); };
+        evs.forEach(e => addEventListener(e, stop, { capture:true, passive:true }));
+        const pin = () => { if(!stopped) scrollToToday(true); };
+        pin();
+        if(tbl && window.ResizeObserver) { ro = new ResizeObserver(pin); ro.observe(tbl); }
+        [300, 1000, 2500].forEach(t => setTimeout(pin, t));
+        setTimeout(stop, 10000);
+    }
+    // la schermata di caricamento si toglie solo quando i caratteri sono pronti e oggi è già in cima
+    async function hideLoader(splashMinTime) {
+        if(splashMinTime) await splashMinTime;
+        try { await Promise.race([document.fonts.ready, new Promise(r => setTimeout(r, 3000))]); } catch(e) {}
+        if(prefs.startToday !== false && !calOverview) scrollToToday(true);
+        await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+        document.getElementById('loader').style.opacity = '0';
+        setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
     }
 
     function filterDriver(val) {
@@ -10285,9 +10313,7 @@
         rebuildDataFromExcel(); initApp(); updateYearUi();
         appBooted = true;
         setTimeout(autoNewYearCheck, 3000);   // capodanno: se l'anno è finito si passa al nuovo
-        if(splashMinTime) await splashMinTime;
-        document.getElementById('loader').style.opacity = '0';
-        setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+        await hideLoader(splashMinTime);
     }
     // Passaggio definitivo: i turni del calendario (Excel + modifiche) vengono copiati su Firebase,
     // un documento per mese; le reperibilità "/R" dell'Excel diventano reperibilità dell'app.
@@ -13048,10 +13074,10 @@
     // dopo un salto (oggi, un mese, un giorno) per un attimo non si aggiungono mesi:
     // aggiungerli durante lo scorrimento farebbe finire nel punto sbagliato
     let liteQuietUntil = 0;
-    function liteScrollTo(el, offset) {
+    function liteScrollTo(el, offset, instant) {
         if(!el) return;
         liteQuietUntil = Date.now() + 1500;
-        window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - offset, behavior: liteOn() ? 'auto' : 'smooth' });
+        window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - offset, behavior: liteOn() || instant ? 'auto' : 'smooth' });
         if(liteOn()) setTimeout(liteObserve, 1600);
     }
     function liteMoreRow(dir, name) {
