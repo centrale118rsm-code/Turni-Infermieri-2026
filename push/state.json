@@ -1681,12 +1681,7 @@
   }
  },
  "reqIds": [
-  "D2oPpafT2uImoSnbz9o1",
-  "6Qi0TMCsE8PoTghzJzCP",
-  "1ZzECv4wJRief0YanINu",
-  "MWOEZ8gyhulQjyxBhrpQ",
-  "G835Uzt6ErVTshoXEXxR",
-  "Du018FvWVu75rzIW8q5v",
+  "oBFp54gFa0Dd1GyzahR4",
   "5YKiZaR8Cn1cZBJ5xbd4",
   "npSuvPH08UvqhscayLbt",
   "Bj4xm2XWCIE8JWkqR1hV",
@@ -1719,13 +1714,13 @@
   "yWtSlC1WaDVQVnkhbR4l",
   "VWvDI0hbdjy38OBtN0sj",
   "vBkjIfnwIUx6aUtUMxOJ",
-  "nota-nmvounko5n8d4-2026-10-26T07:37:32.086Z",
-  "nota-nmvounto3ej35-2026-10-26T06:02:30.771Z"
+  "nota-nmvounto3ej35-2026-10-26T06:02:30.771Z",
+  "nota-nmvounko5n8d4-2026-10-26T07:37:32.086Z"
  ],
  "sent": {
-  "rep|2026-10-27|PALUMBO": 1793014134422,
   "rep|2026-10-28|TIBURZI": 1793103810692,
   "rep|2026-10-29|GATTI": 1793196572947,
-  "rep|2026-10-30|PODESCHI": 1793291194758
+  "rep|2026-10-30|PODESCHI": 1793291194758,
+  "rep|2026-10-31|MOSCONI": 1793369889646
  }
 }
