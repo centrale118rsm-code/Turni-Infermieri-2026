@@ -1007,6 +1007,33 @@
         .eq-m.hi { background:#fff1e6; } .eq-m.hi b, .eq-m.hi b sup { color:#c2410c; } .eq-m.hi i { background:#fb923c; }
         .eq-m.lo { background:#e8f4ff; } .eq-m.lo b, .eq-m.lo b sup { color:#1d4ed8; } .eq-m.lo i { background:#60a5fa; }
         .eq-m.pos b { color:#15803d; } .eq-m.neg b { color:#b91c1c; }
+        /* equità: categorie e tabella diurnisti/turnisti */
+        #eq-grid:empty, #eq-note:empty { display:none; }
+        .eq-cats { display:flex; flex-wrap:wrap; justify-content:center; gap:6px; padding:6px 12px 10px; }
+        .eq-cats button { display:flex; align-items:center; gap:6px; height:34px; padding:0 12px; border-radius:999px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-sec); font:inherit; font-size:0.8rem; font-weight:700; cursor:pointer; }
+        .eq-cats button .material-icons-round { font-size:17px; }
+        .eq-cats button.on { background:var(--primary); border-color:var(--primary); color:#fff; box-shadow:0 2px 8px rgba(29,78,216,.3); }
+        .eq-cat-h { display:flex; flex-wrap:wrap; align-items:center; gap:2px 8px; margin:2px 0 6px; font-size:0.95rem; font-weight:900; color:var(--text-main); }
+        .eq-cat-h small { flex-basis:100%; font-size:0.74rem; font-weight:600; color:var(--text-sec); }
+        .rt-v { display:flex; flex-direction:column; align-items:center; line-height:1.15; }
+        .rt-v b { font-size:0.95rem; font-weight:800; }
+        .rt-v small { font-size:0.62rem; font-weight:700; color:var(--text-sec); white-space:nowrap; }
+        .rt-v.d b { color:var(--c-dM); } .rt-v.t b { color:var(--c-M); }
+        body.dark-mode .rt-v.d b { color:#a78bfa; } body.dark-mode .rt-v.t b { color:#60a5fa; }
+        .rt-bar { display:flex; height:12px; min-width:110px; border-radius:6px; overflow:hidden; background:var(--bg); }
+        .rt-bar i { display:block; height:100%; }
+        .rt-bar i.d, .rt-key.d, .rt-mm i.d { background:var(--c-dP); } .rt-bar i.t, .rt-key.t, .rt-mm i.t { background:var(--c-P); } .rt-bar i.a, .rt-key.a, .rt-mm i.a { background:#cbd5e1; }
+        .rt-pct { font-size:0.62rem; font-weight:800; color:var(--text-sec); margin-top:3px; white-space:nowrap; }
+        .rt-mm { display:grid; grid-template-columns:repeat(12, 1fr); gap:2px; min-width:150px; }
+        .rt-mm span { display:flex; flex-direction:column-reverse; height:22px; background:var(--bg); border-radius:3px; overflow:hidden; }
+        .rt-mm i { display:block; }
+        .rt-mm em { font-style:normal; font-size:0.5rem; font-weight:700; color:var(--text-sec); text-align:center; text-transform:uppercase; }
+        .rt-table tbody tr { height:62px; }
+        .rt-key { display:inline-block; width:12px; height:12px; border-radius:3px; vertical-align:-2px; }
+        .eq-m .rt-v { align-items:flex-start; }
+        .eq-m .rt-v small { text-transform:none; white-space:normal; font-size:0.6rem; line-height:1.25; }
+        .rt-card-b { display:flex; flex-direction:column; gap:8px; }
+        .rt-card-b .eq-card-g { grid-template-columns:repeat(3, 1fr); }
         body.dark-mode .eq-m.hi { background:rgba(251,146,60,.15); } body.dark-mode .eq-m.lo { background:rgba(96,165,250,.15); }
         .ab-meter b { font-size:0.82rem; font-weight:800; color:var(--text-main); font-variant-numeric:tabular-nums; }
         .ab-meter b small { font-weight:600; color:var(--text-sec); }
@@ -3085,9 +3112,9 @@
                     <button data-p="anno" onclick="eqSetPeriod('anno')">Anno intero</button>
                 </div>
             </div>
+            <div class="eq-cats" id="eq-cats"></div>
             <div class="hg-wrap" id="eq-grid"></div>
             <p class="hg-note" id="eq-note"></p>
-            <h4 class="pw-title"><span class="material-icons-round">groups</span> Chi lavora con chi</h4>
             <div id="eq-pairs"></div>
         </div>
     </div>
@@ -3116,7 +3143,7 @@
                 </div>
                 <div class="ab-kpis" id="ab-kpis"></div>
                 <div class="hg-wrap" id="ab-grid"></div>
-                <p class="hg-note">Ogni anno: 31 giorni di congedo ordinario, 6 permessi straordinari e 2 permessi notte (un permesso notte usa anche un permesso straordinario). Le assenze che cadono su un riposo non contano. Tocca un operatore per il dettaglio.</p>
+                <p class="hg-note">Ogni anno: 31 giorni di congedo ordinario, 6 permessi straordinari e 2 permessi notte (un permesso notte usa anche un permesso straordinario). Le assenze che cadono su un riposo non contano. Il C.O. dei turnisti segue il ciclo del turno: il 1° giorno di ferie di fila vale un pomeriggio, poi mattina, notte, smonto e il 5° è riposo (non scala). Tocca un operatore per il dettaglio.</p>
             </div>
             <div id="ab-view-detail" style="display:none"></div>
         </div>
@@ -5854,9 +5881,60 @@
     // ÷ 6 nei giorni lun–sab (6 h con 36 h); la domenica non matura ore e vale 0.
     // Il permesso notte invece vale le ore vere della notte (19:45-00:00, come nel file Excel);
     // le 7:20 dopo mezzanotte si contano il giorno dopo.
+    // Assenze a giornata intera dei turnisti (C.O., ferie residue, P.S., recuperi, malattia, festivi
+    // non lavorati, studio…): come nel file Excel valgono le ore del turno che coprono e seguono il
+    // ciclo P › M › N › SM › R. Il ciclo continua dal turno del giorno prima del blocco di assenze
+    // (dopo una mattina si parte dalla notte, dopo un riposo dal pomeriggio; dopo un turno da
+    // diurnista o una casella vuota dal pomeriggio). Se sotto l'assenza è scritto il turno (P, M, N,
+    // S, R) vale quello. Il riposo vale 0 ore e non scala giorni. Il festivo non goduto resta a 6 h,
+    // il permesso notte vale la notte e il giorno dopo lo smonto.
+    const ABS_CYCLE = { f:1, v:1, r:1, m:1, p:1, c:1, nl:1, gr:1, s:1, l:1, a:1 };
+    const ABS_CYCLE_NEXT = { P:'M', M:'N', N:'SM', SM:'R', R:'P' };
+    function absTurnCode(v) {   // turno da turnista scritto nella casella (P, M, N, SM, R) o ''
+        let u = String(v || '').trim(); const i = u.indexOf('/'); if(i !== -1) u = u.slice(0, i).trim();
+        if(/^[a-z]/.test(u)) return 'd';
+        u = u.toUpperCase().replace(/\s+/g, '');
+        if(u === 'M+N' || u === 'MN') return 'N';
+        if(u === 'S') return 'SM';
+        if(u === 'RIPOSO') return 'R';
+        return ABS_CYCLE_NEXT[u] ? u : '';
+    }
+    function absCycleCode(rowIdx, colIdx) {
+        const cellAt = r => (finalData[r] || [])[colIdx] || {}, sub = r => String(cellAt(r).subV || '').trim().toLowerCase();
+        const inBlock = r => r >= 1 && finalData[r] && (ABS_CYCLE[sub(r)] || sub(r) === 'ng' || sub(r) === 'pn' || (r - 1 >= 1 && sub(r - 1) === 'pn' && pnTailFree(cellAt(r))));
+        if(!finalData[rowIdx] || !ABS_CYCLE[sub(rowIdx)]) return null;
+        let start = rowIdx; while(inBlock(start - 1)) start--;
+        const before = start - 1 >= 1 ? absTurnCode(cellAt(start - 1).v) : '';
+        // un giorno solo tra due giorni da diurnista (es. un recupero isolato): vale una giornata da diurnista
+        if(before === 'd' && start === rowIdx && !inBlock(rowIdx + 1) && rowIdx + 1 < finalData.length && absTurnCode(cellAt(rowIdx + 1).v) === 'd') return sub(rowIdx) === 'nl' ? 'F6' : 'D';
+        let code = before && before !== 'd' ? before : 'R', flat = false;
+        for(let r = start; r <= rowIdx; r++) {
+            const own = absTurnCode(cellAt(r).v);
+            flat = false;
+            if(sub(r) === 'pn') code = 'N';
+            else if(own && own !== 'd') code = own;
+            else if(r === start && before === 'd' && sub(r) === 'nl') flat = true;   // festivo dopo un diurno: 6 h, il ciclo parte dopo
+            else code = ABS_CYCLE_NEXT[code];
+        }
+        return flat ? 'F6' : code;
+    }
+    // ore di un giorno di assenza secondo absCycleCode
+    function absCycleMinutes(code, rowIdx, colIdx) {
+        if(code === 'D') return minutesFromRange(diurniSched('m', repRowDate(rowIdx)));
+        if(code === 'F6') return getContractHours(colIdx) * 60 / CONTRACT_WORKDAYS;
+        return minutesFromRange(SCHEDULE[code]);
+    }
     function justifiedDayMinutes(rowIdx, colIdx) {
         const row = finalData[rowIdx]; if(!row) return 0;
         if(String((row[colIdx] || {}).subV || '').trim().toLowerCase() === 'pn') return minutesFromRange(SCHEDULE["N"]);
+        const coc = absCycleCode(rowIdx, colIdx); if(coc) return absCycleMinutes(coc, rowIdx, colIdx);
+        const sb = String((row[colIdx] || {}).subV || '').trim().toLowerCase();
+        if(sb === 'k') return 0;   // distacco speciale: 0 ore, come nel file Excel
+        if(sb === 'z') {           // sostituzione coordinatore: le ore del turno scritto sotto, se no una mattina da diurnista
+            const own = String((row[colIdx] || {}).v || '').split('/')[0].trim();
+            if(own && own !== '-') { const t = /^[a-z]/.test(own) ? diurniSched(own, repRowDate(rowIdx)) : SCHEDULE[own.toUpperCase()]; if(t !== undefined) return minutesFromRange(t); }
+            return minutesFromRange(diurniSched('m', repRowDate(rowIdx)));
+        }
         const mi = MONTH_MAP[row[0].v], dn = parseInt(row[1].v);
         if(mi === undefined || isNaN(dn)) return 0;
         if(!isContractDay(new Date(shiftRowYear(rowIdx), mi, dn))) return 0;
@@ -5881,18 +5959,25 @@
     }
     function computeDayInfo(rowIdx, colIdx) {
         const info = computeDayInfoBase(rowIdx, colIdx);
-        if(info.code === 'SM' || info.code === 'S' || info.code === 'STR' || info.justified || info.unrecognized || !prevPlainNight(rowIdx, colIdx)) return info;
+        if(info.code === 'SM' || info.code === 'S' || info.code === 'STR' || info.manual || info.justified || info.unrecognized || !prevPlainNight(rowIdx, colIdx)) return info;
         const rest = !info.code || /^r$/i.test(info.code), tail = minutesFromRange(SCHEDULE["SM"]);
         return Object.assign({}, info, { minutes: (rest ? 0 : (info.minutes || 0)) + tail, code: rest ? 'SM' : info.code, label: rest ? 'SMONTO (dopo la notte)' : 'SMONTO + ' + info.label, nightTail: true });
     }
     // Metodo A (principale): rispecchia esattamente la logica usata per disegnare
     // le celle del calendario, incluso lo SMONTO automatico dopo un turno M+N.
+    // Ore a mano (customMinutes, in ore): il coordinatore scrive le ore vere di quel giorno. Il turno
+    // o l'assenza restano (il C.O. continua a contare nei giorni di ferie), cambiano solo le ore.
     function computeDayInfoBase(rowIdx, colIdx) {
         const row = finalData[rowIdx]; if(!row) return { minutes:0, code:"", label:"" };
+        const cm = (row[colIdx] || {}).customMinutes;
+        if(cm === undefined || cm === null || cm === "") return computeDayInfoAuto(rowIdx, colIdx);
+        const minutes = Math.round(Number(cm)*60) || 0, auto = computeDayInfoAuto(rowIdx, colIdx);
+        if(!auto.code || auto.unrecognized) return { minutes, code: "STR", label: "ORE A MANO", manual:true };
+        return Object.assign({}, auto, { minutes, label: auto.label + " \u00b7 ore a mano", manual:true, autoMinutes: auto.minutes });
+    }
+    function computeDayInfoAuto(rowIdx, colIdx) {
+        const row = finalData[rowIdx]; if(!row) return { minutes:0, code:"", label:"" };
         const info = row[colIdx] || {};
-        if(info.customMinutes !== undefined && info.customMinutes !== null && info.customMinutes !== "") {
-            return { minutes: Math.round(Number(info.customMinutes)*60) || 0, code: "STR", label: "STRAORDINARIO" };
-        }
         const prevRow = finalData[rowIdx-1];
         const prevInfo = prevRow ? (prevRow[colIdx] || {}) : null;
         let prevRaw = (prevInfo && prevInfo.v !== undefined && prevInfo.v !== null) ? prevInfo.v.toString().trim().toUpperCase().replace(/\s+/g,'') : "";
@@ -5962,6 +6047,28 @@
         if(Object.prototype.hasOwnProperty.call(SPECIAL_SUBCODES, sub)) {
             // assenza giustificata: copre la giornata (6 h con 36 h/sett.), la domenica 0; il permesso notte le ore della notte
             if(sub === 'pn') return minutesFromRange(SCHEDULE["N"]);
+            if(['f','v','r','m','p','c','nl','gr','s','l','a'].includes(sub)) {   // ciclo P M N SM R, ricalcolato a parte
+                const C = ['P','M','N','SM','R'], MIN = [445, 405, 255, 440, 0], at = r => (finalData[r] || [])[colIdx] || {};
+                const sb = r => String(at(r).subV || '').trim().toLowerCase();
+                const pos = c => { let x = String(at(c).v || '').split('/')[0].trim(); if(/^[a-z]/.test(x)) return -1; x = x.toUpperCase().replace(/\s+/g, ''); if(x === 'M+N' || x === 'MN') x = 'N'; if(x === 'S') x = 'SM'; if(x === 'RIPOSO') x = 'R'; return C.indexOf(x); };
+                const free = r => { const c = at(r); if(sb(r) && Object.prototype.hasOwnProperty.call(SPECIAL_SUBCODES, sb(r))) return false; const x = String(c.v || '').split('/')[0].trim(); return !x || x === '-' || ['R','RIPOSO','S','SM'].includes(x.toUpperCase()); };
+                const block = r => r >= 1 && !!finalData[r] && (['f','v','r','m','p','c','nl','gr','s','l','a','ng','pn'].includes(sb(r)) || (r >= 2 && sb(r - 1) === 'pn' && free(r)));
+                const low = r => r >= 1 && !!finalData[r] && /^[a-z]/.test(String(at(r).v || '').trim());
+                const dm = () => minutesFromRange(diurniSched('m', repRowDate(rowIdx))), six = getContractHours(colIdx) * 60 / CONTRACT_WORKDAYS;
+                let a = rowIdx; while(block(a - 1)) a--;
+                let e = rowIdx; while(block(e + 1)) e++;
+                if(a === e && low(a - 1) && low(e + 1)) return sub === 'nl' ? six : dm();
+                let k = a - 1 >= 1 ? pos(a - 1) : -1; if(k < 0) k = 4;
+                let fl = false;
+                for(let r = a; r <= rowIdx; r++) { const o = pos(r); fl = false; if(sb(r) === 'pn') k = 2; else if(o >= 0) k = o; else if(r === a && low(a - 1) && sb(r) === 'nl') fl = true; else k = (k + 1) % 5; }
+                return fl ? six : MIN[k];
+            }
+            if(sub === 'k') return 0;
+            if(sub === 'z') {
+                const w = String(cell.v || '').split('/')[0].trim();
+                if(w && w !== '-') { const t = /^[a-z]/.test(w) ? diurniSched(w, repRowDate(rowIdx)) : SCHEDULE[w.toUpperCase()]; if(t !== undefined) return minutesFromRange(t); }
+                return minutesFromRange(diurniSched('m', repRowDate(rowIdx)));
+            }
             const r = finalData[rowIdx], mi = MONTH_MAP[r[0].v], dn = parseInt(r[1].v);
             if(mi === undefined || isNaN(dn) || new Date(shiftRowYear(rowIdx), mi, dn).getDay() === 0) return 0;
             return getContractHours(colIdx) * 60 / CONTRACT_WORKDAYS;
@@ -6944,7 +7051,7 @@
         { k: 'saldo', label: 'Saldo ore', fmt: m => fmtHM(m, true) || '0:00', signed: true }
     ];
     function openEquity() {
-        closeMenu(); vibrate(); eqSort = null; renderEquity();
+        closeMenu(); vibrate(); eqSort = null; eqCat = 'tutto'; renderEquity();
         const m = document.getElementById('eq-modal'); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 10);
         setCurrentView('Equità');
     }
@@ -7608,6 +7715,40 @@
                 </div>
             </div>`;
     }
+    // ── Ore a mano: il coordinatore corregge le ore del giorno senza cambiare turno o assenza ──
+    function sepManHtml(rowIdx, col) {
+        const cell = finalData[rowIdx][col] || {}, has = cell.customMinutes !== undefined && cell.customMinutes !== null && cell.customMinutes !== '';
+        const info = computeDayInfo(rowIdx, col), autoMin = has ? (info.autoMinutes || 0) : info.minutes;
+        const val = has ? Number(cell.customMinutes) : Math.round(autoMin / 6) / 10;
+        return `<div class="sep-group-label">Ore a mano</div>
+            <div class="sep-perm">
+                <div class="sep-perm-row">
+                    <label>Ore del giorno <input type="number" id="sep-man-h" min="0" max="24" step="0.25" value="${val}" inputmode="decimal"></label>
+                    <small>${has ? `Scritte a mano: ${hsHM(info.minutes)} invece delle ${hsHM(autoMin)} calcolate` : `Calcolate dall\u2019app: ${hsHM(autoMin)}`}. Turno e assenza restano come sono, cambiano solo le ore.</small>
+                </div>
+                <div class="sep-perm-row">
+                    <button class="cc-btn primary" onclick="sepManApply()"><span class="msym">edit</span>Salva ore</button>
+                    ${has ? `<button class="cc-btn danger" onclick="sepManRemove()">Torna alle ore calcolate</button>` : ''}
+                </div>
+            </div>`;
+    }
+    function sepManSet(h) {
+        if(!coordEditPopupTarget) return; vibrate();
+        const { row, col } = coordEditPopupTarget, key = cellKey(row, col), cell = finalData[row][col] || {};
+        const next = { v: (cell.v || '').toString(), subV: (cell.subV || '').toString() };
+        if(cell.perm && cell.perm.k) next.perm = cell.perm;
+        if(h !== null) next.customMinutes = h;
+        const prev = setOverride(key, next);
+        pushUndo({ entries: [{ key, prev, next }] });
+        afterCoordChange([key]); closeShiftEditPopup();
+    }
+    function sepManApply() {
+        const h = parseFloat(String(document.getElementById('sep-man-h').value).replace(',', '.'));
+        if(!(h >= 0 && h <= 24)) { ccToast('Scrivi le ore (da 0 a 24).', true); return; }
+        sepManSet(Math.round(h * 100) / 100);
+        ccToast(`Ore del giorno: ${hsHM(Math.round(h * 60))} (a mano)`);
+    }
+    function sepManRemove() { sepManSet(null); ccToast('Tornano le ore calcolate.'); }
     function sepPermApply(full) {
         if(!coordEditPopupTarget) return; vibrate();
         const { row, col } = coordEditPopupTarget, key = cellKey(row, col), cell = finalData[row][col] || {};
@@ -8118,7 +8259,7 @@
         });
         document.getElementById('ab-grid').innerHTML = xgHtml('ab2', headL, head, body, year ? 860 + (psShown ? 70 : 0) + (otherShown ? 60 : 0) : 640);
         const note = document.querySelector('#ab-view-grid .hg-note');
-        if(note) note.innerHTML = `${year ? '<span class="ab-leg"><i class="done"></i>già fatti fino a oggi</span><span class="ab-leg"><i class="plan"></i>in programma</span><span class="ab-leg"><i class="free"></i>restano</span><br>' : ''}Ogni anno: ${ABS_ALLOW.co} giorni di congedo ordinario, ${ABS_ALLOW.sp} permessi straordinari, ${ABS_ALLOW.pn} permessi notte (un permesso notte usa anche un permesso straordinario) e ${PERM_HOURLY.pl.max} ore di permesso legge; chi ne ha meno (es. i nuovi assunti) ha le sue spettanze in Area coordinatore › Operatori. Le assenze che cadono su un riposo non contano. Tocca un nome per il dettaglio.`;
+        if(note) note.innerHTML = `${year ? '<span class="ab-leg"><i class="done"></i>già fatti fino a oggi</span><span class="ab-leg"><i class="plan"></i>in programma</span><span class="ab-leg"><i class="free"></i>restano</span><br>' : ''}Ogni anno: ${ABS_ALLOW.co} giorni di congedo ordinario, ${ABS_ALLOW.sp} permessi straordinari, ${ABS_ALLOW.pn} permessi notte (un permesso notte usa anche un permesso straordinario) e ${PERM_HOURLY.pl.max} ore di permesso legge; chi ne ha meno (es. i nuovi assunti) ha le sue spettanze in Area coordinatore › Operatori. Le assenze che cadono su un riposo non contano. Il C.O. dei turnisti segue il ciclo del turno: il 1° giorno di ferie di fila vale un pomeriggio, poi mattina, notte, smonto e il 5° è riposo (non scala). Tocca un nome per il dettaglio.`;
     }
     // dettaglio della persona: contatori con fatti/in programma/restano e grafico mese per mese
     function renderAbsDetail() {
@@ -8182,11 +8323,12 @@
                 });
             });
             r.we = r.sab + r.dom;
-            r.saldo = r.worked - contractMinutesFor(getContractHours(d.idx), days.map(dd => dd.date), d.idx);
+            r.dovute = contractMinutesFor(getContractHours(d.idx), days.map(dd => dd.date), d.idx);
+            r.saldo = r.worked - r.dovute;
             return r;
         }).filter(r => r.active);   // chi nel periodo non ha niente in calendario non entra nelle medie
         const avg = {};
-        EQ_COLS.forEach(c => { const set = c.onlyDoers ? rows.filter(r => r[c.k] > 0) : rows; avg[c.k] = set.length ? set.reduce((a, r) => a + r[c.k], 0) / set.length : 0; });
+        EQ_COLS.concat(EQ_EXTRA).forEach(c => { const set = c.onlyDoers ? rows.filter(r => r[c.k] > 0) : rows; avg[c.k] = set.length ? set.reduce((a, r) => a + r[c.k], 0) / set.length : 0; });
         return { rows, avg, days };
     }
     function eqDev(c, r, avg) {
@@ -8194,15 +8336,42 @@
         const v = c.fmt ? c.fmt(r[c.k]) : r[c.k], a = c.fmt ? c.fmt(avg[c.k]) : avg[c.k], diff = Math.round((v - a) * 10) / 10, q = r[c.k] / avg[c.k];
         return { cls: q >= 1.2 ? 'hi' : (q <= 0.8 ? 'lo' : ''), d: diff === 0 ? '=' : (diff > 0 ? '+' : '−') + Math.abs(diff).toString().replace('.', ',') };
     }
+    // ── Categorie: ognuna mostra solo i suoi dati. "Panoramica" è la vista completa di prima.
+    const EQ_EXTRA = [
+        { k: 'worked', label: 'Ore fatte', sub: 'assenze giust. comprese', fmt: m => Math.round(m / 60) },
+        { k: 'dovute', label: 'Ore dovute', sub: 'da contratto', fmt: m => Math.round(m / 60) }
+    ];
+    const EQ_CATS = [
+        { k: 'tutto', label: 'Panoramica', icon: 'dashboard', desc: 'Tutte le voci dell’equità a confronto con la media della squadra' },
+        { k: 'pesanti', label: 'Notti e weekend', icon: 'dark_mode', cols: ['notti', 'we', 'sab', 'dom', 'fest'], desc: 'Notti, sabati, domeniche e festivi lavorati' },
+        { k: 'rep', label: 'Reperibilità', icon: 'phone_in_talk', cols: ['repT', 'repF', 'repH', 'repCop'], desc: 'Turni da titolare, festivi, ore di fascia e ore coperte per i colleghi' },
+        { k: 'ore', label: 'Ore', icon: 'schedule', cols: ['worked', 'dovute', 'saldo'], desc: 'Ore fatte, ore dovute da contratto e saldo' },
+        { k: 'coppie', label: 'Chi lavora con chi', icon: 'groups', desc: 'Quanti turni ognuno ha fatto con ogni collega' },
+        { k: 'ruolo', label: 'Diurnisti e turnisti', icon: 'swap_horiz', desc: 'Quanti giorni ognuno ha fatto da diurnista e da turnista' }
+    ];
+    let eqCat = 'tutto', rtSort = null;
+    function eqSetCat(k) { vibrate(); eqCat = k; eqSort = null; rtSort = null; renderEquity(); const b = document.querySelector('#eq-modal .modal-body'); const c = document.getElementById('eq-cats'); if(b && c && b.scrollTop > c.offsetTop) b.scrollTop = c.offsetTop - 8; }
+    function eqCatCols(cat) { const all = EQ_COLS.concat(EQ_EXTRA); return cat.cols ? cat.cols.map(k => all.find(c => c.k === k)).filter(Boolean) : EQ_COLS; }
     function renderEquity() {
-        const { rows, avg, days } = computeEquity();
         document.querySelectorAll('#eq-modal .ab-period button').forEach(b => b.classList.toggle('active', b.dataset.p === eqPeriod));
+        const cat = EQ_CATS.find(c => c.k === eqCat) || EQ_CATS[0];
+        document.getElementById('eq-cats').innerHTML = EQ_CATS.map(c => `<button class="${c.k === cat.k ? 'on' : ''}" onclick="eqSetCat('${c.k}')"><span class="material-icons-round">${c.icon}</span>${c.label}</button>`).join('');
+        const head = `<div class="eq-cat-h"><span class="material-icons-round">${cat.icon}</span>${cat.label}<small>${cat.desc}</small></div>`;
+        const grid = document.getElementById('eq-grid'), note = document.getElementById('eq-note'), pw = document.getElementById('eq-pairs');
+        pw.innerHTML = ''; grid.innerHTML = ''; note.innerHTML = '';
+        if(cat.k === 'coppie') { pw.innerHTML = head + pairsHtml(eqPeriod, 'eq'); return; }
+        if(cat.k === 'ruolo') { renderRoleTable(head); return; }
+        renderEquityCols(eqCatCols(cat), cat.k === 'tutto' ? '' : head);
+    }
+    function renderEquityCols(COLS, head) {
+        const { rows, avg, days } = computeEquity();
+        if(eqSort && !COLS.some(c => c.k === eqSort)) eqSort = null;
         let list = rows.slice();
         if(eqSort) list.sort((a, b) => b[eqSort] - a[eqSort]); else list.sort((a, b) => b.isMe - a.isMe);
-        const max = {}; EQ_COLS.forEach(c => max[c.k] = Math.max(1, ...rows.map(r => Math.abs(r[c.k]))));
+        const max = {}; COLS.forEach(c => max[c.k] = Math.max(1, ...rows.map(r => Math.abs(r[c.k]))));
         const txt = (c, v) => c.fmt ? c.fmt(v) : v;
         // riepilogo in alto: media, il più alto e il più basso per ogni voce
-        const sumCols = EQ_COLS.filter(c => !c.signed);
+        const sumCols = COLS.filter(c => !c.signed);
         const extreme = (c, hi) => { const set = c.onlyDoers ? rows.filter(r => r[c.k] > 0) : rows; if(!set.length) return null; return set.reduce((b, r) => (hi ? r[c.k] > b[c.k] : r[c.k] < b[c.k]) ? r : b); };
         const summary = `<div class="eq-sum">${sumCols.map(c => { const H = extreme(c, true), L = extreme(c, false);
             return `<div class="eq-sum-c ${eqSort === c.k ? 'on' : ''}" onclick="eqSortBy('${c.k}')"><small>${c.label}</small><b>${c.fmt ? c.fmt(avg[c.k]) : (Math.round(avg[c.k] * 10) / 10).toString().replace('.', ',')}<span> media</span></b>
@@ -8214,17 +8383,79 @@
             return `<td class="eq-c ${dv.cls}"><b>${txt(c, v)}</b>${dv.d && dv.d !== '=' ? `<sup>${dv.d}</sup>` : ''}<i style="width:${Math.round(Math.abs(v) / max[c.k] * 100)}%"></i></td>`;
         };
         const headL = `<th class="eq-name">${eqPeriod === 'oggi' ? 'Fino a oggi' : 'Anno ' + SHIFT_YEAR}</th>`;
-        const headR = EQ_COLS.map(c => `<th onclick="eqSortBy('${c.k}')" class="${eqSort === c.k ? 'on' : ''}">${c.label}${c.sub ? `<small>${c.sub}</small>` : ''}${eqSort === c.k ? ' ▼' : ''}</th>`).join('');
-        const items = list.map(r => ({ attrs: `class="${r.isMe ? 'me' : ''}"`, left: `<th class="eq-name"><span>${esc(r.d.name)}</span>${r.isMe ? '<em>tu</em>' : ''}</th>`, right: EQ_COLS.map(c => cell(c, r)).join('') }));
-        items.push({ attrs: 'class="eq-avg"', left: '<th class="eq-name"><span>Media</span></th>', right: EQ_COLS.map(c => `<td class="eq-c"><b>${c.signed ? '' : (c.fmt ? c.fmt(avg[c.k]) : avg[c.k].toFixed(1).replace('.', ','))}</b></td>`).join('') });
+        const headR = COLS.map(c => `<th onclick="eqSortBy('${c.k}')" class="${eqSort === c.k ? 'on' : ''}">${c.label}${c.sub ? `<small>${c.sub}</small>` : ''}${eqSort === c.k ? ' ▼' : ''}</th>`).join('');
+        const items = list.map(r => ({ attrs: `class="${r.isMe ? 'me' : ''}"`, left: `<th class="eq-name"><span>${esc(r.d.name)}</span>${r.isMe ? '<em>tu</em>' : ''}</th>`, right: COLS.map(c => cell(c, r)).join('') }));
+        items.push({ attrs: 'class="eq-avg"', left: '<th class="eq-name"><span>Media</span></th>', right: COLS.map(c => `<td class="eq-c"><b>${c.signed ? '' : (c.fmt ? c.fmt(avg[c.k]) : avg[c.k].toFixed(1).replace('.', ','))}</b></td>`).join('') });
         // telefono: una scheda per persona
         const cards = list.map(r => `<div class="eq-card ${r.isMe ? 'me' : ''}"><div class="eq-card-h"><span class="ab-av">${esc(absInitials(r.d.name))}</span><b>${esc(r.d.name)}</b>${r.isMe ? '<em>tu</em>' : ''}</div>
-            <div class="eq-card-g">${EQ_COLS.map(c => { const v = r[c.k], dv = eqDev(c, r, avg);
+            <div class="eq-card-g">${COLS.map(c => { const v = r[c.k], dv = eqDev(c, r, avg);
                 if(c.signed) return `<div class="eq-m ${Math.abs(v) < 30 ? '' : (v < 0 ? 'neg' : 'pos')}"><small>${c.label}</small><b>${txt(c, v)}</b></div>`;
                 return `<div class="eq-m ${dv.cls}"><small>${c.label}</small><b>${txt(c, v)}${dv.d && dv.d !== '=' ? `<sup>${dv.d}</sup>` : ''}</b><i style="width:${Math.round(Math.abs(v) / max[c.k] * 100)}%"></i></div>`; }).join('')}</div></div>`).join('');
-        document.getElementById('eq-grid').innerHTML = summary + `<div class="eq-wide">${xgHtml('eq-table', headL, headR, items, 860)}</div><div class="eq-cards">${cards}</div>`;
-        const pw = document.getElementById('eq-pairs'); if(pw) pw.innerHTML = pairsHtml(eqPeriod, 'eq');
-        document.getElementById('eq-note').innerHTML = `${days.length} giorni considerati. Il numerino accanto è lo scarto dalla media della squadra. <span class="eq-key hi"></span> oltre il 20% sopra la media, <span class="eq-key lo"></span> oltre il 20% sotto. Per le notti e per le reperibilità coperte (fasce ricevute da un collega con una cessione) la media conta solo chi ne fa. Tocca un titolo o un riquadro in alto per ordinare.`;
+        document.getElementById('eq-grid').innerHTML = head + summary + `<div class="eq-wide">${xgHtml('eq-table', headL, headR, items, Math.max(420, COLS.length * 96))}</div><div class="eq-cards">${cards}</div>`;
+        const hasDoers = COLS.some(c => c.onlyDoers), hasSaldo = COLS.some(c => c.signed);
+        document.getElementById('eq-note').innerHTML = `${days.length} giorni considerati. Il numerino accanto è lo scarto dalla media della squadra. <span class="eq-key hi"></span> oltre il 20% sopra la media, <span class="eq-key lo"></span> oltre il 20% sotto.${hasDoers ? ' Per le notti e per le reperibilità coperte (fasce ricevute da un collega con una cessione) la media conta solo chi ne fa.' : ''}${hasSaldo ? ' Il saldo è la differenza tra ore fatte (assenze giustificate comprese) e ore dovute da contratto.' : ''} Tocca un titolo o un riquadro in alto per ordinare.`;
+    }
+
+    // ── Diurnisti e turnisti: giorni passati in ognuno dei due ruoli ─────────
+    // Da diurnista = caselle in minuscolo (m, p, r); da turnista = M, P, N, M+N, smonto e R.
+    // Le assenze giustificate non sono né l'uno né l'altro e si contano a parte.
+    function computeRoles() {
+        const today = absTodayDate(), all = buildDaysIndex(), days = eqPeriod === 'oggi' ? all.filter(dd => dd.date <= today) : all, me = prefMe();
+        const rows = drivers.filter(d => !d.hidden).map(d => {
+            const r = { d, isMe: !!me && me.idx === d.idx, dM: 0, dP: 0, dR: 0, tM: 0, tP: 0, tN: 0, tSM: 0, tR: 0, abs: 0, mm: Array.from({ length: 12 }, () => ({ d: 0, t: 0, a: 0, n: 0 })) };
+            days.forEach(dd => {
+                const info = computeDayInfo(dd.rowIdx, d.idx), m = r.mm[dd.monthIdx] || r.mm[0]; m.n++;
+                let c = info.code, role = '';
+                if(info.justified) { if(info.pnTail) { r.tSM++; role = 't'; } else { r.abs++; role = 'a'; } }
+                else if(c === 'm') { r.dM++; role = 'd'; } else if(c === 'p') { r.dP++; role = 'd'; } else if(c === 'r') { r.dR++; role = 'd'; }
+                else if(c === 'M') { r.tM++; role = 't'; } else if(c === 'P') { r.tP++; role = 't'; } else if(c === 'N') { r.tN++; role = 't'; }
+                else if(c === 'M+N') { r.tM++; r.tN++; role = 't'; }
+                else if(c === 'SM' || c === 'S') { r.tSM++; role = 't'; } else if(c === 'R') { r.tR++; role = 't'; }
+                if(role) m[role]++;
+            });
+            r.dLav = r.dM + r.dP; r.dGg = r.dLav + r.dR;
+            r.tGg = r.mm.reduce((a, x) => a + x.t, 0);
+            r.tLav = r.tGg - r.tSM - r.tR;
+            r.tot = r.dGg + r.tGg;
+            return r;
+        }).filter(r => r.tot + r.abs > 0);
+        return { rows, days };
+    }
+    function rtSortBy(k) { vibrate(); rtSort = rtSort === k ? null : k; renderEquity(); }
+    function renderRoleTable(head) {
+        const { rows, days } = computeRoles();
+        const list = rows.slice();
+        if(rtSort) list.sort((a, b) => b[rtSort] - a[rtSort] || a.d.name.localeCompare(b.d.name)); else list.sort((a, b) => b.isMe - a.isMe);
+        const pct = (a, t) => t ? Math.round(a / t * 100) : 0;
+        const bar = r => { const t = r.tot + r.abs || 1;
+            return `<div class="rt-bar" title="Diurnista ${r.dGg} giorni, turnista ${r.tGg}, assenze ${r.abs}">${r.dGg ? `<i class="d" style="width:${r.dGg / t * 100}%"></i>` : ''}${r.tGg ? `<i class="t" style="width:${r.tGg / t * 100}%"></i>` : ''}${r.abs ? `<i class="a" style="width:${r.abs / t * 100}%"></i>` : ''}</div>
+                <div class="rt-pct">${r.tot ? `${pct(r.dGg, r.tot)}% diurnista · ${pct(r.tGg, r.tot)}% turnista` : 'solo assenze'}</div>`; };
+        const months = r => `<div class="rt-mm">${r.mm.map((m, i) => { const n = m.n || 1;
+            return `<div><span title="${MONTH_NAMES_IT[i]}: ${m.n ? `diurnista ${m.d}, turnista ${m.t}, assenze ${m.a}` : 'non considerato'}">${m.d ? `<i class="d" style="height:${m.d / n * 100}%"></i>` : ''}${m.t ? `<i class="t" style="height:${m.t / n * 100}%"></i>` : ''}${m.a ? `<i class="a" style="height:${m.a / n * 100}%"></i>` : ''}</span><em>${MONTH_NAMES_IT[i].charAt(0)}</em></div>`; }).join('')}</div>`;
+        const v = (cls, n, sub) => `<div class="rt-v ${cls}"><b>${n}</b>${sub ? `<small>${sub}</small>` : ''}</div>`;
+        const dSub = (r, br) => `${r.dLav} lavorati${br ? '<br>' : ' · '}${r.dR} riposi`, tSub = (r, br) => `${r.tLav} lavorati${br ? '<br>' : ' · '}${r.tN} notti`;
+        const COLS = [
+            { k: 'dGg', label: 'Da diurnista', sub: 'giorni (m, p, r)', td: r => v('d', r.dGg, dSub(r)) },
+            { k: 'tGg', label: 'Da turnista', sub: 'giorni (M, P, N, SM, R)', td: r => v('t', r.tGg, tSub(r)) },
+            { k: 'abs', label: 'Assenze', sub: 'giustificate', td: r => v('', r.abs) },
+            { k: null, label: 'Ripartizione', td: bar },
+            { k: null, label: 'Mese per mese', td: months }
+        ];
+        const th = c => c.k ? `<th onclick="rtSortBy('${c.k}')" class="${rtSort === c.k ? 'on' : ''}">${c.label}<small>${c.sub}</small>${rtSort === c.k ? ' ▼' : ''}</th>` : `<th style="cursor:default">${c.label}</th>`;
+        const headL = `<th class="eq-name">${eqPeriod === 'oggi' ? 'Fino a oggi' : 'Anno ' + SHIFT_YEAR}</th>`;
+        const items = list.map(r => ({ attrs: `class="${r.isMe ? 'me' : ''}"`, left: `<th class="eq-name"><span>${esc(r.d.name)}</span>${r.isMe ? '<em>tu</em>' : ''}</th>`, right: COLS.map(c => `<td>${c.td(r)}</td>`).join('') }));
+        const S = k => rows.reduce((a, r) => a + r[k], 0);
+        items.push({ attrs: 'class="eq-avg"', left: '<th class="eq-name"><span>Squadra</span></th>', right: `<td>${v('d', S('dGg'), S('dLav') + ' lavorati')}</td><td>${v('t', S('tGg'), S('tLav') + ' lavorati')}</td><td>${v('', S('abs'))}</td><td colspan="2"></td>` });
+        const cards = list.map(r => `<div class="eq-card ${r.isMe ? 'me' : ''}"><div class="eq-card-h"><span class="ab-av">${esc(absInitials(r.d.name))}</span><b>${esc(r.d.name)}</b>${r.isMe ? '<em>tu</em>' : ''}</div>
+            <div class="rt-card-b"><div class="eq-card-g"><div class="eq-m"><small>Da diurnista</small>${v('d', r.dGg, dSub(r, 1))}</div><div class="eq-m"><small>Da turnista</small>${v('t', r.tGg, tSub(r, 1))}</div><div class="eq-m"><small>Assenze</small>${v('', r.abs)}</div></div>
+            <div>${bar(r)}</div>${months(r)}</div></div>`).join('');
+        const nD = rows.filter(r => r.dGg > 0).length, nT = rows.filter(r => r.tGg > 0).length, both = rows.filter(r => r.dGg > 0 && r.tGg > 0).length;
+        const summary = `<div class="eq-sum">
+            <div class="eq-sum-c ${rtSort === 'dGg' ? 'on' : ''}" onclick="rtSortBy('dGg')"><small>Giorni da diurnista</small><b>${S('dGg')}<span> in tutto</span></b><span class="eq-x">${nD} persone</span></div>
+            <div class="eq-sum-c ${rtSort === 'tGg' ? 'on' : ''}" onclick="rtSortBy('tGg')"><small>Giorni da turnista</small><b>${S('tGg')}<span> in tutto</span></b><span class="eq-x">${nT} persone</span></div>
+            <div class="eq-sum-c" style="cursor:default"><small>Hanno fatto entrambi</small><b>${both}<span> persone</span></b><span class="eq-x">sia diurnista sia turnista</span></div></div>`;
+        document.getElementById('eq-grid').innerHTML = head + summary + `<div class="eq-wide">${xgHtml('eq-table rt-table', headL, COLS.map(th).join(''), items, 780)}</div><div class="eq-cards">${cards}</div>`;
+        document.getElementById('eq-note').innerHTML = `${days.length} giorni considerati. <span class="rt-key d"></span> da diurnista (caselle in minuscolo: m, p, r), <span class="rt-key t"></span> da turnista (M, P, N, M+N, smonto e R), <span class="rt-key a"></span> assenze giustificate. I giorni vuoti non contano. Tocca un titolo o un riquadro in alto per ordinare.`;
     }
 
     // ═══ NOTE: AL COORDINATORE, AI COLLEGHI, A TUTTI ════════════════════════
@@ -9495,7 +9726,7 @@
             const cell = finalData[dd.rowIdx][d.idx] || {};
             const sub = (cell.subV || '').toString().trim().toLowerCase();
             let v = (cell.v || '').toString().trim(); if(isRepStr(v)) v = v.slice(0, v.indexOf('/')).trim();
-            if(SPECIAL_SUBCODES[sub] !== undefined) { if(!/^r(iposo)?$/i.test(v)) add(sub, dd); return; }   // assenza su un riposo: non conta
+            if(SPECIAL_SUBCODES[sub] !== undefined) { if(absCycleCode(dd.rowIdx, d.idx) !== 'R' && !(!ABS_CYCLE[sub] && /^r(iposo)?$/i.test(v))) add(sub, dd); return; }   // assenza su un riposo (anche il riposo del ciclo del turno): non conta
             const info = computeDayInfo(dd.rowIdx, d.idx);
             if(!WORK_SHIFTS.has(info.code) || !info.minutes) return;
             if(dd.date.getDay() === 0) add('dom', dd);
@@ -9510,7 +9741,7 @@
                 if(shiftRowYear(r) !== SHIFT_YEAR + 1) continue;
                 const cell = finalData[r][d.idx] || {}, sub = (cell.subV || '').toString().trim().toLowerCase();
                 let v = (cell.v || '').toString().trim(); if(isRepStr(v)) v = v.slice(0, v.indexOf('/')).trim();
-                if(sub === 'f' && !/^r(iposo)?$/i.test(v) && MONTH_MAP[finalData[r][0].v] < CO_CARRY_MONTHS) { add('f', { date: new Date(SHIFT_YEAR + 1, MONTH_MAP[finalData[r][0].v], parseInt(finalData[r][1].v)) }); nextF++; }
+                if(sub === 'f' && absCycleCode(r, d.idx) !== 'R' && MONTH_MAP[finalData[r][0].v] < CO_CARRY_MONTHS) { add('f', { date: new Date(SHIFT_YEAR + 1, MONTH_MAP[finalData[r][0].v], parseInt(finalData[r][1].v)) }); nextF++; }
             }
         }
         const n = k => counts[k] || 0;
@@ -10847,9 +11078,9 @@
         const c = info.code || '';
         if(!c) return { short:'', kind:'empty' };
         if(info.custom && customCodes[c]) return { short: c, kind: customCodes[c].kind === 'abs' ? 'abs' : 'shift', colors: customColors(c), label: (customCodes[c].label || c).replace(/\|/g, ' ') };
-        if(SPECIAL_SUBCODES[c] !== undefined && info.label === SPECIAL_SUBCODES[c]) return { short: ABS_SHORT[c] || c.toUpperCase(), kind:'abs', colors: codeColors('abs', c), label: SPECIAL_SUBCODES[c] };
+        if(SPECIAL_SUBCODES[c] !== undefined && info.justified && !info.pnTail) return { short: ABS_SHORT[c] || c.toUpperCase(), kind:'abs', colors: codeColors('abs', c), label: SPECIAL_SUBCODES[c] + (info.manual ? ' \u00b7 ore a mano' : '') };
         if(info.unrecognized) return { short: c, kind:'unk', label:'Codice non riconosciuto' };
-        if(c === 'STR') return { short:'STR', kind:'str', label:'Ore personalizzate' };
+        if(c === 'STR') return { short:'ORE', kind:'str', label:'Ore a mano' };
         const isRest = (c === 'R' || c === 'r');
         return { short: c, kind: isRest ? 'rest' : 'shift', colors: codeColors('shift', c), label: info.label };
     }
@@ -11905,7 +12136,7 @@
             group('Diurni e combinati', items.filter(i => i.group === 1)) +
             group('Assenze e permessi', items.filter(i => i.group === 2)) +
             (items.some(i => i.group === 3) ? group('Caselle personalizzate', items.filter(i => i.group === 3)) : '');
-        document.getElementById('sep-perm').innerHTML = sepPermHtml(rowIdx, colIdx);
+        document.getElementById('sep-perm').innerHTML = sepPermHtml(rowIdx, colIdx) + sepManHtml(rowIdx, colIdx);
         const m = document.getElementById('shift-edit-popup'); m.style.display = 'flex';
         requestAnimationFrame(() => m.classList.add('open'));
     }
