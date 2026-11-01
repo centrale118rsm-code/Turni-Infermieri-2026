@@ -5161,7 +5161,8 @@
                 { id:'today', icon:'today', label:'Vai a oggi', desc:'Torna al giorno corrente', color: MN_COLORS.cal, run: () => scrollToToday() },
                 { id:'month', icon:'event', label:'Vai a un mese', desc:'Scegli il mese da vedere', color: MN_COLORS.cal, run: () => toggleMonthDropdown() },
                 { id:'filter', icon:'groups', label:'Filtra operatori', desc:'Mostra solo alcuni colleghi', color: MN_COLORS.cal, run: () => toggleDriverFilterDropdown() },
-                { id:'print', icon:'print', label:'Stampa del mese', desc:'PDF dei turni per la bacheca', color: MN_COLORS.cal, run: () => printMonthPick() }
+                { id:'print', icon:'print', label:'Stampa del mese', desc:'PDF dei turni per la bacheca', color: MN_COLORS.cal, run: () => printMonthPick() },
+                { id:'phonecal', icon:'phone_iphone', label:'Nel calendario del telefono', desc:'I tuoi turni nel calendario dell’iPhone, aggiornati da soli', color: MN_COLORS.cal, run: () => openOptionsCal() }
             ] },
             hasYears ? { id:'years', icon:'history', label:'Anni passati', desc:'Il calendario degli anni conclusi, solo da vedere', color: MN_COLORS.cal, run: () => openYearPicker() } : null,
             { id:'view', icon: calOverview ? 'view_agenda' : 'grid_view', label: calOverview ? 'Vista dettagliata' : 'Vista d’insieme', desc: calOverview ? 'Torna al calendario giorno per giorno' : 'Tutto l’anno a colpo d’occhio', color: MN_COLORS.cal, run: () => toggleCalView() },
@@ -7351,7 +7352,7 @@
                 <button class="cal-btn" onclick="copyMyCalLink()"><span class="material-icons-round">content_copy</span>Copia il link</button>
                 <button class="cal-btn" onclick="downloadMyIcs()"><span class="material-icons-round">download</span>Scarica ora</button>
             </div>
-            <small class="cal-help"><b>Google Calendar</b>: dal computer apri calendar.google.com › Altri calendari › + › Da URL e incolla il link copiato. <b>iPhone</b>: tocca il pulsante e conferma “Iscriviti”. “Scarica ora” importa una copia che non si aggiorna.</small></div>`;
+            <small class="cal-help"><b>Google Calendar</b>: dal computer apri calendar.google.com › Altri calendari › + › Da URL e incolla il link copiato. <b>iPhone</b>: tocca il pulsante e conferma “Iscriviti”; se non si apre niente, copia il link e vai in Impostazioni › Calendario › Account › Aggiungi account › Altro › Aggiungi calendario sottoscritto, poi incollalo. “Scarica ora” importa una copia che non si aggiorna.</small></div>`;
     }
 
     function openOptionsCal() { openOptionsModal(); setTimeout(() => { const el = document.getElementById('opt-cal'); if(el) el.scrollIntoView({ block:'start' }); }, 350); }
