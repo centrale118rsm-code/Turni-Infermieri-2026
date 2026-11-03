@@ -2764,6 +2764,18 @@
         #des-all td.a { font-size:10px; color:var(--text-sec); background:var(--bg-card); border-left:2px solid var(--border); }
         #des-all td.a.a1 { color:#166534; } #des-all td.a.a2 { background:#fef3c7; color:#92400e; } #des-all td.a.a3 { background:#fee2e2; color:#b91c1c; }
         body.dark-mode #des-all td.a.a2 { background:rgba(245,158,11,.2); color:#fcd34d; } body.dark-mode #des-all td.a.a3 { background:rgba(220,38,38,.25); color:#fecaca; }
+        .cell.des-okc::before, #des-all td.c.ok::before, .yg-d.ok::before { content:''; position:absolute; inset:0; border-radius:inherit; pointer-events:none; background:linear-gradient(to top right, transparent calc(50% - 1.5px), rgba(17,24,39,.75) calc(50% - 1px), rgba(17,24,39,.75) calc(50% + 1px), transparent calc(50% + 1.5px)); }
+        .des-okt { position:absolute; left:4px; top:3px; font-size:11px; font-weight:900; color:#111827; background:#fff; border-radius:50%; width:15px; height:15px; line-height:15px; text-align:center; box-shadow:0 0 0 1px rgba(0,0,0,.2); }
+        .des-adm-tag { display:inline-block; background:#b45309; color:#fff; font-size:0.62rem; font-weight:900; padding:1px 6px; border-radius:5px; letter-spacing:.4px; }
+        #des-view.des-admin .des-bar { box-shadow:inset 0 -3px 0 #f59e0b; }
+        #des-view.des-admin #des-all td.c, #des-view.des-admin #des-table td[data-col] .cell { cursor:pointer; }
+        #des-mode-menu .dmm-sep { height:1px; background:var(--border); margin:4px 6px; }
+        .dr-who label { display:flex; flex-direction:column; gap:5px; font-size:0.74rem; font-weight:800; color:var(--text-sec); text-transform:uppercase; letter-spacing:.4px; }
+        .dr-who select, .da-pw { height:44px; border:1.5px solid var(--border); border-radius:12px; padding:0 10px; background:var(--bg); color:var(--text-main); font:700 15px 'Plus Jakarta Sans',sans-serif; width:100%; box-sizing:border-box; }
+        #des-admin { display:none; position:fixed; inset:0; z-index:6360; background:rgba(0,0,0,.55); backdrop-filter:blur(6px); align-items:flex-end; justify-content:center; opacity:0; transition:opacity .25s; }
+        #des-admin.open { opacity:1; }
+        #des-admin .modal-content { max-width:420px; }
+        #des-admin.open .modal-content { transform:translateY(0); }
         #des-mode-menu { position:fixed; z-index:6350; display:none; background:var(--bg-card); border:1px solid var(--border); border-radius:12px; box-shadow:0 12px 32px rgba(15,23,42,.2); padding:6px; width:230px; }
         #des-mode-menu.open { display:block; }
         #des-mode-menu button { width:100%; display:flex; align-items:center; gap:10px; padding:9px 8px; border:none; border-radius:8px; background:transparent; color:var(--text-main); cursor:pointer; text-align:left; font-family:inherit; }
@@ -3814,6 +3826,7 @@
             <button class="btn-close-modal" onclick="desCloseRange()"><span class="material-icons-round">close</span></button>
         </div>
         <div class="dr-body">
+            <div class="dr-who" id="dr-who-row" style="display:none"><label>Di chi<select id="dr-who" onchange="desRangePreview()"></select></label></div>
             <div class="dr-dates">
                 <label>Dal<input type="date" id="dr-from" oninput="desRangePreview()"></label>
                 <label>Al<input type="date" id="dr-to" oninput="desRangePreview()"></label>
@@ -3841,6 +3854,22 @@
     </div>
 </div>
 <div id="des-mode-menu" onclick="event.stopPropagation()"></div>
+<div id="des-admin" onclick="desAdminClose(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <div class="header-text">
+                <h3><span class="material-icons-round" style="margin-right:10px">admin_panel_settings</span> ADMIN</h3>
+                <span>Per la riunione: modifichi le desiderate di tutti</span>
+            </div>
+            <button class="btn-close-modal" onclick="desAdminClose()"><span class="material-icons-round">close</span></button>
+        </div>
+        <div class="dr-body">
+            <input type="password" id="da-pw" inputmode="numeric" autocomplete="off" placeholder="Password" onkeydown="if(event.key==='Enter')desAdminLogin()" class="da-pw">
+            <div class="dn-hint" id="da-err" style="color:#b91c1c"></div>
+            <button class="dr-go" onclick="desAdminLogin()"><span class="material-icons-round">lock_open</span> Entra</button>
+        </div>
+    </div>
+</div>
 <div id="des-toast"></div>
 
 <div class="container">
@@ -6902,8 +6931,11 @@
         F: { label:'Ferie', cls:'spec-cong', bg:'var(--bg-cong)', fg:'var(--t-cong)', icon:'beach_access' },
         P: { label:'Permesso', cls:'spec-perm', bg:'var(--bg-perm)', fg:'var(--t-perm)', icon:'event_available' },
         X: { label:'Cancella', cls:'', bg:'#e2e8f0', fg:'#334155', icon:'ink_eraser' },
-        N: { label:'Nota', cls:'', bg:'#7c3aed', fg:'#fff', icon:'edit_note' }
+        N: { label:'Nota', cls:'', bg:'#7c3aed', fg:'#fff', icon:'edit_note' },
+        B: { label:'Barra', cls:'', bg:'#111827', fg:'#fff', icon:'strikethrough_s' },
+        I: { label:'Importa', cls:'', bg:'#0f766e', fg:'#fff', icon:'move_down' }
     };
+    let desAdmin = false, desOk = {}, desDirtySet = new Set(), desDocNames = {};
     let desNotes = {}, desNoteKey = null, desNoteRO = false, desPaint = null, desNoClickUntil = 0;
     function desNotesOf(d) { return (d && desNotes[desDKey(d)]) || {}; }
     let desYear = null, desData = {}, desUnsub = null, desTool = 'F', desRangeKind = 'F', desYgWho = null;
@@ -6948,8 +6980,9 @@
         Object.values(r).forEach(x => { if(x.t === 'F') f++; else if(x.t === 'R') auto++; else p++; });
         return { f, p, auto };
     }
-    function desCellHtml(info, mine, note) {
-        const h = desCellHtml0(info, mine);
+    function desCellHtml(info, mine, note, ok) {
+        let h = desCellHtml0(info, mine);
+        if(ok && info) h = h.replace('<div class="cell', '<div class="cell des-okc').replace(/<\/div>$/, '<span class="des-okt" title="Già inserito nei turni">✓</span></div>');
         return note ? h.replace('<div class="cell', '<div title="' + esc(note) + '" class="cell').replace(/<\/div>$/, '<span class="des-dot"></span></div>') : h;
     }
     function desCellHtml0(info, mine) {
@@ -6986,7 +7019,7 @@
         v.classList.remove('open'); document.body.classList.remove('des-open');
         document.getElementById('des-wheel').classList.add('collapsed');
         if(desUnsub) { try { desUnsub(); } catch(e) {} desUnsub = null; }
-        desPendingOpen = false;
+        desPendingOpen = false; desAdmin = false; if(desTool === 'B') desTool = 'F';
     }
     // dopo "Chi sei?" scelto mentre il calendario delle desiderate è aperto
     function desAfterIdentity() {
@@ -6998,7 +7031,7 @@
         const ys = desYearsAllowed(), ny = desYear + dir;
         if(!ys.includes(ny)) return;
         if(desDirty) desSaveNow();
-        desYear = ny; desData = {}; desNotes = {}; vibrate();
+        desYear = ny; desData = {}; desNotes = {}; desOk = {}; desDirtySet.clear(); vibrate();
         desRenderAll(true); desListen();
     }
     function desListen() {
@@ -7015,11 +7048,13 @@
                 const x = doc.data(); if(!x || x.ns !== DATA_NS || !x.name) return;
                 const dd = desDriverOf(x.name); if(!dd) return;
                 const k = desDKey(dd); seen[k] = true;
-                if(k === myKey && (desDirty || doc.metadata.hasPendingWrites)) return;   // le mie modifiche non ancora salvate restano
-                desData[k] = x.days || {}; desNotes[k] = x.notes || {};
+                desDocNames[k] = x.name;
+                if(desDirtySet.has(k) || doc.metadata.hasPendingWrites) return;   // modifiche non ancora salvate: restano le nostre
+                desData[k] = x.days || {}; desNotes[k] = x.notes || {}; desOk[k] = x.ok || {};
             });
             Object.keys(desData).forEach(k => { if(!seen[k] && k !== myKey) delete desData[k]; });
             Object.keys(desNotes).forEach(k => { if(!seen[k] && k !== myKey) delete desNotes[k]; });
+            Object.keys(desOk).forEach(k => { if(!seen[k] && !desDirtySet.has(k)) delete desOk[k]; });
             desRefreshCols();
         }, err => { console.warn('Desiderate non lette:', err); desSaveState = 'err'; desRenderSum(); });
     }
@@ -7029,8 +7064,9 @@
         document.getElementById('des-y-prev').disabled = !ys.includes(y - 1);
         document.getElementById('des-y-next').disabled = !ys.includes(y + 1);
         const me = desMe(), cols = desCols();
-        document.getElementById('des-sub').innerHTML = me ? `Tu: <b>${esc(me.name)}</b> · <button onclick="requestChangeIdentityDirect()">cambia</button>` : '<button onclick="requestChangeIdentityDirect()">Scegli chi sei</button> per scrivere le tue';
-        document.getElementById('des-range-btn').style.display = me ? '' : 'none';
+        document.getElementById('des-view').classList.toggle('des-admin', desAdmin);
+        document.getElementById('des-sub').innerHTML = desAdmin ? `<b class="des-adm-tag">ADMIN</b> modifichi tutti · <button onclick="desAdminExit()">esci</button>` : me ? `Tu: <b>${esc(me.name)}</b> · <button onclick="requestChangeIdentityDirect()">cambia</button>` : '<button onclick="requestChangeIdentityDirect()">Scegli chi sei</button> per scrivere le tue';
+        document.getElementById('des-range-btn').style.display = me || desAdmin ? '' : 'none';
         // intestazione
         const head = document.getElementById('des-head');
         head.innerHTML = '<th>DATA</th>' + cols.map(d => `<th data-col="${d.idx}"${d === me ? ' class="me-col"' : ''}>${esc(d.name)}${d === me ? '<span class="des-th-tag">TU</span>' : ''}</th>`).join('');
@@ -7049,7 +7085,7 @@
             html += `<tr data-row="${row}" data-key="${key}"${isToday ? ' class="today" id="des-today"' : ''}><td class="td-date${red ? ' date-red' : ''}">${dn}<small>${RT_WEEKDAY_FMT.format(date).toUpperCase()}</small>${hol ? `<div class="holiday-name">${hol}</div>` : ''}</td>`;
             cols.forEach(d => {
                 const mine = d === me;
-                html += `<td data-col="${d.idx}"${mine ? ` class="me-col" onclick="desCellTap('${key}')"` : ` onclick="desOtherTap('${key}',${d.idx})"`}>${desCellHtml(res.get(d.idx)[key], mine, desNotesOf(d)[key])}</td>`;
+                html += `<td data-col="${d.idx}"${mine ? ' class="me-col"' : ''} onclick="desCellTap('${key}',${d.idx})">${desCellHtml(res.get(d.idx)[key], desCanEdit(d), desNotesOf(d)[key], desOkOf(d)[key])}</td>`;
             });
             html += '</tr>';
         });
@@ -7070,9 +7106,9 @@
         const y = desYear, me = desMe();
         desCols().forEach(d => {
             if(onlyIdx != null && d.idx !== onlyIdx) return;
-            const res = desResolve(desDaysOf(d), y), mine = d === me, notes = desNotesOf(d);
+            const res = desResolve(desDaysOf(d), y), mine = desCanEdit(d), notes = desNotesOf(d), oks = desOkOf(d);
             document.querySelectorAll(`#des-body td[data-col="${d.idx}"]`).forEach(td => {
-                const key = td.parentNode.dataset.key, html = desCellHtml(res[key], mine, notes[key]);
+                const key = td.parentNode.dataset.key, html = desCellHtml(res[key], mine, notes[key], oks[key]);
                 if(td._h !== html) { td.innerHTML = html; td._h = html; if(flashKeys && flashKeys.has(key)) { td.classList.remove('des-flash'); void td.offsetWidth; td.classList.add('des-flash'); } }
             });
         });
@@ -7093,7 +7129,8 @@
         vibrate();
         const m = document.getElementById('des-mode-menu');
         if(m.classList.contains('open')) { m.classList.remove('open'); return; }
-        m.innerHTML = Object.entries(DES_MODES).map(([k, M]) => `<button class="${k === desMode ? 'on' : ''}" onclick="desSetMode('${k}')"><span class="material-icons-round">${M[0]}</span><span><b>${M[1]}</b><small>${M[2]}</small></span></button>`).join('');
+        m.innerHTML = Object.entries(DES_MODES).map(([k, M]) => `<button class="${k === desMode ? 'on' : ''}" onclick="desSetMode('${k}')"><span class="material-icons-round">${M[0]}</span><span><b>${M[1]}</b><small>${M[2]}</small></span></button>`).join('')
+            + `<div class="dmm-sep"></div><button onclick="desAdminOpen()"><span class="material-icons-round">${desAdmin ? 'logout' : 'admin_panel_settings'}</span><span><b>${desAdmin ? 'Esci dall’admin' : 'Admin (riunione)'}</b><small>${desAdmin ? 'Torni a scrivere solo nella tua colonna' : 'Modifica le desiderate di tutti'}</small></span></button>`;
         const r = document.getElementById('des-mode-btn').getBoundingClientRect();
         m.style.top = (r.bottom + 6) + 'px'; m.style.left = Math.max(8, Math.min(window.innerWidth - 238, r.right - 230)) + 'px';
         m.classList.add('open');
@@ -7122,7 +7159,7 @@
             if(m !== lastM) { lastM = m; html += `<tr class="da-m"><td colspan="${cols.length + 2}">${MN[m]} ${y}</td></tr>`; }
             const we = wd === 0 || wd === 6 || H[m + '-' + dn], isT = y === today.getFullYear() && m === today.getMonth() && dn === today.getDate();
             html += `<tr data-key="${key}" class="${[we ? 'we' : '', isT ? 'today' : ''].filter(Boolean).join(' ')}"${isT ? ' id="da-today"' : ''}><td class="d">${dn}<small>${RT_WEEKDAY_FMT.format(date).slice(0, 2).toUpperCase()}</small></td>`;
-            cols.forEach(d => { const mine = d === me; html += `<td class="c${mine ? ' me' : ''}" data-col="${d.idx}" onclick="${mine ? `desCellTap('${key}')` : `desOtherTap('${key}',${d.idx})`}"></td>`; });
+            cols.forEach(d => { const mine = d === me; html += `<td class="c${mine ? ' me' : ''}" data-col="${d.idx}" onclick="desCellTap('${key}',${d.idx})"></td>`; });
             html += '<td class="a"></td></tr>';
         });
         tb.innerHTML = html + '</tbody>';
@@ -7130,14 +7167,14 @@
     }
     function desFillCompact() {
         const tb = document.getElementById('des-all'); if(!tb || !tb.rows.length) return;
-        const y = desYear, cols = desCols(), R = new Map(cols.map(d => [d.idx, desResolve(desDaysOf(d), y)])), N = new Map(cols.map(d => [d.idx, desNotesOf(d)]));
+        const y = desYear, cols = desCols(), R = new Map(cols.map(d => [d.idx, desResolve(desDaysOf(d), y)])), N = new Map(cols.map(d => [d.idx, desNotesOf(d)])), O = new Map(cols.map(d => [d.idx, desOkOf(d)]));
         tb.querySelectorAll('tbody tr[data-key]').forEach(tr => {
             const key = tr.dataset.key; let ass = 0;
             for(const td of tr.children) {
                 if(td.classList.contains('c')) {
-                    const idx = +td.dataset.col, r = R.get(idx)[key], nt = N.get(idx)[key];
+                    const idx = +td.dataset.col, r = R.get(idx)[key], nt = N.get(idx)[key], okd = r && O.get(idx)[key];
                     if(r) ass++;
-                    const cls = 'c' + (td.classList.contains('me') ? ' me' : '') + (r ? ' ' + r.t : '') + (nt ? ' nt' : '');
+                    const cls = 'c' + (td.classList.contains('me') ? ' me' : '') + (r ? ' ' + r.t : '') + (nt ? ' nt' : '') + (okd ? ' ok' : '');
                     if(td.className !== cls) { td.className = cls; td.textContent = r ? r.t : ''; td.title = nt || ''; }
                 } else if(td.classList.contains('a')) {
                     const cls = 'a' + (ass >= 4 ? ' a3' : ass >= 3 ? ' a2' : ass ? ' a1' : '');
@@ -7153,11 +7190,11 @@
         const cols = desCols();
         if(!desYgWho || !cols.some(d => d.idx === desYgWho)) desYgWho = me ? me.idx : (cols[0] ? cols[0].idx : null);
         const who = cols.find(d => d.idx === desYgWho); if(!who) { box.innerHTML = ''; return; }
-        const mine = !!me && who === me;
+        const mine = desCanEdit(who), oks = who ? desOkOf(who) : {};
         const res = who ? desResolve(desDaysOf(who), y) : {}, notes = who ? desNotesOf(who) : {};
         const c = who ? desCount(desDaysOf(who), y) : { f:0, p:0, auto:0 };
         const MN = Object.keys(MONTH_MAP), WD = ['L', 'M', 'M', 'G', 'V', 'S', 'D'];
-        let html = `<div class="yg-who">Calendario di <select onchange="desYgWho = +this.value; desRenderYearGrid()">${cols.map(d => `<option value="${d.idx}"${d === who ? ' selected' : ''}>${esc(d.name)}${d === me ? ' (tu)' : ''}</option>`).join('')}</select>${mine ? '' : '<span>solo da vedere</span>'}</div>`;
+        let html = `<div class="yg-who">Calendario di <select onchange="desYgWho = +this.value; desRenderYearGrid()">${cols.map(d => `<option value="${d.idx}"${d === who ? ' selected' : ''}>${esc(d.name)}${d === me ? ' (tu)' : ''}</option>`).join('')}</select>${mine ? (desAdmin && who !== me ? '<span class="des-adm-tag">ADMIN</span>' : '') : '<span>solo da vedere</span>'}</div>`;
         html += `<div class="yg-legend"><span><i style="background:var(--bg-cong)"></i>Ferie ${c.f}</span><span><i style="background:var(--bg-perm)"></i>Permessi ${c.p}</span><span><i style="background:var(--c-R)"></i>Riposo al 5° giorno ${c.auto}</span>${mine ? '<span>Tocca un giorno: usa lo strumento della ruota</span>' : ''}</div>`;
         for(let m = 0; m < 12; m++) {
             const first = new Date(y, m, 1), n = new Date(y, m + 1, 0).getDate(), lead = (first.getDay() + 6) % 7;
@@ -7169,10 +7206,10 @@
                 const hol = H[m + '-' + d], wd = dt.getDay();
                 const isToday = y === today.getFullYear() && m === today.getMonth() && d === today.getDate();
                 if(r) { if(r.t === 'F') mf++; else if(r.t === 'P') mp++; }
-                const cls = ['yg-d', r ? r.t : '', (wd === 0 || wd === 6 || hol) && !r ? 'red' : '', hol ? 'hol' : '', isToday ? 'today' : '', mine ? '' : 'ro'].filter(Boolean).join(' ');
+                const cls = ['yg-d', r ? r.t : '', r && oks[key] ? 'ok' : '', (wd === 0 || wd === 6 || hol) && !r ? 'red' : '', hol ? 'hol' : '', isToday ? 'today' : '', mine ? '' : 'ro'].filter(Boolean).join(' ');
                 const tip = (hol ? hol + ' · ' : '') + (r ? (r.t === 'F' ? 'Ferie' : r.t === 'P' ? 'Permesso' : 'Riposo (' + r.n + '° giorno di ferie)') : '');
                 const nt = notes[key];
-                cells += `<button class="${cls}"${tip || nt ? ` title="${esc([tip, nt].filter(Boolean).join(' · '))}"` : ''}${mine ? ` data-key="${key}"` : ''} onclick="${mine ? `desCellTap('${key}')` : `desOtherTap('${key}',${who.idx})`}">${d}${r ? `<small>${r.t === 'F' ? 'FER' : r.t === 'P' ? 'PERM' : 'RIP'}</small>` : ''}${nt ? '<span class="des-dot"></span>' : ''}</button>`;
+                cells += `<button class="${cls}"${tip || nt ? ` title="${esc([tip, nt].filter(Boolean).join(' · '))}"` : ''}${mine ? ` data-key="${key}"` : ''} onclick="desCellTap('${key}',${who.idx})">${d}${r ? `<small>${r.t === 'F' ? 'FER' : r.t === 'P' ? 'PERM' : 'RIP'}</small>` : ''}${nt ? '<span class="des-dot"></span>' : ''}</button>`;
             }
             const sub = [mf ? mf + ' ferie' : '', mp ? mp + ' perm.' : ''].filter(Boolean).join(' · ');
             html += `<div class="yg-m${y === today.getFullYear() && m === today.getMonth() ? ' cur' : ''}"><h4>${MN[m]}<small>${sub}</small></h4><div class="yg-g">${cells}</div></div>`;
@@ -7182,6 +7219,7 @@
     function desRenderSum() {
         const el = document.getElementById('des-sum'); if(!el) return;
         const me = desMe();
+        if(desAdmin && !me) { el.innerHTML = `<span class="des-pill"><b class="des-adm-tag">ADMIN</b> tocca o trascina nelle colonne di tutti</span>`; return; }
         if(!me) { el.innerHTML = `<span>Per scrivere le tue ferie desiderate scegli chi sei.</span><span class="des-who"><button onclick="requestChangeIdentityDirect()">Scegli chi sei</button></span>`; return; }
         const c = desCount(desDaysOf(me), desYear), al = desAllow(me);
         const save = { ok:['cloud_done', 'Salvato'], saving:['sync', 'Salvo…'], err:['cloud_off', 'Non salvato'], offline:['cloud_off', 'Solo su questo telefono'] }[desSaveState] || ['cloud_done', 'Salvato'];
@@ -7192,13 +7230,18 @@
     }
 
     // ── modifica: tocco sulle caselle o periodo "dal… al…" ──
+    // Ognuno scrive nella sua colonna; con l'accesso admin (riunione) si scrive in tutte.
     function desAllow(d) { return typeof absAllowFor === 'function' ? absAllowFor(d) : { co:31, sp:6 }; }
-    function desSetDays(changes) {
-        const me = desMe(), name = desMyName(); if(!me || !name) return 0;
-        const k = desDKey(me), days = Object.assign({}, desData[k] || {});
+    function desCanEdit(d) { const me = desMe(); return !!d && (desAdmin || (!!me && d === me)); }
+    function desDriverByIdx(idx) { return idx == null ? desMe() : drivers.find(x => x.idx === +idx) || null; }
+    function desOkOf(d) { return (d && desOk[desDKey(d)]) || {}; }
+    function desSetDays(changes, who) {
+        const d = who || desMe(); if(!desCanEdit(d)) return 0;
+        const k = desDKey(d), days = Object.assign({}, desData[k] || {}), ok = desOkOf(d);
         // blocco: non si va oltre le spettanze dell'operatore (ferie = C.O., permessi straordinari)
-        const al = desAllow(me); let n = 0, blocked = 0;
+        const al = desAllow(d); let n = 0, blocked = 0, locked = 0;
         changes.forEach(([key, val]) => {
+            if(ok[key] && !desAdmin) { if((days[key] || null) !== (val || null)) locked++; return; }   // già inserito nei turni dal coordinatore
             if(val && days[key] !== val) {
                 const was = days[key], before = desCount(days, desYear); days[key] = val;
                 const c = desCount(days, desYear);
@@ -7206,30 +7249,33 @@
                 n++;
             } else if(!val && days[key]) { delete days[key]; n++; }
         });
-        if(blocked) { desToast(`Limite raggiunto: hai ${al.co} giorni di ferie e ${al.sp} permessi${blocked > 1 ? ` (${blocked} giorni non inseriti)` : ''}`); if(navigator.vibrate) try { navigator.vibrate([30, 40, 30]); } catch(e) {} }
+        if(blocked) { desToast(`Limite raggiunto: ${d === desMe() ? 'hai' : d.name + ' ha'} ${al.co} giorni di ferie e ${al.sp} permessi${blocked > 1 ? ` (${blocked} giorni non inseriti)` : ''}`); if(navigator.vibrate) try { navigator.vibrate([30, 40, 30]); } catch(e) {} }
+        else if(locked) desToast('Giorno già inserito nei turni dal coordinatore: non si cambia da qui');
         if(!n) return 0;
-        desData[k] = days; desDirty = true;
-        desMarkDirty();
-        desRefreshCols(me.idx, new Set(changes.map(c => c[0])));
+        desData[k] = days;
+        desMarkDirty(d);
+        desRefreshCols(d.idx, new Set(changes.map(c => c[0])));
         return n;
     }
-    function desMarkDirty() {
-        const me = desMe(), name = desMyName(); if(!me) return;
-        desDirty = true;
-        try { localStorage.setItem(desLocalKey(desYear), JSON.stringify({ name, days: desData[desDKey(me)] || {}, notes: desNotes[desDKey(me)] || {}, unsaved:true })); } catch(e) {}
+    function desMarkDirty(who) {
+        const d = who || desMe(); if(!d) return;
+        desDirty = true; desDirtySet.add(desDKey(d));
+        const me = desMe();
+        if(d === me) try { localStorage.setItem(desLocalKey(desYear), JSON.stringify({ name: desMyName(), days: desData[desDKey(me)] || {}, notes: desNotes[desDKey(me)] || {}, unsaved:true })); } catch(e) {}
         clearTimeout(desSaveTimer); desSaveTimer = setTimeout(desSaveNow, 700);
         desSaveState = 'saving'; desRenderSum();
     }
     // ── note sui giorni ──
     function desKeyLabel(key) { const [m, d] = key.split('-').map(Number); return new Date(desYear, m - 1, d).toLocaleDateString('it-IT', { weekday:'long', day:'numeric', month:'long', year:'numeric' }); }
+    let desNoteWho = null;
     function desOpenNote(key, ro, who) {
         vibrate();
         const d = who || desMe(); if(!d) return;
-        desNoteKey = key; desNoteRO = !!ro;
+        desNoteKey = key; desNoteRO = !!ro; desNoteWho = d;
         const t = document.getElementById('dn-text');
         t.value = desNotesOf(d)[key] || ''; t.readOnly = desNoteRO;
-        document.getElementById('dn-title').textContent = ro ? 'NOTA DI ' + d.name : 'NOTA';
-        document.getElementById('dn-sub').textContent = desKeyLabel(key);
+        document.getElementById('dn-title').textContent = d !== desMe() ? 'NOTA DI ' + d.name : 'NOTA';
+        document.getElementById('dn-sub').textContent = desKeyLabel(key) + (desOkOf(d)[key] ? ' · già inserito nei turni' : '');
         document.getElementById('dn-foot').style.display = ro ? 'none' : '';
         document.getElementById('dn-hint').style.display = ro ? 'none' : '';
         document.getElementById('des-wheel').classList.add('collapsed');
@@ -7240,35 +7286,54 @@
         const m = document.getElementById('des-note'); m.classList.remove('open'); setTimeout(() => m.style.display = 'none', 300);
     }
     function desSaveNote(del) {
-        const me = desMe(); if(!me || !desNoteKey || desNoteRO) return;
-        const k = desDKey(me), notes = Object.assign({}, desNotes[k] || {}), txt = del ? '' : document.getElementById('dn-text').value.trim().slice(0, 300);
+        const d = desNoteWho || desMe(); if(!desCanEdit(d) || !desNoteKey || desNoteRO) return;
+        const k = desDKey(d), notes = Object.assign({}, desNotes[k] || {}), txt = del ? '' : document.getElementById('dn-text').value.trim().slice(0, 300);
         if(txt) notes[desNoteKey] = txt; else delete notes[desNoteKey];
-        desNotes[k] = notes; desMarkDirty();
-        desRefreshCols(me.idx, new Set([desNoteKey]));
+        desNotes[k] = notes; desMarkDirty(d);
+        desRefreshCols(d.idx, new Set([desNoteKey]));
         desCloseNote(); desToast(txt ? 'Nota salvata' : 'Nota eliminata');
     }
-    // ── trascinamento: col dito (tieni premuto un attimo, poi scorri) o col mouse ──
-    function desKeyAtPoint(x, y) {
-        const el = document.elementFromPoint(x, y); if(!el) return null;
-        const td = el.closest('#des-table td.me-col, #des-all td.c.me'); if(td) return td.parentNode.dataset.key;
-        const b = el.closest('#des-yg .yg-d[data-key]'); return b ? b.dataset.key : null;
+    // ── barrare (admin): giorno già inserito a mano nel calendario turni ──
+    function desToggleOk(keys, d, val) {
+        if(!desAdmin || !d) return 0;
+        const k = desDKey(d), ok = Object.assign({}, desOk[k] || {}), days = desDaysOf(d); let n = 0;
+        keys.forEach(key => {
+            const want = val === undefined ? !ok[key] : val;
+            if(want && days[key] && !ok[key]) { ok[key] = true; n++; }
+            else if(!want && ok[key]) { delete ok[key]; n++; }
+        });
+        if(!n) return 0;
+        desOk[k] = ok; desMarkDirty(d);
+        desRefreshCols(d.idx, new Set(keys));
+        return n;
     }
-    function desPaintStart(key) {
-        const me = desMe(); if(!me || !key || desTool === 'N') return false;
-        const cur = desDaysOf(me)[key];
-        desPaint = { val: desTool === 'X' || cur === desTool ? null : desTool, last: key, n: 0 };
+    // ── trascinamento: col dito (tieni premuto un attimo, poi scorri) o col mouse ──
+    // restituisce il giorno e la colonna sotto il dito, solo dove si può scrivere
+    function desHitAtPoint(x, y) {
+        const el = document.elementFromPoint(x, y); if(!el) return null;
+        const td = el.closest('#des-table td[data-col], #des-all td.c');
+        if(td) { const d = desDriverByIdx(td.dataset.col); return desCanEdit(d) ? { key: td.parentNode.dataset.key, idx: d.idx } : null; }
+        const b = el.closest('#des-yg .yg-d[data-key]'); return b ? { key: b.dataset.key, idx: desYgWho } : null;
+    }
+    function desKeyAtPoint(x, y) { const h = desHitAtPoint(x, y); return h ? h.key : null; }
+    function desPaintStart(hit) {
+        if(!hit || desTool === 'N') return false;
+        const d = desDriverByIdx(hit.idx); if(!desCanEdit(d)) return false;
+        const key = hit.key;
+        if(desTool === 'B') desPaint = { ok: !desOkOf(d)[key], last: key, n: 0, d };
+        else { const cur = desDaysOf(d)[key]; desPaint = { val: desTool === 'X' || cur === desTool ? null : desTool, last: key, n: 0, d }; }
         document.body.classList.add('des-painting');
         document.getElementById('des-wheel').classList.add('collapsed');
-        vibrate(); desPaintTo(key, true);
+        vibrate(); desPaintTo(hit, true);
         return true;
     }
-    function desPaintTo(key, first) {
-        if(!desPaint || !key || (!first && key === desPaint.last)) return;
-        const all = desYearDays(desYear).map(x => x.key), a = all.indexOf(desPaint.last), b = all.indexOf(key);
+    function desPaintTo(hit, first) {
+        if(!desPaint || !hit || hit.idx !== desPaint.d.idx || (!first && hit.key === desPaint.last)) return;   // si resta nella colonna di partenza
+        const all = desYearDays(desYear).map(x => x.key), a = all.indexOf(desPaint.last), b = all.indexOf(hit.key);
         if(a < 0 || b < 0) return;
-        const keys = first ? [key] : all.slice(Math.min(a, b), Math.max(a, b) + 1);
-        desPaint.n += desSetDays(keys.map(k => [k, desPaint.val]));
-        desPaint.last = key;
+        const keys = first ? [hit.key] : all.slice(Math.min(a, b), Math.max(a, b) + 1);
+        desPaint.n += desPaint.ok !== undefined ? desToggleOk(keys, desPaint.d, desPaint.ok) : desSetDays(keys.map(k => [k, desPaint.val]), desPaint.d);
+        desPaint.last = hit.key;
     }
     function desPaintEnd() {
         if(!desPaint) return;
@@ -7282,7 +7347,7 @@
         // dalla pagina): per questo i movimenti si ascoltano proprio su quell'elemento
         const move = e => {
             const t = e.touches[0]; if(!t) return;
-            if(desPaint) { e.preventDefault(); desPaintTo(desKeyAtPoint(t.clientX, t.clientY)); return; }
+            if(desPaint) { e.preventDefault(); desPaintTo(desHitAtPoint(t.clientX, t.clientY)); return; }
             if(hold && (Math.abs(t.clientX - sx) > 8 || Math.abs(t.clientY - sy) > 8)) { clearTimeout(hold); hold = null; }
         };
         const stop = () => {
@@ -7291,63 +7356,155 @@
         };
         sc.addEventListener('touchstart', e => {
             if(e.touches.length !== 1) { stop(); return; }
-            const t = e.touches[0], key = desKeyAtPoint(t.clientX, t.clientY); if(!key || desTool === 'N') return;
+            const t = e.touches[0], hit = desHitAtPoint(t.clientX, t.clientY); if(!hit || desTool === 'N') return;
             stop(); sx = t.clientX; sy = t.clientY; tgt = e.target;
             tgt.addEventListener('touchmove', move, { passive:false }); tgt.addEventListener('touchend', stop); tgt.addEventListener('touchcancel', stop);
-            hold = setTimeout(() => { hold = null; desPaintStart(key); }, 280);
+            hold = setTimeout(() => { hold = null; desPaintStart(hit); }, 280);
         }, { passive:true });
-        sc.addEventListener('contextmenu', e => { if(desPaint || desKeyAtPoint(e.clientX, e.clientY)) e.preventDefault(); });
+        sc.addEventListener('contextmenu', e => { if(desPaint || desHitAtPoint(e.clientX, e.clientY)) e.preventDefault(); });
         // mouse: si preme e si trascina
-        sc.addEventListener('mousedown', e => { if(e.button !== 0) return; const key = desKeyAtPoint(e.clientX, e.clientY); if(key && desPaintStart(key)) { desPaint.mouse = true; desNoClickUntil = 0; e.preventDefault(); } });
-        window.addEventListener('mousemove', e => { if(desPaint && desPaint.mouse) desPaintTo(desKeyAtPoint(e.clientX, e.clientY)); });
+        sc.addEventListener('mousedown', e => { if(e.button !== 0) return; const hit = desHitAtPoint(e.clientX, e.clientY); if(hit && desPaintStart(hit)) { desPaint.mouse = true; desNoClickUntil = 0; e.preventDefault(); } });
+        window.addEventListener('mousemove', e => { if(desPaint && desPaint.mouse) desPaintTo(desHitAtPoint(e.clientX, e.clientY)); });
         window.addEventListener('mouseup', () => { if(desPaint && desPaint.mouse) { const moved = desPaint.n > 1; desPaintEnd(); if(!moved) desNoClickUntil = Date.now() + 450; } });
     })();
-    function desCellTap(key) {
-        const me = desMe(); if(!me) return;
+    function desCellTap(key, idx) {
+        const d = desDriverByIdx(idx); if(!d) return;
         if(Date.now() < desNoClickUntil) return;   // fine di un trascinamento
-        if(desTool === 'N') { desOpenNote(key, false); return; }
-        const cur = desDaysOf(me)[key];
+        if(!desCanEdit(d)) { desOtherTap(key, d.idx); return; }
+        if(desTool === 'N') { desOpenNote(key, false, d); return; }
         vibrate();
-        if(desTool === 'X') desSetDays([[key, null]]);
-        else desSetDays([[key, cur === desTool ? null : desTool]]);
+        if(desTool === 'B') { if(!desToggleOk([key], d) && !desDaysOf(d)[key]) desToast('Si barrano solo i giorni con ferie o permesso'); }
+        else if(desTool === 'X') desSetDays([[key, null]], d);
+        else desSetDays([[key, desDaysOf(d)[key] === desTool ? null : desTool]], d);
         document.getElementById('des-wheel').classList.add('collapsed');
     }
     function desOtherTap(key, idx) {
-        const d = drivers.find(x => x.idx === idx), nt = key && d ? desNotesOf(d)[key] : null;
+        const d = desDriverByIdx(idx);
+        if(desCanEdit(d)) { desCellTap(key, idx); return; }
+        const nt = key && d ? desNotesOf(d)[key] : null;
         if(nt) { desOpenNote(key, true, d); return; }
         desToast(desMe() ? 'Puoi scrivere solo nella tua colonna' : 'Scegli chi sei per scrivere nella tua colonna');
     }
     async function desSaveNow() {
         clearTimeout(desSaveTimer); desSaveTimer = null;
-        const me = desMe(), name = desMyName(); if(!me || !name || !desDirty) return;
-        const y = desYear, days = Object.assign({}, desData[desDKey(me)] || {}), notes = Object.assign({}, desNotes[desDKey(me)] || {});
+        if(!desDirty || !desDirtySet.size) return;
         if(!fbReady) { desSaveState = 'offline'; desRenderSum(); return; }
-        desDirty = false; desSaveState = 'saving'; desRenderSum();
-        try {
-            // le regole controllano che il nome sia quello scelto in "Chi sei?" da questo telefono
-            if(!desIdOk) { await db.collection('infermieri26_identities').doc(fbAuth.currentUser.uid).set({ name, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true }); desIdOk = true; }
-            const payload = { ns: DATA_NS, year: y, name, days, byUid: fbAuth.currentUser.uid, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
-            if(Object.keys(notes).length) payload.notes = notes;
-            await db.collection(DES_COLL).doc(desDocId(name, y)).set(payload);
-            try { localStorage.setItem(desLocalKey(y), JSON.stringify({ name, days, notes })); } catch(e) {}
-            if(!desDirty) desSaveState = 'ok';
-        } catch(e) {
-            console.warn('Desiderate non salvate:', e);
-            desDirty = true; desSaveState = 'err';
-            desToast('Non salvato: riprovo alla prossima modifica');
+        const y = desYear, me = desMe(), myName = desMyName(), keys = [...desDirtySet];
+        desDirty = false; desDirtySet.clear(); desSaveState = 'saving'; desRenderSum();
+        let failed = 0;
+        for(const k of keys) {
+            const d = drivers.find(x => desDKey(x) === k); if(!d) continue;
+            const mine = !!me && d === me, name = mine ? myName : (desDocNames[k] || d.name);
+            try {
+                // le regole controllano che il nome sia quello scelto in "Chi sei?" da questo telefono (o che scriva l'admin)
+                if(mine && !desIdOk) { await db.collection('infermieri26_identities').doc(fbAuth.currentUser.uid).set({ name, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true }); desIdOk = true; }
+                const days = Object.assign({}, desData[k] || {}), notes = Object.assign({}, desNotes[k] || {}), ok = Object.assign({}, desOk[k] || {});
+                const payload = { ns: DATA_NS, year: y, name, days, byUid: fbAuth.currentUser.uid, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+                if(Object.keys(notes).length) payload.notes = notes;
+                if(Object.keys(ok).length) payload.ok = ok;
+                if(!mine) payload.adminBy = myName || 'admin';
+                await db.collection(DES_COLL).doc(desDocId(name, y)).set(payload);
+                if(mine) try { localStorage.setItem(desLocalKey(y), JSON.stringify({ name, days, notes })); } catch(e) {}
+            } catch(e) {
+                console.warn('Desiderate non salvate:', e); failed++;
+                desDirty = true; desDirtySet.add(k);
+            }
         }
+        if(failed) { desSaveState = 'err'; desToast('Non salvato: riprovo alla prossima modifica'); }
+        else if(!desDirty) desSaveState = 'ok';
         desRenderSum();
+    }
+
+    // ── accesso admin per la riunione (password semplice, solo su questo telefono finché resta aperto) ──
+    const DES_ADMIN_PW = '00';
+    function desAdminOpen() {
+        document.getElementById('des-mode-menu').classList.remove('open');
+        if(desAdmin) { desAdminExit(); return; }
+        const m = document.getElementById('des-admin'); document.getElementById('da-pw').value = ''; document.getElementById('da-err').textContent = '';
+        m.style.display = 'flex'; setTimeout(() => { m.classList.add('open'); document.getElementById('da-pw').focus(); }, 10);
+    }
+    function desAdminClose(e) {
+        if(e && e.target !== e.currentTarget) return;
+        const m = document.getElementById('des-admin'); m.classList.remove('open'); setTimeout(() => m.style.display = 'none', 300);
+    }
+    function desAdminLogin() {
+        if(document.getElementById('da-pw').value.trim() !== DES_ADMIN_PW) { document.getElementById('da-err').textContent = 'Password sbagliata'; vibrate(); return; }
+        desAdmin = true; desAdminClose(); vibrate();
+        desRenderAll(false); desToast('Admin: puoi modificare le desiderate di tutti');
+    }
+    function desAdminExit() {
+        if(desDirty) desSaveNow();
+        desAdmin = false; if(desTool === 'B') desTool = 'F';
+        desRenderAll(false); desToast('Uscito dall’admin');
+    }
+
+    // ── importazione nel calendario turni (admin) ──
+    // Le ferie e i permessi desiderati non ancora barrati diventano C.O. e permessi nel calendario
+    // dell'anno; le caselle che hanno già un'assenza non si toccano; i giorni importati si barrano.
+    function desImportPlan() {
+        const y = desYear, plan = [], skipped = [];
+        drivers.filter(d => !d.hidden).forEach(d => {
+            const res = desResolve(desDaysOf(d), y), ok = desOkOf(d), orig = d.originalName || d.name;
+            Object.keys(res).forEach(key => {
+                const r = res[key]; if(r.t === 'R' || ok[key]) return;   // il riposo del 5° giorno lo decide il ciclo dei turni
+                const [mm, dd] = key.split('-').map(Number);
+                plan.push({ d, key, m: mm - 1, cell: `${orig}__${Object.keys(MONTH_MAP)[mm - 1]}-${dd}`, sub: r.t === 'F' ? 'f' : 'p' });
+            });
+        });
+        return { plan, skipped };
+    }
+    function desImportAsk() {
+        if(!desAdmin) return;
+        document.getElementById('des-wheel').classList.add('collapsed');
+        const y = desYear;
+        if(typeof dataSourceMode !== 'undefined' && dataSourceMode !== 'firebase') { alert('L’importazione funziona solo con i turni su Firebase.'); return; }
+        if(activeYear !== y) {
+            alert(`Il calendario turni ${y} non è ancora aperto (ora è aperto il ${activeYear}).\n\nL’importazione si potrà fare dal 1° gennaio ${y}, quando l’app passa da sola al nuovo anno. Fino ad allora puoi barrare a mano i giorni che inserisci nei turni.`);
+            return;
+        }
+        const { plan } = desImportPlan();
+        if(!plan.length) { desToast('Niente da importare: tutti i giorni sono già barrati'); return; }
+        const people = new Set(plan.map(p => p.d.idx)).size, f = plan.filter(p => p.sub === 'f').length, p = plan.length - f;
+        if(!confirm(`Importare nel calendario turni ${y}:\n• ${f} giorni di ferie (C.O.)\n• ${p} permessi\ndi ${people} ${people === 1 ? 'persona' : 'persone'}?\n\nLe caselle che hanno già un’assenza non vengono toccate. Prima si fa una copia di sicurezza; i giorni importati vengono barrati.`)) return;
+        desImportRun(plan);
+    }
+    async function desImportRun(plan) {
+        try {
+            desToast('Importo…');
+            await takeSnapshot('prima-import-desiderate');
+            const y = desYear, months = [...new Set(plan.map(p => p.m))], docs = {};
+            for(const m of months) { const s = await cfgRef(monthDocName(y, m)).get(); docs[m] = s.exists ? (s.data().cells || {}) : {}; }
+            const batch = db.batch(), byMonth = {}, done = [], kept = [];
+            plan.forEach(p => {
+                const cur = docs[p.m][p.cell] || {};
+                if(String(cur.subV || '').trim()) { kept.push(p); return; }   // c'è già un'assenza
+                (byMonth[p.m] = byMonth[p.m] || {})[p.cell] = { v: cur.v || '', subV: p.sub };
+                done.push(p);
+            });
+            const now = new Date().toISOString();
+            Object.keys(byMonth).forEach(m => batch.set(cfgRef(monthDocName(y, +m)), { cells: byMonth[m], updatedAt: now }, { merge:true }));
+            if(done.length) addLogWrite(batch, [], `Ferie desiderate importate nel ${y}: ${done.length} giorni (${new Set(done.map(p => p.d.idx)).size} persone)`);
+            await batch.commit();
+            // si barrano i giorni importati
+            const byD = new Map(); done.forEach(p => { if(!byD.has(p.d)) byD.set(p.d, []); byD.get(p.d).push(p.key); });
+            byD.forEach((keys, d) => desToggleOk(keys, d, true));
+            desToast(`Importati ${done.length} giorni${kept.length ? ` · ${kept.length} lasciati com’erano (c’era già un’assenza)` : ''}`);
+        } catch(e) {
+            console.error('Importazione desiderate:', e);
+            alert('Importazione non riuscita: ' + (e && e.message || e));
+        }
     }
 
     // ── ruota degli strumenti ──
     function desRenderWheel() {
         const w = document.getElementById('des-wheel'); if(!w) return;
-        w.classList.toggle('readonly', !desMe());
+        w.classList.toggle('readonly', !desMe() && !desAdmin);
         const S = 250, c = S / 2, r0 = 46, r1 = 118;
-        const items = [['F', 0], ['P', 72], ['X', 144], ['N', 216], ['R', 288]];
+        const ids = desAdmin ? ['F', 'P', 'X', 'N', 'R', 'B', 'I'] : ['F', 'P', 'X', 'N', 'R'], step = 360 / ids.length;
+        const items = ids.map((id, i) => [id, i * step]);
         let paths = '', lbls = '';
         items.forEach(([id, a]) => {
-            const a0 = a - 36 + 1.5, a1 = a + 36 - 1.5;
+            const a0 = a - step / 2 + 1.5, a1 = a + step / 2 - 1.5;
             const k = id === 'R' ? { label:'Dal… al…', bg:'#1d4ed8', fg:'#fff', icon:'date_range' } : DES_KINDS[id];
             paths += `<path class="dw-seg${desTool === id ? ' sel' : ''}" d="${annularSector(c, c, r0, r1, a0, a1)}" style="fill:${k.bg}" onclick="desPickTool('${id}')"><title>${esc(k.label)}</title></path>`;
             const [x, y] = polar(c, c, (r0 + r1) / 2, a);
@@ -7355,26 +7512,31 @@
         });
         document.getElementById('dw-ring').innerHTML = `<svg viewBox="0 0 ${S} ${S}">${paths}</svg>${lbls}`;
         const k = DES_KINDS[desTool];
-        document.getElementById('dw-hub').innerHTML = `<span class="dw-hub-sw" style="background:${k.bg};color:${k.fg}">${desTool === 'X' || desTool === 'N' ? `<span class="material-icons-round">${k.icon}</span>` : (desTool === 'F' ? 'FERIE' : 'PERM.')}</span><small>${w.classList.contains('collapsed') ? 'strumenti' : 'chiudi'}</small>`;
-        document.getElementById('dw-caption').innerHTML = desTool === 'N' ? 'Tocca un tuo giorno per <b>scrivere una nota</b>' : (desTool === 'X' ? 'Tocca una tua casella per <b>cancellarla</b>' : `Tocca una tua casella per mettere <b>${esc(k.label.toLowerCase())}</b>; ritocca per togliere`) + '<br><small>Tieni premuto e trascina per più giorni</small>';
+        document.getElementById('dw-hub').innerHTML = `<span class="dw-hub-sw" style="background:${k.bg};color:${k.fg}">${desTool === 'X' || desTool === 'N' || desTool === 'B' ? `<span class="material-icons-round">${k.icon}</span>` : (desTool === 'F' ? 'FERIE' : 'PERM.')}</span><small>${w.classList.contains('collapsed') ? 'strumenti' : 'chiudi'}</small>`;
+        document.getElementById('dw-caption').innerHTML = desTool === 'B' ? 'Tocca un giorno per <b>barrarlo</b> (già inserito nei turni); ritocca per togliere<br><small>Tieni premuto e trascina per più giorni</small>' : desTool === 'N' ? 'Tocca un tuo giorno per <b>scrivere una nota</b>' : (desTool === 'X' ? 'Tocca una tua casella per <b>cancellarla</b>' : `Tocca una tua casella per mettere <b>${esc(k.label.toLowerCase())}</b>; ritocca per togliere`) + '<br><small>Tieni premuto e trascina per più giorni</small>';
     }
     function desToggleWheel() { vibrate(); const w = document.getElementById('des-wheel'); w.classList.toggle('collapsed'); desRenderWheel(); }
     function desPickTool(id) {
         vibrate();
         document.getElementById('des-wheel').classList.add('collapsed');
         if(id === 'R') { desRenderWheel(); desOpenRange(); return; }
+        if(id === 'I') { desRenderWheel(); desImportAsk(); return; }
         desTool = id; desRenderWheel();
-        desToast(id === 'X' ? 'Strumento: cancella' : id === 'N' ? 'Strumento: nota. Tocca un tuo giorno' : 'Strumento: ' + DES_KINDS[id].label.toLowerCase());
+        desToast(id === 'B' ? 'Strumento: barra i giorni già inseriti nei turni' : id === 'X' ? 'Strumento: cancella' : id === 'N' ? 'Strumento: nota. Tocca un tuo giorno' : 'Strumento: ' + DES_KINDS[id].label.toLowerCase());
     }
 
     // ── periodo dal… al… ──
+    function desRangeWho() { const s = document.getElementById('dr-who'); return desAdmin && s && s.value ? desDriverByIdx(s.value) : desMe(); }
     function desOpenRange() {
-        if(!desMe()) { desOtherTap(); return; }
+        if(!desMe() && !desAdmin) { desOtherTap(); return; }
+        const sw = document.getElementById('dr-who-row');
+        sw.style.display = desAdmin ? '' : 'none';
+        if(desAdmin) { const def = desMode === 'anno' && desYgWho != null ? desYgWho : (desMe() ? desMe().idx : null); document.getElementById('dr-who').innerHTML = desCols().map(d => `<option value="${d.idx}"${d.idx === def ? ' selected' : ''}>${esc(d.name)}</option>`).join(''); }
         vibrate();
         const y = desYear, f = document.getElementById('dr-from'), t = document.getElementById('dr-to');
         f.min = t.min = y + '-01-01'; f.max = t.max = y + '-12-31';
         if(!f.value || +f.value.slice(0, 4) !== y) { f.value = ''; t.value = ''; }
-        desRangeKind = desTool === 'X' ? 'X' : (desTool || 'F');
+        desRangeKind = desTool === 'X' ? 'X' : (desTool === 'P' ? 'P' : 'F');
         desRangePreview();
         const m = document.getElementById('des-range'); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 10);
     }
@@ -7399,7 +7561,7 @@
         if(desRangeKind === 'X') { pv.innerHTML = range + '<br>Le tue desiderate di questi giorni si cancellano.'; return; }
         // anteprima con la regola del 5° giorno
         // simulazione con il blocco delle spettanze
-        const me = desMe(), al = desAllow(me), days = Object.assign({}, desDaysOf(me)); let skip = 0;
+        const me = desRangeWho(), al = desAllow(me), days = Object.assign({}, desDaysOf(me)); let skip = 0;
         list.forEach(x => { if(days[x.key] === desRangeKind) return; const was = days[x.key], b = desCount(days, desYear); days[x.key] = desRangeKind; const c = desCount(days, desYear); if((c.f > al.co && c.f > b.f) || (c.p > al.sp && c.p > b.p)) { if(was) days[x.key] = was; else delete days[x.key]; skip++; } });
         const res = desResolve(days, desYear); let f = 0, p = 0, auto = [];
         list.forEach(x => { const r = res[x.key]; if(!r) return; if(r.t === 'F') f++; else if(r.t === 'R') auto.push(r.n + '°'); else p++; });
@@ -7407,7 +7569,7 @@
     }
     function desApplyRange() {
         const list = desRangeKeys(); if(!list || !list.length) return;
-        const n = desSetDays(list.map(x => [x.key, desRangeKind === 'X' ? null : desRangeKind]));
+        const n = desSetDays(list.map(x => [x.key, desRangeKind === 'X' ? null : desRangeKind]), desRangeWho());
         desCloseRange();
         desToast(n ? (desRangeKind === 'X' ? 'Cancellati ' + n + ' giorni' : 'Inseriti ' + n + ' giorni') : 'Nessun cambiamento');
         // porta il periodo sullo schermo
@@ -14802,6 +14964,7 @@
         'wheel-modal': closeWheelModal,
         'des-range': desCloseRange,
         'des-note': desCloseNote,
+        'des-admin': desAdminClose,
         'des-view': closeDesiderate,
         'driver-filter-dropdown': closeDriverFilterDropdown,
         'menu-dropdown': toggleMenu
