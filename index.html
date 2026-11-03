@@ -6962,7 +6962,7 @@
     function desCols() {
         const me = desMe();
         const list = drivers.filter(d => !d.hidden);
-        return me && list.includes(me) ? [me].concat(list.filter(d => d !== me)) : list;
+        return me ? [me].concat(list.filter(d => d !== me)) : list;   // la propria colonna c'è sempre, anche se nei turni è nascosta
     }
 
     function openDesiderate() {
@@ -7097,7 +7097,7 @@
         const r = document.getElementById('des-mode-btn').getBoundingClientRect();
         m.style.top = (r.bottom + 6) + 'px'; m.style.left = Math.max(8, Math.min(window.innerWidth - 238, r.right - 230)) + 'px';
         m.classList.add('open');
-        setTimeout(() => document.addEventListener('click', () => m.classList.remove('open'), { once:true }), 0);
+        if(!m._out) { m._out = true; document.addEventListener('click', e => { if(!e.target.closest('#des-mode-menu, #des-mode-btn')) m.classList.remove('open'); }); }   // un solo ascoltatore: chiude il menu toccando fuori
     }
     function desSetMode(k) {
         document.getElementById('des-mode-menu').classList.remove('open');
@@ -7152,7 +7152,8 @@
         const y = desYear, me = desMe(), H = holidaysFor(y), today = new Date();
         const cols = desCols();
         if(!desYgWho || !cols.some(d => d.idx === desYgWho)) desYgWho = me ? me.idx : (cols[0] ? cols[0].idx : null);
-        const who = cols.find(d => d.idx === desYgWho), mine = !!me && who === me;
+        const who = cols.find(d => d.idx === desYgWho); if(!who) { box.innerHTML = ''; return; }
+        const mine = !!me && who === me;
         const res = who ? desResolve(desDaysOf(who), y) : {}, notes = who ? desNotesOf(who) : {};
         const c = who ? desCount(desDaysOf(who), y) : { f:0, p:0, auto:0 };
         const MN = Object.keys(MONTH_MAP), WD = ['L', 'M', 'M', 'G', 'V', 'S', 'D'];
