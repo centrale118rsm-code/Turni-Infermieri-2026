@@ -2706,6 +2706,165 @@
             justify-content: center; cursor: pointer;
         }
         #richieste-iframe { flex: 1; border: none; width: 100%; background: #fff; }
+        /* ══ CALENDARIO FERIE DESIDERATE ════════════════════════════════════
+           Stessa grafica del calendario turni, ma vuoto: ognuno scrive le sue ferie
+           e i permessi desiderati solo nella propria colonna. */
+        #des-view { position:fixed; top:var(--header-h); left:0; right:0; bottom:0; z-index:960; background:var(--bg); display:none; flex-direction:column; }
+        #des-view.open { display:flex; }
+        body.des-open { overflow:hidden; }
+        body.des-open #side-drag-handle { display:none; }
+        .des-title small button { border:none; background:none; color:var(--primary); font:800 0.7rem 'Plus Jakarta Sans',sans-serif; cursor:pointer; padding:0; }
+        @media (max-width:560px) { .des-sum .des-save .des-save-t { display:none; } .des-sum { gap:5px; padding:6px 10px; font-size:0.68rem; } .des-sum .des-pill { padding:2px 7px; } }
+        .des-bar { display:flex; align-items:center; gap:8px; padding:8px 10px; border-bottom:1px solid var(--border); background:var(--bg-card); flex-shrink:0; }
+        .des-title { flex:1; min-width:0; text-align:center; }
+        .des-title > b { display:block; font-size:0.95rem; font-weight:800; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .des-title small { display:block; font-size:0.7rem; color:var(--text-sec); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .des-year { display:inline-flex; align-items:center; border:1px solid var(--border); border-radius:10px; background:var(--bg-card); flex-shrink:0; }
+        .des-year button { width:30px; height:34px; border:none; background:transparent; color:var(--text-main); cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0; }
+        .des-year button:disabled { opacity:.25; cursor:default; }
+        .des-year > span { font:800 13px 'Plus Jakarta Sans',sans-serif; color:var(--text-main); min-width:36px; text-align:center; }
+        .des-sum { display:flex; flex-wrap:wrap; align-items:center; gap:6px; padding:7px 12px; border-bottom:1px solid var(--border); background:var(--bg-card); font-size:0.72rem; font-weight:700; color:var(--text-sec); flex-shrink:0; }
+        .des-sum .des-pill { display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:999px; background:var(--bg); border:1px solid var(--border); color:var(--text-main); white-space:nowrap; }
+        .des-sum .des-pill i { width:10px; height:10px; border-radius:3px; display:inline-block; box-shadow:inset 0 0 0 1px rgba(0,0,0,.18); }
+        .des-sum .des-pill.over { border-color:#dc2626; color:#b91c1c; background:#fef2f2; }
+        body.dark-mode .des-sum .des-pill.over { background:rgba(220,38,38,.18); color:#fecaca; }
+        .des-sum .des-who { margin-left:auto; display:inline-flex; align-items:center; gap:4px; white-space:nowrap; }
+        .des-sum .des-who button { border:none; background:none; color:var(--primary); font:800 0.72rem 'Plus Jakarta Sans',sans-serif; cursor:pointer; padding:0; }
+        .des-sum .des-save { display:inline-flex; align-items:center; gap:3px; white-space:nowrap; }
+        .des-sum .des-save .material-icons-round { font-size:14px; }
+        .des-sum .des-save.err { color:#b91c1c; }
+        .des-scroll { flex:1; overflow:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; padding-bottom:110px; }
+        #des-table { width:auto; }
+        #des-view.des-anno #des-table, #des-view.des-tutti #des-table { display:none; }
+        #des-all { display:none; table-layout:fixed; width:100%; border-collapse:separate; border-spacing:0; font-family:'Plus Jakarta Sans',sans-serif; }
+        #des-view.des-tutti #des-all { display:table; }
+        #des-view.des-tutti .des-scroll { padding-bottom:96px; }
+        #des-all col.c-date { width:38px; } #des-all col.c-ass { width:26px; } #des-all col.c-op { min-width:12px; }
+        #des-all thead th::before { display:none; }
+        #des-all td.d small { display:block; margin:0; line-height:1; }
+        #des-all thead th { position:sticky; top:0; z-index:5; background:var(--bg-card); border-bottom:2px solid var(--border); padding:4px 0; height:92px; vertical-align:bottom; min-width:0; }
+        #des-all thead th .vn { writing-mode:vertical-rl; transform:rotate(180deg); font-size:10.5px; font-weight:800; letter-spacing:.2px; color:var(--text-sec); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-height:86px; margin:0 auto; display:block; }
+        #des-all thead th.me .vn { color:var(--primary); }
+        #des-all thead th.me { box-shadow:inset 0 -3px 0 var(--primary); }
+        #des-all thead th.h-date, #des-all thead th.h-ass { font-size:9.5px; font-weight:800; color:var(--text-sec); text-transform:uppercase; }
+        #des-all tr.da-m td { position:sticky; top:92px; z-index:4; background:var(--month-bar-bg, #1e3a8a); color:#fff; font-weight:900; font-size:0.8rem; text-transform:uppercase; padding:5px 10px; letter-spacing:.3px; }
+        #des-all td { height:26px; padding:0; border-bottom:1px solid var(--border); border-right:1px solid rgba(148,163,184,.25); text-align:center; font-size:9px; font-weight:900; position:relative; }
+        #des-all td.d { font-size:10.5px; font-weight:800; color:var(--text-main); white-space:nowrap; background:var(--date-col-bg); line-height:1.05; }
+        #des-all td.d small { font-size:8.5px; font-weight:700; color:var(--text-sec); margin-left:2px; }
+        #des-all tr.we td.d, #des-all tr.we td.d small { color:#dc2626; }
+        #des-all tr.we td.c:not(.F):not(.P):not(.R) { background:rgba(220,38,38,.05); }
+        #des-all tr.today td { box-shadow:inset 0 1px 0 #f97316, inset 0 -1px 0 #f97316; }
+        #des-all tr.today td.d { background:#f97316; color:#fff; } #des-all tr.today td.d small { color:#fff; }
+        #des-all td.c { cursor:default; }
+        #des-all td.c.me { cursor:pointer; background:rgba(37,99,235,.08); box-shadow:inset 1px 0 0 rgba(37,99,235,.5), inset -1px 0 0 rgba(37,99,235,.5); -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; }
+        #des-all td.c.F { background:var(--bg-cong); color:var(--t-cong); }
+        #des-all td.c.P { background:var(--bg-perm); color:var(--t-perm); }
+        #des-all td.c.R { background:var(--c-R); color:var(--t-R); }
+        #des-all td.c.nt::after { content:''; position:absolute; top:1px; right:1px; width:6px; height:6px; border-radius:50%; background:#2563eb; box-shadow:0 0 0 1px #fff; }
+        #des-all td.a { font-size:10px; color:var(--text-sec); background:var(--bg-card); border-left:2px solid var(--border); }
+        #des-all td.a.a1 { color:#166534; } #des-all td.a.a2 { background:#fef3c7; color:#92400e; } #des-all td.a.a3 { background:#fee2e2; color:#b91c1c; }
+        body.dark-mode #des-all td.a.a2 { background:rgba(245,158,11,.2); color:#fcd34d; } body.dark-mode #des-all td.a.a3 { background:rgba(220,38,38,.25); color:#fecaca; }
+        #des-mode-menu { position:fixed; z-index:6350; display:none; background:var(--bg-card); border:1px solid var(--border); border-radius:12px; box-shadow:0 12px 32px rgba(15,23,42,.2); padding:6px; width:230px; }
+        #des-mode-menu.open { display:block; }
+        #des-mode-menu button { width:100%; display:flex; align-items:center; gap:10px; padding:9px 8px; border:none; border-radius:8px; background:transparent; color:var(--text-main); cursor:pointer; text-align:left; font-family:inherit; }
+        #des-mode-menu button:hover { background:var(--bg); }
+        #des-mode-menu button.on { background:rgba(37,99,235,.1); }
+        #des-mode-menu button .material-icons-round { font-size:20px; color:var(--primary); }
+        #des-mode-menu b { display:block; font-size:0.85rem; font-weight:800; }
+        #des-mode-menu small { display:block; font-size:0.7rem; color:var(--text-sec); font-weight:600; }
+        #des-yg { display:none; padding:12px; gap:12px; grid-template-columns:repeat(auto-fill, minmax(min(100%, 270px), 1fr)); }
+        #des-view.des-anno #des-yg { display:grid; }
+        .yg-m { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:10px 10px 12px; box-shadow:0 1px 3px rgba(15,23,42,.06); }
+        .yg-m h4 { margin:0 0 6px; display:flex; align-items:baseline; justify-content:space-between; font-size:0.95rem; font-weight:900; text-transform:uppercase; letter-spacing:-.2px; color:var(--text-main); }
+        .yg-m h4 small { font-size:0.66rem; font-weight:700; color:var(--text-sec); text-transform:none; letter-spacing:0; }
+        .yg-g { display:grid; grid-template-columns:repeat(7, 1fr); gap:3px; }
+        .yg-wd { font-size:0.6rem; font-weight:800; color:var(--text-sec); text-align:center; padding:2px 0; }
+        .yg-wd.r { color:#dc2626; }
+        .yg-d { aspect-ratio:1; border-radius:8px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:0.82rem; font-weight:800; color:var(--text-main); background:var(--bg); border:1px solid transparent; cursor:pointer; position:relative; line-height:1; padding:0; font-family:inherit; }
+        .yg-d.red { color:#dc2626; }
+        .yg-d .des-dot { width:8px; height:8px; top:2px; right:2px; box-shadow:0 0 0 1.5px #fff; }
+        .yg-d.hol::after { content:''; position:absolute; top:3px; left:3px; width:5px; height:5px; border-radius:50%; background:#dc2626; }
+        .yg-d.today { box-shadow:0 0 0 2px #f97316; }
+        .yg-d.F { background:var(--bg-cong); color:var(--t-cong); border-color:var(--b-cong); }
+        .yg-d.P { background:var(--bg-perm); color:var(--t-perm); border-color:var(--b-perm); }
+        .yg-d.R { background:var(--c-R); color:var(--t-R); border-color:var(--b-R); }
+        .yg-d small { font-size:0.42rem; font-weight:900; margin-top:2px; letter-spacing:.2px; }
+        .yg-d.ro { cursor:default; }
+        .yg-legend { grid-column:1 / -1; display:flex; flex-wrap:wrap; gap:6px 14px; font-size:0.72rem; font-weight:700; color:var(--text-sec); align-items:center; padding:0 2px; }
+        .yg-legend i { display:inline-block; width:12px; height:12px; border-radius:4px; margin-right:5px; vertical-align:-2px; box-shadow:inset 0 0 0 1px rgba(0,0,0,.15); }
+        .yg-who { grid-column:1 / -1; display:flex; align-items:center; gap:8px; font-size:0.78rem; font-weight:700; color:var(--text-sec); }
+        .yg-who select { height:34px; border:1px solid var(--border); border-radius:10px; background:var(--bg-card); color:var(--text-main); font:700 13px 'Plus Jakarta Sans',sans-serif; padding:0 8px; }
+        #des-table thead th { top:0; }
+        #des-table tr.month-header td { top:var(--th-h); height:auto; }
+        #des-table thead th:not(:first-child), #des-table tbody td[data-col] { width:var(--cell-w); min-width:var(--cell-w); max-width:var(--cell-w); }
+        #des-table thead th:first-child, #des-table .td-date { background:var(--date-col-bg); border-right:2px solid var(--date-col-line); box-shadow:4px 0 0 var(--bg), 7px 0 12px -3px rgba(15,23,42,0.22); }
+        #des-table tbody tr[data-row] > td:nth-child(2), #des-table thead th:nth-child(2) { padding-left:8px; }
+        #des-table tbody tr[data-row] > td:nth-child(2) { width:calc(var(--cell-w) + 6px); min-width:calc(var(--cell-w) + 6px); max-width:calc(var(--cell-w) + 6px); }
+        body.pref-hl-me #des-table td.me-col, #des-table td.me-col { background:rgba(37,99,235,.09); box-shadow:inset 2px 0 0 rgba(37,99,235,.55), inset -2px 0 0 rgba(37,99,235,.55); }
+        body.dark-mode #des-table td.me-col { background:rgba(96,165,250,.13); }
+        #des-table thead th.me-col { color:var(--primary); box-shadow:inset 0 -3px 0 var(--primary); }
+        #des-table thead th .des-th-tag { display:block; font-size:0.55rem; font-weight:800; letter-spacing:.3px; color:var(--primary); margin-top:2px; }
+        #des-table td[data-col]:not(.me-col) .cell { cursor:default; }
+        #des-table td[data-col]:not(.me-col) .cell.empty { opacity:.55; }
+        #des-table .cell.empty.des-mine { color:var(--primary); opacity:.45; font-size:1.1rem; }
+        #des-table .cell .des-auto { display:block; font-size:0.5rem; font-weight:800; letter-spacing:.2px; margin-top:2px; opacity:.85; text-transform:none; }
+        .des-dot { position:absolute; top:4px; right:4px; width:10px; height:10px; border-radius:50%; background:#2563eb; box-shadow:0 0 0 2px #fff; pointer-events:none; z-index:2; }
+        body.des-painting, body.des-painting * { user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; }
+        #des-table td.me-col, #des-yg .yg-d { -webkit-touch-callout:none; -webkit-user-select:none; user-select:none; }
+        #des-note { display:none; position:fixed; inset:0; z-index:6300; background:rgba(0,0,0,.55); backdrop-filter:blur(6px); align-items:flex-end; justify-content:center; opacity:0; transition:opacity .25s; }
+        #des-note.open { opacity:1; }
+        #des-note .modal-content { max-width:460px; }
+        #des-note.open .modal-content { transform:translateY(0); }
+        #dn-text { width:100%; min-height:120px; border:1.5px solid var(--border); border-radius:12px; padding:10px 12px; background:var(--bg); color:var(--text-main); font:600 15px/1.4 'Plus Jakarta Sans',sans-serif; resize:vertical; box-sizing:border-box; }
+        #dn-text[readonly] { border-style:dashed; }
+        .dn-foot { display:flex; gap:10px; }
+        .dn-foot button { flex:1; height:48px; border-radius:14px; font:800 14px 'Plus Jakarta Sans',sans-serif; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; }
+        .dn-del { border:1.5px solid #fca5a5; background:transparent; color:#b91c1c; }
+        .dn-save { border:none; background:linear-gradient(135deg,#1e3a8a,#2563eb); color:#fff; }
+        .dn-hint { font-size:0.74rem; font-weight:600; color:var(--text-sec); }
+        #des-table td.des-flash .cell { animation:desFlash .5s ease; }
+        @keyframes desFlash { 0% { transform:scale(.85); } 60% { transform:scale(1.06); } 100% { transform:scale(1); } }
+        html.ios #des-table thead th:first-child, html.ios #des-table .td-date { box-shadow:4px 0 0 var(--bg); }
+
+        /* ruota degli strumenti (come quella di Modifica turni, più semplice) */
+        #des-wheel { position:fixed; right:8px; bottom:calc(8px + env(safe-area-inset-bottom, 0px)); width:250px; height:250px; z-index:970; pointer-events:none; display:none; }
+        #des-view.open ~ #des-wheel, body.des-open #des-wheel { display:block; }
+        #des-wheel.readonly { display:none !important; }
+        .dw-ring { position:absolute; inset:0; transform-origin:50% 50%; transition:transform .18s cubic-bezier(.2,.7,.3,1), opacity .14s; }
+        #des-wheel.collapsed .dw-ring { transform:scale(.3); opacity:0; }
+        .dw-ring svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; filter:drop-shadow(0 8px 22px rgba(12,18,26,.3)); }
+        #des-wheel:not(.collapsed) .dw-ring path { pointer-events:auto; }
+        .dw-seg { cursor:pointer; stroke:var(--cc-ink, #16212e); stroke-width:2; }
+        .dw-seg.sel { stroke:#fff; stroke-width:4; }
+        .dw-lbl { position:absolute; transform:translate(-50%,-50%); font:800 11px/1.1 'Plus Jakarta Sans',sans-serif; text-align:center; pointer-events:none; white-space:nowrap; }
+        .dw-lbl .material-icons-round { display:block; font-size:21px; margin:0 auto 1px; }
+        .dw-hub { position:absolute; width:76px; height:76px; left:calc(50% - 38px); top:calc(50% - 38px); border-radius:50%; border:3px solid var(--cc-ink, #16212e); background:var(--bg-card); color:var(--text-main); pointer-events:auto; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; padding:0; box-shadow:0 6px 16px rgba(12,18,26,.3); transition:left .18s, top .18s, width .18s, height .18s; font-family:'Plus Jakarta Sans',sans-serif; }
+        #des-wheel.collapsed .dw-hub { width:66px; height:66px; left:calc(100% - 70px); top:calc(100% - 70px); }
+        .dw-hub-sw { min-width:38px; height:20px; padding:0 4px; border-radius:5px; font:900 10px/20px 'Plus Jakarta Sans',sans-serif; text-align:center; border:1px solid rgba(0,0,0,.12); display:flex; align-items:center; justify-content:center; }
+        .dw-hub-sw .material-icons-round { font-size:17px; }
+        .dw-hub small { font-size:9.5px; font-weight:700; color:var(--text-sec); line-height:1; }
+        .dw-caption { position:absolute; right:0; bottom:calc(100% - 2px); background:var(--cc-ink, #16212e); color:#fff; font:600 12px/1.25 'Plus Jakarta Sans',sans-serif; padding:7px 11px; border-radius:6px; max-width:240px; box-shadow:0 4px 12px rgba(12,18,26,.25); pointer-events:none; }
+        #des-wheel.collapsed .dw-caption { display:none; }
+
+        /* foglio "dal giorno al giorno" */
+        #des-range { display:none; position:fixed; inset:0; z-index:6300; background:rgba(0,0,0,.55); backdrop-filter:blur(6px); align-items:flex-end; justify-content:center; opacity:0; transition:opacity .25s; }
+        #des-range.open { opacity:1; }
+        #des-range .modal-content { max-width:460px; }
+        #des-range.open .modal-content { transform:translateY(0); }
+        .dr-body { padding:16px 20px 20px; display:flex; flex-direction:column; gap:14px; overflow-y:auto; }
+        .dr-dates { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+        .dr-dates label { display:flex; flex-direction:column; gap:5px; font-size:0.74rem; font-weight:800; color:var(--text-sec); text-transform:uppercase; letter-spacing:.4px; }
+        .dr-dates input { height:44px; border:1.5px solid var(--border); border-radius:12px; padding:0 10px; background:var(--bg); color:var(--text-main); font:700 15px 'Plus Jakarta Sans',sans-serif; width:100%; min-width:0; }
+        .dr-kinds { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+        .dr-kinds button { min-height:54px; border-radius:12px; border:2px solid var(--border); background:var(--bg); color:var(--text-main); font:800 12.5px 'Plus Jakarta Sans',sans-serif; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; }
+        .dr-kinds button i { width:26px; height:12px; border-radius:4px; display:block; }
+        .dr-kinds button.on { border-color:var(--primary); box-shadow:inset 0 0 0 1px var(--primary); }
+        .dr-preview { font-size:0.8rem; font-weight:600; color:var(--text-sec); background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:10px 12px; line-height:1.45; }
+        .dr-preview b { color:var(--text-main); }
+        .dr-go { height:50px; border:none; border-radius:14px; background:linear-gradient(135deg,#1e3a8a,#2563eb); color:#fff; font:800 15px 'Plus Jakarta Sans',sans-serif; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; }
+        .dr-go:disabled { opacity:.45; cursor:default; }
+        #des-toast { position:fixed; left:50%; top:calc(var(--header-h) + 64px); transform:translateX(-50%) translateY(-12px); background:var(--cc-ink, #16212e); color:#fff; font:700 13px 'Plus Jakarta Sans',sans-serif; padding:10px 16px; border-radius:12px; z-index:6400; opacity:0; pointer-events:none; transition:opacity .2s, transform .2s; max-width:calc(100vw - 32px); text-align:center; }
+        #des-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
     </style>
 </head>
 <body>
@@ -3621,6 +3780,69 @@
 </div>
 <div id="ov-sheet" class="ov-sheet" onclick="ovCloseSheet(event)"><div class="ov-sheet-card" id="ov-sheet-card" onclick="event.stopPropagation()"></div></div>
 
+<!-- ══════════════ CALENDARIO FERIE DESIDERATE ══════════════ -->
+<div id="des-view" aria-label="Calendario ferie desiderate">
+    <div class="des-bar">
+        <button class="ov-btn" onclick="closeDesiderate()" title="Torna al calendario dei turni"><span class="material-icons-round">arrow_back</span><span class="l-long">Turni</span></button>
+        <div class="des-title"><b>Ferie desiderate</b><small id="des-sub">Scrivi le ferie che vorresti</small></div>
+        <div class="des-year"><button onclick="desChangeYear(-1)" id="des-y-prev" title="Anno prima"><span class="material-icons-round">chevron_left</span></button><span id="des-y-lbl"></span><button onclick="desChangeYear(1)" id="des-y-next" title="Anno dopo"><span class="material-icons-round">chevron_right</span></button></div>
+        <button class="ov-btn" onclick="desToggleMode()" id="des-mode-btn" title="Cambia visualizzazione"></button>
+        <button class="ov-btn" onclick="desOpenRange()" id="des-range-btn" title="Inserisci da una data a un'altra"><span class="material-icons-round">date_range</span><span class="l-long">Dal… al…</span></button>
+    </div>
+    <div class="des-sum" id="des-sum"></div>
+    <div class="des-scroll" id="des-scroll">
+        <table id="des-table">
+            <thead><tr id="des-head"></tr></thead>
+            <tbody id="des-body"></tbody>
+        </table>
+        <table id="des-all"></table>
+        <div id="des-yg"></div>
+    </div>
+</div>
+<div id="des-wheel" class="collapsed">
+    <div class="dw-ring" id="dw-ring"></div>
+    <div class="dw-caption" id="dw-caption"></div>
+    <button class="dw-hub" id="dw-hub" onclick="desToggleWheel()" title="Strumenti"></button>
+</div>
+<div id="des-range" onclick="desCloseRange(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <div class="header-text">
+                <h3><span class="material-icons-round" style="margin-right:10px">date_range</span> DAL GIORNO AL GIORNO</h3>
+                <span>Le ferie desiderate di un periodo intero</span>
+            </div>
+            <button class="btn-close-modal" onclick="desCloseRange()"><span class="material-icons-round">close</span></button>
+        </div>
+        <div class="dr-body">
+            <div class="dr-dates">
+                <label>Dal<input type="date" id="dr-from" oninput="desRangePreview()"></label>
+                <label>Al<input type="date" id="dr-to" oninput="desRangePreview()"></label>
+            </div>
+            <div class="dr-kinds" id="dr-kinds"></div>
+            <div class="dr-preview" id="dr-preview"></div>
+            <button class="dr-go" id="dr-go" onclick="desApplyRange()"><span class="material-icons-round">check</span> Inserisci</button>
+        </div>
+    </div>
+</div>
+<div id="des-note" onclick="desCloseNote(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <div class="header-text">
+                <h3><span class="material-icons-round" style="margin-right:10px">edit_note</span> <span id="dn-title">NOTA</span></h3>
+                <span id="dn-sub"></span>
+            </div>
+            <button class="btn-close-modal" onclick="desCloseNote()"><span class="material-icons-round">close</span></button>
+        </div>
+        <div class="dr-body">
+            <textarea id="dn-text" maxlength="300" placeholder="Scrivi una nota per questo giorno (es. matrimonio di mio fratello, viaggio già prenotato…)"></textarea>
+            <div class="dn-hint" id="dn-hint">La nota la vedono anche i colleghi e il coordinatore.</div>
+            <div class="dn-foot" id="dn-foot"><button class="dn-del" onclick="desSaveNote(true)"><span class="material-icons-round">delete</span>Elimina</button><button class="dn-save" onclick="desSaveNote()"><span class="material-icons-round">check</span>Salva</button></div>
+        </div>
+    </div>
+</div>
+<div id="des-mode-menu" onclick="event.stopPropagation()"></div>
+<div id="des-toast"></div>
+
 <div class="container">
     <table id="main-table">
         <thead><tr id="table-head"></tr></thead>
@@ -3966,6 +4188,7 @@
         notifClaimLegacy(); updateBadge();   // le notifiche sono di chi le ha ricevute
         let m = document.getElementById('identity-modal'); m.classList.remove('open');
         setTimeout(() => { m.style.display = 'none'; showStartupMessages(); }, 300);
+        if(typeof desAfterIdentity === 'function') desAfterIdentity();
     }
     function requestChangeIdentity() {
         closeMenu(); vibrate();
@@ -5067,8 +5290,11 @@
         const owner = prefOwner(); prefsOwnerLoaded = owner;
         let p = null; try { p = JSON.parse(localStorage.getItem('prefs_v1__' + owner) || 'null'); } catch(e) {}
         if(!p) p = { theme: localStorage.getItem('theme') === 'dark' ? 'dark' : 'light' };   // primo avvio: si parte dal tema usato finora
-        return Object.assign({}, PREF_DEFAULTS, p);
+        return prefsFix(Object.assign({}, PREF_DEFAULTS, p));
     }
+    // L'app si apre sempre nel calendario normale: la "Vista d'insieme" come pagina iniziale non
+    // si sceglie più (rimasta salvata su qualche telefono, faceva aprire sempre la vista d'insieme).
+    function prefsFix(p) { if(p.startPage !== 'me') p.startPage = 'calendario'; return p; }
     function savePrefsLocal() { try { localStorage.setItem('prefs_v1__' + prefsOwnerLoaded, JSON.stringify(prefs)); } catch(e) {} }
     function prefsSaveRemoteSoon() {
         if(SERVER_MODE || prefsOwnerLoaded === 'OSPITE') return;
@@ -5085,7 +5311,7 @@
             const owner = prefsOwnerLoaded, snap = await cfgRef('prefs').get();
             const r = snap.exists ? (snap.data() || {})[owner] : null;
             if(owner !== prefsOwnerLoaded || !r || (r.updatedAt || 0) <= (prefs.updatedAt || 0)) return;
-            prefs = Object.assign({}, PREF_DEFAULTS, r); savePrefsLocal(); applyAllPrefs();
+            prefs = prefsFix(Object.assign({}, PREF_DEFAULTS, r)); savePrefsLocal(); applyAllPrefs();
             if(document.getElementById('options-modal').classList.contains('open')) renderOptions();
         } catch(e) {}
     }
@@ -5162,6 +5388,7 @@
                 { id:'month', icon:'event', label:'Vai a un mese', desc:'Scegli il mese da vedere', color: MN_COLORS.cal, run: () => toggleMonthDropdown() },
                 { id:'filter', icon:'groups', label:'Filtra operatori', desc:'Mostra solo alcuni colleghi', color: MN_COLORS.cal, run: () => toggleDriverFilterDropdown() },
                 { id:'print', icon:'print', label:'Stampa del mese', desc:'PDF dei turni per la bacheca', color: MN_COLORS.cal, run: () => printMonthPick() },
+                { id:'desid', icon:'beach_access', label:'Calendario ferie desiderate', desc:'Scrivi le ferie e i permessi che vorresti, nella tua colonna', color:'#16a34a', run: () => openDesiderate() },
                 { id:'phonecal', icon:'phone_iphone', label:'Nel calendario del telefono', desc:'I tuoi turni nel calendario dell’iPhone, aggiornati da soli', color: MN_COLORS.cal, run: () => openOptionsCal() }
             ] },
             hasYears ? { id:'years', icon:'history', label:'Anni passati', desc:'Il calendario degli anni conclusi, solo da vedere', color: MN_COLORS.cal, run: () => openYearPicker() } : null,
@@ -5404,7 +5631,6 @@
         setCurrentView("Tabella Turni");
         if(prefs.startToday !== false) startAtToday();
         setTimeout(loadOtherTeam, 3000);   // turni dell'altra squadra per il riepilogo del turno
-        if(prefs.startPage === 'insieme') setTimeout(() => setCalView('insieme'), 350);
         setTimeout(async () => {
             if(SERVER_MODE) return;
             if(!userIdentity && identityRecoveryPromise) { try { await identityRecoveryPromise; } catch(e) {} }
@@ -6468,7 +6694,7 @@
 
             <div class="option-category-header"><span class="material-icons-round">calendar_month</span> Calendario</div>
             <div class="opt-block"><div class="opt-txt"><span>All’apertura mostra</span><small>La schermata con cui parte l’app.</small></div>
-                ${seg('startPage', [['calendario', 'Calendario', 'view_agenda'], ['insieme', 'Vista d’insieme', 'grid_view'], ['me', 'La mia pagina', 'person']])}</div>
+                ${seg('startPage', [['calendario', 'Calendario', 'view_agenda'], ['me', 'La mia pagina', 'person']])}</div>
             ${sw('startToday', 'Parti dal giorno di oggi', 'All’apertura il calendario scorre fino a oggi.')}
             ${sw('myColFirst', 'La mia colonna per prima', named ? 'I tuoi turni sempre nella prima colonna, accanto alla data.' : 'Disponibile dopo aver scelto chi sei.')}
             ${sw('highlightMe', 'Evidenzia la mia colonna', 'Colora leggermente la tua colonna per trovarla subito.')}
@@ -6664,6 +6890,532 @@
         else { ovCloseSheet(); setCurrentView('Tabella Turni'); }
     }
     function toggleCalView() { vibrate(); setCalView(calOverview ? 'dettaglio' : 'insieme'); }
+    // ═══ CALENDARIO FERIE DESIDERATE ═════════════════════════════════════
+    // Un calendario come quello dei turni ma vuoto: ognuno scrive le ferie e i permessi
+    // che vorrebbe, solo nella propria colonna (riconosciuta da "Chi sei?").
+    // Dati a parte, nella collezione infermieri26_desiderate: un documento per persona
+    // e per anno ("prova_2027_ROSSI"), con days = { "MM-GG": "F" | "P" }. I turni veri
+    // non si toccano mai. Regola: in un periodo di ferie di fila, ogni quinto giorno è un
+    // riposo e non scala le ferie (si calcola al volo, non si salva).
+    const DES_COLL = 'infermieri26_desiderate';
+    const DES_KINDS = {
+        F: { label:'Ferie', cls:'spec-cong', bg:'var(--bg-cong)', fg:'var(--t-cong)', icon:'beach_access' },
+        P: { label:'Permesso', cls:'spec-perm', bg:'var(--bg-perm)', fg:'var(--t-perm)', icon:'event_available' },
+        X: { label:'Cancella', cls:'', bg:'#e2e8f0', fg:'#334155', icon:'ink_eraser' },
+        N: { label:'Nota', cls:'', bg:'#7c3aed', fg:'#fff', icon:'edit_note' }
+    };
+    let desNotes = {}, desNoteKey = null, desNoteRO = false, desPaint = null, desNoClickUntil = 0;
+    function desNotesOf(d) { return (d && desNotes[desDKey(d)]) || {}; }
+    let desYear = null, desData = {}, desUnsub = null, desTool = 'F', desRangeKind = 'F', desYgWho = null;
+    let desMode = (() => { try { const m = localStorage.getItem('infermieri_des_mode'); return m === 'anno' || m === 'tutti' ? m : 'cols'; } catch(e) { return 'cols'; } })();
+    const DES_MODES = { cols:['view_column', 'Colonne', 'Caselle grandi come il calendario turni'], tutti:['view_comfy', 'Tutti', 'Tutti gli infermieri in una schermata'], anno:['calendar_view_month', 'Anno intero', 'I 12 mesi di una persona'] };
+    let desSaveTimer = null, desSaveState = 'ok', desDirty = false, desIdOk = false, desPendingOpen = false, desToastT = null;
+    function desDefaultYear() { const t = new Date(); return t.getMonth() >= 8 ? t.getFullYear() + 1 : t.getFullYear(); }
+    function desYearsAllowed() { const y = new Date().getFullYear(); return [y, y + 1]; }
+    function desKeyName(n) { return String(n || '').toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'X'; }
+    function desDocId(name, y) { return DATA_NS + y + '_' + desKeyName(name); }
+    function desMe() { return prefMe(); }
+    function desMyName() { return userIdentity && userIdentity !== 'Ospite' ? userIdentity : null; }
+    function desDKey(d) { return desKeyName(d.originalName || d.name); }
+    function desDaysOf(d) { return (d && desData[desDKey(d)]) || {}; }
+    function desDriverOf(name) { const u = String(name || '').toUpperCase(); return drivers.find(d => d.name.toUpperCase() === u || String(d.originalName || '').toUpperCase() === u) || null; }
+    function desLocalKey(y) { return 'infermieri_desiderate_' + DATA_NS + y; }
+    function desToast(msg) {
+        const t = document.getElementById('des-toast'); if(!t) return;
+        t.textContent = msg; t.classList.add('show');
+        clearTimeout(desToastT); desToastT = setTimeout(() => t.classList.remove('show'), 2400);
+    }
+    // giorni dell'anno in ordine, con chiave "MM-GG"
+    function desYearDays(y) {
+        const out = [], d = new Date(y, 0, 1);
+        while(d.getFullYear() === y) { out.push({ date: new Date(d), key: String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') }); d.setDate(d.getDate() + 1); }
+        return out;
+    }
+    // Ferie di fila: ogni 5° giorno di ferie diventa riposo. Un giorno vuoto chiude il periodo;
+    // un permesso scelto a mano non chiude il periodo e non si conta fra le ferie.
+    function desResolve(days, y) {
+        const out = {}; let run = 0;
+        desYearDays(y).forEach(({ key }) => {
+            const v = days[key];
+            if(v === 'F') { run++; out[key] = run % 5 === 0 ? { t:'R', auto:true, n:run } : { t:'F' }; }
+            else if(v === 'P') out[key] = { t:'P' };
+            else run = 0;
+        });
+        return out;
+    }
+    function desCount(days, y) {
+        const r = desResolve(days, y); let f = 0, p = 0, auto = 0;
+        Object.values(r).forEach(x => { if(x.t === 'F') f++; else if(x.t === 'R') auto++; else p++; });
+        return { f, p, auto };
+    }
+    function desCellHtml(info, mine, note) {
+        const h = desCellHtml0(info, mine);
+        return note ? h.replace('<div class="cell', '<div title="' + esc(note) + '" class="cell').replace(/<\/div>$/, '<span class="des-dot"></span></div>') : h;
+    }
+    function desCellHtml0(info, mine) {
+        if(!info) return mine ? '<div class="cell empty des-mine">+</div>' : '<div class="cell empty">-</div>';
+        const box = t => `<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">${t}</div>`;
+        if(info.t === 'F') return `<div class="cell spec-cong">${box('FERIE')}</div>`;
+        if(info.t === 'R') return `<div class="cell t-R" title="Quinto giorno di ferie di fila: è un riposo, non scala le ferie">${box(`RIPOSO<span class="des-auto">${info.n}° giorno ferie</span>`)}</div>`;
+        return `<div class="cell spec-perm">${box('PERMESSO')}</div>`;
+    }
+    function desCols() {
+        const me = desMe();
+        const list = drivers.filter(d => !d.hidden);
+        return me && list.includes(me) ? [me].concat(list.filter(d => d !== me)) : list;
+    }
+
+    function openDesiderate() {
+        closeMenu(); vibrate();
+        if(!desYear || !desYearsAllowed().includes(desYear)) desYear = desDefaultYear();
+        const v = document.getElementById('des-view');
+        v.classList.add('open'); document.body.classList.add('des-open');
+        desTool = desTool || 'F';
+        desRenderAll(true);
+        desListen();
+        setCurrentView('Ferie desiderate');
+        if(!desMe()) {
+            // non si sa ancora chi è: si chiede, poi si scrive solo nella sua colonna
+            desPendingOpen = true;
+            setTimeout(() => { desToast('Scegli chi sei: scriverai solo nella tua colonna'); openIdentityModal(); }, 250);
+        }
+    }
+    function closeDesiderate() {
+        const v = document.getElementById('des-view'); if(!v) return;
+        if(desDirty) desSaveNow();
+        v.classList.remove('open'); document.body.classList.remove('des-open');
+        document.getElementById('des-wheel').classList.add('collapsed');
+        if(desUnsub) { try { desUnsub(); } catch(e) {} desUnsub = null; }
+        desPendingOpen = false;
+    }
+    // dopo "Chi sei?" scelto mentre il calendario delle desiderate è aperto
+    function desAfterIdentity() {
+        desPendingOpen = false; desIdOk = false;
+        const v = document.getElementById('des-view');
+        if(v && v.classList.contains('open')) { desRenderAll(false); if(desMe()) desToast('Ora scrivi nella colonna di ' + desMe().name); }
+    }
+    function desChangeYear(dir) {
+        const ys = desYearsAllowed(), ny = desYear + dir;
+        if(!ys.includes(ny)) return;
+        if(desDirty) desSaveNow();
+        desYear = ny; desData = {}; desNotes = {}; vibrate();
+        desRenderAll(true); desListen();
+    }
+    function desListen() {
+        if(desUnsub) { try { desUnsub(); } catch(e) {} desUnsub = null; }
+        const y = desYear;
+        // copia sul telefono: si vede subito, anche senza rete
+        try { const loc = JSON.parse(localStorage.getItem(desLocalKey(y)) || 'null'); const ld = loc && loc.days && desDriverOf(loc.name); if(ld) { desData[desDKey(ld)] = loc.days; desNotes[desDKey(ld)] = loc.notes || {}; if(loc.unsaved) desDirty = true; desRefreshCols(); } } catch(e) {}
+        if(!fbReady) { desSaveState = 'offline'; desRenderSum(); return; }
+        desUnsub = db.collection(DES_COLL).where('year', '==', y).onSnapshot(snap => {
+            if(y !== desYear) return;
+            const me = desMe(), myKey = me ? desDKey(me) : null;
+            const seen = {};
+            snap.forEach(doc => {
+                const x = doc.data(); if(!x || x.ns !== DATA_NS || !x.name) return;
+                const dd = desDriverOf(x.name); if(!dd) return;
+                const k = desDKey(dd); seen[k] = true;
+                if(k === myKey && (desDirty || doc.metadata.hasPendingWrites)) return;   // le mie modifiche non ancora salvate restano
+                desData[k] = x.days || {}; desNotes[k] = x.notes || {};
+            });
+            Object.keys(desData).forEach(k => { if(!seen[k] && k !== myKey) delete desData[k]; });
+            Object.keys(desNotes).forEach(k => { if(!seen[k] && k !== myKey) delete desNotes[k]; });
+            desRefreshCols();
+        }, err => { console.warn('Desiderate non lette:', err); desSaveState = 'err'; desRenderSum(); });
+    }
+    function desRenderAll(scroll) {
+        const y = desYear, ys = desYearsAllowed();
+        document.getElementById('des-y-lbl').textContent = y;
+        document.getElementById('des-y-prev').disabled = !ys.includes(y - 1);
+        document.getElementById('des-y-next').disabled = !ys.includes(y + 1);
+        const me = desMe(), cols = desCols();
+        document.getElementById('des-sub').innerHTML = me ? `Tu: <b>${esc(me.name)}</b> · <button onclick="requestChangeIdentityDirect()">cambia</button>` : '<button onclick="requestChangeIdentityDirect()">Scegli chi sei</button> per scrivere le tue';
+        document.getElementById('des-range-btn').style.display = me ? '' : 'none';
+        // intestazione
+        const head = document.getElementById('des-head');
+        head.innerHTML = '<th>DATA</th>' + cols.map(d => `<th data-col="${d.idx}"${d === me ? ' class="me-col"' : ''}>${esc(d.name)}${d === me ? '<span class="des-th-tag">TU</span>' : ''}</th>`).join('');
+        // giorni
+        const H = holidaysFor(y), today = new Date(); let html = '', lastM = -1, row = 0;
+        const res = new Map(cols.map(d => [d.idx, desResolve(desDaysOf(d), y)]));
+        desYearDays(y).forEach(({ date, key }) => {
+            const m = date.getMonth(), dn = date.getDate(), wd = date.getDay();
+            if(m !== lastM) {
+                lastM = m;
+                html += `<tr class="month-header" id="des-m-${m}"><td colspan="${cols.length + 1}"><div class="sticky-month-text"><span class="month-label">${Object.keys(MONTH_MAP)[m]}${y !== SHIFT_YEAR ? ' ' + y : ''}</span></div></td></tr>`;
+            }
+            row++;
+            const hol = H[m + '-' + dn], red = wd === 0 || wd === 6 || hol;
+            const isToday = date.getFullYear() === today.getFullYear() && m === today.getMonth() && dn === today.getDate();
+            html += `<tr data-row="${row}" data-key="${key}"${isToday ? ' class="today" id="des-today"' : ''}><td class="td-date${red ? ' date-red' : ''}">${dn}<small>${RT_WEEKDAY_FMT.format(date).toUpperCase()}</small>${hol ? `<div class="holiday-name">${hol}</div>` : ''}</td>`;
+            cols.forEach(d => {
+                const mine = d === me;
+                html += `<td data-col="${d.idx}"${mine ? ` class="me-col" onclick="desCellTap('${key}')"` : ` onclick="desOtherTap('${key}',${d.idx})"`}>${desCellHtml(res.get(d.idx)[key], mine, desNotesOf(d)[key])}</td>`;
+            });
+            html += '</tr>';
+        });
+        document.getElementById('des-body').innerHTML = desMode === 'cols' ? html : '';   // nelle altre viste non serve disegnarlo
+        desRenderSum(); desRenderWheel(); desApplyMode();
+        if(scroll) {
+            const sc = document.getElementById('des-scroll');
+            requestAnimationFrame(() => {
+                const t = document.getElementById('des-today');
+                if(t) { const th = document.querySelector('#des-table thead th'); sc.scrollTop = Math.max(0, t.offsetTop - (th ? th.offsetHeight : 40) - 46); }
+                else sc.scrollTop = 0;
+            });
+        }
+    }
+    // aggiorna solo le caselle cambiate (le colonne di chi ha modificato)
+    function desRefreshCols(onlyIdx, flashKeys) {
+        const v = document.getElementById('des-view'); if(!v || !v.classList.contains('open')) return;
+        const y = desYear, me = desMe();
+        desCols().forEach(d => {
+            if(onlyIdx != null && d.idx !== onlyIdx) return;
+            const res = desResolve(desDaysOf(d), y), mine = d === me, notes = desNotesOf(d);
+            document.querySelectorAll(`#des-body td[data-col="${d.idx}"]`).forEach(td => {
+                const key = td.parentNode.dataset.key, html = desCellHtml(res[key], mine, notes[key]);
+                if(td._h !== html) { td.innerHTML = html; td._h = html; if(flashKeys && flashKeys.has(key)) { td.classList.remove('des-flash'); void td.offsetWidth; td.classList.add('des-flash'); } }
+            });
+        });
+        desRenderSum();
+        if(desMode === 'anno') desRenderYearGrid();
+        if(desMode === 'tutti') desFillCompact();
+    }
+    // ── vista "Anno intero": i 12 mesi a griglia in una pagina ──
+    function desApplyMode() {
+        const v = document.getElementById('des-view');
+        v.classList.toggle('des-anno', desMode === 'anno'); v.classList.toggle('des-tutti', desMode === 'tutti');
+        const M = DES_MODES[desMode];
+        document.getElementById('des-mode-btn').innerHTML = `<span class="material-icons-round">${M[0]}</span><span class="l-long">${M[1]}</span>`;
+        if(desMode === 'anno') desRenderYearGrid();
+        if(desMode === 'tutti') desRenderAllCompact();
+    }
+    function desToggleMode() {
+        vibrate();
+        const m = document.getElementById('des-mode-menu');
+        if(m.classList.contains('open')) { m.classList.remove('open'); return; }
+        m.innerHTML = Object.entries(DES_MODES).map(([k, M]) => `<button class="${k === desMode ? 'on' : ''}" onclick="desSetMode('${k}')"><span class="material-icons-round">${M[0]}</span><span><b>${M[1]}</b><small>${M[2]}</small></span></button>`).join('');
+        const r = document.getElementById('des-mode-btn').getBoundingClientRect();
+        m.style.top = (r.bottom + 6) + 'px'; m.style.left = Math.max(8, Math.min(window.innerWidth - 238, r.right - 230)) + 'px';
+        m.classList.add('open');
+        setTimeout(() => document.addEventListener('click', () => m.classList.remove('open'), { once:true }), 0);
+    }
+    function desSetMode(k) {
+        document.getElementById('des-mode-menu').classList.remove('open');
+        if(!DES_MODES[k]) return;
+        vibrate(); desMode = k;
+        try { localStorage.setItem('infermieri_des_mode', desMode); } catch(e) {}
+        desApplyMode();
+        const sc = document.getElementById('des-scroll');
+        if(desMode === 'anno') { const t = document.querySelector('#des-yg .yg-m.cur'); sc.scrollTop = t ? Math.max(0, t.offsetTop - 12) : 0; }
+        else if(desMode === 'tutti') { const t = document.getElementById('da-today'); sc.scrollTop = t ? Math.max(0, t.offsetTop - 92 - 30) : 0; }
+        else desRenderAll(true);
+    }
+    // ── vista "Tutti": tutte le colonne strette in una schermata, con gli assenti del giorno ──
+    function desRenderAllCompact() {
+        const tb = document.getElementById('des-all'); if(!tb) return;
+        const y = desYear, me = desMe(), cols = desCols(), H = holidaysFor(y), today = new Date(), MN = Object.keys(MONTH_MAP);
+        let html = `<colgroup><col class="c-date">${cols.map(() => '<col class="c-op">').join('')}<col class="c-ass"></colgroup>`;
+        html += `<thead><tr><th class="h-date">Data</th>${cols.map(d => `<th class="${d === me ? 'me' : ''}" title="${esc(d.name)}"><span class="vn">${esc(d.name)}${d === me ? ' · TU' : ''}</span></th>`).join('')}<th class="h-ass" title="Quanti sono assenti quel giorno">Ass.</th></tr></thead><tbody>`;
+        let lastM = -1;
+        desYearDays(y).forEach(({ date, key }) => {
+            const m = date.getMonth(), dn = date.getDate(), wd = date.getDay();
+            if(m !== lastM) { lastM = m; html += `<tr class="da-m"><td colspan="${cols.length + 2}">${MN[m]} ${y}</td></tr>`; }
+            const we = wd === 0 || wd === 6 || H[m + '-' + dn], isT = y === today.getFullYear() && m === today.getMonth() && dn === today.getDate();
+            html += `<tr data-key="${key}" class="${[we ? 'we' : '', isT ? 'today' : ''].filter(Boolean).join(' ')}"${isT ? ' id="da-today"' : ''}><td class="d">${dn}<small>${RT_WEEKDAY_FMT.format(date).slice(0, 2).toUpperCase()}</small></td>`;
+            cols.forEach(d => { const mine = d === me; html += `<td class="c${mine ? ' me' : ''}" data-col="${d.idx}" onclick="${mine ? `desCellTap('${key}')` : `desOtherTap('${key}',${d.idx})`}"></td>`; });
+            html += '<td class="a"></td></tr>';
+        });
+        tb.innerHTML = html + '</tbody>';
+        desFillCompact();
+    }
+    function desFillCompact() {
+        const tb = document.getElementById('des-all'); if(!tb || !tb.rows.length) return;
+        const y = desYear, cols = desCols(), R = new Map(cols.map(d => [d.idx, desResolve(desDaysOf(d), y)])), N = new Map(cols.map(d => [d.idx, desNotesOf(d)]));
+        tb.querySelectorAll('tbody tr[data-key]').forEach(tr => {
+            const key = tr.dataset.key; let ass = 0;
+            for(const td of tr.children) {
+                if(td.classList.contains('c')) {
+                    const idx = +td.dataset.col, r = R.get(idx)[key], nt = N.get(idx)[key];
+                    if(r) ass++;
+                    const cls = 'c' + (td.classList.contains('me') ? ' me' : '') + (r ? ' ' + r.t : '') + (nt ? ' nt' : '');
+                    if(td.className !== cls) { td.className = cls; td.textContent = r ? r.t : ''; td.title = nt || ''; }
+                } else if(td.classList.contains('a')) {
+                    const cls = 'a' + (ass >= 4 ? ' a3' : ass >= 3 ? ' a2' : ass ? ' a1' : '');
+                    if(td.className !== cls) td.className = cls;
+                    const tx = ass ? String(ass) : ''; if(td.textContent !== tx) td.textContent = tx;
+                }
+            }
+        });
+    }
+    function desRenderYearGrid() {
+        const box = document.getElementById('des-yg'); if(!box) return;
+        const y = desYear, me = desMe(), H = holidaysFor(y), today = new Date();
+        const cols = desCols();
+        if(!desYgWho || !cols.some(d => d.idx === desYgWho)) desYgWho = me ? me.idx : (cols[0] ? cols[0].idx : null);
+        const who = cols.find(d => d.idx === desYgWho), mine = !!me && who === me;
+        const res = who ? desResolve(desDaysOf(who), y) : {}, notes = who ? desNotesOf(who) : {};
+        const c = who ? desCount(desDaysOf(who), y) : { f:0, p:0, auto:0 };
+        const MN = Object.keys(MONTH_MAP), WD = ['L', 'M', 'M', 'G', 'V', 'S', 'D'];
+        let html = `<div class="yg-who">Calendario di <select onchange="desYgWho = +this.value; desRenderYearGrid()">${cols.map(d => `<option value="${d.idx}"${d === who ? ' selected' : ''}>${esc(d.name)}${d === me ? ' (tu)' : ''}</option>`).join('')}</select>${mine ? '' : '<span>solo da vedere</span>'}</div>`;
+        html += `<div class="yg-legend"><span><i style="background:var(--bg-cong)"></i>Ferie ${c.f}</span><span><i style="background:var(--bg-perm)"></i>Permessi ${c.p}</span><span><i style="background:var(--c-R)"></i>Riposo al 5° giorno ${c.auto}</span>${mine ? '<span>Tocca un giorno: usa lo strumento della ruota</span>' : ''}</div>`;
+        for(let m = 0; m < 12; m++) {
+            const first = new Date(y, m, 1), n = new Date(y, m + 1, 0).getDate(), lead = (first.getDay() + 6) % 7;
+            let cells = WD.map((w, i) => `<div class="yg-wd${i > 4 ? ' r' : ''}">${w}</div>`).join('');
+            for(let i = 0; i < lead; i++) cells += '<div></div>';
+            let mf = 0, mp = 0;
+            for(let d = 1; d <= n; d++) {
+                const dt = new Date(y, m, d), key = String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0'), r = res[key];
+                const hol = H[m + '-' + d], wd = dt.getDay();
+                const isToday = y === today.getFullYear() && m === today.getMonth() && d === today.getDate();
+                if(r) { if(r.t === 'F') mf++; else if(r.t === 'P') mp++; }
+                const cls = ['yg-d', r ? r.t : '', (wd === 0 || wd === 6 || hol) && !r ? 'red' : '', hol ? 'hol' : '', isToday ? 'today' : '', mine ? '' : 'ro'].filter(Boolean).join(' ');
+                const tip = (hol ? hol + ' · ' : '') + (r ? (r.t === 'F' ? 'Ferie' : r.t === 'P' ? 'Permesso' : 'Riposo (' + r.n + '° giorno di ferie)') : '');
+                const nt = notes[key];
+                cells += `<button class="${cls}"${tip || nt ? ` title="${esc([tip, nt].filter(Boolean).join(' · '))}"` : ''}${mine ? ` data-key="${key}"` : ''} onclick="${mine ? `desCellTap('${key}')` : `desOtherTap('${key}',${who.idx})`}">${d}${r ? `<small>${r.t === 'F' ? 'FER' : r.t === 'P' ? 'PERM' : 'RIP'}</small>` : ''}${nt ? '<span class="des-dot"></span>' : ''}</button>`;
+            }
+            const sub = [mf ? mf + ' ferie' : '', mp ? mp + ' perm.' : ''].filter(Boolean).join(' · ');
+            html += `<div class="yg-m${y === today.getFullYear() && m === today.getMonth() ? ' cur' : ''}"><h4>${MN[m]}<small>${sub}</small></h4><div class="yg-g">${cells}</div></div>`;
+        }
+        box.innerHTML = html;
+    }
+    function desRenderSum() {
+        const el = document.getElementById('des-sum'); if(!el) return;
+        const me = desMe();
+        if(!me) { el.innerHTML = `<span>Per scrivere le tue ferie desiderate scegli chi sei.</span><span class="des-who"><button onclick="requestChangeIdentityDirect()">Scegli chi sei</button></span>`; return; }
+        const c = desCount(desDaysOf(me), desYear), al = desAllow(me);
+        const save = { ok:['cloud_done', 'Salvato'], saving:['sync', 'Salvo…'], err:['cloud_off', 'Non salvato'], offline:['cloud_off', 'Solo su questo telefono'] }[desSaveState] || ['cloud_done', 'Salvato'];
+        el.innerHTML = `<span class="des-pill${c.f > al.co ? ' over' : ''}"><i style="background:var(--bg-cong)"></i>Ferie <b>${c.f}</b>/${al.co}</span>`
+            + `<span class="des-pill${c.p > al.sp ? ' over' : ''}"><i style="background:var(--bg-perm)"></i>Permessi <b>${c.p}</b>/${al.sp}</span>`
+            + (c.auto ? `<span class="des-pill"><i style="background:var(--c-R)"></i>Riposi al 5° giorno <b>${c.auto}</b></span>` : '')
+            + `<span class="des-save${desSaveState === 'err' || desSaveState === 'offline' ? ' err' : ''}" title="${save[1]}"><span class="material-icons-round">${save[0]}</span><span class="des-save-t">${save[1]}</span></span>`;
+    }
+
+    // ── modifica: tocco sulle caselle o periodo "dal… al…" ──
+    function desAllow(d) { return typeof absAllowFor === 'function' ? absAllowFor(d) : { co:31, sp:6 }; }
+    function desSetDays(changes) {
+        const me = desMe(), name = desMyName(); if(!me || !name) return 0;
+        const k = desDKey(me), days = Object.assign({}, desData[k] || {});
+        // blocco: non si va oltre le spettanze dell'operatore (ferie = C.O., permessi straordinari)
+        const al = desAllow(me); let n = 0, blocked = 0;
+        changes.forEach(([key, val]) => {
+            if(val && days[key] !== val) {
+                const was = days[key], before = desCount(days, desYear); days[key] = val;
+                const c = desCount(days, desYear);
+                if((c.f > al.co && c.f > before.f) || (c.p > al.sp && c.p > before.p)) { if(was) days[key] = was; else delete days[key]; blocked++; return; }
+                n++;
+            } else if(!val && days[key]) { delete days[key]; n++; }
+        });
+        if(blocked) { desToast(`Limite raggiunto: hai ${al.co} giorni di ferie e ${al.sp} permessi${blocked > 1 ? ` (${blocked} giorni non inseriti)` : ''}`); if(navigator.vibrate) try { navigator.vibrate([30, 40, 30]); } catch(e) {} }
+        if(!n) return 0;
+        desData[k] = days; desDirty = true;
+        desMarkDirty();
+        desRefreshCols(me.idx, new Set(changes.map(c => c[0])));
+        return n;
+    }
+    function desMarkDirty() {
+        const me = desMe(), name = desMyName(); if(!me) return;
+        desDirty = true;
+        try { localStorage.setItem(desLocalKey(desYear), JSON.stringify({ name, days: desData[desDKey(me)] || {}, notes: desNotes[desDKey(me)] || {}, unsaved:true })); } catch(e) {}
+        clearTimeout(desSaveTimer); desSaveTimer = setTimeout(desSaveNow, 700);
+        desSaveState = 'saving'; desRenderSum();
+    }
+    // ── note sui giorni ──
+    function desKeyLabel(key) { const [m, d] = key.split('-').map(Number); return new Date(desYear, m - 1, d).toLocaleDateString('it-IT', { weekday:'long', day:'numeric', month:'long', year:'numeric' }); }
+    function desOpenNote(key, ro, who) {
+        vibrate();
+        const d = who || desMe(); if(!d) return;
+        desNoteKey = key; desNoteRO = !!ro;
+        const t = document.getElementById('dn-text');
+        t.value = desNotesOf(d)[key] || ''; t.readOnly = desNoteRO;
+        document.getElementById('dn-title').textContent = ro ? 'NOTA DI ' + d.name : 'NOTA';
+        document.getElementById('dn-sub').textContent = desKeyLabel(key);
+        document.getElementById('dn-foot').style.display = ro ? 'none' : '';
+        document.getElementById('dn-hint').style.display = ro ? 'none' : '';
+        document.getElementById('des-wheel').classList.add('collapsed');
+        const m = document.getElementById('des-note'); m.style.display = 'flex'; setTimeout(() => { m.classList.add('open'); if(!ro) t.focus(); }, 10);
+    }
+    function desCloseNote(e) {
+        if(e && e.target !== e.currentTarget) return;
+        const m = document.getElementById('des-note'); m.classList.remove('open'); setTimeout(() => m.style.display = 'none', 300);
+    }
+    function desSaveNote(del) {
+        const me = desMe(); if(!me || !desNoteKey || desNoteRO) return;
+        const k = desDKey(me), notes = Object.assign({}, desNotes[k] || {}), txt = del ? '' : document.getElementById('dn-text').value.trim().slice(0, 300);
+        if(txt) notes[desNoteKey] = txt; else delete notes[desNoteKey];
+        desNotes[k] = notes; desMarkDirty();
+        desRefreshCols(me.idx, new Set([desNoteKey]));
+        desCloseNote(); desToast(txt ? 'Nota salvata' : 'Nota eliminata');
+    }
+    // ── trascinamento: col dito (tieni premuto un attimo, poi scorri) o col mouse ──
+    function desKeyAtPoint(x, y) {
+        const el = document.elementFromPoint(x, y); if(!el) return null;
+        const td = el.closest('#des-table td.me-col, #des-all td.c.me'); if(td) return td.parentNode.dataset.key;
+        const b = el.closest('#des-yg .yg-d[data-key]'); return b ? b.dataset.key : null;
+    }
+    function desPaintStart(key) {
+        const me = desMe(); if(!me || !key || desTool === 'N') return false;
+        const cur = desDaysOf(me)[key];
+        desPaint = { val: desTool === 'X' || cur === desTool ? null : desTool, last: key, n: 0 };
+        document.body.classList.add('des-painting');
+        document.getElementById('des-wheel').classList.add('collapsed');
+        vibrate(); desPaintTo(key, true);
+        return true;
+    }
+    function desPaintTo(key, first) {
+        if(!desPaint || !key || (!first && key === desPaint.last)) return;
+        const all = desYearDays(desYear).map(x => x.key), a = all.indexOf(desPaint.last), b = all.indexOf(key);
+        if(a < 0 || b < 0) return;
+        const keys = first ? [key] : all.slice(Math.min(a, b), Math.max(a, b) + 1);
+        desPaint.n += desSetDays(keys.map(k => [k, desPaint.val]));
+        desPaint.last = key;
+    }
+    function desPaintEnd() {
+        if(!desPaint) return;
+        document.body.classList.remove('des-painting');
+        desNoClickUntil = Date.now() + 450; desPaint = null;
+    }
+    (function desPaintSetup() {
+        const sc = document.getElementById('des-scroll'); if(!sc) return;
+        let hold = null, sx = 0, sy = 0, tgt = null;
+        // il dito resta legato all'elemento toccato anche se la casella viene ridisegnata (e quindi tolta
+        // dalla pagina): per questo i movimenti si ascoltano proprio su quell'elemento
+        const move = e => {
+            const t = e.touches[0]; if(!t) return;
+            if(desPaint) { e.preventDefault(); desPaintTo(desKeyAtPoint(t.clientX, t.clientY)); return; }
+            if(hold && (Math.abs(t.clientX - sx) > 8 || Math.abs(t.clientY - sy) > 8)) { clearTimeout(hold); hold = null; }
+        };
+        const stop = () => {
+            clearTimeout(hold); hold = null; desPaintEnd();
+            if(tgt) { tgt.removeEventListener('touchmove', move); tgt.removeEventListener('touchend', stop); tgt.removeEventListener('touchcancel', stop); tgt = null; }
+        };
+        sc.addEventListener('touchstart', e => {
+            if(e.touches.length !== 1) { stop(); return; }
+            const t = e.touches[0], key = desKeyAtPoint(t.clientX, t.clientY); if(!key || desTool === 'N') return;
+            stop(); sx = t.clientX; sy = t.clientY; tgt = e.target;
+            tgt.addEventListener('touchmove', move, { passive:false }); tgt.addEventListener('touchend', stop); tgt.addEventListener('touchcancel', stop);
+            hold = setTimeout(() => { hold = null; desPaintStart(key); }, 280);
+        }, { passive:true });
+        sc.addEventListener('contextmenu', e => { if(desPaint || desKeyAtPoint(e.clientX, e.clientY)) e.preventDefault(); });
+        // mouse: si preme e si trascina
+        sc.addEventListener('mousedown', e => { if(e.button !== 0) return; const key = desKeyAtPoint(e.clientX, e.clientY); if(key && desPaintStart(key)) { desPaint.mouse = true; desNoClickUntil = 0; e.preventDefault(); } });
+        window.addEventListener('mousemove', e => { if(desPaint && desPaint.mouse) desPaintTo(desKeyAtPoint(e.clientX, e.clientY)); });
+        window.addEventListener('mouseup', () => { if(desPaint && desPaint.mouse) { const moved = desPaint.n > 1; desPaintEnd(); if(!moved) desNoClickUntil = Date.now() + 450; } });
+    })();
+    function desCellTap(key) {
+        const me = desMe(); if(!me) return;
+        if(Date.now() < desNoClickUntil) return;   // fine di un trascinamento
+        if(desTool === 'N') { desOpenNote(key, false); return; }
+        const cur = desDaysOf(me)[key];
+        vibrate();
+        if(desTool === 'X') desSetDays([[key, null]]);
+        else desSetDays([[key, cur === desTool ? null : desTool]]);
+        document.getElementById('des-wheel').classList.add('collapsed');
+    }
+    function desOtherTap(key, idx) {
+        const d = drivers.find(x => x.idx === idx), nt = key && d ? desNotesOf(d)[key] : null;
+        if(nt) { desOpenNote(key, true, d); return; }
+        desToast(desMe() ? 'Puoi scrivere solo nella tua colonna' : 'Scegli chi sei per scrivere nella tua colonna');
+    }
+    async function desSaveNow() {
+        clearTimeout(desSaveTimer); desSaveTimer = null;
+        const me = desMe(), name = desMyName(); if(!me || !name || !desDirty) return;
+        const y = desYear, days = Object.assign({}, desData[desDKey(me)] || {}), notes = Object.assign({}, desNotes[desDKey(me)] || {});
+        if(!fbReady) { desSaveState = 'offline'; desRenderSum(); return; }
+        desDirty = false; desSaveState = 'saving'; desRenderSum();
+        try {
+            // le regole controllano che il nome sia quello scelto in "Chi sei?" da questo telefono
+            if(!desIdOk) { await db.collection('infermieri26_identities').doc(fbAuth.currentUser.uid).set({ name, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true }); desIdOk = true; }
+            const payload = { ns: DATA_NS, year: y, name, days, byUid: fbAuth.currentUser.uid, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+            if(Object.keys(notes).length) payload.notes = notes;
+            await db.collection(DES_COLL).doc(desDocId(name, y)).set(payload);
+            try { localStorage.setItem(desLocalKey(y), JSON.stringify({ name, days, notes })); } catch(e) {}
+            if(!desDirty) desSaveState = 'ok';
+        } catch(e) {
+            console.warn('Desiderate non salvate:', e);
+            desDirty = true; desSaveState = 'err';
+            desToast('Non salvato: riprovo alla prossima modifica');
+        }
+        desRenderSum();
+    }
+
+    // ── ruota degli strumenti ──
+    function desRenderWheel() {
+        const w = document.getElementById('des-wheel'); if(!w) return;
+        w.classList.toggle('readonly', !desMe());
+        const S = 250, c = S / 2, r0 = 46, r1 = 118;
+        const items = [['F', 0], ['P', 72], ['X', 144], ['N', 216], ['R', 288]];
+        let paths = '', lbls = '';
+        items.forEach(([id, a]) => {
+            const a0 = a - 36 + 1.5, a1 = a + 36 - 1.5;
+            const k = id === 'R' ? { label:'Dal… al…', bg:'#1d4ed8', fg:'#fff', icon:'date_range' } : DES_KINDS[id];
+            paths += `<path class="dw-seg${desTool === id ? ' sel' : ''}" d="${annularSector(c, c, r0, r1, a0, a1)}" style="fill:${k.bg}" onclick="desPickTool('${id}')"><title>${esc(k.label)}</title></path>`;
+            const [x, y] = polar(c, c, (r0 + r1) / 2, a);
+            lbls += `<div class="dw-lbl" style="left:${x}px;top:${y}px;color:${k.fg}"><span class="material-icons-round">${k.icon}</span>${esc(k.label)}</div>`;
+        });
+        document.getElementById('dw-ring').innerHTML = `<svg viewBox="0 0 ${S} ${S}">${paths}</svg>${lbls}`;
+        const k = DES_KINDS[desTool];
+        document.getElementById('dw-hub').innerHTML = `<span class="dw-hub-sw" style="background:${k.bg};color:${k.fg}">${desTool === 'X' || desTool === 'N' ? `<span class="material-icons-round">${k.icon}</span>` : (desTool === 'F' ? 'FERIE' : 'PERM.')}</span><small>${w.classList.contains('collapsed') ? 'strumenti' : 'chiudi'}</small>`;
+        document.getElementById('dw-caption').innerHTML = desTool === 'N' ? 'Tocca un tuo giorno per <b>scrivere una nota</b>' : (desTool === 'X' ? 'Tocca una tua casella per <b>cancellarla</b>' : `Tocca una tua casella per mettere <b>${esc(k.label.toLowerCase())}</b>; ritocca per togliere`) + '<br><small>Tieni premuto e trascina per più giorni</small>';
+    }
+    function desToggleWheel() { vibrate(); const w = document.getElementById('des-wheel'); w.classList.toggle('collapsed'); desRenderWheel(); }
+    function desPickTool(id) {
+        vibrate();
+        document.getElementById('des-wheel').classList.add('collapsed');
+        if(id === 'R') { desRenderWheel(); desOpenRange(); return; }
+        desTool = id; desRenderWheel();
+        desToast(id === 'X' ? 'Strumento: cancella' : id === 'N' ? 'Strumento: nota. Tocca un tuo giorno' : 'Strumento: ' + DES_KINDS[id].label.toLowerCase());
+    }
+
+    // ── periodo dal… al… ──
+    function desOpenRange() {
+        if(!desMe()) { desOtherTap(); return; }
+        vibrate();
+        const y = desYear, f = document.getElementById('dr-from'), t = document.getElementById('dr-to');
+        f.min = t.min = y + '-01-01'; f.max = t.max = y + '-12-31';
+        if(!f.value || +f.value.slice(0, 4) !== y) { f.value = ''; t.value = ''; }
+        desRangeKind = desTool === 'X' ? 'X' : (desTool || 'F');
+        desRangePreview();
+        const m = document.getElementById('des-range'); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 10);
+    }
+    function desCloseRange(e) {
+        if(e && e.target !== e.currentTarget) return;
+        const m = document.getElementById('des-range'); m.classList.remove('open'); setTimeout(() => m.style.display = 'none', 300);
+    }
+    function desRangeSel(kind) { desRangeKind = kind; vibrate(); desRangePreview(); }
+    function desRangeKeys() {
+        const f = document.getElementById('dr-from').value, t = document.getElementById('dr-to').value;
+        if(!f || !t) return null;
+        let a = new Date(f + 'T00:00:00'), b = new Date(t + 'T00:00:00'); if(a > b) [a, b] = [b, a];
+        return desYearDays(desYear).filter(x => x.date >= a && x.date <= b);
+    }
+    function desRangePreview() {
+        document.getElementById('dr-kinds').innerHTML = ['F', 'P', 'X'].map(k => `<button class="${desRangeKind === k ? 'on' : ''}" onclick="desRangeSel('${k}')"><i style="background:${DES_KINDS[k].bg}"></i>${DES_KINDS[k].label}</button>`).join('');
+        const list = desRangeKeys(), pv = document.getElementById('dr-preview'), go = document.getElementById('dr-go');
+        if(!list || !list.length) { pv.innerHTML = 'Scegli il primo e l’ultimo giorno del periodo.'; go.disabled = true; return; }
+        go.disabled = false;
+        const fmt = d => d.toLocaleDateString('it-IT', { weekday:'short', day:'numeric', month:'short' });
+        const range = `<b>${list.length} ${list.length === 1 ? 'giorno' : 'giorni'}</b>, ${fmt(list[0].date)} → ${fmt(list[list.length - 1].date)}`;
+        if(desRangeKind === 'X') { pv.innerHTML = range + '<br>Le tue desiderate di questi giorni si cancellano.'; return; }
+        // anteprima con la regola del 5° giorno
+        // simulazione con il blocco delle spettanze
+        const me = desMe(), al = desAllow(me), days = Object.assign({}, desDaysOf(me)); let skip = 0;
+        list.forEach(x => { if(days[x.key] === desRangeKind) return; const was = days[x.key], b = desCount(days, desYear); days[x.key] = desRangeKind; const c = desCount(days, desYear); if((c.f > al.co && c.f > b.f) || (c.p > al.sp && c.p > b.p)) { if(was) days[x.key] = was; else delete days[x.key]; skip++; } });
+        const res = desResolve(days, desYear); let f = 0, p = 0, auto = [];
+        list.forEach(x => { const r = res[x.key]; if(!r) return; if(r.t === 'F') f++; else if(r.t === 'R') auto.push(r.n + '°'); else p++; });
+        pv.innerHTML = range + `<br>Diventano <b>${f} ${f === 1 ? 'giorno' : 'giorni'} di ferie</b>` + (p ? ` e <b>${p} ${p === 1 ? 'permesso' : 'permessi'}</b>` : '') + (auto.length ? ` + <b>${auto.length} ${auto.length === 1 ? 'riposo' : 'riposi'}</b> (il ${auto.join(', ')} giorno di fila è riposo e non scala le ferie)` : '') + '.' + (skip ? `<br><b style="color:#b91c1c">${skip} ${skip === 1 ? 'giorno resta fuori' : 'giorni restano fuori'}: superano le tue spettanze (${al.co} ferie, ${al.sp} permessi).</b>` : '');
+    }
+    function desApplyRange() {
+        const list = desRangeKeys(); if(!list || !list.length) return;
+        const n = desSetDays(list.map(x => [x.key, desRangeKind === 'X' ? null : desRangeKind]));
+        desCloseRange();
+        desToast(n ? (desRangeKind === 'X' ? 'Cancellati ' + n + ' giorni' : 'Inseriti ' + n + ' giorni') : 'Nessun cambiamento');
+        // porta il periodo sullo schermo
+        setTimeout(() => {
+            const tr = document.querySelector(`#des-body tr[data-key="${list[0].key}"]`), sc = document.getElementById('des-scroll');
+            if(tr && sc) { const th = document.querySelector('#des-table thead th'); sc.scrollTo({ top: Math.max(0, tr.offsetTop - (th ? th.offsetHeight : 40) - 46), behavior:'smooth' }); }
+        }, 320);
+    }
+
     function openFerieAdvice(kind) { vibrate(); setCalView('insieme', { advice:true, kind: kind || 'ferie' }); }
     function ovToggleAdvice() { vibrate(); ovAdvice = !ovAdvice; document.body.classList.toggle('ov-adv', ovAdvice); renderOverview(); setTimeout(ovScrollStart, 30); }
     // con i consigli si parte dall'alto (consigli e subito sotto il mese corrente), senza si va a oggi
@@ -10758,10 +11510,7 @@
             <div class="cc-panel"><div class="cc-panel-head"><h3>Storico modifiche</h3><span class="cc-hint">ultimi 7 giorni</span></div><div class="cc-panel-body" id="dat-log"><p class="cc-note">Carico…</p></div></div>
             <div class="cc-panel"><div class="cc-panel-head"><h3>Origine dei turni e anni</h3></div><div class="cc-panel-body">
                 ${ccSourcePanelHtml()}
-                ${dataSourceMode === 'firebase' ? `<div style="margin-top:14px"><div class="cc-inline-form">
-                        ${archivedYears.length ? `<button class="cc-btn" onclick="openYearPicker()"><span class="msym">history</span>Consulta un anno passato</button>` : ''}
-                        <button class="cc-btn danger" ${isViewingArchive() ? 'disabled' : ''} onclick="ccStartNewYear()"><span class="msym">event_upcoming</span>Chiudi il ${activeYear} e apri il ${activeYear + 1}</button>
-                    </div></div>` : ''}
+                ${dataSourceMode === 'firebase' ? `<div style="margin-top:14px"><div class="cc-inline-form">                        ${archivedYears.length ? `<button class="cc-btn" onclick="openYearPicker()"><span class="msym">history</span>Consulta un anno passato</button>` : ''}                        <button class="cc-btn danger" ${isViewingArchive() ? 'disabled' : ''} onclick="ccStartNewYear()"><span class="msym">event_upcoming</span>Chiudi il ${activeYear} e apri il ${activeYear + 1}</button>                    </div></div>` : ''}
             </div></div>`;
         maybeDailySnapshot();
         // copie e storico si caricano dopo, senza bloccare la pagina
@@ -14050,6 +14799,9 @@
         'access-detail-modal': closeAccessDetail,
         'dinner-modal': closeDinnerModal,
         'wheel-modal': closeWheelModal,
+        'des-range': desCloseRange,
+        'des-note': desCloseNote,
+        'des-view': closeDesiderate,
         'driver-filter-dropdown': closeDriverFilterDropdown,
         'menu-dropdown': toggleMenu
     };
