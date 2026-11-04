@@ -5415,6 +5415,7 @@
             { id:'cal', icon:'calendar_month', label:'Calendario', desc:'Oggi, mesi, operatori', color: MN_COLORS.cal, children: [
                 { id:'today', icon:'today', label:'Vai a oggi', desc:'Torna al giorno corrente', color: MN_COLORS.cal, run: () => scrollToToday() },
                 { id:'month', icon:'event', label:'Vai a un mese', desc:'Scegli il mese da vedere', color: MN_COLORS.cal, run: () => toggleMonthDropdown() },
+                (typeof isViewingArchive === 'function' && isViewingArchive()) ? null : { id:'nexty', icon:'fast_forward', label:'Vai al ' + (SHIFT_YEAR + 1), desc:'L’anno dopo è già qui, sotto dicembre: i turni si possono già scrivere', color: MN_COLORS.cal, run: () => goNextYear() },
                 { id:'filter', icon:'groups', label:'Filtra operatori', desc:'Mostra solo alcuni colleghi', color: MN_COLORS.cal, run: () => toggleDriverFilterDropdown() },
                 { id:'print', icon:'print', label:'Stampa del mese', desc:'PDF dei turni per la bacheca', color: MN_COLORS.cal, run: () => printMonthPick() },
                 { id:'desid', icon:'beach_access', label:'Calendario ferie desiderate', desc:'Scrivi le ferie e i permessi che vorresti, nella tua colonna', color:'#16a34a', run: () => openDesiderate() },
@@ -5506,6 +5507,14 @@
         if(dd.classList.contains('open')) { closeMonthDropdown(); return; }
         renderMonthDropdown();
         dd.classList.add('open');
+    }
+    // primo giorno dell'anno dopo, che nel calendario sta già sotto dicembre
+    function goNextYear() {
+        vibrate();
+        const m = globalMonthsList.find(x => shiftRowYear(x.row) === SHIFT_YEAR + 1);
+        if(!m) { ccToast('L’anno dopo non è ancora nel calendario', true); return; }
+        if(calOverview) setCalView('normale');
+        setTimeout(() => { if(liteOn()) liteShowRow(m.row); liteScrollTo(document.getElementById(m.id), 120); }, calOverview ? 120 : 0);
     }
     function closeMonthDropdown() { document.getElementById('month-select-dropdown').classList.remove('open'); }
     function renderMonthDropdown() {
@@ -6463,7 +6472,7 @@
                 let origName = header[i];
                 let key = overrideKey(origName, mName, dNum, shiftRowYear(r));
                 let ov = manualOverrides[key];
-                if(ov) row[i] = Object.assign({}, row[i], { v: ov.v, subV: ov.subV || "", overridden:true, customMinutes: ov.customMinutes, perm: ov.perm });
+                if(ov) row[i] = Object.assign({}, row[i], { v: ov.v, subV: ov.subV || "", overridden:true, customMinutes: ov.customMinutes, perm: ov.perm, coY: ov.coY });
                 row[i] = normalizeWrittenAbsence(row[i]);
             }
         }
@@ -7019,7 +7028,7 @@
         v.classList.remove('open'); document.body.classList.remove('des-open');
         document.getElementById('des-wheel').classList.add('collapsed');
         if(desUnsub) { try { desUnsub(); } catch(e) {} desUnsub = null; }
-        desPendingOpen = false; desAdmin = false; if(desTool === 'B') desTool = 'F';
+        desPendingOpen = false; desAdmin = false; if(desTool === 'B' || desTool === 'I') desTool = 'F';
     }
     // dopo "Chi sei?" scelto mentre il calendario delle desiderate è aperto
     function desAfterIdentity() {
@@ -7317,7 +7326,7 @@
     }
     function desKeyAtPoint(x, y) { const h = desHitAtPoint(x, y); return h ? h.key : null; }
     function desPaintStart(hit) {
-        if(!hit || desTool === 'N') return false;
+        if(!hit || desTool === 'N' || desTool === 'I') return false;
         const d = desDriverByIdx(hit.idx); if(!desCanEdit(d)) return false;
         const key = hit.key;
         if(desTool === 'B') desPaint = { ok: !desOkOf(d)[key], last: key, n: 0, d };
@@ -7356,7 +7365,7 @@
         };
         sc.addEventListener('touchstart', e => {
             if(e.touches.length !== 1) { stop(); return; }
-            const t = e.touches[0], hit = desHitAtPoint(t.clientX, t.clientY); if(!hit || desTool === 'N') return;
+            const t = e.touches[0], hit = desHitAtPoint(t.clientX, t.clientY); if(!hit || desTool === 'N' || desTool === 'I') return;
             stop(); sx = t.clientX; sy = t.clientY; tgt = e.target;
             tgt.addEventListener('touchmove', move, { passive:false }); tgt.addEventListener('touchend', stop); tgt.addEventListener('touchcancel', stop);
             hold = setTimeout(() => { hold = null; desPaintStart(hit); }, 280);
@@ -7372,6 +7381,7 @@
         if(Date.now() < desNoClickUntil) return;   // fine di un trascinamento
         if(!desCanEdit(d)) { desOtherTap(key, d.idx); return; }
         if(desTool === 'N') { desOpenNote(key, false, d); return; }
+        if(desTool === 'I') { if(desAdmin) desImportTap(key, d); return; }
         vibrate();
         if(desTool === 'B') { if(!desToggleOk([key], d) && !desDaysOf(d)[key]) desToast('Si barrano solo i giorni con ferie o permesso'); }
         else if(desTool === 'X') desSetDays([[key, null]], d);
@@ -7434,41 +7444,76 @@
     }
     function desAdminExit() {
         if(desDirty) desSaveNow();
-        desAdmin = false; if(desTool === 'B') desTool = 'F';
+        desAdmin = false; if(desTool === 'B' || desTool === 'I') desTool = 'F';
         desRenderAll(false); desToast('Uscito dall’admin');
     }
 
     // ── importazione nel calendario turni (admin) ──
     // Le ferie e i permessi desiderati non ancora barrati diventano C.O. e permessi nel calendario
     // dell'anno; le caselle che hanno già un'assenza non si toccano; i giorni importati si barrano.
-    function desImportPlan() {
-        const y = desYear, plan = [], skipped = [];
-        drivers.filter(d => !d.hidden).forEach(d => {
+    // L'anno dopo è già nel calendario (sotto dicembre), quindi si può importare anche prima di capodanno.
+    // Le ferie di gennaio-marzo importate così portano coY (l'anno a cui contano): senza, lì un C.O.
+    // varrebbe come ferie dell'anno in corso e a capodanno diventerebbe "ferie residue".
+    function desImportEarly() { return desYear === activeYear + 1; }
+    // only: { d, keys:Set } per importare un solo periodo; senza, tutte le desiderate non barrate
+    function desImportPlan(only) {
+        const y = desYear, plan = [], skipped = [], rest = [], early = desImportEarly();
+        (only ? [only.d] : desCols()).forEach(d => {
             const res = desResolve(desDaysOf(d), y), ok = desOkOf(d), orig = d.originalName || d.name;
             Object.keys(res).forEach(key => {
-                const r = res[key]; if(r.t === 'R' || ok[key]) return;   // il riposo del 5° giorno lo decide il ciclo dei turni
+                if(only && !only.keys.has(key)) return;
+                const r = res[key]; if(ok[key]) return;
+                if(r.t === 'R') { rest.push({ d, key }); return; }   // il riposo del 5° giorno lo decide il ciclo dei turni: si barra soltanto
                 const [mm, dd] = key.split('-').map(Number);
-                plan.push({ d, key, m: mm - 1, cell: `${orig}__${Object.keys(MONTH_MAP)[mm - 1]}-${dd}`, sub: r.t === 'F' ? 'f' : 'p' });
+                plan.push({ d, key, m: mm - 1, cell: `${orig}__${Object.keys(MONTH_MAP)[mm - 1]}-${dd}`, sub: r.t === 'F' ? 'f' : 'p', coY: early && r.t === 'F' && mm <= CO_CARRY_MONTHS ? y : 0 });
             });
         });
-        return { plan, skipped };
+        return { plan, skipped, rest };
     }
-    function desImportAsk() {
+    function desImportCheck() {
+        const y = desYear;
+        if(typeof dataSourceMode !== 'undefined' && dataSourceMode !== 'firebase') { alert('L’importazione funziona solo con i turni su Firebase.'); return false; }
+        if(activeYear !== y && !desImportEarly()) { alert(`Il calendario turni ${y} non c’è (ora è aperto il ${activeYear}).`); return false; }
+        return true;
+    }
+    // tasto Importa della ruota: tutte le desiderate oppure un periodo alla volta (si tocca)
+    async function desImportAsk() {
         if(!desAdmin) return;
         document.getElementById('des-wheel').classList.add('collapsed');
-        const y = desYear;
-        if(typeof dataSourceMode !== 'undefined' && dataSourceMode !== 'firebase') { alert('L’importazione funziona solo con i turni su Firebase.'); return; }
-        if(activeYear !== y) {
-            alert(`Il calendario turni ${y} non è ancora aperto (ora è aperto il ${activeYear}).\n\nL’importazione si potrà fare dal 1° gennaio ${y}, quando l’app passa da sola al nuovo anno. Fino ad allora puoi barrare a mano i giorni che inserisci nei turni.`);
-            return;
-        }
-        const { plan } = desImportPlan();
-        if(!plan.length) { desToast('Niente da importare: tutti i giorni sono già barrati'); return; }
-        const people = new Set(plan.map(p => p.d.idx)).size, f = plan.filter(p => p.sub === 'f').length, p = plan.length - f;
-        if(!confirm(`Importare nel calendario turni ${y}:\n• ${f} giorni di ferie (C.O.)\n• ${p} permessi\ndi ${people} ${people === 1 ? 'persona' : 'persone'}?\n\nLe caselle che hanno già un’assenza non vengono toccate. Prima si fa una copia di sicurezza; i giorni importati vengono barrati.`)) return;
-        desImportRun(plan);
+        if(!desImportCheck()) return;
+        const all = desImportPlan();
+        if(!all.plan.length) { desToast('Niente da importare: tutti i giorni sono già barrati'); return; }
+        const ch = await ccDialog('Importa nel calendario turni', `Le ferie entrano come C.O. e i permessi come permessi nel calendario turni ${desYear}. I giorni importati vengono barrati.`, [
+            { label:'Scegli un periodo (tocca i giorni)', kind:'primary', value:'one' },
+            { label:`Importa tutte (${all.plan.length} giorni)`, kind:'', value:'all' },
+            { label:'Annulla', kind:'ghost', value:null }]);
+        if(ch === 'one') { desTool = 'I'; desRenderWheel(); desToast('Tocca un periodo di ferie o permessi da importare'); return; }
+        if(ch === 'all') desImportConfirm(all);
     }
-    async function desImportRun(plan) {
+    // giorni di fila con ferie, permessi o riposo attorno a quello toccato (nella colonna di quella persona)
+    function desImportPeriodAt(key, d) {
+        const res = desResolve(desDaysOf(d), desYear), all = desYearDays(desYear).map(x => x.key), i = all.indexOf(key);
+        if(i < 0 || !res[key]) return null;
+        let a = i, b = i; while(a > 0 && res[all[a - 1]]) a--; while(b < all.length - 1 && res[all[b + 1]]) b++;
+        return new Set(all.slice(a, b + 1));
+    }
+    function desImportTap(key, d) {
+        if(!desImportCheck()) return;
+        const keys = desImportPeriodAt(key, d);
+        if(!keys) { desToast('Tocca un giorno con ferie o permesso'); return; }
+        const pl = desImportPlan({ d, keys });
+        if(!pl.plan.length) { desToast('Questo periodo è già barrato'); return; }
+        desImportConfirm(pl, d);
+    }
+    function desImportConfirm(pl, one) {
+        const { plan, rest } = pl, y = desYear;
+        const people = new Set(plan.map(p => p.d.idx)).size, f = plan.filter(p => p.sub === 'f').length, p = plan.length - f;
+        const ks = plan.map(x => x.key).sort(), fmt = k => { const [m, g] = k.split('-').map(Number); return new Date(y, m - 1, g).toLocaleDateString('it-IT', { day:'numeric', month:'short' }); };
+        const what = one ? `${one.name}, dal ${fmt(ks[0])} al ${fmt(ks[ks.length - 1])}` : `di ${people} ${people === 1 ? 'persona' : 'persone'}`;
+        if(!confirm(`Importare nel calendario turni ${y} (${what}):\n• ${f} giorni di ferie (C.O.)\n• ${p} permessi\n\nLe caselle che hanno già un’assenza non vengono toccate. Prima si fa una copia di sicurezza; i giorni importati vengono barrati.`)) return;
+        desImportRun(plan, rest);
+    }
+    async function desImportRun(plan, rest) {
         try {
             desToast('Importo…');
             await takeSnapshot('prima-import-desiderate');
@@ -7478,7 +7523,7 @@
             plan.forEach(p => {
                 const cur = docs[p.m][p.cell] || {};
                 if(String(cur.subV || '').trim()) { kept.push(p); return; }   // c'è già un'assenza
-                (byMonth[p.m] = byMonth[p.m] || {})[p.cell] = { v: cur.v || '', subV: p.sub };
+                (byMonth[p.m] = byMonth[p.m] || {})[p.cell] = Object.assign({ v: cur.v || '', subV: p.sub }, p.coY ? { coY: p.coY } : {});
                 done.push(p);
             });
             const now = new Date().toISOString();
@@ -7487,6 +7532,7 @@
             await batch.commit();
             // si barrano i giorni importati
             const byD = new Map(); done.forEach(p => { if(!byD.has(p.d)) byD.set(p.d, []); byD.get(p.d).push(p.key); });
+            (rest || []).forEach(r => { if(byD.has(r.d)) byD.get(r.d).push(r.key); });   // anche il riposo del 5° giorno di quei periodi
             byD.forEach((keys, d) => desToggleOk(keys, d, true));
             desToast(`Importati ${done.length} giorni${kept.length ? ` · ${kept.length} lasciati com’erano (c’era già un’assenza)` : ''}`);
         } catch(e) {
@@ -7512,8 +7558,8 @@
         });
         document.getElementById('dw-ring').innerHTML = `<svg viewBox="0 0 ${S} ${S}">${paths}</svg>${lbls}`;
         const k = DES_KINDS[desTool];
-        document.getElementById('dw-hub').innerHTML = `<span class="dw-hub-sw" style="background:${k.bg};color:${k.fg}">${desTool === 'X' || desTool === 'N' || desTool === 'B' ? `<span class="material-icons-round">${k.icon}</span>` : (desTool === 'F' ? 'FERIE' : 'PERM.')}</span><small>${w.classList.contains('collapsed') ? 'strumenti' : 'chiudi'}</small>`;
-        document.getElementById('dw-caption').innerHTML = desTool === 'B' ? 'Tocca un giorno per <b>barrarlo</b> (già inserito nei turni); ritocca per togliere<br><small>Tieni premuto e trascina per più giorni</small>' : desTool === 'N' ? 'Tocca un tuo giorno per <b>scrivere una nota</b>' : (desTool === 'X' ? 'Tocca una tua casella per <b>cancellarla</b>' : `Tocca una tua casella per mettere <b>${esc(k.label.toLowerCase())}</b>; ritocca per togliere`) + '<br><small>Tieni premuto e trascina per più giorni</small>';
+        document.getElementById('dw-hub').innerHTML = `<span class="dw-hub-sw" style="background:${k.bg};color:${k.fg}">${desTool === 'X' || desTool === 'N' || desTool === 'B' || desTool === 'I' ? `<span class="material-icons-round">${k.icon}</span>` : (desTool === 'F' ? 'FERIE' : 'PERM.')}</span><small>${w.classList.contains('collapsed') ? 'strumenti' : 'chiudi'}</small>`;
+        document.getElementById('dw-caption').innerHTML = desTool === 'I' ? 'Tocca un <b>periodo</b> di ferie o permessi: lo importo nel calendario turni e lo barro' : desTool === 'B' ? 'Tocca un giorno per <b>barrarlo</b> (già inserito nei turni); ritocca per togliere<br><small>Tieni premuto e trascina per più giorni</small>' : desTool === 'N' ? 'Tocca un tuo giorno per <b>scrivere una nota</b>' : (desTool === 'X' ? 'Tocca una tua casella per <b>cancellarla</b>' : `Tocca una tua casella per mettere <b>${esc(k.label.toLowerCase())}</b>; ritocca per togliere`) + '<br><small>Tieni premuto e trascina per più giorni</small>';
     }
     function desToggleWheel() { vibrate(); const w = document.getElementById('des-wheel'); w.classList.toggle('collapsed'); desRenderWheel(); }
     function desPickTool(id) {
@@ -10656,7 +10702,7 @@
                 if(shiftRowYear(r) !== SHIFT_YEAR + 1) continue;
                 const cell = finalData[r][d.idx] || {}, sub = (cell.subV || '').toString().trim().toLowerCase();
                 let v = (cell.v || '').toString().trim(); if(isRepStr(v)) v = v.slice(0, v.indexOf('/')).trim();
-                if(sub === 'f' && absCycleCode(r, d.idx) !== 'R' && MONTH_MAP[finalData[r][0].v] < CO_CARRY_MONTHS) { add('f', { date: new Date(SHIFT_YEAR + 1, MONTH_MAP[finalData[r][0].v], parseInt(finalData[r][1].v)) }); nextF++; }
+                if(sub === 'f' && !(+cell.coY > SHIFT_YEAR) && absCycleCode(r, d.idx) !== 'R' && MONTH_MAP[finalData[r][0].v] < CO_CARRY_MONTHS) { add('f', { date: new Date(SHIFT_YEAR + 1, MONTH_MAP[finalData[r][0].v], parseInt(finalData[r][1].v)) }); nextF++; }
             }
         }
         const n = k => counts[k] || 0;
@@ -11085,7 +11131,8 @@
         const del = firebase.firestore.FieldValue.delete();
         if(!v) return del;
         const has = v.customMinutes !== undefined && v.customMinutes !== null && v.customMinutes !== '';
-        return { v: v.v || '', subV: v.subV || '', customMinutes: has ? v.customMinutes : del, perm: v.perm && v.perm.k && Number(v.perm.h) > 0 ? { k: v.perm.k, h: Number(v.perm.h) } : del };
+        return { v: v.v || '', subV: v.subV || '', customMinutes: has ? v.customMinutes : del, perm: v.perm && v.perm.k && Number(v.perm.h) > 0 ? { k: v.perm.k, h: Number(v.perm.h) } : del,
+                 coY: v.coY && String(v.subV || '').trim().toLowerCase() === 'f' ? +v.coY : del };   // anno a cui conta un C.O. di gennaio-marzo
     }
     function keyMonthIdx(key) {
         const i = key.indexOf('__'); if(i === -1) return -1;
@@ -11544,7 +11591,7 @@
             let conv = 0;
             months.forEach((doc, m) => {
                 const cells = doc.exists ? (doc.data().cells || {}) : {}, upd = {};
-                Object.keys(cells).forEach(k => { const c = cells[k] || {}; if(String(c.subV || '').trim().toLowerCase() === 'f' && !/^r(iposo)?$/i.test(String(c.v || '').trim())) { upd[k] = Object.assign({}, c, { subV: 'v' }); conv++; } });
+                Object.keys(cells).forEach(k => { const c = cells[k] || {}; if(String(c.subV || '').trim().toLowerCase() === 'f' && +c.coY !== next && !/^r(iposo)?$/i.test(String(c.v || '').trim())) { upd[k] = Object.assign({}, c, { subV: 'v' }); conv++; } });
                 if(Object.keys(upd).length) t.set(cfgRef(monthDocName(next, m)), { cells: upd }, { merge:true });
             });
             addLogWrite(t, [], `${auto ? 'Capodanno: ' : ''}chiuso il ${from}, aperto il ${next}${conv ? ` (${conv} giorni di ferie del ${from} diventati ferie residue)` : ''}`);
@@ -11589,7 +11636,7 @@
             const header = finalData[0];
             for(let r = 1; r < finalData.length; r++) {
                 const mName = finalData[r][0].v, dNum = finalData[r][1].v;
-                for(let i = 3; i < header.length; i++) { const ov = cells[overrideKey(header[i], mName, dNum)]; if(ov) finalData[r][i] = normalizeWrittenAbsence(Object.assign({}, finalData[r][i], { v: ov.v || '', subV: ov.subV || '', customMinutes: ov.customMinutes, perm: ov.perm })); }
+                for(let i = 3; i < header.length; i++) { const ov = cells[overrideKey(header[i], mName, dNum)]; if(ov) finalData[r][i] = normalizeWrittenAbsence(Object.assign({}, finalData[r][i], { v: ov.v || '', subV: ov.subV || '', customMinutes: ov.customMinutes, perm: ov.perm, coY: ov.coY })); }
             }
             drivers = baseNames.map((name, i) => ({ name: (m.nameOverrides || {})[name] || nameOverrides[name] || name, idx: i + 3, originalName: name, virtual:false, hidden:false }));
             operatorConfig = normalizeOperatorConfig({ contract: m.contract || {}, allow: m.allow || {}, baseNames });
@@ -12656,6 +12703,8 @@
     }
     function setOverride(key, value) {
         let prev = manualOverrides[key] !== undefined ? Object.assign({}, manualOverrides[key]) : null;
+        // C.O. dell'anno dopo messo a gennaio-marzo (dalle ferie desiderate): finché resta C.O. si tiene l'anno
+        if(value && prev && prev.coY && value.coY === undefined && String(value.subV || '').trim().toLowerCase() === 'f') value = Object.assign({}, value, { coY: prev.coY });
         if(value === null || value === undefined) delete manualOverrides[key]; else manualOverrides[key] = value;
         return prev;
     }
@@ -12671,7 +12720,7 @@
         const raw = rawFinalData[row][col];
         const base = raw ? JSON.parse(JSON.stringify(raw)) : { v:"", subV:"" };
         const ov = manualOverrides[key || cellKey(row, col)];
-        finalData[row][col] = normalizeWrittenAbsence(ov ? Object.assign({}, base, { v: ov.v, subV: ov.subV || "", overridden:true, customMinutes: ov.customMinutes, perm: ov.perm }) : base);
+        finalData[row][col] = normalizeWrittenAbsence(ov ? Object.assign({}, base, { v: ov.v, subV: ov.subV || "", overridden:true, customMinutes: ov.customMinutes, perm: ov.perm, coY: ov.coY }) : base);
         return true;
     }
     function coordKeyIndex() {
@@ -14378,10 +14427,12 @@
             let riposoHtml = (uVal === "R" || uVal === "RIPOSO")
                 ? `<div class="riposo-sub">+ RIPOSO</div>` : "";
             // C.O. dell'anno messo a gennaio-marzo dell'anno dopo: metà giallo e metà arancio
-            const prevCO = fmtDateCtx && +fmtDateCtx.slice(0, 4) > SHIFT_YEAR && +fmtDateCtx.slice(5, 7) <= CO_CARRY_MONTHS;
-            return `<div class="cell spec-cong${prevCO ? ' spec-cong-prev' : ''}"${prevCO ? ` title="Congedo ordinario del ${SHIFT_YEAR}"` : ''}>
+            // (se viene dalle ferie desiderate dell'anno dopo, conta sull'anno dopo: giallo, "C.O. 2027")
+            const nextCO = +info.coY > SHIFT_YEAR ? +info.coY : 0;
+            const prevCO = !nextCO && fmtDateCtx && +fmtDateCtx.slice(0, 4) > SHIFT_YEAR && +fmtDateCtx.slice(5, 7) <= CO_CARRY_MONTHS;
+            return `<div class="cell spec-cong${prevCO ? ' spec-cong-prev' : ''}"${prevCO ? ` title="Congedo ordinario del ${SHIFT_YEAR}"` : nextCO ? ` title="Congedo ordinario del ${nextCO}"` : ''}>
                 <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
-                    ${prevCO ? 'C.O.<br>' + SHIFT_YEAR : 'CONGEDO<br>ORD.'}${riposoHtml}
+                    ${prevCO ? 'C.O.<br>' + SHIFT_YEAR : nextCO ? 'C.O.<br>' + nextCO : 'CONGEDO<br>ORD.'}${riposoHtml}
                 </div>${repHtml}</div>`;
         }
 
