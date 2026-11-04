@@ -2877,6 +2877,34 @@
         .dr-go:disabled { opacity:.45; cursor:default; }
         #des-toast { position:fixed; left:50%; top:calc(var(--header-h) + 64px); transform:translateX(-50%) translateY(-12px); background:var(--cc-ink, #16212e); color:#fff; font:700 13px 'Plus Jakarta Sans',sans-serif; padding:10px 16px; border-radius:12px; z-index:6400; opacity:0; pointer-events:none; transition:opacity .2s, transform .2s; max-width:calc(100vw - 32px); text-align:center; }
         #des-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+        .des-ps-tag { display:inline-block; background:#0f766e; color:#fff; font-size:0.62rem; font-weight:900; padding:1px 6px; border-radius:5px; letter-spacing:.4px; vertical-align:1px; }
+        #des-view.des-ps .des-bar { box-shadow:inset 0 -3px 0 #14b8a6; }
+        #des-op, #des-log { display:none; position:fixed; inset:0; z-index:6370; background:rgba(0,0,0,.55); backdrop-filter:blur(6px); align-items:flex-end; justify-content:center; opacity:0; transition:opacity .25s; }
+        #des-op.open, #des-log.open { opacity:1; }
+        #des-op .modal-content { max-width:520px; }
+        #des-log .modal-content { max-width:640px; height:min(86vh, 900px); display:flex; flex-direction:column; }
+        #des-op.open .modal-content, #des-log.open .modal-content { transform:translateY(0); }
+        .dop-list { display:grid; grid-template-columns:repeat(auto-fill, minmax(118px, 1fr)); gap:6px; max-height:46vh; overflow:auto; }
+        .dop-list button { min-height:42px; border:1.5px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text-main); font:800 0.78rem 'Plus Jakarta Sans',sans-serif; cursor:pointer; padding:4px 6px; }
+        .dop-list button:hover { border-color:#14b8a6; }
+        .dop-list button.on { background:#0f766e; border-color:#0f766e; color:#fff; }
+        .dop-other { display:flex; gap:6px; }
+        .dop-other input { flex:1; min-width:0; height:44px; border:1.5px solid var(--border); border-radius:12px; padding:0 10px; background:var(--bg); color:var(--text-main); font:700 15px 'Plus Jakarta Sans',sans-serif; }
+        .dop-other button { width:48px; border:none; border-radius:12px; background:#0f766e; color:#fff; cursor:pointer; }
+        .dl-bar { display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; padding:10px 16px; border-bottom:1px solid var(--border); font:700 0.78rem 'Plus Jakarta Sans',sans-serif; color:var(--text-sec); }
+        .dl-bar label { display:flex; align-items:center; gap:6px; }
+        .dl-bar select { height:34px; border:1.5px solid var(--border); border-radius:9px; background:var(--bg); color:var(--text-main); font:700 0.8rem 'Plus Jakarta Sans',sans-serif; padding:0 6px; max-width:160px; }
+        .dl-bar button { margin-left:auto; display:inline-flex; align-items:center; gap:4px; height:34px; border:none; border-radius:9px; background:var(--primary); color:#fff; font:800 0.78rem 'Plus Jakarta Sans',sans-serif; padding:0 10px; cursor:pointer; }
+        .dl-bar button .material-icons-round { font-size:18px; }
+        .dl-body { flex:1; overflow:auto; padding:8px 16px 20px; }
+        .dl-row { padding:10px 0; border-bottom:1px solid var(--border); font-family:'Plus Jakarta Sans',sans-serif; }
+        .dl-top { display:flex; align-items:center; gap:8px; font-size:0.84rem; color:var(--text-main); text-transform:capitalize; }
+        .dl-who { font-size:0.8rem; color:var(--text-sec); margin:3px 0 5px; font-weight:600; }
+        .dl-who b { color:var(--text-main); }
+        .dl-what { display:flex; flex-wrap:wrap; gap:4px; }
+        .dl-chip { font-size:0.74rem; font-weight:800; padding:2px 8px; border-radius:7px; background:#e2e8f0; color:#334155; }
+        .dl-chip.kF { background:var(--bg-cong); color:var(--t-cong); } .dl-chip.kP { background:var(--bg-perm); color:var(--t-perm); } .dl-chip.kN { background:#ede9fe; color:#5b21b6; }
+        .dl-empty { padding:24px 0; text-align:center; color:var(--text-sec); font:700 0.85rem 'Plus Jakarta Sans',sans-serif; }
     </style>
 </head>
 <body>
@@ -3870,6 +3898,39 @@
         </div>
     </div>
 </div>
+<div id="des-op" onclick="desPSClose(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <div class="header-text">
+                <h3><span class="material-icons-round" style="margin-right:10px">badge</span> OPERO A NOME DI?</h3>
+                <span>PC Pronto Soccorso: scrivi nella colonna di questa persona. Il nome resta nello storico con data e ora</span>
+            </div>
+            <button class="btn-close-modal" onclick="desPSClose()"><span class="material-icons-round">close</span></button>
+        </div>
+        <div class="dr-body">
+            <div class="dop-list" id="dop-list"></div>
+            <div class="dn-hint">Dopo 5 minuti senza modifiche l’app lo chiede di nuovo.</div>
+        </div>
+    </div>
+</div>
+<div id="des-log" onclick="desLogClose(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <div class="header-text">
+                <h3><span class="material-icons-round" style="margin-right:10px">history</span> STORICO INSERIMENTI</h3>
+                <span id="dl-sub"></span>
+            </div>
+            <button class="btn-close-modal" onclick="desLogClose()"><span class="material-icons-round">close</span></button>
+        </div>
+        <div class="dl-bar">
+            <label>Chi<select id="dl-who" onchange="desLogSet()"></select></label>
+            <label class="dl-ck"><input type="checkbox" id="dl-ps" onchange="desLogSet()"> Solo PC Pronto Soccorso</label>
+            <span id="dl-count"></span>
+            <button onclick="desLogCsv()" title="Scarica per Excel"><span class="material-icons-round">download</span>Scarica</button>
+        </div>
+        <div class="dl-body" id="dl-body"></div>
+    </div>
+</div>
 <div id="des-toast"></div>
 
 <div class="container">
@@ -4020,7 +4081,9 @@
     let adminAccessUnsub = null, adminConfigApplyBusy = false;
 
     // ── Identità utente ("Chi sei?") ─────────────────────────────────────────
-    const IDENTITY_EXTRA_OPTIONS = ["Frisoni", "Ospite"];
+    // "PC Pronto Soccorso": account del PC condiviso, scrive le ferie desiderate di tutti (con lo storico)
+    const PS_NAME = 'PC Pronto Soccorso';
+    const IDENTITY_EXTRA_OPTIONS = ["Frisoni", PS_NAME, "Ospite"];
     // ?server=1: l'app viene aperta dal motore su GitHub solo per leggere i turni (niente sessioni, popup o scritture).
     const SERVER_MODE = new URLSearchParams(location.search).has('server');
     let userIdentity = SERVER_MODE ? null : (localStorage.getItem('infermieri_identity_name') || null);
@@ -4146,7 +4209,7 @@
             snap.forEach(doc => {
                 if(doc.id === myUid) return;
                 const d = doc.data();
-                if(!d.name || d.name === 'Ospite') return;
+                if(!d.name || d.name === 'Ospite' || d.name === PS_NAME) return;   // il PC condiviso non è mai "in uso"
                 const ms = tsToMillis(d.updatedAt);
                 if(ms && ms > cutoffMs && !(rel[d.name] && ms <= rel[d.name])) locked.add(d.name);
             });
@@ -4184,10 +4247,10 @@
         const allOptions = names.concat(IDENTITY_EXTRA_OPTIONS);
         const c = document.getElementById('identity-list-container'); c.innerHTML = "";
         allOptions.forEach(name => {
-            const isGuest = name === 'Ospite';
+            const isGuest = name === 'Ospite', isPS = name === PS_NAME;
             const isCurrent = name === userIdentity;
-            const isLocked = !isGuest && !isCurrent && locked.has(name);
-            const isPending = pending && !isGuest && !isCurrent;
+            const isLocked = !isGuest && !isPS && !isCurrent && locked.has(name);
+            const isPending = pending && !isGuest && !isPS && !isCurrent;
             const initials = name.substring(0,2).toUpperCase();
             const btn = document.createElement('div');
             btn.className = 'identity-btn' + (isGuest ? ' guest-btn' : '') + (isLocked ? ' locked' : '') + (isPending ? ' pending' : '') + (isCurrent ? ' current' : '');
@@ -4195,7 +4258,7 @@
             if(isCurrent) tag = '<div class="identity-current-tag">TU</div>';
             else if(isPending) tag = '<div class="identity-pending-tag">Verifica…</div>';
             else if(isLocked) tag = '<div class="identity-lock-tag">In uso</div>';
-            btn.innerHTML = `<div class="identity-avatar">${isGuest ? '<span class="material-icons-round" style="font-size:20px">person</span>' : initials}</div><div class="identity-name">${name}</div>${tag}`;
+            btn.innerHTML = `<div class="identity-avatar">${isGuest ? '<span class="material-icons-round" style="font-size:20px">person</span>' : isPS ? '<span class="material-icons-round" style="font-size:20px">computer</span>' : initials}</div><div class="identity-name">${name}</div>${tag}`;
             if(!isLocked && !isPending) btn.onclick = () => selectIdentity(name);
             c.appendChild(btn);
         });
@@ -6955,8 +7018,12 @@
     function desYearsAllowed() { const y = new Date().getFullYear(); return [y, y + 1]; }
     function desKeyName(n) { return String(n || '').toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'X'; }
     function desDocId(name, y) { return DATA_NS + y + '_' + desKeyName(name); }
-    function desMe() { return prefMe(); }
+    // dal PC Pronto Soccorso "io" è la persona a nome di cui si opera (scelta all'apertura)
+    function desMe() { return desIsPS() ? desDriverOf(desPSOperator()) : prefMe(); }
     function desMyName() { return userIdentity && userIdentity !== 'Ospite' ? userIdentity : null; }
+    // PC Pronto Soccorso: all'apertura chiede "Opero a nome di?" e scrive nella colonna di quella persona
+    function desIsPS() { return userIdentity === PS_NAME; }
+    function desAll() { return desAdmin; }
     function desDKey(d) { return desKeyName(d.originalName || d.name); }
     function desDaysOf(d) { return (d && desData[desDKey(d)]) || {}; }
     function desDriverOf(name) { const u = String(name || '').toUpperCase(); return drivers.find(d => d.name.toUpperCase() === u || String(d.originalName || '').toUpperCase() === u) || null; }
@@ -7016,7 +7083,8 @@
         desRenderAll(true);
         desListen();
         setCurrentView('Ferie desiderate');
-        if(!desMe()) {
+        if(desIsPS()) { desPSOp = null; desRenderAll(true); setTimeout(() => desPSPick(), 250); }
+        else if(!desMe()) {
             // non si sa ancora chi è: si chiede, poi si scrive solo nella sua colonna
             desPendingOpen = true;
             setTimeout(() => { desToast('Scegli chi sei: scriverai solo nella tua colonna'); openIdentityModal(); }, 250);
@@ -7034,7 +7102,8 @@
     function desAfterIdentity() {
         desPendingOpen = false; desIdOk = false;
         const v = document.getElementById('des-view');
-        if(v && v.classList.contains('open')) { desRenderAll(false); if(desMe()) desToast('Ora scrivi nella colonna di ' + desMe().name); }
+        if(!desIsPS()) desPSOp = null;
+        if(v && v.classList.contains('open')) { desRenderAll(false); if(desIsPS()) { if(!desPSOperator()) setTimeout(() => desPSPick(), 250); } else if(desMe()) desToast('Ora scrivi nella colonna di ' + desMe().name); }
     }
     function desChangeYear(dir) {
         const ys = desYearsAllowed(), ny = desYear + dir;
@@ -7074,8 +7143,9 @@
         document.getElementById('des-y-next').disabled = !ys.includes(y + 1);
         const me = desMe(), cols = desCols();
         document.getElementById('des-view').classList.toggle('des-admin', desAdmin);
-        document.getElementById('des-sub').innerHTML = desAdmin ? `<b class="des-adm-tag">ADMIN</b> modifichi tutti · <button onclick="desAdminExit()">esci</button>` : me ? `Tu: <b>${esc(me.name)}</b> · <button onclick="requestChangeIdentityDirect()">cambia</button>` : '<button onclick="requestChangeIdentityDirect()">Scegli chi sei</button> per scrivere le tue';
-        document.getElementById('des-range-btn').style.display = me || desAdmin ? '' : 'none';
+        document.getElementById('des-view').classList.toggle('des-ps', !desAdmin && desIsPS());
+        document.getElementById('des-sub').innerHTML = desAdmin ? `<b class="des-adm-tag">ADMIN</b> modifichi tutti · <button onclick="desAdminExit()">esci</button>` : desIsPS() ? desPSSubHtml() : me ? `Tu: <b>${esc(me.name)}</b> · <button onclick="requestChangeIdentityDirect()">cambia</button>` : '<button onclick="requestChangeIdentityDirect()">Scegli chi sei</button> per scrivere le tue';
+        document.getElementById('des-range-btn').style.display = me || desAll() ? '' : 'none';
         // intestazione
         const head = document.getElementById('des-head');
         head.innerHTML = '<th>DATA</th>' + cols.map(d => `<th data-col="${d.idx}"${d === me ? ' class="me-col"' : ''}>${esc(d.name)}${d === me ? '<span class="des-th-tag">TU</span>' : ''}</th>`).join('');
@@ -7139,7 +7209,8 @@
         const m = document.getElementById('des-mode-menu');
         if(m.classList.contains('open')) { m.classList.remove('open'); return; }
         m.innerHTML = Object.entries(DES_MODES).map(([k, M]) => `<button class="${k === desMode ? 'on' : ''}" onclick="desSetMode('${k}')"><span class="material-icons-round">${M[0]}</span><span><b>${M[1]}</b><small>${M[2]}</small></span></button>`).join('')
-            + `<div class="dmm-sep"></div><button onclick="desAdminOpen()"><span class="material-icons-round">${desAdmin ? 'logout' : 'admin_panel_settings'}</span><span><b>${desAdmin ? 'Esci dall’admin' : 'Admin (riunione)'}</b><small>${desAdmin ? 'Torni a scrivere solo nella tua colonna' : 'Modifica le desiderate di tutti'}</small></span></button>`;
+            + `<div class="dmm-sep"></div><button onclick="desLogOpen()"><span class="material-icons-round">history</span><span><b>Storico inserimenti</b><small>Chi ha scritto cosa, con data e ora</small></span></button>`
+            + `<button onclick="desAdminOpen()"><span class="material-icons-round">${desAdmin ? 'logout' : 'admin_panel_settings'}</span><span><b>${desAdmin ? 'Esci dall’admin' : 'Admin (riunione)'}</b><small>${desAdmin ? 'Torni a scrivere solo nella tua colonna' : 'Modifica le desiderate di tutti'}</small></span></button>`;
         const r = document.getElementById('des-mode-btn').getBoundingClientRect();
         m.style.top = (r.bottom + 6) + 'px'; m.style.left = Math.max(8, Math.min(window.innerWidth - 238, r.right - 230)) + 'px';
         m.classList.add('open');
@@ -7203,7 +7274,7 @@
         const res = who ? desResolve(desDaysOf(who), y) : {}, notes = who ? desNotesOf(who) : {};
         const c = who ? desCount(desDaysOf(who), y) : { f:0, p:0, auto:0 };
         const MN = Object.keys(MONTH_MAP), WD = ['L', 'M', 'M', 'G', 'V', 'S', 'D'];
-        let html = `<div class="yg-who">Calendario di <select onchange="desYgWho = +this.value; desRenderYearGrid()">${cols.map(d => `<option value="${d.idx}"${d === who ? ' selected' : ''}>${esc(d.name)}${d === me ? ' (tu)' : ''}</option>`).join('')}</select>${mine ? (desAdmin && who !== me ? '<span class="des-adm-tag">ADMIN</span>' : '') : '<span>solo da vedere</span>'}</div>`;
+        let html = `<div class="yg-who">Calendario di <select onchange="desYgWho = +this.value; desRenderYearGrid()">${cols.map(d => `<option value="${d.idx}"${d === who ? ' selected' : ''}>${esc(d.name)}${d === me ? ' (tu)' : ''}</option>`).join('')}</select>${mine ? (desAdmin && who !== me ? '<span class="des-adm-tag">ADMIN</span>' : desIsPS() ? '<span class="des-ps-tag">PC PS</span>' : '') : '<span>solo da vedere</span>'}</div>`;
         html += `<div class="yg-legend"><span><i style="background:var(--bg-cong)"></i>Ferie ${c.f}</span><span><i style="background:var(--bg-perm)"></i>Permessi ${c.p}</span><span><i style="background:var(--c-R)"></i>Riposo al 5° giorno ${c.auto}</span>${mine ? '<span>Tocca un giorno: usa lo strumento della ruota</span>' : ''}</div>`;
         for(let m = 0; m < 12; m++) {
             const first = new Date(y, m, 1), n = new Date(y, m + 1, 0).getDate(), lead = (first.getDay() + 6) % 7;
@@ -7229,10 +7300,18 @@
         const el = document.getElementById('des-sum'); if(!el) return;
         const me = desMe();
         if(desAdmin && !me) { el.innerHTML = `<span class="des-pill"><b class="des-adm-tag">ADMIN</b> tocca o trascina nelle colonne di tutti</span>`; return; }
+        if(desIsPS() && !me) {
+            const op = desPSOperator(), save = { ok:['cloud_done', 'Salvato'], saving:['sync', 'Salvo…'], err:['cloud_off', 'Non salvato'], offline:['cloud_off', 'Senza rete'] }[desSaveState] || ['cloud_done', 'Salvato'];
+            el.innerHTML = `<span class="des-pill"><b class="des-ps-tag">PC PRONTO SOCCORSO</b> scegli a nome di chi operi</span>`
+                + `<span class="des-who"><button onclick="desPSPick()">Opero a nome di…</button> · <button onclick="desLogOpen()">Storico</button></span>`
+                + `<span class="des-save${desSaveState === 'err' || desSaveState === 'offline' ? ' err' : ''}" title="${save[1]}"><span class="material-icons-round">${save[0]}</span><span class="des-save-t">${save[1]}</span></span>`;
+            return;
+        }
         if(!me) { el.innerHTML = `<span>Per scrivere le tue ferie desiderate scegli chi sei.</span><span class="des-who"><button onclick="requestChangeIdentityDirect()">Scegli chi sei</button></span>`; return; }
         const c = desCount(desDaysOf(me), desYear), al = desAllow(me);
         const save = { ok:['cloud_done', 'Salvato'], saving:['sync', 'Salvo…'], err:['cloud_off', 'Non salvato'], offline:['cloud_off', 'Solo su questo telefono'] }[desSaveState] || ['cloud_done', 'Salvato'];
-        el.innerHTML = `<span class="des-pill${c.f > al.co ? ' over' : ''}"><i style="background:var(--bg-cong)"></i>Ferie <b>${c.f}</b>/${al.co}</span>`
+        el.innerHTML = (desIsPS() ? `<span class="des-pill"><b class="des-ps-tag">PC PS</b> a nome di <b>${esc(me.name)}</b></span><span class="des-who"><button onclick="desPSPick()">cambia</button> · <button onclick="desLogOpen()">Storico</button></span>` : '')
+            + `<span class="des-pill${c.f > al.co ? ' over' : ''}"><i style="background:var(--bg-cong)"></i>Ferie <b>${c.f}</b>/${al.co}</span>`
             + `<span class="des-pill${c.p > al.sp ? ' over' : ''}"><i style="background:var(--bg-perm)"></i>Permessi <b>${c.p}</b>/${al.sp}</span>`
             + (c.auto ? `<span class="des-pill"><i style="background:var(--c-R)"></i>Riposi al 5° giorno <b>${c.auto}</b></span>` : '')
             + `<span class="des-save${desSaveState === 'err' || desSaveState === 'offline' ? ' err' : ''}" title="${save[1]}"><span class="material-icons-round">${save[0]}</span><span class="des-save-t">${save[1]}</span></span>`;
@@ -7241,27 +7320,28 @@
     // ── modifica: tocco sulle caselle o periodo "dal… al…" ──
     // Ognuno scrive nella sua colonna; con l'accesso admin (riunione) si scrive in tutte.
     function desAllow(d) { return typeof absAllowFor === 'function' ? absAllowFor(d) : { co:31, sp:6 }; }
-    function desCanEdit(d) { const me = desMe(); return !!d && (desAdmin || (!!me && d === me)); }
+    function desCanEdit(d) { const me = desMe(); return !!d && (desAll() || (!!me && d === me)); }
     function desDriverByIdx(idx) { return idx == null ? desMe() : drivers.find(x => x.idx === +idx) || null; }
     function desOkOf(d) { return (d && desOk[desDKey(d)]) || {}; }
     function desSetDays(changes, who) {
         const d = who || desMe(); if(!desCanEdit(d)) return 0;
         const k = desDKey(d), days = Object.assign({}, desData[k] || {}), ok = desOkOf(d);
         // blocco: non si va oltre le spettanze dell'operatore (ferie = C.O., permessi straordinari)
-        const al = desAllow(d); let n = 0, blocked = 0, locked = 0;
+        const al = desAllow(d); let n = 0, blocked = 0, locked = 0; const logged = [];
         changes.forEach(([key, val]) => {
             if(ok[key] && !desAdmin) { if((days[key] || null) !== (val || null)) locked++; return; }   // già inserito nei turni dal coordinatore
             if(val && days[key] !== val) {
                 const was = days[key], before = desCount(days, desYear); days[key] = val;
                 const c = desCount(days, desYear);
                 if((c.f > al.co && c.f > before.f) || (c.p > al.sp && c.p > before.p)) { if(was) days[key] = was; else delete days[key]; blocked++; return; }
-                n++;
-            } else if(!val && days[key]) { delete days[key]; n++; }
+                n++; logged.push([key, was || '', val]);
+            } else if(!val && days[key]) { logged.push([key, days[key], '']); delete days[key]; n++; }
         });
         if(blocked) { desToast(`Limite raggiunto: ${d === desMe() ? 'hai' : d.name + ' ha'} ${al.co} giorni di ferie e ${al.sp} permessi${blocked > 1 ? ` (${blocked} giorni non inseriti)` : ''}`); if(navigator.vibrate) try { navigator.vibrate([30, 40, 30]); } catch(e) {} }
         else if(locked) desToast('Giorno già inserito nei turni dal coordinatore: non si cambia da qui');
         if(!n) return 0;
         desData[k] = days;
+        desLogPush(d, 'days', logged);
         desMarkDirty(d);
         desRefreshCols(d.idx, new Set(changes.map(c => c[0])));
         return n;
@@ -7270,7 +7350,7 @@
         const d = who || desMe(); if(!d) return;
         desDirty = true; desDirtySet.add(desDKey(d));
         const me = desMe();
-        if(d === me) try { localStorage.setItem(desLocalKey(desYear), JSON.stringify({ name: desMyName(), days: desData[desDKey(me)] || {}, notes: desNotes[desDKey(me)] || {}, unsaved:true })); } catch(e) {}
+        if(d === me && !desIsPS()) try { localStorage.setItem(desLocalKey(desYear), JSON.stringify({ name: desMyName(), days: desData[desDKey(me)] || {}, notes: desNotes[desDKey(me)] || {}, unsaved:true })); } catch(e) {}
         clearTimeout(desSaveTimer); desSaveTimer = setTimeout(desSaveNow, 700);
         desSaveState = 'saving'; desRenderSum();
     }
@@ -7297,7 +7377,9 @@
     function desSaveNote(del) {
         const d = desNoteWho || desMe(); if(!desCanEdit(d) || !desNoteKey || desNoteRO) return;
         const k = desDKey(d), notes = Object.assign({}, desNotes[k] || {}), txt = del ? '' : document.getElementById('dn-text').value.trim().slice(0, 300);
+        const oldTxt = notes[desNoteKey] || '';
         if(txt) notes[desNoteKey] = txt; else delete notes[desNoteKey];
+        if(oldTxt !== txt) desLogPush(d, 'notes', [[desNoteKey, oldTxt, txt]]);
         desNotes[k] = notes; desMarkDirty(d);
         desRefreshCols(d.idx, new Set([desNoteKey]));
         desCloseNote(); desToast(txt ? 'Nota salvata' : 'Nota eliminata');
@@ -7328,6 +7410,7 @@
     function desPaintStart(hit) {
         if(!hit || desTool === 'N' || desTool === 'I') return false;
         const d = desDriverByIdx(hit.idx); if(!desCanEdit(d)) return false;
+        if(desIsPS() && !desPSOperator()) return false;   // PC Pronto Soccorso: il nome dell'operatore si chiede al tocco
         const key = hit.key;
         if(desTool === 'B') desPaint = { ok: !desOkOf(d)[key], last: key, n: 0, d };
         else { const cur = desDaysOf(d)[key]; desPaint = { val: desTool === 'X' || cur === desTool ? null : desTool, last: key, n: 0, d }; }
@@ -7379,6 +7462,7 @@
     function desCellTap(key, idx) {
         const d = desDriverByIdx(idx); if(!d) return;
         if(Date.now() < desNoClickUntil) return;   // fine di un trascinamento
+        if(desPSNeed(() => desCellTap(key, idx), d)) return;   // PC Pronto Soccorso: prima "a nome di chi"
         if(!desCanEdit(d)) { desOtherTap(key, d.idx); return; }
         if(desTool === 'N') { desOpenNote(key, false, d); return; }
         if(desTool === 'I') { if(desAdmin) desImportTap(key, d); return; }
@@ -7393,7 +7477,7 @@
         if(desCanEdit(d)) { desCellTap(key, idx); return; }
         const nt = key && d ? desNotesOf(d)[key] : null;
         if(nt) { desOpenNote(key, true, d); return; }
-        desToast(desMe() ? 'Puoi scrivere solo nella tua colonna' : 'Scegli chi sei per scrivere nella tua colonna');
+        desToast(desIsPS() && desMe() ? 'Operi a nome di ' + desMe().name + ': per un’altra persona tocca “cambia”' : desMe() ? 'Puoi scrivere solo nella tua colonna' : 'Scegli chi sei per scrivere nella tua colonna');
     }
     async function desSaveNow() {
         clearTimeout(desSaveTimer); desSaveTimer = null;
@@ -7404,25 +7488,188 @@
         let failed = 0;
         for(const k of keys) {
             const d = drivers.find(x => desDKey(x) === k); if(!d) continue;
-            const mine = !!me && d === me, name = mine ? myName : (desDocNames[k] || d.name);
+            const mine = !!me && d === me && !desIsPS(), name = mine ? myName : (desDocNames[k] || d.name);
+            const logs = desLogTake(k);
             try {
                 // le regole controllano che il nome sia quello scelto in "Chi sei?" da questo telefono (o che scriva l'admin)
-                if(mine && !desIdOk) { await db.collection('infermieri26_identities').doc(fbAuth.currentUser.uid).set({ name, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true }); desIdOk = true; }
+                if(myName && !desIdOk) { await db.collection('infermieri26_identities').doc(fbAuth.currentUser.uid).set({ name: myName, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true }); desIdOk = true; }
                 const days = Object.assign({}, desData[k] || {}), notes = Object.assign({}, desNotes[k] || {}), ok = Object.assign({}, desOk[k] || {});
                 const payload = { ns: DATA_NS, year: y, name, days, byUid: fbAuth.currentUser.uid, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
                 if(Object.keys(notes).length) payload.notes = notes;
                 if(Object.keys(ok).length) payload.ok = ok;
-                if(!mine) payload.adminBy = myName || 'admin';
-                await db.collection(DES_COLL).doc(desDocId(name, y)).set(payload);
+                if(!mine) payload.adminBy = desIsPS() ? (PS_NAME + ' · ' + (desPSLastOp[k] || desPSOp || '?')).slice(0, 60) : (myName || 'admin');
+                const ref = db.collection(DES_COLL).doc(desDocId(name, y));
+                // lo storico si scrive insieme ai giorni: dal PC Pronto Soccorso o vanno tutti e due o nessuno
+                const batch = db.batch(); batch.set(ref, payload);
+                const logRows = myName ? logs.map(e => desLogRow(e, name, y, myName)).filter(Boolean) : [];
+                logRows.forEach(r => batch.set(db.collection(DES_LOG).doc(DATA_NS + 'l_' + db.collection(DES_LOG).doc().id), r));
+                try { await batch.commit(); }
+                catch(e) {
+                    if(desIsPS() || !logRows.length) throw e;
+                    // storico non accettato (regole vecchie): per i colleghi si salvano comunque i giorni
+                    console.warn('Storico desiderate non salvato:', e);
+                    await ref.set(payload);
+                }
                 if(mine) try { localStorage.setItem(desLocalKey(y), JSON.stringify({ name, days, notes })); } catch(e) {}
             } catch(e) {
                 console.warn('Desiderate non salvate:', e); failed++;
-                desDirty = true; desDirtySet.add(k);
+                desDirty = true; desDirtySet.add(k); desLogBack(logs);
             }
         }
         if(failed) { desSaveState = 'err'; desToast('Non salvato: riprovo alla prossima modifica'); }
         else if(!desDirty) desSaveState = 'ok';
         desRenderSum();
+    }
+
+    // ── PC Pronto Soccorso: chi sta inserendo ──
+    // Il PC è di tutti: prima di scrivere si sceglie il proprio nome (operatore). Il nome resta
+    // finché nessuno tocca niente per 5 minuti, poi l'app lo richiede al prossimo che scrive.
+    const DES_PS_IDLE_MS = 5 * 60 * 1000;
+    let desPSOp = null, desPSOpAt = 0, desPSPending = null, desPSLastOp = {};
+    function desPSOperator() { return desIsPS() && desPSOp && Date.now() - desPSOpAt < DES_PS_IDLE_MS ? desPSOp : null; }
+    function desPSNeed(fn, d) {
+        if(!desIsPS() || desPSOperator()) { if(desIsPS()) desPSOpAt = Date.now(); return false; }
+        desPSPending = fn || null; desPSPick(d);
+        return true;
+    }
+    function desPSSubHtml() { const op = desPSOperator(); return `<b class="des-ps-tag">PC PS</b> ${op ? 'a nome di <b>' + esc(op) + '</b>' : 'nessuno scelto'} · <button onclick="desPSPick()">${op ? 'cambia' : 'scegli'}</button>`; }
+    function desPSPick(d) {
+        const m = document.getElementById('des-op'); if(m.classList.contains('open')) return;
+        document.getElementById('des-wheel').classList.add('collapsed');
+        const cur = desPSOperator(), sel = cur || (d ? d.name : '');
+        const names = drivers.filter(x => !x.hidden).map(x => x.name);
+        document.getElementById('dop-list').innerHTML = names.map(n => `<button class="${n === sel ? 'on' : ''}" onclick="desPSChoose(this.dataset.n)" data-n="${esc(n)}">${esc(n)}</button>`).join('');
+        m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 10);
+    }
+    function desPSClose(e) {
+        if(e && e.target !== e.currentTarget) return;
+        desPSPending = null;
+        const m = document.getElementById('des-op'); m.classList.remove('open'); setTimeout(() => m.style.display = 'none', 300);
+    }
+    function desPSChoose(name) {
+        const dd = desDriverOf(name); if(!dd) return;
+        name = dd.name;
+        vibrate();
+        desPSOp = name; desPSOpAt = Date.now();
+        const fn = desPSPending; desPSPending = null;
+        const m = document.getElementById('des-op'); m.classList.remove('open'); setTimeout(() => m.style.display = 'none', 300);
+        desIdOk = false; desRenderAll(true); desToast('Operi a nome di ' + name + ': resta nello storico con data e ora');
+        if(fn) setTimeout(fn, 320);
+    }
+    // l'operatore scade da solo: si aggiorna la scritta in alto
+    setInterval(() => { if(desIsPS() && desPSOp && !desPSOperator()) { desPSOp = null; const v = document.getElementById('des-view'); if(v && v.classList.contains('open')) desRenderAll(false); } }, 30000);
+
+    // ── storico degli inserimenti ──
+    // Ogni salvataggio scrive anche una riga nella collezione infermieri26_desiderate_log:
+    // data e ora (del server), operatore, colonna e giorni cambiati. Le righe non si modificano
+    // e non si cancellano.
+    const DES_LOG = 'infermieri26_desiderate_log';
+    let desLogQ = [];
+    function desLogPush(d, field, changes) {
+        if(!d || !changes || !changes.length) return;
+        const op = desIsPS() ? (desPSOperator() || desPSOp || '?') : (desMyName() || 'ADMIN');
+        if(desIsPS()) { desPSOpAt = Date.now(); desPSLastOp[desDKey(d)] = op; }
+        const k = desDKey(d);
+        let e = desLogQ.find(x => x.k === k && x.op === op && x.y === desYear);
+        if(!e) { e = { k, op, y: desYear, days:{}, notes:{}, orig:{ days:{}, notes:{} } }; desLogQ.push(e); }
+        changes.forEach(([key, was, now]) => {
+            if(!(key in e.orig[field])) e.orig[field][key] = was;
+            e[field][key] = now;
+        });
+    }
+    function desLogTake(k) {
+        const out = desLogQ.filter(e => e.k === k);
+        desLogQ = desLogQ.filter(e => e.k !== k);
+        return out;
+    }
+    function desLogBack(list) { desLogQ = list.concat(desLogQ); }
+    function desLogRow(e, col, y, by) {
+        if(e.y !== y) return null;
+        const days = {}, notes = {};
+        Object.keys(e.days).forEach(k => { if(e.days[k] !== e.orig.days[k]) days[k] = e.days[k]; });   // tolto e rimesso = nessun cambio
+        Object.keys(e.notes).forEach(k => { if(e.notes[k] !== e.orig.notes[k]) notes[k] = e.notes[k]; });
+        if(!Object.keys(days).length && !Object.keys(notes).length) return null;
+        const r = { ns: DATA_NS, year: y, col, by, op: e.op, days, byUid: fbAuth.currentUser.uid, at: firebase.firestore.FieldValue.serverTimestamp() };
+        if(Object.keys(notes).length) r.notes = notes;
+        return r;
+    }
+    let desLogRows = [], desLogFilter = { who:'', ps:false };
+    async function desLogOpen() {
+        document.getElementById('des-mode-menu').classList.remove('open');
+        vibrate();
+        const m = document.getElementById('des-log');
+        document.getElementById('dl-sub').textContent = 'Ferie desiderate ' + desYear;
+        document.getElementById('dl-body').innerHTML = '<div class="dl-empty">Carico…</div>';
+        m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 10);
+        if(desDirty) await desSaveNow();
+        if(!fbReady) { document.getElementById('dl-body').innerHTML = '<div class="dl-empty">Senza rete non si può leggere lo storico.</div>'; return; }
+        try {
+            const snap = await db.collection(DES_LOG).where('year', '==', desYear).get();
+            desLogRows = [];
+            snap.forEach(doc => { const x = doc.data(); if(x && x.ns === DATA_NS) desLogRows.push(Object.assign({ id: doc.id, ms: tsToMillis(x.at) || Date.now() }, x)); });
+            desLogRows.sort((a, b) => b.ms - a.ms);
+            const who = document.getElementById('dl-who'), cols = [...new Set(desLogRows.map(r => r.col).concat(desLogRows.map(r => r.op)))].filter(Boolean).sort();
+            who.innerHTML = '<option value="">Tutti</option>' + cols.map(c => `<option value="${esc(c)}"${c === desLogFilter.who ? ' selected' : ''}>${esc(c)}</option>`).join('');
+            desLogRender();
+        } catch(e) {
+            console.warn('Storico desiderate non letto:', e);
+            document.getElementById('dl-body').innerHTML = `<div class="dl-empty">Storico non disponibile (${esc(e.code || e.message || e)}).</div>`;
+        }
+    }
+    function desLogClose(e) {
+        if(e && e.target !== e.currentTarget) return;
+        const m = document.getElementById('des-log'); m.classList.remove('open'); setTimeout(() => m.style.display = 'none', 300);
+    }
+    function desLogSet() {
+        desLogFilter.who = document.getElementById('dl-who').value;
+        desLogFilter.ps = document.getElementById('dl-ps').checked;
+        desLogRender();
+    }
+    function desLogList() {
+        const f = desLogFilter, w = String(f.who || '').toUpperCase();
+        return desLogRows.filter(r => (!f.ps || r.by === PS_NAME) && (!w || String(r.col).toUpperCase() === w || String(r.op).toUpperCase() === w));
+    }
+    // "08-03", "08-04", "08-05" con lo stesso valore -> "3–5 ago"
+    function desLogSpans(map) {
+        const MN = ['gen', 'feb', 'mar', 'apr', 'mag', 'giu', 'lug', 'ago', 'set', 'ott', 'nov', 'dic'];
+        const keys = Object.keys(map || {}).sort(), out = [];
+        const lbl = k => { const [m, d] = k.split('-').map(Number); return { m, d }; };
+        keys.forEach(k => {
+            const v = map[k], c = lbl(k), last = out[out.length - 1];
+            if(last && last.v === v && last.m === c.m && last.d2 === c.d - 1) { last.d2 = c.d; last.n++; return; }
+            out.push({ v, m: c.m, d1: c.d, d2: c.d, n: 1 });
+        });
+        return out.map(x => ({ v: x.v, n: x.n, txt: (x.d1 === x.d2 ? x.d1 : x.d1 + '–' + x.d2) + ' ' + MN[x.m - 1] }));
+    }
+    function desLogWhat(r) {
+        const L = { F:'Ferie', P:'Permesso', '':'Tolto' }, C = { F:'F', P:'P', '':'X' };
+        const parts = desLogSpans(r.days).map(x => `<span class="dl-chip k${C[x.v] || 'X'}">${L[x.v] || x.v}: ${x.txt}${x.n > 1 ? ' (' + x.n + ' gg)' : ''}</span>`);
+        Object.keys(r.notes || {}).sort().forEach(k => { const t = r.notes[k], [m, d] = k.split('-').map(Number); parts.push(`<span class="dl-chip kN">Nota ${d}/${m}: ${t ? '“' + esc(t) + '”' : 'tolta'}</span>`); });
+        return parts.join('');
+    }
+    function desLogRender() {
+        const list = desLogList(), body = document.getElementById('dl-body');
+        document.getElementById('dl-count').textContent = list.length + (list.length === 1 ? ' inserimento' : ' inserimenti');
+        if(!list.length) { body.innerHTML = '<div class="dl-empty">Nessun inserimento registrato.</div>'; return; }
+        const fmt = new Intl.DateTimeFormat('it-IT', { weekday:'short', day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit' });
+        body.innerHTML = list.slice(0, 500).map(r => `<div class="dl-row">
+            <div class="dl-top"><b>${esc(fmt.format(new Date(r.ms)))}</b>${r.by === PS_NAME ? '<span class="des-ps-tag">PC PS</span>' : ''}</div>
+            <div class="dl-who">Operatore <b>${esc(r.op || '?')}</b>${String(r.col).toUpperCase() !== String(r.op).toUpperCase() ? ` · colonna <b>${esc(r.col)}</b>` : ''}${r.by !== PS_NAME && r.by !== r.op ? ` · da ${esc(r.by)}` : ''}</div>
+            <div class="dl-what">${desLogWhat(r)}</div></div>`).join('') + (list.length > 500 ? '<div class="dl-empty">Mostrati i 500 più recenti: scarica il file per vederli tutti.</div>' : '');
+    }
+    function desLogCsv() {
+        const list = desLogList(); if(!list.length) { desToast('Niente da scaricare'); return; }
+        const q = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+        const L = { F:'Ferie', P:'Permesso', '':'Tolto' };
+        const rows = [['Data', 'Ora', 'Operatore', 'Dispositivo', 'Colonna', 'Giorno', 'Cosa', 'Nota']];
+        list.forEach(r => {
+            const dt = new Date(r.ms), dd = dt.toLocaleDateString('it-IT'), hh = dt.toLocaleTimeString('it-IT');
+            Object.keys(r.days || {}).sort().forEach(k => { const [m, d] = k.split('-'); rows.push([dd, hh, r.op, r.by, r.col, d + '/' + m + '/' + r.year, L[r.days[k]] || r.days[k], '']); });
+            Object.keys(r.notes || {}).sort().forEach(k => { const [m, d] = k.split('-'); rows.push([dd, hh, r.op, r.by, r.col, d + '/' + m + '/' + r.year, r.notes[k] ? 'Nota' : 'Nota tolta', r.notes[k] || '']); });
+        });
+        const blob = new Blob(['﻿' + rows.map(r => r.map(q).join(';')).join('\r\n')], { type:'text/csv;charset=utf-8' });
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `storico-ferie-desiderate-${desYear}.csv`;
+        document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
     }
 
     // ── accesso admin per la riunione (password semplice, solo su questo telefono finché resta aperto) ──
@@ -7544,7 +7791,7 @@
     // ── ruota degli strumenti ──
     function desRenderWheel() {
         const w = document.getElementById('des-wheel'); if(!w) return;
-        w.classList.toggle('readonly', !desMe() && !desAdmin);
+        w.classList.toggle('readonly', !desMe() && !desAll());
         const S = 250, c = S / 2, r0 = 46, r1 = 118;
         const ids = desAdmin ? ['F', 'P', 'X', 'N', 'R', 'B', 'I'] : ['F', 'P', 'X', 'N', 'R'], step = 360 / ids.length;
         const items = ids.map((id, i) => [id, i * step]);
@@ -7572,12 +7819,13 @@
     }
 
     // ── periodo dal… al… ──
-    function desRangeWho() { const s = document.getElementById('dr-who'); return desAdmin && s && s.value ? desDriverByIdx(s.value) : desMe(); }
+    function desRangeWho() { const s = document.getElementById('dr-who'); return desAll() && s && s.value ? desDriverByIdx(s.value) : desMe(); }
     function desOpenRange() {
-        if(!desMe() && !desAdmin) { desOtherTap(); return; }
+        if(desPSNeed(desOpenRange)) return;   // PC Pronto Soccorso: prima "a nome di chi"
+        if(!desMe() && !desAll()) { desOtherTap(); return; }
         const sw = document.getElementById('dr-who-row');
-        sw.style.display = desAdmin ? '' : 'none';
-        if(desAdmin) { const def = desMode === 'anno' && desYgWho != null ? desYgWho : (desMe() ? desMe().idx : null); document.getElementById('dr-who').innerHTML = desCols().map(d => `<option value="${d.idx}"${d.idx === def ? ' selected' : ''}>${esc(d.name)}</option>`).join(''); }
+        sw.style.display = desAll() ? '' : 'none';
+        if(desAll()) { const opD = desIsPS() ? desDriverOf(desPSOperator()) : null, def = desMode === 'anno' && desYgWho != null ? desYgWho : (desMe() ? desMe().idx : opD ? opD.idx : null); document.getElementById('dr-who').innerHTML = desCols().map(d => `<option value="${d.idx}"${d.idx === def ? ' selected' : ''}>${esc(d.name)}</option>`).join(''); }
         vibrate();
         const y = desYear, f = document.getElementById('dr-from'), t = document.getElementById('dr-to');
         f.min = t.min = y + '-01-01'; f.max = t.max = y + '-12-31';
@@ -15016,6 +15264,8 @@
         'des-range': desCloseRange,
         'des-note': desCloseNote,
         'des-admin': desAdminClose,
+        'des-op': desPSClose,
+        'des-log': desLogClose,
         'des-view': closeDesiderate,
         'driver-filter-dropdown': closeDriverFilterDropdown,
         'menu-dropdown': toggleMenu
