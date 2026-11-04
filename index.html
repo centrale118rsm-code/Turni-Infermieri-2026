@@ -7335,14 +7335,14 @@
                 const c = desCount(days, desYear);
                 if((c.f > al.co && c.f > before.f) || (c.p > al.sp && c.p > before.p)) { if(was) days[key] = was; else delete days[key]; blocked++; return; }
                 n++; logged.push([key, was || '', val]);
-            } else if(!val && days[key]) { logged.push([key, days[key], '']); delete days[key]; n++; if(ok[key]) unbar.push(key); }
+            } else if(!val && days[key]) { logged.push([key, days[key], '']); if(ok[key]) unbar.push([key, days[key]]); delete days[key]; n++; }
         });
         if(blocked) { desToast(`Limite raggiunto: ${d === desMe() ? 'hai' : d.name + ' ha'} ${al.co} giorni di ferie e ${al.sp} permessi${blocked > 1 ? ` (${blocked} giorni non inseriti)` : ''}`); if(navigator.vibrate) try { navigator.vibrate([30, 40, 30]); } catch(e) {} }
         else if(locked) desToast('Giorno barrato: è già nei turni. Lo toglie solo l’admin (riunione), con Barra o con Cancella');
         if(!n) return 0;
         desData[k] = days;
         // un giorno barrato cancellato (admin) perde anche la barra: rimessa la ferie non risulterebbe già nei turni
-        if(unbar.length) { const o = Object.assign({}, desOk[k] || {}); unbar.forEach(x => delete o[x]); desOk[k] = o; }
+        if(unbar.length) { const o = Object.assign({}, desOk[k] || {}); unbar.forEach(x => delete o[x[0]]); desOk[k] = o; desUnimportQueue(d, unbar); }
         desLogPush(d, 'days', logged);
         desMarkDirty(d);
         desRefreshCols(d.idx, new Set(changes.map(c => c[0])));
@@ -7399,7 +7399,42 @@
         desOk[k] = ok; desMarkDirty(d);
         desRefreshCols(d.idx, new Set(keys));
         return n;
+    }
+    // ── giorno barrato cancellato dall'admin: si può togliere anche dal calendario turni ──
+    // Si toglie l'assenza dalla casella dei turni solo se è proprio quella messa dall'importazione
+    // (C.O. per le ferie, permesso per i permessi); il turno della casella resta com'è.
+    let desUnQ = [], desUnT = null;
+    function desUnimportQueue(d, items) {
+        items.forEach(([key, was]) => desUnQ.push({ d, key, sub: was === 'P' ? 'p' : 'f', y: desYear }));
+        clearTimeout(desUnT); desUnT = setTimeout(desUnimportAsk, 700);   // dopo un trascinamento si chiede una volta sola
     }
+    async function desUnimportAsk() {
+        const list = desUnQ.splice(0); if(!list.length || !desAdmin || !fbReady || dataSourceMode !== 'firebase') return;
+        const names = [...new Set(list.map(x => x.d.name))].join(', ');
+        if(!confirm(`${list.length === 1 ? 'Questo giorno era barrato' : 'Questi ' + list.length + ' giorni erano barrati'} (${names}): risultano già nel calendario turni.\n\nToglierli anche dal calendario turni?`)) return;
+        try {
+            await takeSnapshot('prima-togli-desiderate');
+            const MN = Object.keys(MONTH_MAP), docs = {}, batch = db.batch(), byDoc = {}, done = [];
+            for(const x of list) {
+                const [mm, dd] = x.key.split('-').map(Number), name = monthDocName(x.y, mm - 1);
+                if(!(name in docs)) { const s = await cfgRef(name).get(); docs[name] = s.exists ? (s.data().cells || {}) : {}; }
+                const cell = `${x.d.originalName || x.d.name}__${MN[mm - 1]}-${dd}`, cur = docs[name][cell];
+                if(!cur || String(cur.subV || '').trim().toLowerCase() !== x.sub) continue;   // nei turni c'è altro: non si tocca
+                (byDoc[name] = byDoc[name] || {})[cell] = { v: cur.v || '', subV: firebase.firestore.FieldValue.delete(), coY: firebase.firestore.FieldValue.delete() };
+                done.push(x);
+            }
+            if(!done.length) { desToast('Nel calendario turni quei giorni non ci sono più'); return; }
+            const now = new Date().toISOString();
+            Object.keys(byDoc).forEach(n => batch.set(cfgRef(n), { cells: byDoc[n], updatedAt: now }, { merge:true }));
+            addLogWrite(batch, [], `Ferie desiderate tolte dal calendario turni: ${done.length} ${done.length === 1 ? "giorno" : "giorni"} (${[...new Set(done.map(x => x.d.name))].join(', ')})`);
+            await batch.commit();
+            desToast(`Tolti dal calendario turni ${done.length} ${done.length === 1 ? 'giorno' : 'giorni'}`);
+        } catch(e) {
+            console.error('Togli dai turni:', e);
+            alert('Non sono riuscito a toglierli dal calendario turni: ' + (e && e.message || e));
+        }
+    }
+
     // ── trascinamento: col dito (tieni premuto un attimo, poi scorri) o col mouse ──
     // restituisce il giorno e la colonna sotto il dito, solo dove si può scrivere
     function desHitAtPoint(x, y) {
