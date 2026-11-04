@@ -7327,7 +7327,7 @@
         const d = who || desMe(); if(!desCanEdit(d)) return 0;
         const k = desDKey(d), days = Object.assign({}, desData[k] || {}), ok = desOkOf(d);
         // blocco: non si va oltre le spettanze dell'operatore (ferie = C.O., permessi straordinari)
-        const al = desAllow(d); let n = 0, blocked = 0, locked = 0; const logged = [];
+        const al = desAllow(d); let n = 0, blocked = 0, locked = 0; const logged = [], unbar = [];
         changes.forEach(([key, val]) => {
             if(ok[key] && !desAdmin) { if((days[key] || null) !== (val || null)) locked++; return; }   // già inserito nei turni dal coordinatore
             if(val && days[key] !== val) {
@@ -7335,12 +7335,14 @@
                 const c = desCount(days, desYear);
                 if((c.f > al.co && c.f > before.f) || (c.p > al.sp && c.p > before.p)) { if(was) days[key] = was; else delete days[key]; blocked++; return; }
                 n++; logged.push([key, was || '', val]);
-            } else if(!val && days[key]) { logged.push([key, days[key], '']); delete days[key]; n++; }
+            } else if(!val && days[key]) { logged.push([key, days[key], '']); delete days[key]; n++; if(ok[key]) unbar.push(key); }
         });
         if(blocked) { desToast(`Limite raggiunto: ${d === desMe() ? 'hai' : d.name + ' ha'} ${al.co} giorni di ferie e ${al.sp} permessi${blocked > 1 ? ` (${blocked} giorni non inseriti)` : ''}`); if(navigator.vibrate) try { navigator.vibrate([30, 40, 30]); } catch(e) {} }
-        else if(locked) desToast('Giorno già inserito nei turni dal coordinatore: non si cambia da qui');
+        else if(locked) desToast('Giorno barrato: è già nei turni. Lo toglie solo l’admin (riunione), con Barra o con Cancella');
         if(!n) return 0;
         desData[k] = days;
+        // un giorno barrato cancellato (admin) perde anche la barra: rimessa la ferie non risulterebbe già nei turni
+        if(unbar.length) { const o = Object.assign({}, desOk[k] || {}); unbar.forEach(x => delete o[x]); desOk[k] = o; }
         desLogPush(d, 'days', logged);
         desMarkDirty(d);
         desRefreshCols(d.idx, new Set(changes.map(c => c[0])));
