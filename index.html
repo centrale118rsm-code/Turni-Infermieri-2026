@@ -864,6 +864,39 @@
         body.coord-edit-mode .chk-flag.err { background:#dc2626; }
         #abs-modal, #eq-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:6200; backdrop-filter:blur(8px); align-items:flex-end; justify-content:center; opacity:0; transition:opacity 0.3s; }
         #eq-modal.open { opacity:1; }
+        /* ══ Calendario reperibili del mese (come il foglio Excel: giorno, fasce, nomi) ══ */
+        #rl-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:6200; backdrop-filter:blur(8px); align-items:flex-end; justify-content:center; opacity:0; transition:opacity 0.3s; }
+        #rl-modal.open { opacity:1; }
+        #rl-modal .modal-content { max-width:720px; max-height:94vh; }
+        #rl-modal.open .modal-content { transform:translateY(0); }
+        .rl-nav { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:4px 12px 10px; }
+        .rl-nav button { border:1px solid var(--border); background:var(--bg-card); color:var(--text-main); border-radius:12px; width:42px; height:38px; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+        .rl-nav button:disabled { opacity:.3; cursor:default; }
+        .rl-nav b { font-size:1.05rem; font-weight:900; letter-spacing:.5px; }
+        .rl-wrap { padding:0 10px 8px; overflow-x:auto; }
+        .rl-act { display:flex; gap:8px; padding:0 12px 10px; }
+        .rl-act button { flex:1; display:flex; align-items:center; justify-content:center; gap:6px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-main); border-radius:12px; padding:9px 10px; font-weight:800; font-size:0.85rem; cursor:pointer; font-family:inherit; }
+        .rl-act button .material-icons-round { font-size:19px; color:#dc2626; }
+        .rl-table { width:100%; border-collapse:collapse; font-size:0.82rem; table-layout:fixed; }
+        .rl-table th, .rl-table td { border:1px solid #9ca3af; padding:5px 6px; height:auto; transition:none; }
+        .rl-table thead th { background:#8ef04a; color:#111; font-weight:900; font-size:0.95rem; text-align:center; position:static; top:auto; min-width:0; height:auto; backdrop-filter:none; text-transform:none; letter-spacing:0; overflow:visible; white-space:nowrap; z-index:auto; }
+        .rl-table thead th::before { display:none; }
+        .rl-table thead th.rl-m { background:#22d3a0; font-style:italic; width:auto !important; min-width:0 !important; max-width:none !important; font-size:0.8rem; }
+        .rl-table col.rl-cd { width:44px; } .rl-table col.rl-cw { width:52px; }
+        .rl-table td.rl-d { text-align:center; font-weight:900; font-size:1.05rem; color:#1e3a8a; background:#fff; }
+        .rl-table td.rl-w { text-align:center; font-weight:600; color:#1d4ed8; background:#dde3fb; }
+        .rl-table tr.rl-fest td.rl-d { background:#5eead4; }
+        .rl-table tr.rl-sun td.rl-w { background:#c6f04a; color:#1e3a8a; }
+        .rl-table tr.rl-sun td { border-bottom:2px solid #a21caf; }
+        .rl-table td.rl-n { background:#e3f1dc; color:#111; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .rl-table td.rl-n.rl-ces { background:#fde68a; }
+        .rl-table td.rl-n.rl-empty { background:#fff; }
+        .rl-table tr.rl-today td { box-shadow:inset 0 2px 0 #dc2626, inset 0 -2px 0 #dc2626; }
+        .rl-table tr.rl-today td.rl-d { color:#dc2626; }
+        .rl-legend { display:flex; flex-wrap:wrap; gap:10px; padding:4px 12px 14px; font-size:0.75rem; color:var(--text-sec); }
+        .rl-legend span { display:inline-flex; align-items:center; gap:5px; }
+        .rl-legend i { width:14px; height:14px; border-radius:3px; border:1px solid #9ca3af; display:inline-block; }
+        @media (max-width:600px) { .rl-table { font-size:0.6rem; letter-spacing:-0.2px; } .rl-table thead th { font-size:0.72rem; } .rl-table thead th.rl-m { font-size:0.6rem; } .rl-table th, .rl-table td { padding:4px 3px; } .rl-table col.rl-cd { width:28px; } .rl-table col.rl-cw { width:36px; } .rl-table td.rl-d { font-size:0.85rem; } }
         #eq-modal .modal-content { max-width:860px; max-height:94vh; }
         #eq-modal.open .modal-content { transform:translateY(0); }
         #eq-grid { overflow:visible; padding:0 12px 6px; }
@@ -3375,6 +3408,34 @@
 </div>
 
 <!-- ══════════════ CONTEGGIO ASSENZE ══════════════ -->
+<div id="rl-modal" onclick="closeRepList(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header hc-header-badge">
+            <div class="header-text">
+                <h3><span class="material-icons-round" style="margin-right:10px">phone_in_talk</span> REPERIBILI DEL MESE</h3>
+                <span>Chi è reperibile in ogni fascia, già con le cessioni</span>
+            </div>
+            <button class="btn-close-modal" onclick="closeRepList()"><span class="material-icons-round">close</span></button>
+        </div>
+        <div class="modal-body">
+            <div class="rl-nav">
+                <button id="rl-prev" onclick="repListMove(-1)" title="Mese prima"><span class="material-icons-round">chevron_left</span></button>
+                <b id="rl-title"></b>
+                <button id="rl-next" onclick="repListMove(1)" title="Mese dopo"><span class="material-icons-round">chevron_right</span></button>
+            </div>
+            <div class="rl-act">
+                <button onclick="repListPrint()"><span class="material-icons-round">print</span>Stampa</button>
+                <button onclick="repListPdf()"><span class="material-icons-round">picture_as_pdf</span>Scarica PDF</button>
+            </div>
+            <div class="rl-wrap" id="rl-body"></div>
+            <div class="rl-legend">
+                <span><i style="background:#e3f1dc"></i>reperibile titolare</span>
+                <span><i style="background:#fde68a"></i>fascia ceduta (c'è chi la copre)</span>
+                <span><i style="background:#5eead4"></i>festivo</span>
+            </div>
+        </div>
+    </div>
+</div>
 <div id="eq-modal" onclick="closeEquity(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
         <div class="modal-header hc-header-badge">
@@ -5597,6 +5658,7 @@
                 { id:'month', icon:'event', label:'Vai a un mese', desc:'Scegli il mese da vedere', color: MN_COLORS.cal, run: () => toggleMonthDropdown() },
                 (typeof isViewingArchive === 'function' && isViewingArchive()) ? null : { id:'nexty', icon:'fast_forward', label:'Vai al ' + (SHIFT_YEAR + 1), desc:'L’anno dopo è già qui, sotto dicembre: i turni si possono già scrivere', color: MN_COLORS.cal, run: () => goNextYear() },
                 { id:'filter', icon:'groups', label:'Filtra operatori', desc:'Mostra solo alcuni colleghi', color: MN_COLORS.cal, run: () => toggleDriverFilterDropdown() },
+                { id:'replist', icon:'phone_in_talk', label:'Reperibili del mese', desc:'Tabella con chi è reperibile in ogni fascia, cessioni comprese', color:'#dc2626', run: () => openRepList() },
                 { id:'print', icon:'print', label:'Stampa del mese', desc:'PDF dei turni per la bacheca', color: MN_COLORS.cal, run: () => printMonthPick() },
                 { id:'desid', icon:'beach_access', label:'Calendario ferie desiderate', desc:'Scrivi le ferie e i permessi che vorresti, nella tua colonna', color:'#16a34a', run: () => openDesiderate() },
                 { id:'phonecal', icon:'phone_iphone', label:'Nel calendario del telefono', desc:'I tuoi turni nel calendario dell’iPhone, aggiornati da soli', color: MN_COLORS.cal, run: () => openOptionsCal() }
@@ -14196,6 +14258,114 @@
             <div style="display:flex;flex-direction:column;gap:5px">${rows}</div></div>`;
     }
 
+    // ── Reperibili del mese (menu Calendario) ──────────────────────────────
+    // Tabella come il foglio Excel delle reperibilità: per ogni giorno le 4 fasce con chi le
+    // copre davvero (titolare oppure chi ha ricevuto la fascia con una cessione). Solo lettura.
+    let repListMonth = null;   // { y, m }
+    const RL_WD = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
+    const RL_MN = ['GENNAIO','FEBBRAIO','MARZO','APRILE','MAGGIO','GIUGNO','LUGLIO','AGOSTO','SETTEMBRE','OTTOBRE','NOVEMBRE','DICEMBRE'];
+    function repListBounds() { return { lo: SHIFT_YEAR * 12, hi: (SHIFT_YEAR + 1) * 12 + 11 }; }
+    function openRepList() {
+        closeMenu(); vibrate();
+        const now = new Date(), b = repListBounds();
+        let k = now.getFullYear() * 12 + now.getMonth(); k = Math.min(Math.max(k, b.lo), b.hi);
+        repListMonth = { y: Math.floor(k / 12), m: k % 12 };
+        renderRepList();
+        const m = document.getElementById('rl-modal'); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 10);
+        setCurrentView('Reperibili');
+        setTimeout(() => { const t = document.querySelector('#rl-body tr.rl-today'), body = document.querySelector('#rl-modal .modal-body'); if(t && body) body.scrollTop = Math.max(0, t.offsetTop - 120); }, 80);
+    }
+    function closeRepList(e) { if(e && e.target !== e.currentTarget) return; const m = document.getElementById('rl-modal'); m.classList.remove('open'); setTimeout(() => { if(!m.classList.contains('open')) m.style.display = 'none'; }, 300); }
+    function repListMove(d) {
+        vibrate(); const b = repListBounds();
+        const k = Math.min(Math.max(repListMonth.y * 12 + repListMonth.m + d, b.lo), b.hi);
+        repListMonth = { y: Math.floor(k / 12), m: k % 12 }; renderRepList();
+        const body = document.querySelector('#rl-modal .modal-body'); if(body) body.scrollTop = 0;
+    }
+    // Righe del mese: giorno, sigla, festivo, oggi e le 4 fasce { who, ced, tit }.
+    function repListRows(y, m) {
+        const R = repData(), H = holidaysFor(y), today = ymd(new Date()), nd = new Date(y, m + 1, 0).getDate(), out = [];
+        for(let d = 1; d <= nd; d++) {
+            const dt = new Date(y, m, d), iso = ymd(dt), f = R.days[iso] || ['', '', '', ''];
+            out.push({ d, wd: dt.getDay(), fest: H[`${m}-${d}`] || '', today: iso === today, slots: [0, 1, 2, 3].map(s => {
+                const who = f[s], tit = who ? repTitolareOfSlot(R, iso, s) : '';
+                return { who: who ? repDisplayName(who).toUpperCase() : '', ced: !!who && !!tit && who !== tit, tit: tit ? repDisplayName(tit) : '' };
+            }) });
+        }
+        return out;
+    }
+    function renderRepList() {
+        if(!repListMonth) return;
+        const { y, m } = repListMonth, b = repListBounds(), k = y * 12 + m;
+        document.getElementById('rl-title').textContent = RL_MN[m] + ' ' + y;
+        document.getElementById('rl-prev').disabled = k <= b.lo; document.getElementById('rl-next').disabled = k >= b.hi;
+        const rows = repListRows(y, m).map(r => {
+            const cls = [r.wd === 0 ? 'rl-sun' : '', r.fest ? 'rl-fest' : '', r.today ? 'rl-today' : ''].filter(Boolean).join(' ');
+            const cells = r.slots.map(x => !x.who ? '<td class="rl-n rl-empty"></td>'
+                : `<td class="rl-n${x.ced ? ' rl-ces' : ''}"${x.ced ? ` title="Ceduta da ${esc(x.tit)}"` : ''}>${esc(x.who)}</td>`).join('');
+            return `<tr class="${cls}"${r.fest ? ` title="${esc(r.fest)}"` : ''}><td class="rl-d">${r.d}</td><td class="rl-w">${RL_WD[r.wd]}</td>${cells}</tr>`;
+        }).join('');
+        document.getElementById('rl-body').innerHTML = `<table class="rl-table"><colgroup><col class="rl-cd"><col class="rl-cw"><col><col><col><col></colgroup>
+            <thead><tr><th class="rl-m" colspan="2">${RL_MN[m]}</th>${REP_SLOTS.map(x => `<th>${x.label.replace('-', ' - ')}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>`;
+    }
+    // Stampa: stessa tabella su un foglio A4, colori compresi.
+    function repListPrint() {
+        if(!repListMonth) return; vibrate();
+        const { y, m } = repListMonth;
+        const rows = repListRows(y, m).map(r => `<tr class="${r.wd === 0 ? 'sun' : ''}"><td class="d${r.fest ? ' fe' : ''}">${r.d}</td><td class="w${r.wd === 0 ? ' su' : ''}">${RL_WD[r.wd]}</td>${r.slots.map(x => `<td class="n${x.ced ? ' c' : x.who ? '' : ' e'}">${esc(x.who)}</td>`).join('')}</tr>`).join('');
+        const html = `<!doctype html><html><head><meta charset="utf-8"><title>Reperibili ${RL_MN[m]} ${y}</title><style>
+            @page { size:A4 portrait; margin:10mm; } * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+            body { font-family:Arial, sans-serif; margin:0; color:#111; } h1 { font-size:16px; margin:0 0 6px; }
+            table { width:99%; border-collapse:collapse; font-size:12px; } th, td { border:1px solid #888; padding:3px 6px; }
+            th { background:#8ef04a; font-size:14px; } th.m { background:#22d3a0; font-style:italic; }
+            td.d { text-align:center; font-weight:bold; color:#1e3a8a; width:28px; font-size:14px; } td.d.fe { background:#5eead4; }
+            td.w { text-align:center; color:#1d4ed8; background:#dde3fb; width:36px; } td.w.su { background:#c6f04a; }
+            tr.sun td { border-bottom:2px solid #a21caf; } td.n { background:#e3f1dc; } td.n.c { background:#fde68a; } td.n.e { background:#fff; }
+            .legend { margin-top:6px; font-size:10px; color:#555; }
+        </style></head><body><h1>Reperibili infermieri \u2014 ${RL_MN[m]} ${y}</h1>
+            <table><thead><tr><th class="m" colspan="2">${RL_MN[m]}</th>${REP_SLOTS.map(x => `<th>${x.label.replace('-', ' - ')}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>
+            <p class="legend">Generato il ${new Date().toLocaleString('it-IT')}</p></body></html>`;
+        const old = document.getElementById('rl-print-frame'); if(old) old.remove();
+        const fr = document.createElement('iframe');
+        fr.id = 'rl-print-frame'; fr.setAttribute('aria-hidden', 'true');
+        fr.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
+        document.body.appendChild(fr);
+        const doc = fr.contentWindow.document; doc.open(); doc.write(html); doc.close();
+        setTimeout(() => { try { fr.contentWindow.focus(); fr.contentWindow.print(); } catch(e) { ccToast('Stampa non riuscita.', true); } }, 250);
+    }
+    async function repListPdf() {
+        if(!repListMonth) return; vibrate();
+        const { y, m } = repListMonth;
+        try {
+            ccToast('Preparo il PDF\u2026');
+            const jsPDF = await repEnsurePdfLib();
+            const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+            const rows = repListRows(y, m);
+            doc.setFont('helvetica', 'bold'); doc.setFontSize(14);
+            doc.text(`Reperibili infermieri - ${RL_MN[m]} ${y}`, 12, 13);
+            doc.autoTable({
+                startY: 17, margin: { left: 12, right: 12 }, theme: 'grid',
+                head: [[{ content: RL_MN[m], colSpan: 2 }, ...REP_SLOTS.map(x => x.label.replace('-', ' - '))]],
+                body: rows.map(r => [String(r.d), RL_WD[r.wd], ...r.slots.map(x => x.who)]),
+                styles: { font: 'helvetica', fontSize: 9.5, cellPadding: 1.6, lineColor: [140, 140, 140], lineWidth: 0.2, textColor: [17, 17, 17] },
+                headStyles: { fillColor: [142, 240, 74], textColor: [17, 17, 17], fontStyle: 'bold', halign: 'center', fontSize: 11 },
+                columnStyles: { 0: { cellWidth: 12, halign: 'center', fontStyle: 'bold', textColor: [30, 58, 138] }, 1: { cellWidth: 14, halign: 'center', textColor: [29, 78, 216] } },
+                didParseCell: h => {
+                    if(h.section === 'head' && h.column.index === 0) { h.cell.styles.fillColor = [34, 211, 160]; h.cell.styles.fontStyle = 'bolditalic'; h.cell.styles.fontSize = 9; }
+                    if(h.section !== 'body') return;
+                    const r = rows[h.row.index], c = h.column.index;
+                    if(c === 0) h.cell.styles.fillColor = r.fest ? [94, 234, 212] : [255, 255, 255];
+                    else if(c === 1) h.cell.styles.fillColor = r.wd === 0 ? [198, 240, 74] : [221, 227, 251];
+                    else { const x = r.slots[c - 2]; h.cell.styles.fillColor = !x.who ? [255, 255, 255] : x.ced ? [253, 230, 138] : [227, 241, 220]; }
+                }
+            });
+            doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(90);
+            doc.text(`Generato il ${new Date().toLocaleString('it-IT')}`, 12, doc.lastAutoTable.finalY + 6);
+            doc.save(`reperibili-infermieri-${RL_MN[m].toLowerCase()}-${y}.pdf`);
+            ccToast('PDF scaricato');
+        } catch(e) { console.error(e); ccToast('PDF non riuscito: controlla la connessione.', true); }
+    }
+
     // "Reperibile ora" nella barra di ogni mese: chi copre la fascia in corso adesso.
     function updateRepNowPill() {
         const pills = document.querySelectorAll('.rep-now-pill'); if(!pills.length) return;
@@ -14237,6 +14407,7 @@
             if(finalData.length && document.querySelector('#table-body tr[data-row]')) renderTable();
             if(coordEditModeActive) updateCoordToolbarState();
             ccRefreshIfOpen();
+            if(document.getElementById('rl-modal')?.classList.contains('open')) renderRepList();
         }, 120);
     }
     function repPendingCount() { return Object.keys(repTurniEdits).length + Object.keys(repCessioniEdits).length; }
@@ -15632,6 +15803,7 @@
         'hours-modal': closeHoursModal,
         'me-modal': closeMyPage,
         'eq-modal': closeEquity,
+        'rl-modal': closeRepList,
         'ov-view': () => { if(document.getElementById('ov-sheet').classList.contains('open')) { ovCloseSheet(); setTimeout(syncModalHistoryState, 0); } else setCalView('dettaglio'); },
         'abs-modal': () => { if(absDetailIdx !== null) { absCloseDetail(); setTimeout(syncModalHistoryState, 0); } else closeAbsModal(); },
         'rep-edit-popup': closeRepEditPopup,
