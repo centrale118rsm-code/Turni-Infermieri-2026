@@ -4302,7 +4302,9 @@
     async function initFirebaseTracking() {
         if(!fbReady) return;
         try { await fbAuth.signInAnonymously(); } catch(e) { console.error("Auth anonima fallita:", e); }
-        if(SERVER_MODE) return;
+        // motore (?server=1): niente sessione né identità, ma impostazioni, reperibilità e note sì,
+        // sennò non sa che i turni stanno su Firebase e calendari/avvisi partono dal vecchio Excel
+        if(SERVER_MODE) { listenConfigChanges(); listenReperibilita(); listenOpNotes(); return; }
         identityRecoveryPromise = tryRecoverIdentityFromUid();
         setTimeout(() => { try { appErrFlush(); } catch(e) {} }, 1500);   // errori capitati prima del collegamento
         setTimeout(() => { const go = () => loadLib('chart').catch(() => {}); window.requestIdleCallback ? requestIdleCallback(go, { timeout: 10000 }) : go(); }, 8000);
@@ -12293,7 +12295,7 @@
     // al nuovo (solo con i turni su Firebase; con modifiche non salvate su questo telefono si aspetta).
     let autoNewYearBusy = false;
     async function autoNewYearCheck() {
-        if(autoNewYearBusy || !fbReady || !appBooted || bootMode !== 'firebase' || dataSourceMode !== 'firebase') return;
+        if(SERVER_MODE || autoNewYearBusy || !fbReady || !appBooted || bootMode !== 'firebase' || dataSourceMode !== 'firebase') return;
         if(isViewingArchive() || coordEditModeActive || pendingChangesCount()) return;
         if(new Date().getFullYear() <= activeYear || !finalData.length) return;
         autoNewYearBusy = true;
