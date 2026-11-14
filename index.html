@@ -2252,6 +2252,10 @@
         .sep-btn small { display:block; color:var(--cc-muted); font-size:11.5px; font-weight:400; font-variant-numeric:tabular-nums; }
         .sep-foot { display:flex; justify-content:space-between; gap:8px; padding:12px 16px; border-top:1px solid var(--cc-line-2); background:var(--cc-surface-2); border-radius:0 0 var(--cc-r) var(--cc-r); flex-wrap:wrap; }
 
+        /* ══ Reperibile in permesso notte: scritta rossa nella casella del giorno del permesso ══ */
+        #cc-dialog-text { white-space: pre-line; }
+        .rep-pn-warn { margin-top: 3px; padding: 2px 3px; border-radius: 5px; background: #dc2626; color: #fff; font-size: 0.5rem; font-weight: 900; line-height: 1.15; letter-spacing: .2px; text-align: center; animation: repPnBlink 1.4s ease-in-out infinite; }
+        @keyframes repPnBlink { 50% { background: #7f1d1d; } }
         /* ══ Editor reperibilità (fasce) ═══════════════════════════════════ */
         #rep-edit-popup { display:none; position:fixed; inset:0; z-index:9750; background:rgba(12,18,26,.45); align-items:center; justify-content:center; padding:16px; opacity:0; transition:opacity .14s; }
         #rep-edit-popup.open { opacity:1; }
@@ -5449,7 +5453,7 @@
     }
     function showStartupMessages() {
         applyWelcomeConfig();
-        announcementQueue = (customAnnouncements || []).filter(a => a.active !== false).concat(cmStartupItems());   // + messaggi del coordinatore
+        announcementQueue = (customAnnouncements || []).filter(a => a.active !== false).concat(cmStartupItems()).concat(pnRepStartupItems());   // + messaggi del coordinatore, reperibili in permesso notte
         if(welcomeConfig.active === false) { showNextAnnouncement(); return; }
         const durationSec = welcomeConfig.duration && welcomeConfig.duration > 0 ? welcomeConfig.duration : 3;
         let wm = document.getElementById('welcome-modal');
@@ -6825,6 +6829,60 @@
         setTimeout(()=>m.style.display='none',300);
         if(hoursChartInstance) { hoursChartInstance.destroy(); hoursChartInstance = null; }
     }
+    // ═══ PERMESSO NOTTE E REPERIBILITÀ ═════════════════════════════════════
+    // Chi ha il permesso notte ("pn" sotto la casella) un giorno non può fare la reperibilità del
+    // turno che parte quel giorno (13:00 › 13:00 del giorno dopo), né le fasce di quel turno
+    // ricevute da un collega. Avviso: finestra quando lo si crea in Modifica turni, vignetta e
+    // controlli in rosso, scritta lampeggiante nella casella e messaggio all'apertura dell'app.
+    function pnRepOn(rowIdx, d) { return String((((finalData[rowIdx] || [])[d.idx]) || {}).subV || '').trim().toLowerCase() === 'pn'; }
+    function pnRepConflictAt(rowIdx, d, R) {
+        if(!d || !pnRepOn(rowIdx, d)) return null;
+        const iso = repRowDate(rowIdx); if(!iso) return null;
+        R = R || repData(); const n = repDateAdd(iso, 1);
+        const slots = [[iso, 2], [iso, 3], [n, 0], [n, 1]].filter(([x, s]) => ((R.days[x] || [])[s]) === d.originalName).map(([x, s]) => REP_SLOTS[s].label);
+        if(!slots.length) return null;
+        return { r: rowIdx, idx: d.idx, iso, name: d.name, orig: d.originalName, tit: R.tit[iso] === d.originalName, slots };
+    }
+    function pnRepConflicts(rows) {
+        const R = repData(), out = [], act = drivers.filter(d => !d.hidden);
+        rows.forEach(r => act.forEach(d => { const c = pnRepConflictAt(r, d, R); if(c) out.push(c); }));
+        return out;
+    }
+    function pnRepText(c) {
+        const what = c.slots.length === 4 ? (c.tit ? 'è il reperibile dalle 13:00 per 24 ore' : 'copre tutte le fasce') : 'copre ' + (c.slots.length === 1 ? 'la fascia ' : 'le fasce ') + c.slots.join(', ');
+        return `${c.name} in permesso notte: non può fare la reperibilità (${what})`;
+    }
+    // Finestra subito, in Modifica turni, quando una modifica (permesso o reperibilità) crea il problema.
+    const pnRepWarned = new Set();
+    function pnRepEditCheck(keys, repDates) {
+        setTimeout(() => {
+            const rows = new Set();
+            edRowsOf(keys, repDates).forEach(r => { rows.add(r); if(r > 1) rows.add(r - 1); });
+            const all = pnRepConflicts([...rows]), now = new Set(all.map(c => c.orig + '|' + c.iso));
+            rows.forEach(r => { const iso = repRowDate(r); [...pnRepWarned].forEach(k => { if(k.endsWith('|' + iso) && !now.has(k)) pnRepWarned.delete(k); }); });
+            const fresh = all.filter(c => { const k = c.orig + '|' + c.iso; if(pnRepWarned.has(k)) return false; pnRepWarned.add(k); return true; });
+            if(!fresh.length) return;
+            vibrate();
+            const txt = fresh.map(c => `${repDateLabel(c.iso, true)}: ${pnRepText(c)}.`).join('\n') + '\n\nCambia la reperibilità (ruota › Reperibilità) oppure togli il permesso notte.';
+            ccDialog(fresh.length === 1 ? 'Reperibile in permesso notte' : fresh.length + ' reperibili in permesso notte', txt, [{ label: 'Vai al giorno', kind: 'ghost', value: 'go' }, { label: 'Ho capito', kind: 'primary', value: 'ok' }])
+                .then(v => { if(v === 'go') calGoToCell(fresh[0].r, fresh[0].idx); });
+        }, 220);
+    }
+    // Messaggio all'apertura: problemi da oggi ai prossimi 60 giorni (una volta al giorno su ogni
+    // dispositivo, e di nuovo se ne compare uno nuovo).
+    function pnRepStartupItems() {
+        try {
+            const t = ymd(new Date()), lim = repDateAdd(t, 60), rows = [];
+            for(let r = 1; r < finalData.length; r++) { const iso = repRowDate(r); if(iso && iso >= t && iso <= lim) rows.push(r); }
+            const list = pnRepConflicts(rows); if(!list.length) return [];
+            const sig = t + '#' + list.map(c => c.orig + '|' + c.iso + '|' + c.slots.join(',')).join(';');
+            let seen = ''; try { seen = localStorage.getItem('pnrep_seen_v1') || ''; } catch(e) {}
+            if(seen === sig) return [];
+            try { localStorage.setItem('pnrep_seen_v1', sig); } catch(e) {}
+            const text = list.map(c => `<b>${esc(repDateLabel(c.iso, true))}</b>: ${esc(pnRepText(c))}.`).join('\n') + '\n\n<small>Il coordinatore deve cambiare la reperibilità o il permesso.</small>';
+            return [{ icon: 'phone_disabled', title: list.length === 1 ? 'REPERIBILE IN PERMESSO NOTTE' : 'REPERIBILI IN PERMESSO NOTTE', text }];
+        } catch(e) { console.warn('pnRep', e); return []; }
+    }
     // ═══ CONTROLLI: COPERTURA E REGOLE SUI TURNI ═════════════════════════
     // Copertura: persone per mattina/pomeriggio/notte sotto la soglia, giorno senza
     // reperibile, reperibile assente. Regole: notte senza smonto, riposo sotto le 10 ore
@@ -6861,8 +6919,10 @@
             (R.days[iso] || []).forEach((who, s) => {
                 if(!who) return; const d = drivers.find(x => x.originalName === who); if(!d) return;
                 const meta = ccCodeMeta(computeDayInfo(dd.rowIdx, d.idx));
+                if(pnRepOn(dd.rowIdx, d)) return;   // permesso notte: avviso dedicato qui sotto
                 if(meta.kind === 'abs') get(dd.rowIdx).day.push(`reperibile ${d.name} assente (${meta.label.toLowerCase()}) nella fascia ${REP_SLOTS[s].label}`);
             });
+            active.forEach(d => { const c = pnRepConflictAt(dd.rowIdx, d, R); if(c) get(dd.rowIdx).day.push(pnRepText(c)); });
         });
         active.forEach(d => {
             let run = 0;
@@ -9754,7 +9814,7 @@
             });
             const c = chk.rows[r];
             if(c) {
-                c.day.filter(m => !/^(mattina|pomeriggio|notte):/.test(m)).forEach(m => out.push({ r, cat: /reperibil/.test(m) ? 'REP' : 'X', err: false, t: `${when}: ${m}` }));
+                c.day.filter(m => !/^(mattina|pomeriggio|notte):/.test(m)).forEach(m => out.push({ r, cat: /reperibil/.test(m) ? 'REP' : 'X', err: /in permesso notte/.test(m), t: `${when}: ${m}` }));
                 Object.keys(c.cells).forEach(idx => { const d = getDriverByIdx(+idx); c.cells[idx].msgs.forEach(m => {
                     if(/giorno lavorato di fila/.test(m)) return;   // sostituito dal conteggio qui sotto
                     out.push({ r, idx: +idx, cat: /smonto|riposo/.test(m) ? 'R' : 'X', err: c.cells[idx].err, t: `${when} · ${d ? d.name : ''}: ${m}` });
@@ -13666,6 +13726,7 @@
     // keys = celle di manualOverrides toccate; repDates = giorni (YYYY-MM-DD) le cui
     // reperibilità sono cambiate: si ridisegnano solo quelle righe (e il giorno dopo).
     function afterCoordChange(keys, repDates) {
+        pnRepEditCheck(keys, repDates); // reperibile in permesso notte: finestra subito
         edAlertCheck(keys, repDates);   // vignetta degli avvisi
         serviceSpanVer++;
         let done = false;
@@ -14531,7 +14592,9 @@
     function repCellHtml(orig, date) {
         if(!date) return '';
         const R = repData();
-        return (R.tit[date] === orig ? `<div class="rep-text">REPERIBILE</div>` : '') + repBarHtml(orig, date);
+        const d = drivers.find(x => x.originalName === orig), r = repRowOfDate(date);
+        const pn = (d && r && pnRepConflictAt(r, d, R)) ? `<div class="rep-pn-warn">IN PERMESSO NOTTE<br>NO REPERIBILITÀ</div>` : '';
+        return (R.tit[date] === orig ? `<div class="rep-text">REPERIBILE</div>` : '') + pn + repBarHtml(orig, date);
     }
     // Riquadro nel dettaglio del giorno (tocco su una cella fuori dalla modalità modifica).
     function repDaySectionHtml(date) {
