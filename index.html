@@ -2744,6 +2744,32 @@
         .identity-btn.locked .identity-avatar { background:#a3adc2; }
         .identity-btn.locked .identity-name { text-decoration:line-through; text-decoration-thickness:2px; color:var(--text-sec); }
         .identity-lock-tag { font-size:0.55rem; font-weight:800; color:#dc2626; text-transform:uppercase; }
+        .identity-group { grid-column:1 / -1; display:flex; align-items:center; gap:10px; margin:10px 2px 0; font-size:.66rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#94a3b8; }
+        .identity-group::before, .identity-group::after { content:""; flex:1; height:1px; background:var(--border); }
+        .identity-pw-tag .material-icons-round { font-size:14px; color:#94a3b8; }
+        /* password: finestra per COORDINATORE/TEST e blocco "password per aprire l'app" */
+        #pw-ask, #app-gate { display:none; position:fixed; inset:0; align-items:center; justify-content:center; padding:20px; }
+        #pw-ask { z-index:10600; background:rgba(0,0,0,.6); }
+        #app-gate { z-index:30000; background:radial-gradient(circle at 30% 20%, rgba(37,99,235,.18), transparent 55%), radial-gradient(circle at 80% 80%, rgba(30,58,138,.2), transparent 55%), var(--bg); }
+        .pw-card { width:100%; max-width:360px; background:var(--bg-card); border:1px solid var(--border); border-radius:20px; padding:24px 22px 20px; box-shadow:0 20px 50px rgba(15,23,42,.25); text-align:center; color:var(--text-main); }
+        .pw-card .pw-ico { width:56px; height:56px; margin:0 auto 12px; border-radius:16px; background:rgba(37,99,235,.12); color:var(--primary); display:flex; align-items:center; justify-content:center; }
+        .pw-card .pw-ico .material-icons-round { font-size:30px; }
+        .pw-card h3 { margin:0 0 6px; font-size:1.15rem; font-weight:800; }
+        .pw-card p { margin:0 0 16px; font-size:.86rem; color:var(--text-sec); line-height:1.45; }
+        .pw-card input { width:100%; padding:14px 16px; border-radius:12px; border:1.5px solid var(--border); background:var(--bg); color:var(--text-main); font-size:1.05rem; font-weight:700; text-align:center; letter-spacing:1px; }
+        .pw-card input:focus { outline:none; border-color:var(--primary); }
+        .pw-card .pw-err { min-height:20px; margin:8px 0 4px; font-size:.8rem; font-weight:700; color:#dc2626; }
+        .pw-card .pw-acts { display:flex; gap:8px; }
+        .pw-card .pw-acts button { flex:1; height:46px; border-radius:12px; border:1px solid var(--border); background:var(--bg); color:var(--text-main); font:800 .92rem 'Plus Jakarta Sans',sans-serif; cursor:pointer; }
+        .pw-card .pw-acts button.pw-ok { background:var(--primary); border-color:var(--primary); color:#fff; }
+        .pw-card .pw-foot { margin-top:14px; font-size:.72rem; color:var(--text-sec); }
+        .pw-card.shake { animation:pwShake .35s; }
+        @keyframes pwShake { 20%,60% { transform:translateX(-8px); } 40%,80% { transform:translateX(8px); } }
+        .adm-gate-row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:10px; }
+        .adm-gate-row input { flex:1; min-width:160px; height:38px; padding:0 12px; border-radius:9px; border:1px solid var(--border); background:var(--bg); color:var(--text-main); font:700 .9rem 'Plus Jakarta Sans',sans-serif; }
+        .adm-gate-st { display:flex; align-items:center; gap:10px; font-size:.84rem; }
+        .adm-gate-st .material-icons-round { font-size:28px; }
+        .adm-gate-list { margin:6px 0 0; padding-left:18px; font-size:.8rem; line-height:1.55; color:var(--text-main); }
         .identity-btn.pending { opacity:0.5; pointer-events:none; animation:identityPulse 1.2s ease-in-out infinite; }
         .identity-pending-tag { font-size:0.55rem; font-weight:800; color:var(--text-sec); text-transform:uppercase; }
         @keyframes identityPulse { 50% { opacity:0.3; } }
@@ -3104,6 +3130,27 @@
     </div>
 </div>
 
+<div id="pw-ask" role="dialog" aria-modal="true">
+    <div class="pw-card" id="pw-ask-card">
+        <div class="pw-ico"><span class="material-icons-round" id="pw-ask-ico">lock</span></div>
+        <h3 id="pw-ask-title"></h3>
+        <p id="pw-ask-text"></p>
+        <input type="password" id="pw-ask-input" autocomplete="off" placeholder="Password" onkeydown="if(event.key==='Enter')pwAskSubmit()">
+        <div class="pw-err" id="pw-ask-err"></div>
+        <div class="pw-acts"><button onclick="pwAskClose(false)">Annulla</button><button class="pw-ok" onclick="pwAskSubmit()">Entra</button></div>
+    </div>
+</div>
+<div id="app-gate" role="dialog" aria-modal="true">
+    <div class="pw-card" id="app-gate-card">
+        <div class="pw-ico"><span class="material-icons-round">lock</span></div>
+        <h3>Turni Infermieri 118</h3>
+        <p>Per vedere i turni serve la password. La chiedi al coordinatore: su questo telefono la metti una volta sola.</p>
+        <input type="password" id="app-gate-input" autocomplete="off" placeholder="Password" onkeydown="if(event.key==='Enter')gateSubmit()">
+        <div class="pw-err" id="app-gate-err"></div>
+        <div class="pw-acts"><button class="pw-ok" onclick="gateSubmit()">Entra</button></div>
+        <div class="pw-foot">I turni sono riservati al personale (privacy).</div>
+    </div>
+</div>
 <div id="identity-modal">
     <div class="identity-card">
         <div class="identity-header">
@@ -3305,6 +3352,7 @@
                 <button class="admin-tab-btn" data-tab="ruota" onclick="switchAdminTab('ruota',this)"><span class="material-icons-round">casino</span><span class="adm-nav-l">Ruota della sfiga</span></button>
                 <button class="admin-tab-btn" data-tab="registro" onclick="switchAdminTab('registro',this)"><span class="material-icons-round">history</span><span class="adm-nav-l">Registro modifiche</span></button>
                 <div class="adm-nav-grp">Configurazione</div>
+                <button class="admin-tab-btn" data-tab="password" onclick="switchAdminTab('password',this)"><span class="material-icons-round">lock</span><span class="adm-nav-l">Password app</span></button>
                 <button class="admin-tab-btn" data-tab="aspetto" onclick="switchAdminTab('aspetto',this)"><span class="material-icons-round">palette</span><span class="adm-nav-l">Aspetto</span></button>
                 <button class="admin-tab-btn" data-tab="operatori" onclick="switchAdminTab('operatori',this)"><span class="material-icons-round">badge</span><span class="adm-nav-l">Nomi operatori</span></button>
                 <button class="admin-tab-btn" data-tab="turni" onclick="switchAdminTab('turni',this)"><span class="material-icons-round">schedule</span><span class="adm-nav-l">Orari turni</span></button>
@@ -3326,6 +3374,7 @@
             <div class="admin-tab-panel" id="admin-tab-errori"><div id="adm-errori"></div></div>
             <div class="admin-tab-panel" id="admin-tab-identita"><div id="adm-identita"></div></div>
             <div class="admin-tab-panel" id="admin-tab-ruota"><div id="adm-ruota"></div></div>
+            <div class="admin-tab-panel" id="admin-tab-password"><div id="adm-password"></div></div>
             <div class="admin-tab-panel" id="admin-tab-registro"><div id="adm-registro"></div></div>
 
             <div class="admin-tab-panel" id="admin-tab-accessi">
@@ -4317,9 +4366,83 @@
     // ── Identità utente ("Chi sei?") ─────────────────────────────────────────
     // "PC Pronto Soccorso": account del PC condiviso, scrive le ferie desiderate di tutti (con lo storico)
     const PS_NAME = 'PC Pronto Soccorso';
-    const IDENTITY_EXTRA_OPTIONS = ["Frisoni", PS_NAME, "Ospite"];
+    // COORDINATORE: account del coordinatore (invece di "Ospite"). TEST: operatore finto per le prove,
+    // con una colonna sua che vede solo chi entra come TEST, fuori da ogni conteggio.
+    // Tutti e due si scelgono con la password "coord" (chiesta una volta sola su ogni telefono).
+    const COORD_ID = 'COORDINATORE', TEST_OP = 'TEST';
+    const PW_IDENTITIES = [COORD_ID, TEST_OP];
+    function identityPwOk(pw) { const v = String(pw || '').trim().toLowerCase(); return v === 'coord' || v === 'coord.'; }
+    function identityPwRemembered(name) { try { return localStorage.getItem('id_pw_ok_' + name) === '1'; } catch(e) { return false; } }
+    const IDENTITY_EXTRA_OPTIONS = ["Frisoni", "Ospite", PS_NAME, TEST_OP, COORD_ID];
+    // in "Chi sei?" in fondo, in gruppi: prima Ospite e PC Pronto Soccorso, poi TEST e COORDINATORE
+    const IDENTITY_GROUPS = { "Ospite": 'Altri accessi', [TEST_OP]: 'Con password' };
+
+    // ── Finestra password (COORDINATORE / TEST) ──
+    let pwAskCtx = null;
+    function pwAsk(o) {
+        return new Promise(resolve => {
+            if(pwAskCtx) pwAskCtx.resolve(false);
+            pwAskCtx = Object.assign({}, o, { resolve });
+            document.getElementById('pw-ask-ico').textContent = o.icon || 'lock';
+            document.getElementById('pw-ask-title').textContent = o.title || 'Password';
+            document.getElementById('pw-ask-text').textContent = o.text || '';
+            document.getElementById('pw-ask-err').textContent = '';
+            const inp = document.getElementById('pw-ask-input'); inp.value = '';
+            document.getElementById('pw-ask').style.display = 'flex';
+            setTimeout(() => inp.focus(), 50);
+        });
+    }
+    async function pwAskSubmit() {
+        if(!pwAskCtx) return;
+        const v = document.getElementById('pw-ask-input').value;
+        if(await pwAskCtx.check(v)) { pwAskClose(true); return; }
+        document.getElementById('pw-ask-err').textContent = 'Password sbagliata';
+        const c = document.getElementById('pw-ask-card'); c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake');
+        vibrate();
+    }
+    function pwAskClose(ok) {
+        document.getElementById('pw-ask').style.display = 'none';
+        const c = pwAskCtx; pwAskCtx = null; if(c) c.resolve(!!ok);
+    }
+
+    // ── Password per aprire l'app (privacy) ──
+    // Decisa nell'area admin (settings.appGate = { on, hash, ver, by, at }): si salva solo l'impronta (SHA-256),
+    // mai la password. Ogni telefono la chiede una volta e poi la ricorda (localStorage); se l'admin la cambia,
+    // la richiede a tutti. Non vale per il motore (?server=1).
+    // NB: è un blocco della pagina, non dei dati: chi sa usare Firebase può ancora leggerli (vedi area admin).
+    const GATE_KEY = 'app_gate_' + DATA_NS, GATE_OK_KEY = 'app_gate_ok_' + DATA_NS;
+    let appGate = null;
+    async function gateHash(pw) {
+        const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('turni118|' + String(pw || '').trim().toLowerCase()));
+        return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
+    }
+    function gateOkHash() { try { return localStorage.getItem(GATE_OK_KEY) || ''; } catch(e) { return ''; } }
+    function gateLocked() { return !SERVER_MODE && !!(appGate && appGate.on && appGate.hash) && gateOkHash() !== appGate.hash; }
+    function gateApply(g) {
+        appGate = (g && typeof g === 'object') ? { on: !!g.on, hash: g.hash || '', ver: g.ver || 0, by: g.by || '', at: g.at || '' } : null;
+        try { localStorage.setItem(GATE_KEY, JSON.stringify(appGate)); } catch(e) {}
+        const el = document.getElementById('app-gate'); if(!el) return;
+        const lock = gateLocked(), was = el.style.display === 'flex';
+        el.style.display = lock ? 'flex' : 'none';
+        document.documentElement.style.overflow = lock ? 'hidden' : '';
+        if(lock && !was) { document.getElementById('app-gate-input').value = ''; document.getElementById('app-gate-err').textContent = ''; setTimeout(() => { const i = document.getElementById('app-gate-input'); if(i) i.focus(); }, 80); }
+    }
+    async function gateSubmit() {
+        if(!appGate || !appGate.hash) { gateApply(appGate); return; }
+        const inp = document.getElementById('app-gate-input');
+        const h = await gateHash(inp.value);
+        if(h === appGate.hash) {
+            try { localStorage.setItem(GATE_OK_KEY, h); } catch(e) {}
+            vibrate(); gateApply(appGate);
+            return;
+        }
+        document.getElementById('app-gate-err').textContent = 'Password sbagliata';
+        const c = document.getElementById('app-gate-card'); c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake');
+        inp.select(); vibrate();
+    }
     // ?server=1: l'app viene aperta dal motore su GitHub solo per leggere i turni (niente sessioni, popup o scritture).
     const SERVER_MODE = new URLSearchParams(location.search).has('server');
+    if(!SERVER_MODE) { try { const g = JSON.parse(localStorage.getItem(GATE_KEY) || 'null'); if(g) gateApply(g); } catch(e) {} }   // blocco subito, prima che arrivino le impostazioni
     let userIdentity = SERVER_MODE ? null : (localStorage.getItem('infermieri_identity_name') || null);
     console.log('[Identità] Letta da localStorage all\'avvio:', userIdentity || '(nessuna)');
     let identityRecoveryPromise = null;
@@ -4445,7 +4568,7 @@
             snap.forEach(doc => {
                 if(doc.id === myUid) return;
                 const d = doc.data();
-                if(!d.name || d.name === 'Ospite' || d.name === PS_NAME) return;   // il PC condiviso non è mai "in uso"
+                if(!d.name || d.name === 'Ospite' || d.name === PS_NAME || PW_IDENTITIES.includes(d.name)) return;   // PC condiviso, COORDINATORE e TEST non sono mai "in uso"
                 const ms = tsToMillis(d.updatedAt);
                 if(ms && ms > cutoffMs && !(rel[d.name] && ms <= rel[d.name])) locked.add(d.name);
             });
@@ -4479,14 +4602,15 @@
         if(m.style.display !== 'none' && (fresh || !known)) renderIdentityList(fresh || known || new Set());
     }
     function renderIdentityList(locked, pending) {
-        const names = (drivers && drivers.length) ? drivers.map(d => d.name) : [];
+        const names = (drivers && drivers.length) ? drivers.filter(d => !d.test).map(d => d.name) : [];
         const allOptions = names.concat(IDENTITY_EXTRA_OPTIONS);
         const c = document.getElementById('identity-list-container'); c.innerHTML = "";
         allOptions.forEach(name => {
-            const isGuest = name === 'Ospite', isPS = name === PS_NAME;
+            if(IDENTITY_GROUPS[name]) { const h = document.createElement('div'); h.className = 'identity-group'; h.textContent = IDENTITY_GROUPS[name]; c.appendChild(h); }
+            const isGuest = name === 'Ospite', isPS = name === PS_NAME, isPw = PW_IDENTITIES.includes(name);
             const isCurrent = name === userIdentity;
-            const isLocked = !isGuest && !isPS && !isCurrent && locked.has(name);
-            const isPending = pending && !isGuest && !isPS && !isCurrent;
+            const isLocked = !isGuest && !isPS && !isPw && !isCurrent && locked.has(name);
+            const isPending = pending && !isGuest && !isPS && !isPw && !isCurrent;
             const initials = name.substring(0,2).toUpperCase();
             const btn = document.createElement('div');
             btn.className = 'identity-btn' + (isGuest ? ' guest-btn' : '') + (isLocked ? ' locked' : '') + (isPending ? ' pending' : '') + (isCurrent ? ' current' : '');
@@ -4494,13 +4618,20 @@
             if(isCurrent) tag = '<div class="identity-current-tag">TU</div>';
             else if(isPending) tag = '<div class="identity-pending-tag">Verifica…</div>';
             else if(isLocked) tag = '<div class="identity-lock-tag">In uso</div>';
-            btn.innerHTML = `<div class="identity-avatar">${isGuest ? '<span class="material-icons-round" style="font-size:20px">person</span>' : isPS ? '<span class="material-icons-round" style="font-size:20px">computer</span>' : initials}</div><div class="identity-name">${name}</div>${tag}`;
+            else if(isPw) tag = '<div class="identity-pw-tag"><span class="material-icons-round">lock</span></div>';
+            const ico = isGuest ? 'person' : isPS ? 'computer' : name === COORD_ID ? 'supervisor_account' : name === TEST_OP ? 'science' : '';
+            btn.innerHTML = `<div class="identity-avatar">${ico ? `<span class="material-icons-round" style="font-size:20px">${ico}</span>` : initials}</div><div class="identity-name">${name}</div>${tag}`;
             if(!isLocked && !isPending) btn.onclick = () => selectIdentity(name);
             c.appendChild(btn);
         });
     }
-    function selectIdentity(name) {
+    async function selectIdentity(name) {
         vibrate();
+        if(name !== userIdentity && PW_IDENTITIES.includes(name) && !identityPwRemembered(name)) {
+            const ok = await pwAsk({ icon: name === COORD_ID ? 'supervisor_account' : 'science', title: name, text: name === COORD_ID ? 'Account del coordinatore: inserisci la password.' : 'Operatore di prova, fuori da ogni conteggio: inserisci la password.', check: identityPwOk, cancel: true });
+            if(!ok) return;
+            try { localStorage.setItem('id_pw_ok_' + name, '1'); } catch(e) {}
+        }
         if(name === userIdentity) {
             let m = document.getElementById('identity-modal'); m.classList.remove('open');
             setTimeout(() => { m.style.display = 'none'; showStartupMessages(); }, 300);
@@ -4569,6 +4700,8 @@
         cfgRef('settings').onSnapshot(doc => {
             if(!doc.exists) { seedNamespaceSettings(); resolveConfigReady(); return; }
             const data = doc.data();
+            if(!SERVER_MODE && !doc.metadata.fromCache) gateApply(data.appGate || null);
+            else if(!SERVER_MODE && data.appGate) gateApply(data.appGate);
             if(data.dataSource !== undefined) dataSourceMode = data.dataSource === 'firebase' ? 'firebase' : 'excel';
             if(data.activeYear !== undefined && data.activeYear) {
                 const prevYear = activeYear; activeYear = +data.activeYear;
@@ -4631,7 +4764,7 @@
     }
     let richiesteListenerStarted = false;
     function checkIfIAmCoordinator() {
-        isCoordinator = !!(userIdentity && coordinatorName && normalizeNameForMatch(userIdentity) === normalizeNameForMatch(coordinatorName));
+        isCoordinator = userIdentity === COORD_ID || !!(userIdentity && coordinatorName && normalizeNameForMatch(userIdentity) === normalizeNameForMatch(coordinatorName));
         if(isCoordinator && !richiesteListenerStarted && fbReady) { richiesteListenerStarted = true; listenIncomingRequests(); }
         if(opNotesVer) { notesAfterChange(); noteNotify(); }
     }
@@ -4879,7 +5012,8 @@
         operatori:  ['Nomi operatori', 'Nome mostrato nell’app per ogni colonna'],
         turni:      ['Orari turni', 'Orari standard dei turni'],
         testi:      ['Avvisi', 'Avviso all’apertura e avvisi aggiuntivi'],
-        esporta:    ['Esporta', 'Copia del file con le impostazioni attuali']
+        esporta:    ['Esporta', 'Copia del file con le impostazioni attuali'],
+        password:   ['Password app', 'Password per aprire l’app, ricordata su ogni telefono']
     };
     let admData = null, admLoading = null, admTab = 'panoramica';
     let admErrPeriod = 1, admErrKind = 'tutti', admErrShowResolved = false, admAccFilter = 'tutti', admAccSearch = '', admAccHideTests = true;
@@ -4960,7 +5094,7 @@
     }
     function admRenderTab() {
         if(!document.getElementById('admin-panel-modal') || document.getElementById('admin-panel-modal').style.display === 'none') return;
-        const f = { panoramica: admRenderPanoramica, errori: admRenderErrori, identita: admRenderIdentita, ruota: admRenderRuota, registro: admRenderRegistro, accessi: renderAdminAccessList }[admTab];
+        const f = { panoramica: admRenderPanoramica, errori: admRenderErrori, identita: admRenderIdentita, ruota: admRenderRuota, password: admRenderGate, registro: admRenderRegistro, accessi: renderAdminAccessList }[admTab];
         if(f) { try { f(); } catch(e) { console.warn('Pannello admin:', e); } }
     }
     const admLoadingHtml = () => `<div class="adm-empty"><span class="material-icons-round adm-spin">autorenew</span>Carico i dati…</div>`;
@@ -5038,7 +5172,7 @@
     // ── nomi e identità ──
     function admIdentityRows() {
         const cut = Date.now() - IDENTITY_CLAIM_MAX_AGE_MS;
-        const names = (drivers || []).map(d => d.name).concat(IDENTITY_EXTRA_OPTIONS.filter(n => n !== 'Ospite'));
+        const names = (drivers || []).filter(d => !d.test).map(d => d.name).concat(IDENTITY_EXTRA_OPTIONS.filter(n => n !== 'Ospite'));
         const sessBy = {}; admReal().forEach(s => { if(s.identity) (sessBy[s.identity] = sessBy[s.identity] || []).push(s); });
         return names.map(nm => {
             const rel = admMs(admData.releases[nm]);
@@ -5103,6 +5237,43 @@
             <div class="adm-card"><h4><span class="material-icons-round">history</span>Ultime estrazioni</h4>
                 ${spins.length ? `<div class="adm-table"><div class="adm-tr adm-th"><span>Quando</span><span>Uscito</span><span>Modalità</span><span>Avviata da</span></div>${spins.slice(0, 25).map(x => `<div class="adm-tr"><span>${admWhen(x.t)}</span><b>${admEsc(x.winner)}</b><span>${x.mode === 'slots' ? 'Fascia ' + admEsc(x.slot || '') : 'Per ridere'} <span class="adm-muted">· ${x.n || '?'} nomi</span></span><span class="adm-muted">${admEsc(x.by || x.who)}</span></div>`).join('')}</div>` : '<div class="adm-empty sm">Nessuna estrazione registrata.</div>'}
             </div>`;
+    }
+
+    // ── password per aprire l'app ──
+    function admRenderGate() {
+        const box = document.getElementById('adm-password'); if(!box) return;
+        const g = appGate, on = !!(g && g.on && g.hash), has = !!(g && g.hash);
+        const when = g && g.at ? new Date(g.at).toLocaleString('it-IT', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '';
+        box.innerHTML = `<div class="adm-card">
+                <div class="adm-gate-st"><span class="material-icons-round" style="color:${on ? '#16a34a' : '#94a3b8'}">${on ? 'lock' : 'lock_open'}</span>
+                    <div><b>${on ? 'Attiva' : has ? 'Spenta' : 'Nessuna password'}</b> ${on ? '<span class="adm-pill ok">l’app chiede la password</span>' : '<span class="adm-pill muted">l’app si apre senza password</span>'}
+                    ${has ? `<div class="adm-muted" style="font-size:.74rem">Impostata${when ? ' il ' + admEsc(when) : ''}${g.by ? ' da ' + admEsc(g.by) : ''}</div>` : ''}</div></div>
+                <div class="adm-gate-row"><input id="adm-gate-pw" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${has ? 'Nuova password' : 'Scegli la password'}">
+                    <button class="adm-btn primary" onclick="admGateSave()"><span class="material-icons-round">lock</span>${has ? 'Cambia e attiva' : 'Salva e attiva'}</button></div>
+                ${has ? `<div class="adm-gate-row"><button class="adm-btn" onclick="admGateToggle(${on ? 'false' : 'true'})"><span class="material-icons-round">${on ? 'lock_open' : 'lock'}</span>${on ? 'Disattiva' : 'Riattiva la stessa password'}</button></div>` : ''}
+                <ul class="adm-gate-list">
+                    <li>Ogni telefono la chiede <b>una volta sola</b>, poi la ricorda.</li>
+                    <li>Se la <b>cambi</b>, tutti dovranno mettere quella nuova (anche chi l’aveva già).</li>
+                    <li>Maiuscole e minuscole non contano. La password non viene salvata: se la dimentichi, ne scegli una nuova.</li>
+                    <li>Il motore delle notifiche e il calendario sul telefono (iPhone/Google) continuano a funzionare.</li>
+                </ul></div>
+            <div class="adm-note" style="margin-top:12px"><span class="material-icons-round">info</span><div><b>Cosa protegge davvero.</b> Chi apre il link dell’app senza password non vede i turni. Però è un blocco della pagina: i dati su Firebase, il file Excel e i calendari .ics nel repository restano leggibili da chi sa dove guardare. Per una protezione vera servono anche regole Firebase legate alla password: vedi la proposta nel progetto.</div></div>`;
+    }
+    async function admGateSave() {
+        const inp = document.getElementById('adm-gate-pw'), pw = (inp && inp.value || '').trim();
+        if(pw.length < 4) { showAdminToast('Almeno 4 caratteri'); return; }
+        const hash = await gateHash(pw);
+        const g = { on: true, hash, ver: ((appGate && appGate.ver) || 0) + 1, by: 'Admin · ' + getDeviceLabel(), at: new Date().toISOString() };
+        try { localStorage.setItem(GATE_OK_KEY, hash); } catch(e) {}   // su questo telefono resta aperta
+        try { await saveSettingsFields({ appGate: g }); gateApply(g); admRenderGate(); showAdminToast('Password attivata'); vibrate(); }
+        catch(e) { showAdminToast('Errore: ' + (e.code || e.message)); }
+    }
+    async function admGateToggle(on) {
+        if(!appGate || !appGate.hash) return;
+        const g = Object.assign({}, appGate, { on: !!on, at: new Date().toISOString(), by: 'Admin · ' + getDeviceLabel() });
+        if(on) try { localStorage.setItem(GATE_OK_KEY, g.hash); } catch(e) {}
+        try { await saveSettingsFields({ appGate: g }); gateApply(g); admRenderGate(); showAdminToast(on ? 'Password riattivata' : 'Password disattivata'); vibrate(); }
+        catch(e) { showAdminToast('Errore: ' + (e.code || e.message)); }
     }
 
     // ── registro modifiche ──
@@ -5333,7 +5504,7 @@
     function populateAdminOperatorInputs() {
         const c = document.getElementById('admin-operators-list'); if(!c) return;
         if(!drivers || drivers.length === 0) { c.innerHTML = `<div class="admin-empty"><span class="material-icons-round">people_outline</span><br>Nessun operatore caricato.<br><span style="font-size:0.7rem">Attendi il caricamento del file turni.</span></div>`; return; }
-        c.innerHTML = drivers.map(d => {
+        c.innerHTML = drivers.filter(d => !d.test).map(d => {
             const orig = d.originalName || d.name;
             const val = nameOverrides[orig] || "";
             return `<div class="admin-field-row"><label>${orig}</label><input type="text" data-orig="${orig.replace(/"/g,'&quot;')}" placeholder="${orig}" value="${val.replace(/"/g,'&quot;')}"></div>`;
@@ -5985,6 +6156,7 @@
         const list = document.getElementById('notification-driver-list'); if(!list) return; list.innerHTML = "";
         const saved = localStorage.getItem('watched_nurses_ids'); if(saved) watchedDrivers = new Set(JSON.parse(saved));
         drivers.forEach(d => {
+            if(d.test) return;
             let isChecked = watchedDrivers.has(d.idx) ? "checked" : "";
             let item = document.createElement('label'); item.className = `dinner-check-item ${isChecked}`;
             item.innerHTML = `<input type="checkbox" value="${d.idx}" ${isChecked?"checked":""} onchange="toggleWatchDriver(${d.idx},this)"><div class="dinner-check-icon"><span class="material-icons-round" style="font-size:14px">notifications</span></div>${d.name}`;
@@ -7697,7 +7869,7 @@
         desOk[k] = ok; desMarkDirty(d);
         desRefreshCols(d.idx, new Set(keys));
         return n;
-    }
+    }
     // ── giorno barrato cancellato dall'admin: si può togliere anche dal calendario turni ──
     // Si toglie l'assenza dalla casella dei turni solo se è proprio quella messa dall'importazione
     // (C.O. per le ferie, permesso per i permessi); il turno della casella resta com'è.
@@ -9186,7 +9358,7 @@
         const today = new Date(); today.setHours(0, 0, 0, 0);
         const from = new Date(today); from.setDate(from.getDate() - 35);
         const fromIso = ymd(from), todayIso = ymd(today), horizon = repDateAdd(todayIso, 70);
-        const R = repData(), people = drivers.filter(d => !d.hidden);
+        const R = repData(), people = drivers.filter(d => !d.hidden || d.test);   // TEST riceve gli avvisi come un operatore
         const ics = {}, schedule = {}, labels = {}, repTomorrow = {}, tomorrow = repDateAdd(todayIso, 1);
         people.forEach(d => {
             ics[calSlug(d.originalName)] = icsFor(d, fromIso);
@@ -9232,7 +9404,7 @@
         prefsDoc = Object.assign({}, prefsDoc); delete prefsDoc[NOTE_FIELD];
         // il coordinatore con tutti i nomi con cui può aver scelto "chi sei" (nome mostrato e nome originale)
         const cd = coordinatorName ? drivers.find(d => normalizeNameForMatch(d.name) === normalizeNameForMatch(coordinatorName) || normalizeNameForMatch(d.originalName) === normalizeNameForMatch(coordinatorName)) : null;
-        const coordinators = [coordinatorName, cd && cd.name, cd && cd.originalName].concat(typeof AS_OPERATORI !== 'undefined' ? AS_OPERATORI : []).filter(Boolean).map(x => String(x).toUpperCase());
+        const coordinators = [COORD_ID, coordinatorName, cd && cd.name, cd && cd.originalName].concat(typeof AS_OPERATORI !== 'undefined' ? AS_OPERATORI : []).filter(Boolean).map(x => String(x).toUpperCase());
         return { team: document.title, url: appBaseUrl(), today: todayIso, tomorrow, people: people.map(d => ({ orig: d.originalName, name: d.name, slug: calSlug(d.originalName) })),
             ics, schedule, labels, repTomorrow, prefs: prefsDoc, subs, requests, coordinators, noteMsgs };
     }
@@ -11266,6 +11438,7 @@
         if(SERVER_MODE || !fbReady || !appBooted || isViewingArchive() || !finalData.length || !fbMonthsReady()) return;
         const all = buildDaysIndex(), operatori = {};
         drivers.forEach(d => {
+            if(d.test) return;
             const a = absCountFor(d, all);
             operatori[d.originalName] = { name: d.name, co:{ used:a.allow.co, max:a.max.co }, str:{ used:a.allow.sp, max:a.max.sp }, pn:{ used:a.allow.pn, max:a.max.pn } };
         });
@@ -11857,7 +12030,7 @@
     function renderHoursOperatorList() {
         const listEl = document.getElementById('hc-op-list'); if(!listEl) return;
         const q = (document.getElementById('hc-search-input')?.value || "").trim().toLowerCase();
-        let cols = drivers.slice().sort((a,b)=>a.name.localeCompare(b.name));
+        let cols = drivers.filter(d => !d.test).sort((a,b)=>a.name.localeCompare(b.name));
         listEl.innerHTML = "";
         cols.forEach(d => {
             if(q && !d.name.toLowerCase().includes(q)) return;
@@ -12713,7 +12886,10 @@
             <div class="cc-panel"><div class="cc-panel-head"><h3>Storico modifiche</h3><span class="cc-hint">ultimi 7 giorni</span></div><div class="cc-panel-body" id="dat-log"><p class="cc-note">Carico…</p></div></div>
             <div class="cc-panel"><div class="cc-panel-head"><h3>Origine dei turni e anni</h3></div><div class="cc-panel-body">
                 ${ccSourcePanelHtml()}
-                ${dataSourceMode === 'firebase' ? `<div style="margin-top:14px"><div class="cc-inline-form">                        ${archivedYears.length ? `<button class="cc-btn" onclick="openYearPicker()"><span class="msym">history</span>Consulta un anno passato</button>` : ''}                        <button class="cc-btn danger" ${isViewingArchive() ? 'disabled' : ''} onclick="ccStartNewYear()"><span class="msym">event_upcoming</span>Chiudi il ${activeYear} e apri il ${activeYear + 1}</button>                    </div></div>` : ''}
+                ${dataSourceMode === 'firebase' ? `<div style="margin-top:14px"><div class="cc-inline-form">
+                        ${archivedYears.length ? `<button class="cc-btn" onclick="openYearPicker()"><span class="msym">history</span>Consulta un anno passato</button>` : ''}
+                        <button class="cc-btn danger" ${isViewingArchive() ? 'disabled' : ''} onclick="ccStartNewYear()"><span class="msym">event_upcoming</span>Chiudi il ${activeYear} e apri il ${activeYear + 1}</button>
+                    </div></div>` : ''}
             </div></div>`;
         maybeDailySnapshot();
         // copie e storico si caricano dopo, senza bloccare la pagina
@@ -12815,6 +12991,8 @@
             header.push(nm);
             for(let r=1; r<data.length; r++) data[r].push({ v:"", subV:"", supV:"" });
         });
+        // colonna dell'operatore di prova TEST (sempre in fondo, non sta nelle impostazioni condivise)
+        if(!header.includes(TEST_OP)) { header.push(TEST_OP); for(let r=1; r<data.length; r++) data[r].push({ v:"", subV:"", supV:"" }); }
         return data;
     }
     function rebuildDataFromExcel() {
@@ -12838,6 +13016,8 @@
         for(let i=3; i<header.length; i++) {
             const orig = header[i];
             if(operatorConfig.removed[orig]) continue;
+            // TEST: "nascosto" per tutti i conteggi (che guardano solo i visibili), la colonna si vede solo con testColVisible()
+            if(orig === TEST_OP) { list.push({ name: TEST_OP, idx:i, originalName:TEST_OP, virtual:true, hidden:true, test:true }); continue; }
             list.push({ name: nameOverrides[orig] || orig, idx:i, originalName:orig, virtual:isVirtualOperator(orig), hidden:isHiddenNow(orig) });
         }
         const pos = d => { const k = order.indexOf(d.originalName); return k === -1 ? 10000 + d.idx : k; };
@@ -13094,7 +13274,7 @@
 
         // cose da fare
         const pending = pendingChangesCount(), toSync = 0;
-        const hiddenOps = drivers.filter(d => d.hidden);
+        const hiddenOps = drivers.filter(d => d.hidden && !d.test);
         const todo = [];
         if(pending) todo.push(`<li><span class="msym" style="color:var(--cc-warn)">edit_note</span><span class="cc-grow">${pending} ${pending===1?'modifica non salvata':'modifiche non salvate'}<small>Visibili solo su questo dispositivo finché non salvi.</small></span><button class="cc-btn sm primary" onclick="coordConfirmChanges()">Salva</button></li>`);
         if(toSync && dataSourceMode !== 'firebase') todo.push(`<li><span class="msym" style="color:var(--cc-accent)">task_alt</span><span class="cc-grow">${toSync} ${toSync===1?'modifica da riportare':'modifiche da riportare'} su Excel</span><button class="cc-link" onclick="ccGo('riportare')">Apri elenco</button></li>`);
@@ -13166,8 +13346,9 @@
     function renderCcOperators() {
         const main = document.getElementById('cc-main');
         const header = (finalData[0] || []).slice(3);
-        ccOpRows = drivers.map(d => d.originalName);
-        const rows = drivers.map((d, i) => {
+        const ccOps = drivers.filter(d => !d.test);
+        ccOpRows = ccOps.map(d => d.originalName);
+        const rows = ccOps.map((d, i) => {
             const orig = d.originalName;
             const hEntry = operatorConfig.hidden[orig];
             const meta = [];
@@ -13412,7 +13593,7 @@
             label = 'Anno ' + SHIFT_YEAR;
         }
         let discrepancy = 0; const unknown = new Set();
-        const rows = drivers.map((d, order) => {
+        const rows = drivers.filter(d => !d.test).map((d, order) => {
             const ch = getContractHours(d.idx);
             // operatore aggiunto a mano: il contratto conta dal primo giorno con un turno (come il saldo)
             let startDate = null;
@@ -13625,7 +13806,7 @@
     // ═══ IMPOSTAZIONI ═════════════════════════════════════════════════════
     function renderCcSettings() {
         const main = document.getElementById('cc-main');
-        const opts = drivers.slice().sort((a,b) => a.name.localeCompare(b.name)).map(d => `<option value="${esc(d.name)}" ${coordinatorName===d.name?'selected':''}>${esc(d.name)}</option>`).join('');
+        const opts = `<option value="${COORD_ID}" ${coordinatorName===COORD_ID?'selected':''}>${COORD_ID} (account del coordinatore)</option>` + drivers.filter(d => !d.test).sort((a,b) => a.name.localeCompare(b.name)).map(d => `<option value="${esc(d.name)}" ${coordinatorName===d.name?'selected':''}>${esc(d.name)}</option>`).join('');
         main.innerHTML = `
             <div class="cc-panel">
                 <div class="cc-panel-head"><h3>Coordinatore designato</h3></div>
@@ -14908,7 +15089,7 @@
         const R = repData(); const n = repDateAdd(date, 1);
         const tit = R.tit[date] || '';
         repEditCtx = { date };
-        const opts = (sel, emptyLabel) => `<option value="">${emptyLabel}</option>` + drivers.map(d => `<option value="${esc(d.originalName)}" ${d.originalName === sel ? 'selected' : ''}>${esc(d.name)}</option>`).join('');
+        const opts = (sel, emptyLabel) => `<option value="">${emptyLabel}</option>` + drivers.filter(d => !d.test).map(d => `<option value="${esc(d.originalName)}" ${d.originalName === sel ? 'selected' : ''}>${esc(d.name)}</option>`).join('');
         const slots = [[date, 2], [date, 3], [n, 0], [n, 1]];
         const titSel = tit || origHint || '';
         const live = repIsLive(date);
@@ -15001,7 +15182,7 @@
         const dates = []; for(let d = 1; d <= nDays; d++) dates.push(ymd(new Date(SHIFT_YEAR, monthIdx, d)));
         const per = {};
         const row = o => per[o] = per[o] || { days:{}, total:0, list:{} };
-        drivers.forEach(d => row(d.originalName));
+        drivers.forEach(d => { if(!d.test) row(d.originalName); });
         dates.forEach((dt, i) => {
             const f = R.days[dt]; if(!f) return;
             f.forEach((who, s) => {
@@ -15222,9 +15403,14 @@
     let rtCols = [];
     let rtMeIdx = null;
     let focusCols = [];   // colonne in evidenza (indici operatore), solo su questo schermo
+    // colonna TEST: la vede solo chi è entrato come TEST (nessun altro, nemmeno il coordinatore)
+    function testColVisible() { return userIdentity === TEST_OP; }
     function rtVisibleCols() {
         const visibleDrivers = drivers.filter(d => !d.hidden);
         let list = (selectedDrivers.size === 0) ? visibleDrivers : visibleDrivers.filter(d => selectedDrivers.has(d.idx));
+        const td = testColVisible() && drivers.find(d => d.test);
+        // da TEST si vede per prima; in Modifica turni da TEST resta solo la sua colonna, così le prove non toccano i colleghi
+        if(td) list = coordEditModeActive ? [td] : [td].concat(list);
         const me = prefMe(); rtMeIdx = me ? me.idx : null;
         // preferenza "la mia colonna per prima" (non in modifica turni: lì resta l'ordine vero)
         if(me && prefs.myColFirst && !coordEditModeActive && list.includes(me)) list = [me].concat(list.filter(d => d !== me));
@@ -15313,6 +15499,7 @@
         // conta M e P per il riepilogo giornaliero (sempre visibile) e per "Graziella"
         let countM = 0, countP = 0, countN = 0;
         drivers.forEach(d => {
+            if(d.test) return;
             let v = (row[d.idx]?.v || "").toString().trim();
             if(isRepStr(v)) { let si = v.indexOf('/'); if(si !== -1) v = v.substring(0, si).trim(); }
             let u = v.toUpperCase().replace(/\s+/g,'');
@@ -15674,6 +15861,7 @@
         let rowData = finalData[rowIndex];
         let foundNurses = [];
         drivers.forEach(d => {
+            if(d.test) return;
             let cell = rowData[d.idx];
             let rawV = afterMN(rowIndex, d.idx) ? "SM" : (cell.v || "").toString().trim();
             if(isRepStr(rawV)) { let si = rawV.indexOf('/'); if(si !== -1) rawV = rawV.substring(0, si).trim(); }
@@ -15744,6 +15932,7 @@
         let dl = document.getElementById('dinner-driver-list');
         if(dl.children.length === 0) {
             drivers.forEach(d => {
+                if(d.test) return;
                 let l = document.createElement('label'); l.className = "dinner-check-item checked";
                 l.innerHTML = `<input type="checkbox" value="${d.idx}" checked onchange="this.parentElement.classList.toggle('checked');vibrate()"><div class="dinner-check-icon"><span class="material-icons-round" style="font-size:14px">check</span></div>${d.name}`;
                 dl.appendChild(l);
@@ -15882,6 +16071,7 @@
     function renderWheelNurseList() {
         const dl = document.getElementById('wheel-nurse-list'); dl.innerHTML = '';
         drivers.forEach(d => {
+            if(d.test) return;
             let l = document.createElement('label'); l.className = 'dinner-check-item';
             l.innerHTML = `<input type="checkbox" value="${d.name}" onchange="this.parentElement.classList.toggle('checked');updateWheelContinueBtn();vibrate()"><div class="dinner-check-icon"><span class="material-icons-round" style="font-size:14px">check</span></div>${d.name}`;
             dl.appendChild(l);
