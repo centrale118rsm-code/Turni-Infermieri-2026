@@ -13958,7 +13958,7 @@
     // ═══ IMPOSTAZIONI ═════════════════════════════════════════════════════
     function renderCcSettings() {
         const main = document.getElementById('cc-main');
-        const opts = `<option value="${COORD_ID}" ${coordinatorName===COORD_ID?'selected':''}>${COORD_ID} (account del coordinatore)</option>` + drivers.filter(d => !d.test).sort((a,b) => a.name.localeCompare(b.name)).map(d => `<option value="${esc(d.name)}" ${coordinatorName===d.name?'selected':''}>${esc(d.name)}</option>`).join('');
+        const opts = (coordinatorName===COORD_ID ? `<option value="${COORD_ID}" selected>${COORD_ID}</option>` : '') + drivers.filter(d => !d.test).sort((a,b) => a.name.localeCompare(b.name)).map(d => `<option value="${esc(d.name)}" ${coordinatorName===d.name?'selected':''}>${esc(d.name)}</option>`).join('');
         main.innerHTML = `
             <div class="cc-panel">
                 <div class="cc-panel-head"><h3>Coordinatore designato</h3></div>
@@ -13968,7 +13968,8 @@
                         <select id="coord-select-name" class="cc-input"><option value="" ${coordinatorName?'':'selected'} disabled>Scegli operatore</option>${opts}</select>
                         <button class="cc-btn primary" id="btn-save-coordinatore" onclick="saveCoordinatorName()">Salva</button>
                     </div>
-                    <p class="cc-note" id="coord-current-label" style="margin-top:10px">${coordinatorName ? 'Attuale: ' + esc(coordinatorName) : 'Nessun coordinatore impostato.'}</p>
+                    <p class="cc-note" style="margin-top:10px"><b>${COORD_ID}</b> riceve sempre le richieste e le note per il coordinatore: qui scegli chi le riceve <b>insieme a lui</b> (per esempio MOSCA).</p>
+                    <p class="cc-note" id="coord-current-label" style="margin-top:6px">${coordinatorName ? 'Attuale: ' + esc(coordinatorName) : 'Nessun coordinatore impostato.'}</p>
                     <div id="coord-push-status"></div>
                 </div>
             </div>
