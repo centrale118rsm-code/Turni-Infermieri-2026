@@ -15520,6 +15520,8 @@
             // (se viene dalle ferie desiderate dell'anno dopo, conta sull'anno dopo: giallo, "C.O. 2027")
             const nextCO = +info.coY > SHIFT_YEAR ? +info.coY : 0;
             const prevCO = !nextCO && fmtDateCtx && +fmtDateCtx.slice(0, 4) > SHIFT_YEAR && +fmtDateCtx.slice(5, 7) <= CO_CARRY_MONTHS;
+            // le ferie dell'anno messe nell'anno dopo si vedono solo come FERIE RESIDUE arancioni (richiesta di Mat)
+            if(prevCO) return `<div class="cell spec-ferie" title="Ferie residue del ${SHIFT_YEAR}"><div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">FERIE<br>${'RESIDUE'}${riposoHtml}</div>${repHtml}</div>`;
             return `<div class="cell spec-cong${prevCO ? ' spec-cong-prev' : ''}"${prevCO ? ` title="Congedo ordinario del ${SHIFT_YEAR}"` : nextCO ? ` title="Congedo ordinario del ${nextCO}"` : ''}>
                 <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
                     ${prevCO ? 'C.O.<br>' + SHIFT_YEAR : nextCO ? 'C.O.<br>' + nextCO : 'CONGEDO<br>ORD.'}${riposoHtml}
