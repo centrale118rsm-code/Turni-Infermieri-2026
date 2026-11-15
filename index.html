@@ -13939,8 +13939,7 @@
         const cell = finalData[rowIdx][colIdx] || {};
         const curV = (cell.v || '').toString().trim(), curSub = (cell.subV || '').toString().trim().toLowerCase();
         document.getElementById('sep-sub').textContent = dt.toLocaleDateString('it-IT', { weekday:'long', day:'numeric', month:'long' }) + ' \u00b7 attuale: ' + (info.label || 'vuoto') + (cell.overridden ? ' (modificato)' : '');
-        const items = wheelPaletteItems().map(it => nextYearRow && it.subV === 'v' ? Object.assign({}, it, { label: `Ferie residue ${SHIFT_YEAR} (contano sul ${SHIFT_YEAR})` }) : it).flatMap(it => !(nextYearRow && it.subV === 'f') ? [it] :   // anno dopo: C.O. 2027 (le ferie del 2026 sono "ferie residue")
-            [Object.assign({}, it, { label: `C.O. ${SHIFT_YEAR + 1} (ferie desiderate, contano sul ${SHIFT_YEAR + 1})`, short: 'CO' + String(SHIFT_YEAR + 1).slice(2), coY: SHIFT_YEAR + 1, colors: SUB_CODE_COLORS.f })]);
+        const items = wheelPaletteItems().filter(it => !(nextYearRow && it.subV === 'f'));   // anno dopo: il C.O. (2026 o 2027) si mette solo con la ruota, che chiede l'anno
         const group = (title, arr) => `<div class="sep-group-label">${title}</div><div class="sep-row">${arr.map(it => {
             const isCur = it.subV ? (curSub === it.subV && (!it.coY || +cell.coY === it.coY)) : (!SPECIAL_SUBCODES[curSub] && curV === it.v);
             return `<button class="sep-btn ${isCur?'current':''}" onclick="applyShiftChoice('${it.v}','${it.subV}'${it.coY ? ',' + it.coY : ''})"><span class="cc-code" style="${swatchStyle(it.colors)}">${esc(it.short)}</span><span>${esc(it.label)}${it.time?`<small>${esc(it.time)}</small>`:''}</span></button>`;
