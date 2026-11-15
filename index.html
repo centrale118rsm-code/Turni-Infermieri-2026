@@ -11534,7 +11534,8 @@
             if(HOLIDAYS[`${dd.date.getMonth()}-${dd.date.getDate()}`]) add('fest', dd);
             if(info.code === 'N' || info.code === 'M+N') add('notti', dd);
         });
-        // conteggio dell'anno intero: le ferie (C.O.) messe a gennaio-marzo dell'anno dopo contano su quest'anno
+        // conteggio dell'anno intero: le ferie (C.O.) messe a gennaio-marzo dell'anno dopo contano su quest'anno,
+        // e così le "ferie residue" messe già ora nell'anno dopo (sono ferie di quest'anno godute dopo)
         let nextF = 0;
         const lastDay = days[days.length - 1];
         if(lastDay && lastDay.monthIdx === 11 && lastDay.day === 31) {
@@ -11542,7 +11543,7 @@
                 if(shiftRowYear(r) !== SHIFT_YEAR + 1) continue;
                 const cell = finalData[r][d.idx] || {}, sub = (cell.subV || '').toString().trim().toLowerCase();
                 let v = (cell.v || '').toString().trim(); if(isRepStr(v)) v = v.slice(0, v.indexOf('/')).trim();
-                if(sub === 'f' && !(+cell.coY > SHIFT_YEAR) && absCycleCode(r, d.idx) !== 'R' && MONTH_MAP[finalData[r][0].v] < CO_CARRY_MONTHS) { add('f', { date: new Date(SHIFT_YEAR + 1, MONTH_MAP[finalData[r][0].v], parseInt(finalData[r][1].v)) }); nextF++; }
+                if(((sub === 'f' && !(+cell.coY > SHIFT_YEAR)) || sub === 'v') && absCycleCode(r, d.idx) !== 'R' && MONTH_MAP[finalData[r][0].v] < CO_CARRY_MONTHS) { add('f', { date: new Date(SHIFT_YEAR + 1, MONTH_MAP[finalData[r][0].v], parseInt(finalData[r][1].v)) }); nextF++; }
             }
         }
         const n = k => counts[k] || 0;
@@ -13972,7 +13973,7 @@
         return { key, next, row: row + 1, col, was: sub };
     }
     // ── Spettanze: in Modifica turni non si va oltre i C.O. e i permessi che la persona ha ──
-    const ABS_LIMITED = { f: 1, p: 1, pn: 1 };
+    const ABS_LIMITED = { f: 1, v: 1, p: 1, pn: 1 };   // v: le ferie residue messe nell'anno dopo scalano il C.O. di quest'anno
     // ["P 8/6", …]: dove la persona è già oltre le spettanze dell'anno
     function absOverList(d) {
         const a = absCountFor(d, buildDaysIndex()), L = { co: 'C.O.', sp: 'P', pn: 'PN' };
