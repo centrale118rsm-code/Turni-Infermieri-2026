@@ -106,6 +106,15 @@ function buildMessages(X, old) {
       else out.push({ owner: '*coord*', title: 'Nuova richiesta dal portale', body: `${r.name || '—'}: ${r.type}${r.swapWith ? ' con ' + r.swapWith : ''}${when}`, tag: 'req-' + r.id });
     }
   }
+  // 4. note mandate con "Invia notifica" e risposte nelle chat delle note (le prepara l'app in noteMsgs)
+  //    solo quelle nuove rispetto al giro prima e scritte nelle ultime 24 ore (niente valanghe dopo una pausa)
+  if (old.noteKeys && Array.isArray(X.noteMsgs)) {
+    const seen = new Set(old.noteKeys), fresh = Date.now() - 24 * 3600000;
+    for (const m of X.noteMsgs) {
+      if (seen.has(m.key) || !(Date.parse(m.at || 0) > fresh)) continue;
+      out.push({ owners: m.to, exclude: m.exclude || [], title: m.title, body: m.body, tag: m.tag, url: m.url });
+    }
+  }
   return out;
 }
 
@@ -122,11 +131,13 @@ async function sendAll(X, messages, state) {
   const dead = new Set();
   let ok = 0;
   for (const m of messages) {
-    const targets = subs.filter(([, s]) => m.owner === '*coord*' ? coords.has(String(s.owner || '').toUpperCase()) : matches(s.owner, m.owner));
+    // owner: un nome o '*coord*'; owners: più nomi, '*all*' (tutti) o '*coord*'; exclude: chi ha scritto
+    const hit = (o, s) => o === '*all*' ? true : o === '*coord*' ? coords.has(String(s.owner || '').toUpperCase()) : matches(s.owner, o);
+    const targets = subs.filter(([, s]) => (m.owners ? m.owners.some(o => hit(o, s)) : hit(m.owner, s)) && !(m.exclude || []).some(o => o !== '*all*' && hit(o, s)));
     for (const [id, s] of targets) {
       if (dead.has(id)) continue;
       try {
-        await webpush.sendNotification(s.sub, JSON.stringify({ title: m.title, body: m.body, tag: m.tag, url: X.url }), { TTL: 6 * 3600, urgency: 'normal' });
+        await webpush.sendNotification(s.sub, JSON.stringify({ title: m.title, body: m.body, tag: m.tag, url: m.url || X.url }), { TTL: 6 * 3600, urgency: 'normal' });
         ok++;
       } catch (e) {
         if (e.statusCode === 404 || e.statusCode === 410) dead.add(id);
@@ -149,6 +160,8 @@ async function main() {
     log(`${X.team}: ${X.people.length} persone, oggi ${X.today}`);
     writeCalendars(X);
     const state = { schedule: X.schedule, reqIds: X.requests.map(r => r.id), sent: {} };
+    // se l'app pubblicata non prepara ancora le notifiche delle note, si tiene la memoria di prima
+    if (Array.isArray(X.noteMsgs)) state.noteKeys = X.noteMsgs.map(m => m.key); else if (old.noteKeys) state.noteKeys = old.noteKeys;
     const limit = Date.now() - 4 * 86400000;
     Object.entries(old.sent || {}).forEach(([k, t]) => { if (t > limit) state.sent[k] = t; });
     let dead = [];

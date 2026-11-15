@@ -23,7 +23,14 @@ self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const url = new URL((event.notification.data && event.notification.data.url) || './', self.registration.scope).href;
   event.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
-    for (const c of list) { if (c.url.startsWith(self.registration.scope) && 'focus' in c) return c.focus(); }
+    // una notifica di nota apre la sua chat: all'app già aperta lo dice con un messaggio, altrimenti ?nota=ID
+    let nota = null; try { nota = new URL(url).searchParams.get('nota'); } catch (e) {}
+    for (const c of list) {
+      if (c.url.startsWith(self.registration.scope) && 'focus' in c) {
+        if (nota) c.postMessage({ type: 'open-nota', id: nota });
+        return c.focus();
+      }
+    }
     return self.clients.openWindow(url);
   }));
 });

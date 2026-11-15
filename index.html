@@ -2044,6 +2044,20 @@
         .nchat-ro { flex:1; font-size:0.78rem; color:var(--cc-muted); text-align:center; padding:6px; }
         .nchat-as { font-size:0.68rem; color:var(--cc-muted); padding:0 14px 2px; background:var(--cc-surface); }
         .rq-alert-note { cursor:pointer; }
+        .note-push { display:flex; align-items:flex-start; gap:8px; padding:9px 11px; border:1px solid #c4b5fd; background:#f5f3ff; color:#3b0764; border-radius:10px; cursor:pointer; font-size:13px; }
+        body.dark-mode .note-push { background:rgba(124,58,237,.16); border-color:rgba(167,139,250,.45); color:#ede9fe; }
+        .note-push input { width:20px; height:20px; margin:1px 0 0; accent-color:#7c3aed; flex:none; }
+        .note-push > .material-icons-round { font-size:19px; color:#7c3aed; }
+        .note-push small { display:block; font-size:11.5px; opacity:.8; font-weight:500; margin-top:1px; }
+        #note-hub { display:none; position:fixed; inset:0; z-index:7040; background:rgba(15,23,42,.55); align-items:flex-end; justify-content:center; opacity:0; transition:opacity .18s; }
+        #note-hub.open { opacity:1; }
+        @media (min-width:640px) { #note-hub { align-items:center; padding:16px; } }
+        .nhub-it { background:var(--cc-surface); border:1px solid var(--cc-line); border-radius:12px; padding:10px 12px; cursor:pointer; display:flex; flex-direction:column; gap:3px; }
+        .nhub-it.new { border-left:4px solid #7c3aed; }
+        .nhub-r1 { display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-size:0.85rem; } .nhub-when { color:var(--cc-muted); font-size:0.75rem; text-transform:capitalize; margin-left:auto; }
+        .nhub-badge { background:#7c3aed; color:#fff; border-radius:999px; font-size:0.68rem; font-weight:900; padding:1px 7px; }
+        .nhub-txt { font-size:0.88rem; line-height:1.35; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+        .nhub-last { display:flex; align-items:center; gap:6px; font-size:0.78rem; color:var(--cc-muted); } .nhub-last > span:nth-child(2) { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } .nhub-last .material-icons-round { font-size:15px; color:#7c3aed; }
         .rq-alert-note .rq-reply { display:inline-flex; align-items:center; gap:4px; margin-top:6px; font-size:0.78rem; font-weight:800; color:#6d28d9; }
         .rq-alert-note .rq-reply .material-icons-round { font-size:16px; }
         .me-note-sec { font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--text-sec); margin:10px 0 2px; }
@@ -5692,6 +5706,7 @@
         return [
             { group:'Per te' },
             { id:'me', icon:'person', label:'La mia pagina', desc: (userIdentity && userIdentity !== 'Ospite') ? 'Prossimi turni, ore, assenze, reperibilit\u00e0' : 'Scegli prima chi sei', color:'#1d4ed8', run: () => openMyPage() },
+            { id:'notechat', icon:'forum', label:'Note e chat', desc: (() => { try { const u = noteHubUnread(); return u ? u + (u === 1 ? ' risposta nuova' : ' risposte nuove') : 'Le note dei colleghi e le risposte'; } catch(e) { return 'Le note dei colleghi e le risposte'; } })(), color:'#7c3aed', run: () => noteOpenHub() },
             { group:'Calendario' },
             { id:'cal', icon:'calendar_month', label:'Calendario', desc:'Oggi, mesi, operatori', color: MN_COLORS.cal, children: [
                 { id:'today', icon:'today', label:'Vai a oggi', desc:'Torna al giorno corrente', color: MN_COLORS.cal, run: () => scrollToToday() },
@@ -9139,12 +9154,26 @@
         const notes = (prefsDoc && prefsDoc[NOTE_FIELD]) || {};
         Object.keys(notes).forEach(k => { const n = notes[k] || {}; if(!n.date || !n.author || n.status === 'fatta' || (n.to && n.to !== 'COORD')) return;
             requests.push({ id: 'nota-' + k + '-' + (n.updatedAt || ''), name: noteName(n), type: 'nota per il coordinatore' + (NOTE_PREFS[n.pref] ? ' (preferisce ' + NOTE_PREFS[n.pref].label.toLowerCase() + ')' : '') + (n.text ? ': ' + String(n.text).slice(0, 140) : ''), kind: 'nota', timeSlot: '', auto: false, dateFrom: n.date, dateTo: n.date, swapWith: '', inserted: false }); });
+        // note mandate con "Invia notifica" e risposte nelle chat: il motore le manda sul telefono una volta sola (chiave)
+        // destinatari: nomi originali, '*all*' (tutti) o '*coord*' (i coordinatori); exclude = chi l'ha scritta
+        const noteMsgs = [], base = appBaseUrl();
+        Object.keys(notes).forEach(k => { const raw = notes[k] || {}; if(!raw.author) return;
+            const n = Object.assign({ id: k, text: '', date: '' }, raw, { id: k }), t = noteTo(n), who = n.author === 'COORD' ? '*coord*' : n.author;
+            const url = base + '?nota=' + encodeURIComponent(k), tag = 'nota-' + k, day = n.date ? noteWhen(n.date) + ': ' : '';
+            if(n.push && t !== 'COORD') noteMsgs.push({ key: 'n-' + k + '-' + (n.updatedAt || ''), at: n.updatedAt || n.createdAt || '', to: [t === 'ALL' ? '*all*' : t], exclude: [who], title: t === 'ALL' ? 'Nota per tutti da ' + noteName(n) : 'Nota da ' + noteName(n), body: day + String(n.text || '').slice(0, 200), url, tag });
+            const reps = noteReplies(n);
+            reps.forEach((r, i) => { const by = r.by === 'COORD' ? '*coord*' : r.by, to = new Set([who]);
+                if(t !== 'ALL') to.add(t === 'COORD' ? '*coord*' : t);
+                reps.slice(0, i).forEach(x => to.add(x.by === 'COORD' ? '*coord*' : x.by)); to.delete(by);
+                if(to.size) noteMsgs.push({ key: 'r-' + k + '-' + r.id, at: r.at || '', to: [...to], exclude: [by], title: 'Risposta di ' + noteReplyName(r), body: (n.author === 'COORD' ? 'Nota del coordinatore' : 'Nota di ' + noteName(n)) + (n.date ? ' (' + noteWhen(n.date) + ')' : '') + ': ' + String(r.text || '').slice(0, 200), url, tag });
+            });
+        });
         prefsDoc = Object.assign({}, prefsDoc); delete prefsDoc[NOTE_FIELD];
         // il coordinatore con tutti i nomi con cui può aver scelto "chi sei" (nome mostrato e nome originale)
         const cd = coordinatorName ? drivers.find(d => normalizeNameForMatch(d.name) === normalizeNameForMatch(coordinatorName) || normalizeNameForMatch(d.originalName) === normalizeNameForMatch(coordinatorName)) : null;
         const coordinators = [coordinatorName, cd && cd.name, cd && cd.originalName].concat(typeof AS_OPERATORI !== 'undefined' ? AS_OPERATORI : []).filter(Boolean).map(x => String(x).toUpperCase());
         return { team: document.title, url: appBaseUrl(), today: todayIso, tomorrow, people: people.map(d => ({ orig: d.originalName, name: d.name, slug: calSlug(d.originalName) })),
-            ics, schedule, labels, repTomorrow, prefs: prefsDoc, subs, requests, coordinators };
+            ics, schedule, labels, repTomorrow, prefs: prefsDoc, subs, requests, coordinators, noteMsgs };
     }
     async function serverRemoveSubs(ids) {
         if(!ids || !ids.length) return 0;
@@ -10221,13 +10250,25 @@
         const open = l.some(n => !(noteTo(n) === 'COORD' && n.status === 'fatta'));
         return `<span class="note-flag ${open ? '' : 'done'}" title="${esc(l.map(n => noteName(n) + ': ' + (NOTE_PREFS[n.pref] && noteTo(n) === 'COORD' ? NOTE_PREFS[n.pref].label + '. ' : '') + n.text).join(' · '))}"><span class="material-icons-round">sticky_note_2</span></span>`;
     }
+    // chat da aprire appena arrivano le note: ?nota=ID nell'indirizzo (tocco su una notifica del telefono)
+    let notePendingOpen = (() => { try { return new URLSearchParams(location.search).get('nota') || null; } catch(e) { return null; } })();
+    if(notePendingOpen) try { const u = new URL(location.href); u.searchParams.delete('nota'); history.replaceState(history.state, '', u.href); } catch(e) {}
+    function noteOpenPending() {
+        const id = notePendingOpen; if(!id || !opNotes[id] || SERVER_MODE) return;
+        notePendingOpen = null;
+        setTimeout(() => { const a = document.getElementById('richiesta-alert-modal'); if(a && a.classList.contains('open')) closeRichiestaAlert(); noteOpenChat(id); }, 1200);
+    }
+    if('serviceWorker' in navigator && !SERVER_MODE) navigator.serviceWorker.addEventListener('message', e => {
+        const d = e.data || {}; if(d.type !== 'open-nota' || !d.id) return;
+        notePendingOpen = d.id; if(opNotes[d.id]) noteOpenPending();
+    });
     function listenOpNotes() {
         if(!fbReady) return;
         cfgRef('prefs').onSnapshot(doc => {
             const raw = doc.exists ? ((doc.data() || {})[NOTE_FIELD] || {}) : {}, m = {};
             Object.keys(raw).forEach(k => { const n = raw[k]; if(n && typeof n === 'object' && /^(\d{4}-\d{2}-\d{2})?$/.test(n.date || '') && n.author) m[k] = Object.assign({ id: k, text: '', pref: '', status: 'nuova', date: '' }, n, { id: k }); });
             if(JSON.stringify(m) === JSON.stringify(opNotes)) return;
-            opNotes = m; notesAfterChange(); noteNotify();
+            opNotes = m; notesAfterChange(); noteNotify(); noteOpenPending();
         }, err => console.error('Errore ascolto note:', err));
     }
     let notesRenderTimer = null;
@@ -10239,6 +10280,7 @@
             if(finalData.length && document.querySelector('#table-body tr[data-row]')) renderTable();
             if(edNotesOpen) edNotesRender();
             if(noteChatId) noteChatRender(true);
+            const hub = document.getElementById('note-hub'); if(hub && hub.classList.contains('open')) noteHubRender();
             const cc = document.getElementById('coord-console');
             if(cc && cc.classList.contains('open') && ccSection === 'note') renderCcNotes();
             const me = document.getElementById('me-modal'); if(me && me.classList.contains('open')) renderMyPage();
@@ -10270,7 +10312,7 @@
         if(!asCoord && prefOwner() === 'OSPITE') { ccToast('Per scrivere una nota scegli prima chi sei.', true); return; }
         const t0 = n ? noteTo(n) : (asCoord ? 'ALL' : 'COORD');
         noteEditCtx = { iso: n ? n.date || '' : (iso || ''), id: n ? n.id : null, pref: n ? n.pref || '' : '', asCoord,
-            kind: t0 === 'COORD' ? 'COORD' : (t0 === 'ALL' ? 'ALL' : 'ONE'), who: t0 !== 'COORD' && t0 !== 'ALL' ? t0 : '' };
+            kind: t0 === 'COORD' ? 'COORD' : (t0 === 'ALL' ? 'ALL' : 'ONE'), who: t0 !== 'COORD' && t0 !== 'ALL' ? t0 : '', push: n ? !!n.push : true };
         let el = document.getElementById('note-modal');
         if(!el) {
             el = document.createElement('div'); el.id = 'note-modal'; el.className = 'cc-scope';
@@ -10293,6 +10335,7 @@
                 <div class="note-prefs">${Object.keys(NOTE_PREFS).map(k => `<button data-p="${k}" class="${c.pref === k ? 'on' : ''}" onclick="noteSetPref('${k}')">${NOTE_PREFS[k].label}</button>`).join('')}</div></div>
                 <label class="note-lbl" for="note-text">Messaggio</label>
                 <textarea id="note-text" maxlength="500" rows="4">${esc(n ? n.text : '')}</textarea>
+                <label class="note-push" id="note-push-box"><input type="checkbox" id="note-push" ${c.push ? 'checked' : ''} onchange="noteEditCtx.push=this.checked;noteEdPriv()"><span class="material-icons-round">notifications_active</span><span><b>Invia notifica sul telefono</b><small id="note-push-t"></small></span></label>
                 <p class="note-priv"><span class="material-icons-round">lock</span><span id="note-priv-t"></span></p>
                 ${n ? `<p class="note-st">${esc(noteStatusTxt(n))}</p>` : ''}
                 ${others.length ? `<div class="note-old"><b>Altre tue note per questo giorno</b>${others.map(x => `<div class="note-it" onclick="noteOpenEditor('${x.date}','${x.id}')">${notePrefChip(x)}${noteToChip(x)}<span>${esc(x.text || '(senza testo)')}</span><small>${esc(noteStatusTxt(x))}</small></div>`).join('')}</div>` : ''}
@@ -10306,10 +10349,13 @@
     }
     function noteEdPriv() {
         const c = noteEditCtx, t = document.getElementById('note-priv-t'); if(!c || !t) return;
+        const pb = document.getElementById('note-push-box'), pt = document.getElementById('note-push-t');
+        if(pb) pb.style.display = c.kind === 'COORD' ? 'none' : '';
+        if(pt) { const d2 = c.who ? noteDriverOf(c.who) : null; pt.textContent = !c.push ? 'Nessuna notifica: la vedranno aprendo l’app.' : c.kind === 'ALL' ? 'Arriva sul telefono di tutti i colleghi, anche a schermo spento.' : `Arriva sul telefono di ${d2 ? d2.name : 'chi scegli'}, anche a schermo spento.`; }
         const d = c.who ? noteDriverOf(c.who) : null, me = c.asCoord ? 'il coordinatore' : 'tu';
         t.textContent = c.kind === 'COORD' ? 'La vedete solo tu e il coordinatore. Gli arriva anche come notifica.'
-            : c.kind === 'ALL' ? 'La vedono tutti. Arriva come notifica a tutti.'
-            : `La vedete solo ${me} e ${d ? d.name : 'il collega che scegli'}. Gli arriva anche come notifica.`;
+            : c.kind === 'ALL' ? 'La vedono tutti nell’app, e sotto si può rispondere.'
+            : `La vedete solo ${me} e ${d ? d.name : 'il collega che scegli'}, e sotto potete rispondervi.`;
     }
     function noteSetKind(k) {
         vibrate(); const c = noteEditCtx; if(!c) return; c.kind = k;
@@ -10330,7 +10376,7 @@
         const now = new Date().toISOString(), old = c.id ? opNotes[c.id] : null, me = noteMeDriver();
         const id = c.id || ('n' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6));
         // una nota cambiata torna "nuova": chi la riceve deve rileggerla
-        const val = { author: c.asCoord ? 'COORD' : (me ? me.originalName : prefOwner()), to: c.kind === 'ONE' ? c.who : c.kind, date: c.iso || '', text, pref, status: 'nuova', createdAt: old ? old.createdAt : now, updatedAt: now };
+        const val = { author: c.asCoord ? 'COORD' : (me ? me.originalName : prefOwner()), to: c.kind === 'ONE' ? c.who : c.kind, date: c.iso || '', text, pref, status: 'nuova', createdAt: old ? old.createdAt : now, updatedAt: now, push: c.kind !== 'COORD' && !!c.push };
         if(c.asCoord) val.authorName = (userIdentity && userIdentity !== 'Ospite') ? userIdentity : (coordinatorName || '');
         noteCloseEditor();
         if(noteWrite(id, val)) ccToast(old ? 'Nota aggiornata' : 'Nota inviata a ' + noteToName(val));
@@ -10421,6 +10467,34 @@
         const k = noteReplies(n).length, u = noteUnreadReplies(n), canW = !!noteReplyAs(n);
         if(!k && !canW) return '';
         return `<button class="note-rep-chip ${u ? 'new' : ''}" onclick="event.stopPropagation();${fromDay ? `closeShiftModal();setTimeout(() => noteOpenChat('${n.id}'), 220)` : `noteOpenChat('${n.id}')`}"><span class="material-icons-round">forum</span>${k ? k + (k === 1 ? ' risposta' : ' risposte') + (u ? ' · ' + u + ' nuov' + (u === 1 ? 'a' : 'e') : '') : 'Rispondi'}</button>`;
+    }
+    // ── Tutte le note e le chat, dal menu: l'ultima attività in cima ──
+    function noteLastAt(n) { const l = noteReplies(n); return String((l.length && l[l.length - 1].at) || n.updatedAt || n.createdAt || ''); }
+    function noteHubItems() {
+        const t = ymd(new Date()), recent = new Date(Date.now() - 14 * 864e5).toISOString();
+        return noteList().filter(n => !n.date || n.date >= repDateAdd(t, -7) || noteLastAt(n) > recent).sort((a, b) => noteLastAt(b).localeCompare(noteLastAt(a)));
+    }
+    function noteHubUnread() { return noteHubItems().reduce((k, n) => k + noteUnreadReplies(n), 0); }
+    function noteOpenHub() {
+        let el = document.getElementById('note-hub');
+        if(!el) { el = document.createElement('div'); el.id = 'note-hub'; el.className = 'cc-scope'; el.onclick = e => { if(e.target === el) noteCloseHub(); }; document.body.appendChild(el); }
+        noteHubRender();
+        el.style.display = 'flex'; requestAnimationFrame(() => el.classList.add('open'));
+    }
+    function noteCloseHub() { const el = document.getElementById('note-hub'); if(!el) return; el.classList.remove('open'); setTimeout(() => { if(!el.classList.contains('open')) el.style.display = 'none'; }, 180); }
+    function noteHubRender() {
+        const el = document.getElementById('note-hub'); if(!el) return;
+        const items = noteHubItems(), at = iso => iso ? new Date(iso).toLocaleString('it-IT', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+        const row = n => { const l = noteReplies(n), last = l[l.length - 1], u = noteUnreadReplies(n);
+            return `<div class="nhub-it ${u ? 'new' : ''}" onclick="noteOpenChat('${n.id}')">
+                <div class="nhub-r1"><b>${esc(noteMine(n) ? 'Tu' : noteName(n))}</b>${noteToChip(n)}<span class="nhub-when">${esc(noteWhen(n.date))}</span>${u ? `<span class="nhub-badge">${u}</span>` : ''}</div>
+                <div class="nhub-txt">${esc(n.text || (NOTE_PREFS[n.pref] ? 'Preferisce ' + NOTE_PREFS[n.pref].label.toLowerCase() : ''))}</div>
+                <div class="nhub-last"><span class="material-icons-round">forum</span>${last ? `<span><b>${esc(noteReplyMine(last) ? 'Tu' : noteReplyName(last))}:</b> ${esc(last.text)}</span>` : '<span>Nessuna risposta</span>'}<small>${esc(at(noteLastAt(n)))}</small></div></div>`; };
+        el.innerHTML = `<div class="nchat-box" role="dialog" aria-labelledby="nhub-title">
+            <div class="nchat-head"><span class="material-icons-round">forum</span><div><h4 id="nhub-title">Note e chat</h4><small>Le note che puoi vedere, l’ultima attività in cima</small></div>
+                <button class="cc-icon-btn" onclick="noteCloseHub()" aria-label="Chiudi"><span class="material-icons-round">close</span></button></div>
+            <div class="nchat-list nhub-list">${items.length ? items.map(row).join('') : '<div class="nchat-empty">Nessuna nota per ora.</div>'}</div>
+            <div class="nchat-foot"><div class="nchat-ro">Per scrivere una nota nuova tocca un giorno nel calendario e poi “Scrivi una nota”.</div></div></div>`;
     }
     function noteOpenChat(id) {
         const n = opNotes[id]; if(!n || !noteVisible(n)) { ccToast('Nota non trovata (forse è stata eliminata).', true); return; }
