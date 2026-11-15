@@ -13706,6 +13706,7 @@
         coordRepTool = kind === 'rep' ? v : null;
         coordOpTool = kind === 'op' ? v : null;
         coordRepMoveFirst = null;
+        coNextChoice = null;
         if(kind === 'paint') coordPaintTool = { v: v || '', subV: subV || '' };
         else if(kind === 'erase') coordPaintTool = { clear:true };
         else coordPaintTool = null;
@@ -13806,8 +13807,16 @@
         if(!finalData[row]) return;
         let key = cellKey(row, col);
         let value = coordPaintTool.clear ? { v:"", subV:"" } : { v: coordPaintTool.v, subV: coordPaintTool.subV };
+        if(value.subV === 'f' && shiftRowYear(row) > SHIFT_YEAR) {   // C.O. nell'anno dopo: 2026 o 2027?
+            if(!coNextChoice) {
+                coordPainting = false;
+                if(!coNextAsking) { coNextAsking = true; coNextAsk().then(ch => { coNextAsking = false; if(!ch || !coordPaintTool) return; coNextChoice = ch; coordPainting = true; coordPaintBatchEntries = []; coordPaintTouchedKeys = new Set(); paintOneCell(row, col); coordOnPointerUp(); }); }
+                return;
+            }
+            value = coNextChoice === 'next' ? Object.assign(value, { coY: SHIFT_YEAR + 1 }) : Object.assign(value, { subV: 'v' });
+        }
         const cur = finalData[row][col] || {};
-        const same = String(cur.v||'').trim() === String(value.v||'').trim() && String(cur.subV||'').trim() === String(value.subV||'').trim();
+        const same = String(cur.v||'').trim() === String(value.v||'').trim() && String(cur.subV||'').trim() === String(value.subV||'').trim() && (+cur.coY || 0) === (+value.coY || 0);
         if(same && !coordPaintTouchedKeys.has(key)) { coordPaintTouchedKeys.add(key); return; } // gia' uguale: nessuna modifica inutile
         if(same) return;
         const tail = coordPaintTouchedKeys.has(cellKey(row + 1, col)) ? null : pnFreeNextDay(row, col, value.subV);   // PN: via l'assenza nascosta il giorno dopo
@@ -13930,10 +13939,11 @@
         const cell = finalData[rowIdx][colIdx] || {};
         const curV = (cell.v || '').toString().trim(), curSub = (cell.subV || '').toString().trim().toLowerCase();
         document.getElementById('sep-sub').textContent = dt.toLocaleDateString('it-IT', { weekday:'long', day:'numeric', month:'long' }) + ' \u00b7 attuale: ' + (info.label || 'vuoto') + (cell.overridden ? ' (modificato)' : '');
-        const items = wheelPaletteItems().filter(it => !(nextYearRow && it.subV === 'f'));   // anno dopo: solo ferie residue
+        const items = wheelPaletteItems().map(it => nextYearRow && it.subV === 'v' ? Object.assign({}, it, { label: `Ferie residue ${SHIFT_YEAR} (contano sul ${SHIFT_YEAR})` }) : it).flatMap(it => !(nextYearRow && it.subV === 'f') ? [it] :   // anno dopo: C.O. 2027 (le ferie del 2026 sono "ferie residue")
+            [Object.assign({}, it, { label: `C.O. ${SHIFT_YEAR + 1} (ferie desiderate, contano sul ${SHIFT_YEAR + 1})`, short: 'CO' + String(SHIFT_YEAR + 1).slice(2), coY: SHIFT_YEAR + 1, colors: SUB_CODE_COLORS.f })]);
         const group = (title, arr) => `<div class="sep-group-label">${title}</div><div class="sep-row">${arr.map(it => {
-            const isCur = it.subV ? (curSub === it.subV) : (!SPECIAL_SUBCODES[curSub] && curV === it.v);
-            return `<button class="sep-btn ${isCur?'current':''}" onclick="applyShiftChoice('${it.v}','${it.subV}')"><span class="cc-code" style="${swatchStyle(it.colors)}">${esc(it.short)}</span><span>${esc(it.label)}${it.time?`<small>${esc(it.time)}</small>`:''}</span></button>`;
+            const isCur = it.subV ? (curSub === it.subV && (!it.coY || +cell.coY === it.coY)) : (!SPECIAL_SUBCODES[curSub] && curV === it.v);
+            return `<button class="sep-btn ${isCur?'current':''}" onclick="applyShiftChoice('${it.v}','${it.subV}'${it.coY ? ',' + it.coY : ''})"><span class="cc-code" style="${swatchStyle(it.colors)}">${esc(it.short)}</span><span>${esc(it.label)}${it.time?`<small>${esc(it.time)}</small>`:''}</span></button>`;
         }).join('')}</div>`;
         document.getElementById('sep-grid').innerHTML =
             group('Turni', items.filter(i => i.group === 0)) +
@@ -13950,11 +13960,12 @@
         setTimeout(() => { if(!m.classList.contains('open')) m.style.display = 'none'; }, 150);
         coordEditPopupTarget = null;
     }
-    function applyShiftChoice(v, subV) {
+    function applyShiftChoice(v, subV, coY) {
         if(!coordEditPopupTarget) return; vibrate();
         const { row, col } = coordEditPopupTarget;
         const key = cellKey(row, col);
         const next = (v === null && subV === null) ? { v:"", subV:"" } : { v: v || "", subV: subV || "" };
+        if(coY && next.subV === 'f') next.coY = +coY;   // C.O. 2027 messo nell'anno dopo
         const tail = pnFreeNextDay(row, col, next.subV);
         const done = absApplyChecked([{ key, next, row, col }].concat(tail ? [tail] : []));
         if(!done) return;
@@ -13992,16 +14003,23 @@
         const left = Math.max(0, a.max[k] - b[k]);
         return `${a.d.name} ha ${a.max[k]} ${L[k]} nel ${SHIFT_YEAR}${left ? `: ne restano solo ${left}` : ' e li ha già usati tutti'}. Non inserito. Se la spettanza è sbagliata si cambia in Area coordinatore › Operatori.`;
     }
-    // Nei mesi dell'anno dopo (prima di capodanno) le ferie dell'anno si mettono solo come "ferie
-    // residue" (arancione): un C.O. messo lì con la ruota, l'editor o uno scambio diventa ferie residue.
-    // Restano C.O. solo quelli importati dalle ferie desiderate dell'anno dopo (coY, "C.O. 2027").
-    let coNextToastAt = 0;
+    // Nei mesi dell'anno dopo (prima di capodanno) un C.O. è o "ferie residue" dell'anno in corso
+    // (arancione, conta su quest'anno) o "C.O. 2027" (coY, giallo, conta sull'anno dopo): con la ruota
+    // lo si chiede (coNextAsk), nell'editor ci sono i due tasti; un C.O. senza anno che arriva lì
+    // (es. uno scambio) diventa ferie residue.
+    let coNextChoice = null, coNextAsking = false;   // scelta valida finché non si cambia strumento
+    function coNextAsk() {
+        const y = SHIFT_YEAR + 1;
+        return ccDialog(`Ferie nel ${y}`, `Queste ferie su quale anno contano?`, [
+            { label: 'Annulla', kind: 'ghost', value: null },
+            { label: `Ferie residue ${SHIFT_YEAR} (contano sul ${SHIFT_YEAR})`, kind: 'primary', value: 'v' },
+            { label: `Ferie desiderate ${y} (contano sul ${y})`, kind: 'primary', value: 'next' }]);
+    }
     function coNextToResidue(x) {
         const n = x && x.next;
         if(!n || String(n.subV || '').trim().toLowerCase() !== 'f' || x.row == null || shiftRowYear(x.row) <= SHIFT_YEAR) return x;
         const old = manualOverrides[x.key];
         if(+n.coY > SHIFT_YEAR || (old && +old.coY > SHIFT_YEAR && String(old.subV || '').trim().toLowerCase() === 'f')) return x;
-        if(Date.now() - coNextToastAt > 8000) { coNextToastAt = Date.now(); setTimeout(() => ccToast(`Nel ${SHIFT_YEAR + 1} le ferie del ${SHIFT_YEAR} si mettono come ferie residue (arancione): contano sul ${SHIFT_YEAR}.`), 50); }
         return Object.assign({}, x, { next: Object.assign({}, n, { subV: 'v' }) });
     }
     // Applica le caselle [{ key, next, row, col }] (alle modifiche in sospeso). Se così qualcuno
