@@ -561,6 +561,10 @@
         .perm-tag { text-transform:none; font-size:0.52rem; font-weight:900; letter-spacing:.2px; line-height:1.2; padding:1px 5px; border-radius:4px; margin:1px 0 2px; color:#fff; white-space:nowrap; z-index:2; }
         .perm-tag.perm-pl { background: var(--bg-pl); } .perm-tag.perm-ps { background: var(--bg-ps); }
         .cell.mini .perm-tag { display:none; }
+        /* ore di permesso legge dentro un turno: angolo verde scuro in alto a sinistra */
+        .perm-corner { position:absolute; top:0; left:0; width:0; height:0; border-top:22px solid #064e3b; border-right:22px solid transparent; border-top-left-radius:10px; pointer-events:none; z-index:2; }
+        .perm-note { margin-top:4px; font-size:0.72rem; font-weight:800; color:#064e3b; background:#d1fae5; border-radius:6px; padding:3px 7px; display:inline-block; }
+        body.dark-mode .perm-note { background:#064e3b; color:#d1fae5; }
         /* copertura turnisti in Modifica turni: 1-2 = bordo arancio, 4+ = lampeggio rosso */
         body.coord-edit-mode td.cov-lo > .cell { outline:3px solid #f97316; outline-offset:-3px; }
         body.coord-edit-mode td.cov-hi > .cell { outline:3px solid #dc2626; outline-offset:-3px; animation:covBlink 0.9s steps(1, end) infinite; }
@@ -9379,6 +9383,7 @@
     }
     function permTagHtml(info) {
         const p = info && info.perm; if(!p || !PERM_HOURLY[p.k] || !(Number(p.h) > 0)) return '';
+        if(p.k === 'pl') return `<i class="perm-corner" title="Permesso legge ${permHFmt(p.h)}"></i><div class="perm-tag perm-${p.k}">${PERM_HOURLY[p.k].short} ${permHFmt(p.h)}</div>`;
         return `<div class="perm-tag perm-${p.k}">${PERM_HOURLY[p.k].short} ${permHFmt(p.h)}</div>`;
     }
     // ── sezione "Permesso a ore" nel popup della casella ──
@@ -15547,7 +15552,9 @@
                 if(uVal==="M") badgeStyle="background:#dbeafe;color:#1e40af";
                 if(uVal==="P") badgeStyle="background:#ffedd5;color:#9a3412";
                 if(uVal==="N") badgeStyle="background:#1e293b;color:#f8fafc";
-                foundNurses.push({ name:d.name, shift:uVal, time, style:badgeStyle, isDiurno:isD });
+                const pm = permOfCell(rowIndex, d.idx);   // ore di permesso dentro il turno
+                const permNote = pm && !pm.full ? `<div class="perm-note">${esc(d.name)} ha preso ${permHFmt(pm.h)} di ${PERM_HOURLY[pm.k].label.toLowerCase()}${pm.k === 'pl' ? ' · conta nel conteggio assenze' : ''}</div>` : '';
+                foundNurses.push({ name:d.name, shift:uVal, time, style:badgeStyle, isDiurno:isD, permNote });
             }
         });
         if(foundNurses.length > 0) {
@@ -15557,7 +15564,7 @@
                     <div class="col-info">
                         <div class="col-name">${n.name}</div>
                         <div class="col-role" style="font-size:0.8rem;color:var(--primary)">${n.time}</div>
-                        <div class="col-role" style="font-size:0.65rem">${n.isDiurno?'Diurnista':'Turnista'}</div>
+                        <div class="col-role" style="font-size:0.65rem">${n.isDiurno?'Diurnista':'Turnista'}</div>${n.permNote || ''}
                     </div>
                     <div class="col-badge" style="${n.style}">${n.shift}</div>
                 </div>`;
