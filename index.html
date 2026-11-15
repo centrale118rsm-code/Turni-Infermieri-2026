@@ -2006,6 +2006,42 @@
         .note-to { display:inline-block; border-radius:999px; padding:1px 8px; font-size:0.68rem; font-weight:800; background:#ede9fe; color:#5b21b6; }
         .note-to.all { background:#fef3c7; color:#92400e; }
         .note-who, .note-date-in { height:38px; border:1px solid var(--cc-line); border-radius:10px; background:var(--cc-surface); color:var(--cc-text); font:inherit; font-size:14px; padding:0 10px; }
+        /* chat sotto le note */
+        .note-rep-chip { display:inline-flex; align-items:center; gap:4px; border:1px solid #c4b5fd; background:#f5f3ff; color:#5b21b6; border-radius:999px; padding:3px 10px 3px 8px; font:inherit; font-size:0.72rem; font-weight:800; cursor:pointer; white-space:nowrap; }
+        .note-rep-chip .material-icons-round { font-size:15px !important; }
+        .note-r3 .note-rep-chip { width:auto; height:auto; border-radius:999px; padding:3px 10px 3px 8px; color:#5b21b6; background:#f5f3ff; }
+        .note-r3 .note-rep-chip.new { color:#fff; background:#7c3aed; }
+        .note-rep-chip.new { background:#7c3aed; border-color:#7c3aed; color:#fff; }
+        body.dark-mode .note-rep-chip:not(.new) { background:rgba(124,58,237,.18); border-color:rgba(167,139,250,.45); color:#ddd6fe; }
+        #note-chat { display:none; position:fixed; inset:0; z-index:7050; background:rgba(15,23,42,.55); align-items:flex-end; justify-content:center; padding:0; opacity:0; transition:opacity .18s; }
+        #note-chat.open { opacity:1; }
+        @media (min-width:640px) { #note-chat { align-items:center; padding:16px; } }
+        .nchat-box { width:min(520px, 100%); height:min(86vh, 720px); display:flex; flex-direction:column; background:var(--cc-surface); color:var(--cc-text); border-radius:18px 18px 0 0; box-shadow:0 24px 60px -20px rgba(15,23,42,.6); overflow:hidden; padding-bottom:env(safe-area-inset-bottom,0px); }
+        @media (min-width:640px) { .nchat-box { border-radius:18px; } }
+        .nchat-head { display:flex; align-items:center; gap:12px; padding:12px 12px 10px 16px; border-bottom:1px solid var(--cc-line); background:linear-gradient(135deg,#4f46e5,#7c3aed); color:#fff; }
+        .nchat-head > div { flex:1; min-width:0; } .nchat-head h4 { margin:0; font-size:1rem; font-weight:900; } .nchat-head small { opacity:.85; font-size:0.75rem; } .nchat-head small span { text-transform:capitalize; }
+        .nchat-head .cc-icon-btn { color:#fff; background:rgba(255,255,255,.15); border:none; }
+        .nchat-list { flex:1; overflow:auto; padding:12px 12px 4px; display:flex; flex-direction:column; gap:8px; background:var(--cc-surface-2); }
+        .nchat-orig { background:var(--cc-surface); border:1px solid var(--cc-line); border-left:4px solid #7c3aed; border-radius:12px; padding:10px 12px; }
+        .nchat-orig b { font-size:0.85rem; } .nchat-orig p { margin:4px 0 2px; font-size:0.92rem; line-height:1.4; white-space:pre-wrap; } .nchat-orig small { color:var(--cc-muted); font-size:0.7rem; }
+        .nchat-sep { text-align:center; font-size:0.68rem; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--cc-muted); margin:4px 0; }
+        .nchat-msg { max-width:82%; align-self:flex-start; background:var(--cc-surface); border:1px solid var(--cc-line); border-radius:14px 14px 14px 4px; padding:7px 11px 6px; position:relative; }
+        .nchat-msg.me { align-self:flex-end; background:#ede9fe; border-color:#c4b5fd; border-radius:14px 14px 4px 14px; }
+        body.dark-mode .nchat-msg.me { background:rgba(124,58,237,.28); border-color:rgba(167,139,250,.45); }
+        .nchat-msg .who { display:block; font-size:0.72rem; font-weight:900; color:#6d28d9; margin-bottom:1px; }
+        body.dark-mode .nchat-msg .who { color:#c4b5fd; }
+        .nchat-msg .txt { font-size:0.92rem; line-height:1.35; white-space:pre-wrap; word-wrap:break-word; }
+        .nchat-msg .at { display:flex; align-items:center; justify-content:flex-end; gap:4px; font-size:0.66rem; color:var(--cc-muted); margin-top:2px; }
+        .nchat-msg .at button { border:none; background:none; color:var(--cc-muted); cursor:pointer; padding:0 2px; display:flex; } .nchat-msg .at button .material-icons-round { font-size:14px; }
+        .nchat-empty { text-align:center; font-size:0.8rem; color:var(--cc-muted); padding:14px 8px; }
+        .nchat-foot { display:flex; align-items:flex-end; gap:8px; padding:10px 12px 12px; border-top:1px solid var(--cc-line); background:var(--cc-surface); }
+        .nchat-foot textarea { flex:1; min-height:42px; max-height:120px; box-sizing:border-box; border:1px solid var(--cc-line); border-radius:21px; padding:10px 14px; font:inherit; font-size:15px; background:var(--cc-surface); color:var(--cc-text); resize:none; }
+        .nchat-send { width:44px; height:44px; flex:none; border:none; border-radius:50%; background:linear-gradient(135deg,#4f46e5,#7c3aed); color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+        .nchat-ro { flex:1; font-size:0.78rem; color:var(--cc-muted); text-align:center; padding:6px; }
+        .nchat-as { font-size:0.68rem; color:var(--cc-muted); padding:0 14px 2px; background:var(--cc-surface); }
+        .rq-alert-note { cursor:pointer; }
+        .rq-alert-note .rq-reply { display:inline-flex; align-items:center; gap:4px; margin-top:6px; font-size:0.78rem; font-weight:800; color:#6d28d9; }
+        .rq-alert-note .rq-reply .material-icons-round { font-size:16px; }
         .me-note-sec { font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--text-sec); margin:10px 0 2px; }
         #announce-progress { height:5px; margin:0 22px 14px; border-radius:999px; background:#dbeafe; overflow:hidden; }
         #announce-progress i { display:block; height:100%; width:100%; background:#2563eb; border-radius:999px; }
@@ -6251,7 +6287,7 @@
     function openRequestFromAlert() {
         const reqId = lastRichiestaAlertReqId;
         closeRichiestaAlert();
-        if(lastAlertNote) { const w = lastAlertNote; lastAlertNote = ''; setTimeout(() => noteOpenList(w), 320); return; }
+        if(lastAlertNote) { const w = lastAlertNote; lastAlertNote = ''; setTimeout(() => w.startsWith('chat:') ? noteOpenChat(w.slice(5)) : noteOpenList(w), 320); return; }
         setTimeout(() => { window.openRichiestePanel(reqId); }, 320);
     }
 
@@ -10185,6 +10221,7 @@
         notesRenderTimer = setTimeout(() => {
             if(finalData.length && document.querySelector('#table-body tr[data-row]')) renderTable();
             if(edNotesOpen) edNotesRender();
+            if(noteChatId) noteChatRender(true);
             const cc = document.getElementById('coord-console');
             if(cc && cc.classList.contains('open') && ccSection === 'note') renderCcNotes();
             const me = document.getElementById('me-modal'); if(me && me.classList.contains('open')) renderMyPage();
@@ -10193,7 +10230,9 @@
     }
     function noteWrite(id, val) {
         // aggiornamento immediato sul telefono; Firebase manda poi lo stesso stato a tutti
-        if(val) opNotes[id] = Object.assign({}, val, { id }); else delete opNotes[id];
+        // le risposte (chat sotto la nota) hanno scritture loro: qui restano quelle già presenti
+        const keepRep = val && (val.replies || (opNotes[id] && opNotes[id].replies));
+        if(val) { val = Object.assign({}, val); delete val.replies; delete val.id; opNotes[id] = Object.assign({}, val, { id }, keepRep ? { replies: keepRep } : {}); } else delete opNotes[id];
         notesAfterChange();
         // senza rete la scrittura resta in coda sul telefono e parte appena torna la connessione
         const fail = e => { console.error(e); ccToast('Nota non salvata: ' + (e.code || e.message), true); };
@@ -10308,20 +10347,128 @@
         const first = !Array.isArray(seen); seen = new Set(seen || []);
         const recent = Date.now() - 3 * 864e5;
         const fresh = noteList().filter(n => noteForMe(n) && !noteMine(n) && !(noteTo(n) === 'COORD' && n.status !== 'nuova') && !seen.has(n.id + '|' + n.updatedAt) && (!first || Date.parse(n.updatedAt || n.createdAt || 0) > recent));
-        Object.values(opNotes).forEach(n => seen.add(n.id + '|' + n.updatedAt));
-        try { localStorage.setItem(key, JSON.stringify([...seen].slice(-400))); } catch(e) {}
-        if(!fresh.length) return;
+        // risposte nuove nelle chat delle note: a chi ha scritto la nota, a chi l'ha ricevuta (se privata) e a chi ha già risposto
+        const freshRep = [];
+        noteList().forEach(n => { if(!noteInvolved(n)) return; noteReplies(n).forEach(r => { if(!noteReplyMine(r) && !seen.has('r|' + n.id + '|' + r.id) && (!first || Date.parse(r.at || 0) > recent)) freshRep.push({ n, r }); }); });
+        Object.values(opNotes).forEach(n => { seen.add(n.id + '|' + n.updatedAt); Object.keys(n.replies || {}).forEach(rid => seen.add('r|' + n.id + '|' + rid)); });
+        try { localStorage.setItem(key, JSON.stringify([...seen].slice(-800))); } catch(e) {}
+        if(!fresh.length && !freshRep.length) return;
         const title = n => noteTo(n) === 'COORD' ? 'Nota per il coordinatore' : (noteTo(n) === 'ALL' ? `Nota per tutti da ${noteName(n)}` : `Nota da ${noteName(n)}`);
+        const repOf = n => noteMine(n) ? 'alla tua nota' : 'alla nota di ' + noteName(n);
         fresh.forEach(n => notifHistory.unshift({ id: Date.now() + Math.random(), ts: Date.now(), kind: 'nota', type: 'nota', noteId: n.id, title: title(n), detail: `${noteName(n)}${n.date ? ' · ' + noteWhen(n.date) : ''}${NOTE_PREFS[n.pref] && noteTo(n) === 'COORD' ? ' · preferisce ' + NOTE_PREFS[n.pref].label.toLowerCase() : ''}${n.text ? ': ' + n.text : ''}`, read: false, archived: false, date: new Date().toLocaleString(), owner: prefOwner() }));
+        freshRep.forEach(({ n, r }) => notifHistory.unshift({ id: Date.now() + Math.random(), ts: Date.now(), kind: 'nota', type: 'nota', noteId: n.id, title: `Risposta di ${noteReplyName(r)}`, detail: `${repOf(n)}${n.date ? ' (' + noteWhen(n.date) + ')' : ''}: ${r.text}`, read: false, archived: false, date: new Date().toLocaleString(), owner: prefOwner() }));
         saveNotifications(); updateBadge();
-        lastRichiestaAlertReqId = null; lastAlertNote = fresh.every(n => noteTo(n) === 'COORD') ? 'coord' : 'me';
-        const t = document.querySelector('#richiesta-alert-modal .alert-title'); if(t) t.textContent = fresh.length === 1 ? title(fresh[0]).toUpperCase() : fresh.length + ' NUOVE NOTE';
-        document.getElementById('richiesta-alert-text').innerHTML = fresh.slice(0, 5).map(n => `<div style="background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:10px 12px; text-align:left; margin-bottom:6px;"><div style="font-weight:900;">${esc(noteName(n))}${noteTo(n) === 'ALL' ? ' · a tutti' : ''}${n.date ? ' · ' + esc(noteWhen(n.date)) : ''}</div><div style="font-size:0.86rem; color:var(--text-sec); margin-top:3px;">${NOTE_PREFS[n.pref] && noteTo(n) === 'COORD' ? '<b>Preferisce ' + NOTE_PREFS[n.pref].label.toLowerCase() + '.</b> ' : ''}${esc(n.text || '')}</div></div>`).join('') + (fresh.length > 5 ? `<div style="font-size:0.8rem; color:var(--text-sec);">e altre ${fresh.length - 5}</div>` : '');
+        const ids = new Set(fresh.map(n => n.id).concat(freshRep.map(x => x.n.id)));
+        lastRichiestaAlertReqId = null;
+        lastAlertNote = ids.size === 1 ? 'chat:' + [...ids][0] : (fresh.length && fresh.every(n => noteTo(n) === 'COORD') && !freshRep.length ? 'coord' : 'me');
+        const tot = fresh.length + freshRep.length;
+        const head = !freshRep.length ? (fresh.length === 1 ? title(fresh[0]).toUpperCase() : fresh.length + ' NUOVE NOTE')
+            : !fresh.length ? (freshRep.length === 1 ? 'NUOVA RISPOSTA' : freshRep.length + ' NUOVE RISPOSTE') : tot + ' NOVITÀ NELLE NOTE';
+        const t = document.querySelector('#richiesta-alert-modal .alert-title'); if(t) t.textContent = head;
+        const box = (id, top, body, extra) => `<div class="rq-alert-note" onclick="noteAlertChat('${id}')" style="background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:10px 12px; text-align:left; margin-bottom:6px;"><div style="font-weight:900;">${top}</div><div style="font-size:0.86rem; color:var(--text-sec); margin-top:3px;">${body}</div><span class="rq-reply"><span class="material-icons-round">forum</span>${extra}</span></div>`;
+        const repCount = n => { const k = noteReplies(n).length; return k ? `Rispondi · ${k} ${k === 1 ? 'risposta' : 'risposte'}` : 'Rispondi'; };
+        document.getElementById('richiesta-alert-text').innerHTML = fresh.slice(0, 4).map(n => box(n.id, `${esc(noteName(n))}${noteTo(n) === 'ALL' ? ' · a tutti' : ''}${n.date ? ' · ' + esc(noteWhen(n.date)) : ''}`, `${NOTE_PREFS[n.pref] && noteTo(n) === 'COORD' ? '<b>Preferisce ' + NOTE_PREFS[n.pref].label.toLowerCase() + '.</b> ' : ''}${esc(n.text || '')}`, repCount(n))).join('')
+            + freshRep.slice(0, 4).map(({ n, r }) => box(n.id, `${esc(noteReplyName(r))} ha risposto ${esc(repOf(n))}${n.date ? ' · ' + esc(noteWhen(n.date)) : ''}`, `<i>“${esc((n.text || '').slice(0, 70))}${(n.text || '').length > 70 ? '…' : ''}”</i><br><b style="color:var(--text)">${esc(r.text)}</b>`, 'Apri la chat')).join('')
+            + (tot > 8 ? `<div style="font-size:0.8rem;color:var(--text-sec)">…e altre ${tot - 8}</div>` : '');
         const m = document.getElementById('richiesta-alert-modal'); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 100);
         if(navigator.vibrate) navigator.vibrate([40, 60, 40]);
     }
     function noteOpenList(where) { if(where === 'coord') openCoordConsole('note'); else { openMyPage(); setTimeout(() => { const c = document.getElementById('me-notes'); if(c) c.scrollIntoView({ block: 'start', behavior: 'smooth' }); }, 450); } }
-    function noteOpenFromNotif(id) { closeNotifCenter(); const n = opNotes[id]; setTimeout(() => noteOpenList(n && noteTo(n) === 'COORD' && noteIsCoord() ? 'coord' : 'me'), 320); }
+    function noteOpenFromNotif(id) { closeNotifCenter(); const n = opNotes[id]; setTimeout(() => n && noteVisible(n) ? noteOpenChat(id) : noteOpenList(n && noteTo(n) === 'COORD' && noteIsCoord() ? 'coord' : 'me'), 320); }
+    function noteAlertChat(id) { lastAlertNote = ''; closeRichiestaAlert(); setTimeout(() => noteOpenChat(id), 320); }
+
+    // ── Chat sotto ogni nota: chi vede la nota può rispondere, con il proprio nome ──
+    // Nel campo della nota: replies: { id: { by: nome originale | 'COORD', byName (solo coordinatore), text, at } }
+    // (stesso documento prefs, già ammesso dalle regole). Ogni risposta si scrive da sola, senza toccare la nota.
+    let noteChatId = null;
+    function noteReplies(n) { const r = (n && n.replies) || {}; return Object.keys(r).map(k => Object.assign({}, r[k], { id: k })).filter(x => x && x.by && x.text).sort((a, b) => String(a.at).localeCompare(String(b.at))); }
+    function noteReplyMine(r) { return !!r && (r.by === 'COORD' ? noteIsCoord() : noteIsMe(r.by)); }
+    function noteReplyName(r) { if(r.by === 'COORD') return 'Coordinatore' + (r.byName ? ' (' + r.byName + ')' : ''); const d = noteDriverOf(r.by); return d ? d.name : (r.by || '—'); }
+    // chi riceve l'avviso delle risposte: chi ha scritto la nota, chi l'ha ricevuta (se non è "a tutti") e chi ha già risposto
+    function noteInvolved(n) { return noteMine(n) || (noteTo(n) !== 'ALL' && noteForMe(n)) || noteReplies(n).some(noteReplyMine); }
+    // con che nome rispondo: il coordinatore risponde come coordinatore alle note per lui o sue; gli altri col proprio nome
+    function noteReplyAs(n) {
+        const me = noteMeDriver(), coordName = (userIdentity && userIdentity !== 'Ospite') ? userIdentity : (coordinatorName || '');
+        if(noteIsCoord() && (n.author === 'COORD' || noteTo(n) === 'COORD' || !me)) return { by: 'COORD', byName: coordName };
+        if(me) return { by: me.originalName };
+        if(prefOwner() !== 'OSPITE') return { by: prefOwner() };
+        return null;
+    }
+    function noteChatReadKey() { return 'note_chat_read_v1_' + normalizeNameForMatch(prefOwner()) + (noteIsCoord() ? '_c' : ''); }
+    function noteChatRead() { try { return JSON.parse(localStorage.getItem(noteChatReadKey()) || '{}') || {}; } catch(e) { return {}; } }
+    function noteChatMarkRead(n) { const l = noteReplies(n); if(!l.length) return; const m = noteChatRead(); m[n.id] = l[l.length - 1].at; try { localStorage.setItem(noteChatReadKey(), JSON.stringify(m)); } catch(e) {} }
+    function noteUnreadReplies(n) { const at = noteChatRead()[n.id] || ''; return noteReplies(n).filter(r => !noteReplyMine(r) && String(r.at) > at).length; }
+    // pulsantino "Rispondi / 3 risposte" da mettere sotto ogni nota
+    function noteChatChip(n, fromDay) {
+        if(!n || !noteVisible(n)) return '';
+        const k = noteReplies(n).length, u = noteUnreadReplies(n), canW = !!noteReplyAs(n);
+        if(!k && !canW) return '';
+        return `<button class="note-rep-chip ${u ? 'new' : ''}" onclick="event.stopPropagation();${fromDay ? `closeShiftModal();setTimeout(() => noteOpenChat('${n.id}'), 220)` : `noteOpenChat('${n.id}')`}"><span class="material-icons-round">forum</span>${k ? k + (k === 1 ? ' risposta' : ' risposte') + (u ? ' · ' + u + ' nuov' + (u === 1 ? 'a' : 'e') : '') : 'Rispondi'}</button>`;
+    }
+    function noteOpenChat(id) {
+        const n = opNotes[id]; if(!n || !noteVisible(n)) { ccToast('Nota non trovata (forse è stata eliminata).', true); return; }
+        noteChatId = id;
+        let el = document.getElementById('note-chat');
+        if(!el) { el = document.createElement('div'); el.id = 'note-chat'; el.className = 'cc-scope'; el.onclick = e => { if(e.target === el) noteCloseChat(); }; document.body.appendChild(el); }
+        noteChatRender(false);
+        el.style.display = 'flex'; requestAnimationFrame(() => el.classList.add('open'));
+        if(noteForMe(n) && !noteMine(n) && noteTo(n) !== 'ALL') noteMarkSeen([n]);
+    }
+    function noteCloseChat() { const el = document.getElementById('note-chat'); if(!el) return; el.classList.remove('open'); noteChatId = null; setTimeout(() => { if(!el.classList.contains('open')) el.style.display = 'none'; }, 180); notesAfterChange(); }
+    function noteChatListHtml(n) {
+        const l = noteReplies(n);
+        const at = iso => iso ? new Date(iso).toLocaleString('it-IT', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+        return `<div class="nchat-orig"><b>${esc(noteName(n))}</b> ${noteToChip(n)} ${notePrefChip(n)}<p>${esc(n.text || '')}</p><small>scritta il ${esc(at(n.createdAt))}${n.updatedAt && n.updatedAt !== n.createdAt ? ' · modificata' : ''}</small></div>
+            ${l.length ? `<div class="nchat-sep">${l.length} ${l.length === 1 ? 'risposta' : 'risposte'}</div>` : `<div class="nchat-empty">Ancora nessuna risposta.${noteReplyAs(n) ? ' Scrivi tu la prima qui sotto.' : ''}</div>`}
+            ${l.map(r => { const me = noteReplyMine(r); return `<div class="nchat-msg ${me ? 'me' : ''}"><span class="who">${esc(me ? 'Tu' + (r.by === 'COORD' ? ' (coordinatore)' : '') : noteReplyName(r))}</span><div class="txt">${esc(r.text)}</div><div class="at">${esc(at(r.at))}${me ? `<button onclick="noteReplyDelete('${n.id}','${r.id}')" title="Elimina la risposta" aria-label="Elimina la risposta"><span class="material-icons-round">delete</span></button>` : ''}</div></div>`; }).join('')}`;
+    }
+    function noteChatRender(update) {
+        const el = document.getElementById('note-chat'), n = noteChatId && opNotes[noteChatId];
+        if(!el) return;
+        if(!n) { if(update) { noteCloseChat(); ccToast('La nota è stata eliminata.', true); } return; }
+        const list = update && el.querySelector('.nchat-list');
+        if(list) {
+            const atEnd = list.scrollHeight - list.scrollTop - list.clientHeight < 60;
+            list.innerHTML = noteChatListHtml(n); if(atEnd) list.scrollTop = list.scrollHeight;
+        } else {
+            const as = noteReplyAs(n);
+            el.innerHTML = `<div class="nchat-box" role="dialog" aria-labelledby="nchat-title">
+                <div class="nchat-head"><span class="material-icons-round">forum</span><div><h4 id="nchat-title">Nota di ${esc(noteName(n))}</h4><small><span>${esc(noteWhen(n.date, true))}</span>${noteTo(n) === 'ALL' ? ' · a tutti' : ' · ' + (noteTo(n) === 'COORD' ? 'per il coordinatore' : 'per ' + esc(noteToName(n)))}</small></div>
+                    <button class="cc-icon-btn" onclick="noteCloseChat()" aria-label="Chiudi"><span class="material-icons-round">close</span></button></div>
+                <div class="nchat-list">${noteChatListHtml(n)}</div>
+                ${as ? `<div class="nchat-as">Rispondi come <b>${esc(as.by === 'COORD' ? 'Coordinatore' + (as.byName ? ' (' + as.byName + ')' : '') : noteReplyName(as))}</b>${noteTo(n) === 'ALL' ? ' · la vedono tutti' : ' · la vede solo chi vede questa nota'}</div>
+                <div class="nchat-foot"><textarea id="nchat-text" rows="1" maxlength="500" placeholder="Scrivi una risposta…" oninput="this.style.height='auto';this.style.height=Math.min(120,this.scrollHeight)+'px'"></textarea><button class="nchat-send" onclick="noteReplySend()" aria-label="Invia"><span class="material-icons-round">send</span></button></div>`
+                : `<div class="nchat-foot"><div class="nchat-ro">Per rispondere scegli prima chi sei.</div></div>`}
+            </div>`;
+            const l2 = el.querySelector('.nchat-list'); setTimeout(() => { l2.scrollTop = l2.scrollHeight; }, 30);
+        }
+        noteChatMarkRead(n);
+    }
+    function noteReplySend() {
+        const id = noteChatId, n = id && opNotes[id], t = document.getElementById('nchat-text'); if(!n || !t) return;
+        const text = (t.value || '').trim().slice(0, 500); if(!text) { t.focus(); return; }
+        const as = noteReplyAs(n); if(!as) { ccToast('Per rispondere scegli prima chi sei.', true); return; }
+        if(!fbReady) { ccToast('Risposta non inviata: nessuna connessione a Firebase.', true); return; }
+        vibrate();
+        const rid = 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), val = Object.assign({}, as, { text, at: new Date().toISOString() });
+        if(!val.byName) delete val.byName;
+        opNotes[id] = Object.assign({}, n, { replies: Object.assign({}, n.replies || {}, { [rid]: val }) });
+        t.value = ''; t.style.height = '';
+        // segno già come vista la mia risposta, così non mi arriva come notifica
+        try { const k = 'note_notified_v2_' + normalizeNameForMatch(prefOwner()), a = JSON.parse(localStorage.getItem(k) || '[]'); a.push('r|' + id + '|' + rid); localStorage.setItem(k, JSON.stringify(a.slice(-800))); } catch(e) {}
+        notesAfterChange();
+        const l = document.querySelector('#note-chat .nchat-list'); if(l) { l.innerHTML = noteChatListHtml(opNotes[id]); l.scrollTop = l.scrollHeight; }
+        cfgRef('prefs').set({ [NOTE_FIELD]: { [id]: { replies: { [rid]: val } } } }, { merge: true })
+            .catch(e => { console.error(e); ccToast('Risposta non salvata: ' + (e.code || e.message), true); });
+    }
+    async function noteReplyDelete(id, rid) {
+        const n = opNotes[id], r = n && n.replies && n.replies[rid]; if(!r || !noteReplyMine(r)) return;
+        const ok = await ccConfirm('Eliminare la risposta?', `“${String(r.text).slice(0, 80)}”`, 'Elimina', 'solid-danger'); if(!ok) return;
+        const rep = Object.assign({}, n.replies); delete rep[rid];
+        opNotes[id] = Object.assign({}, n, { replies: rep }); notesAfterChange();
+        cfgRef('prefs').update(new firebase.firestore.FieldPath(NOTE_FIELD, id, 'replies', rid), firebase.firestore.FieldValue.delete())
+            .catch(e => { console.error(e); ccToast('Risposta non eliminata: ' + (e.code || e.message), true); });
+    }
 
     // ── Elenco nella barra di Modifica turni (note per il coordinatore) ────
     function edNotesBase() { return noteList().filter(n => noteTo(n) === 'COORD'); }
@@ -10360,7 +10507,7 @@
         return `<div class="note-row st-${forCoord ? st : 'x'}" onclick="noteGo('${n.id}')">
             <div class="note-r1"><b>${esc(noteName(n))}</b>${noteToChip(n)}<span class="note-date">${esc(noteWhen(n.date))}</span>${notePrefChip(n)}${forCoord && st === 'nuova' ? '<span class="note-new">nuova</span>' : ''}</div>
             ${n.text ? `<p>${esc(n.text)}</p>` : ''}
-            <div class="note-r3"><small>${at ? 'scritta il ' + esc(at) : ''}${forCoord && st === 'fatta' ? ' · gestita' + (n.doneBy ? ' da ' + esc(n.doneBy) : '') : ''}${!forCoord ? ' · ' + esc(noteStatusTxt(n)) : ''}</small>${acts.join('')}</div>
+            <div class="note-r3">${noteChatChip(n)}<small>${at ? 'scritta il ' + esc(at) : ''}${forCoord && st === 'fatta' ? ' · gestita' + (n.doneBy ? ' da ' + esc(n.doneBy) : '') : ''}${!forCoord ? ' · ' + esc(noteStatusTxt(n)) : ''}</small>${acts.join('')}</div>
         </div>`;
     }
     function noteGo(id) {
@@ -10402,7 +10549,7 @@
         if(guest && !list.length) return '';
         const head = n => noteMine(n) ? `La tua nota${noteTo(n) === 'COORD' ? '' : ' ' + noteToChip(n)}` : `${esc(noteName(n))} ${noteToChip(n)}`;
         return `<div class="note-day">
-            ${list.map(n => `<div class="note-day-it" onclick="${noteMine(n) ? `closeShiftModal();setTimeout(() => noteOpenEditor('${n.date}','${n.id}'), 220)` : `closeShiftModal();setTimeout(() => noteGo('${n.id}'), 220)`}"><span class="material-icons-round">sticky_note_2</span><div><b>${head(n)}</b> ${notePrefChip(n)}<div>${esc(n.text || '')}</div><small>${esc(noteStatusTxt(n))}</small></div></div>`).join('')}
+            ${list.map(n => `<div class="note-day-it" onclick="${noteMine(n) ? `closeShiftModal();setTimeout(() => noteOpenEditor('${n.date}','${n.id}'), 220)` : `closeShiftModal();setTimeout(() => noteOpenChat('${n.id}'), 220)`}"><span class="material-icons-round">sticky_note_2</span><div><b>${head(n)}</b> ${notePrefChip(n)}<div>${esc(n.text || '')}</div><small>${esc(noteStatusTxt(n))}</small><div style="margin-top:5px">${noteChatChip(n, true)}</div></div></div>`).join('')}
             ${guest ? '' : `<button class="note-day-btn" onclick="closeShiftModal();setTimeout(() => noteOpenEditor('${iso}'), 220)"><span class="material-icons-round">edit_note</span>Scrivi una nota<small>al coordinatore, a un collega o a tutti</small></button>`}
         </div>`;
     }
@@ -10410,7 +10557,7 @@
     function myNotesHtml() {
         const t = ymd(new Date()), keep = n => !n.date || n.date >= t;
         const rec = noteList().filter(n => noteForMe(n) && !noteMine(n) && noteTo(n) !== 'COORD' && keep(n)), mine = noteList().filter(n => noteMine(n) && n.author !== 'COORD' && keep(n));
-        const row = n => `<div class="me-note" onclick="${noteMine(n) ? `closeMyPage();setTimeout(() => noteOpenEditor('${n.date}','${n.id}'), 260)` : `noteGo('${n.id}')`}"><span class="when">${esc(noteWhen(n.date))}</span>${notePrefChip(n)}${noteMine(n) ? noteToChip(n) : `<span class="note-to">da ${esc(noteName(n))}${noteTo(n) === 'ALL' ? ' a tutti' : ''}</span>`}<span class="what">${esc(n.text || '')}</span><small>${esc(noteStatusTxt(n))}</small></div>`;
+        const row = n => `<div class="me-note" onclick="${noteMine(n) ? `closeMyPage();setTimeout(() => noteOpenEditor('${n.date}','${n.id}'), 260)` : `noteGo('${n.id}')`}"><span class="when">${esc(noteWhen(n.date))}</span>${notePrefChip(n)}${noteMine(n) ? noteToChip(n) : `<span class="note-to">da ${esc(noteName(n))}${noteTo(n) === 'ALL' ? ' a tutti' : ''}</span>`}<span class="what">${esc(n.text || '')}</span>${noteChatChip(n)}<small>${esc(noteStatusTxt(n))}</small></div>`;
         setTimeout(() => noteMarkSeen(rec), 0);
         return `<div class="me-card" id="me-notes"><h4><span class="material-icons-round">sticky_note_2</span>Note</h4>
             ${rec.length ? `<div class="me-note-sec">Ricevute</div>${rec.map(row).join('')}` : ''}
