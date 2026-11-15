@@ -8019,6 +8019,7 @@
     }
     function desTourShow(first) {
         const T = desTour; if(!T) return;
+        T.tok = (T.tok || 0) + 1;
         clearTimeout(T.timer); try { speechSynthesis.cancel(); } catch(e) {}
         const st = T.steps[T.i]; if(st.go) st.go();
         document.getElementById('dt-step').textContent = `Passo ${T.i + 1} di ${T.steps.length}`;
@@ -8047,14 +8048,20 @@
     }
     function desTourSpeak(st) {
         const T = desTour; if(!T) return;
-        const next = () => { if(desTour === T && T.playing) T.timer = setTimeout(() => { if(T.i < T.steps.length - 1) { T.i++; desTourShow(); } else { T.playing = false; desTourShow(); } }, 700); };
+        // ogni passo ha il suo numero: la voce (o il timer) di un passo vecchio, interrotta da Avanti/Indietro,
+        // non deve far avanzare il passo nuovo (prima saltavano più passi di fila, velocissimi)
+        const tok = T.tok;
+        const live = () => desTour === T && T.playing && T.tok === tok;
+        const next = () => { if(live()) T.timer = setTimeout(() => { if(!live()) return; if(T.i < T.steps.length - 1) { T.i++; desTourShow(); } else { T.playing = false; desTourShow(); } }, 700); };
         if(T.mute || !desVoiceOk()) { T.timer = setTimeout(next, Math.max(3500, st.x.length * 62)); return; }
-        const u = new SpeechSynthesisUtterance(st.x.replace(/quinto/g, 'quinto'));
+        const u = new SpeechSynthesisUtterance(st.x);
         u.lang = 'it-IT'; const v = desVoicePick(); if(v) u.voice = v; u.rate = 0.97;
-        let done = false; const fin = () => { if(done) return; done = true; next(); };
-        u.onend = fin; u.onerror = fin;
-        // se il telefono non parla (volume o voce mancante) si va avanti comunque
+        let done = false; const fin = () => { if(done || !live()) return; done = true; clearTimeout(T.timer); next(); };
+        u.onend = fin;
+        u.onerror = e => { if(e && (e.error === 'interrupted' || e.error === 'canceled')) return; fin(); };
+        // se il telefono non parla (volume o voce mancante) si va avanti comunque; se ha iniziato a parlare si aspetta la fine
         T.timer = setTimeout(fin, Math.max(6000, st.x.length * 95));
+        u.onstart = () => { if(!live()) return; clearTimeout(T.timer); T.timer = setTimeout(fin, Math.max(15000, st.x.length * 200)); };
         try { speechSynthesis.speak(u); } catch(e) { fin(); }
     }
     function desTourPlay() {
