@@ -2256,6 +2256,38 @@
         #cc-dialog-text { white-space: pre-line; }
         .rep-pn-warn { margin-top: 3px; padding: 2px 3px; border-radius: 5px; background: #dc2626; color: #fff; font-size: 0.5rem; font-weight: 900; line-height: 1.15; letter-spacing: .2px; text-align: center; animation: repPnBlink 1.4s ease-in-out infinite; }
         @keyframes repPnBlink { 50% { background: #7f1d1d; } }
+        /* ══ Cambio notte con un collega ════════════════════════════════════ */
+        .cn-mine-btn { display:flex; align-items:center; gap:10px; width:100%; margin:10px 0 4px; padding:10px 12px; border:1px solid #c7d2fe; border-radius:12px; background:#eef2ff; color:#3730a3; text-align:left; cursor:pointer; font:inherit; }
+        .cn-mine-btn b { display:block; font-size:0.9rem; }
+        .cn-mine-btn small { display:block; font-size:0.75rem; color:#4f46e5; }
+        #cn-popup { display:none; position:fixed; inset:0; z-index:9760; background:rgba(12,18,26,.45); align-items:center; justify-content:center; padding:16px; opacity:0; transition:opacity .14s; }
+        #cn-popup.open { opacity:1; }
+        #cn-popup .sep-box { max-width:560px; }
+        .cn-intro { display:flex; gap:10px; padding:10px 12px; border-radius:4px; background:var(--cc-accent-soft); color:var(--cc-text); font-size:13px; line-height:1.45; }
+        .cn-intro .material-icons-round { color:var(--cc-accent); font-size:20px; }
+        .cn-card { border:1px solid var(--cc-line); border-radius:6px; padding:10px 12px; margin-bottom:8px; background:var(--cc-surface); }
+        .cn-card.ko { background:var(--cc-surface-2); }
+        .cn-card-h { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
+        .cn-card-h b { font-size:14.5px; font-weight:600; }
+        .cn-card-h small { color:var(--cc-muted); font-size:12px; }
+        .cn-how { margin:6px 0 8px; font-size:13px; line-height:1.45; color:var(--cc-text); }
+        .cn-tab { width:100%; border-collapse:collapse; font-size:12px; table-layout:fixed; }
+        .cn-tab th { font:500 11.5px/1.25 var(--cc-font-c); color:var(--cc-muted); padding:2px; text-align:center; border:none; background:none; }
+        .cn-tab th b { font-size:14px; color:var(--cc-text); font-weight:600; }
+        .cn-tab th:first-child, .cn-tab td.cn-who { width:30%; text-align:left; padding-right:6px; }
+        .cn-tab td { padding:5px 2px; text-align:center; vertical-align:top; border:none; border-top:1px solid var(--cc-line-2); background:none; }
+        .cn-tab td.cn-who { font-weight:600; font-size:12.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; vertical-align:middle; }
+        .cn-tab td.ch { background:var(--cc-accent-soft); }
+        .cn-tab .cc-code { min-width:34px; }
+        .cn-arr { display:block; font-size:14px !important; color:var(--cc-accent); line-height:1; margin:2px auto; }
+        .cc-code.cn-empty { background:transparent; border-style:dashed; color:var(--cc-muted); }
+        .cn-msg { display:flex; gap:8px; align-items:flex-start; margin-top:8px; font-size:12.5px; line-height:1.4; }
+        .cn-msg .material-icons-round { font-size:17px; flex-shrink:0; }
+        .cn-msg.ko { color:#b91c1c; }
+        .cn-msg.warn { color:#b45309; }
+        .cn-act { margin-top:10px; display:flex; justify-content:flex-end; }
+        .cn-none { font-size:13px; color:var(--cc-muted); padding:4px 0 8px; }
+
         /* ══ Editor reperibilità (fasce) ═══════════════════════════════════ */
         #rep-edit-popup { display:none; position:fixed; inset:0; z-index:9750; background:rgba(12,18,26,.45); align-items:center; justify-content:center; padding:16px; opacity:0; transition:opacity .14s; }
         #rep-edit-popup.open { opacity:1; }
@@ -3723,6 +3755,18 @@
         <div class="sep-foot">
             <button class="cc-btn" onclick="closeShiftEditPopup()">Chiudi</button>
         </div>
+    </div>
+</div>
+
+<!-- Cambio notte con un collega (notte del giorno prima o del giorno dopo, con M+N) -->
+<div id="cn-popup" class="cc-scope" onclick="cnClose(event)">
+    <div class="sep-box" onclick="event.stopPropagation()">
+        <div class="sep-head">
+            <div><b id="cn-title">Cambio notte</b><small id="cn-sub"></small></div>
+            <button class="cc-icon-btn" onclick="cnClose()" aria-label="Chiudi"><span class="material-icons-round">close</span></button>
+        </div>
+        <div class="sep-grid" id="cn-body"></div>
+        <div class="sep-foot" style="justify-content:flex-end"><button class="cc-btn" onclick="cnClose()">Chiudi</button></div>
     </div>
 </div>
 
@@ -14117,7 +14161,7 @@
             group('Diurni e combinati', items.filter(i => i.group === 1)) +
             group('Assenze e permessi', items.filter(i => i.group === 2)) +
             (items.some(i => i.group === 3) ? group('Caselle personalizzate', items.filter(i => i.group === 3)) : '');
-        document.getElementById('sep-perm').innerHTML = sepPermHtml(rowIdx, colIdx) + sepManHtml(rowIdx, colIdx);
+        document.getElementById('sep-perm').innerHTML = cnSepHtml(rowIdx, colIdx) + sepPermHtml(rowIdx, colIdx) + sepManHtml(rowIdx, colIdx);
         const m = document.getElementById('shift-edit-popup'); m.style.display = 'flex';
         requestAnimationFrame(() => m.classList.add('open'));
     }
@@ -14151,6 +14195,146 @@
         const key = cellKey(row + 1, col), next = { v: String(nx.v || ''), subV: '' };
         if(nx.customMinutes !== undefined && nx.customMinutes !== null && nx.customMinutes !== '') next.customMinutes = nx.customMinutes;
         return { key, next, row: row + 1, col, was: sub };
+    }
+    // ── Cambio notte con un collega ─────────────────────────────────────────
+    // Si cambia con chi ha la notte il giorno prima o il giorno dopo. Su due notti vicine
+    // (giorno d e giorno d+1): chi ha la notte più tardi fa MATTINA + NOTTE il giorno d,
+    // chi ha la notte del giorno d ha riposo quel giorno e fa la notte del giorno d+1.
+    //   notte prima (d):   N  SM R   →  R    N  SM
+    //   notte dopo (d+1):  M  N  SM  →  M+N  SM R
+    // Mattina e notte restano coperte come prima. È lo scambio usato nel file Excel.
+    let cnState = null;
+    function cnBase(v) { let s = String(v || '').trim(); const i = s.indexOf('/'); if(i !== -1) s = s.slice(0, i).trim(); return s; }
+    function cnAt(r, c) {
+        const cell = (finalData[r] || [])[c] || {}, i = computeDayInfo(r, c);
+        const man = cell.customMinutes !== undefined && cell.customMinutes !== null && cell.customMinutes !== '';
+        const code = String(i.code || '').toUpperCase() === 'S' ? 'SM' : String(i.code || '');
+        return { code, info: i, raw: cnBase(cell.v), man, absent: !!i.justified };
+    }
+    function cnIsNight(r, c) { const x = cnAt(r, c); return x.code === 'N' && !x.absent && !x.man; }
+    function cnName(c) { const d = getDriverByIdx(c); return d ? d.name : ''; }
+    function cnOrig(c) { const d = getDriverByIdx(c); return d ? repNormName(d.originalName || d.name) : ''; }
+    function cnDay(r) { const iso = repRowDate(r); return iso ? repDateObj(iso).toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' }) : ''; }
+    function cnWhat(x) {
+        if(!x.code && !x.info.label) return 'la casella vuota';
+        if(x.absent || !SHIFT_NAMES[x.code]) return (x.info.label || x.code).toLowerCase();
+        return ((x.info.nightTail && x.code !== 'SM') ? 'smonto + ' : '') + SHIFT_NAMES[x.code].toLowerCase();
+    }
+    // Controlla e prepara il cambio tra chi ha la notte il giorno r (early) e chi ce l'ha il giorno r+1 (late).
+    function cnPair(early, late, r) {
+        const res = { early, late, r, problems: [], warns: [], changes: [] };
+        const rows = [r, r + 1, r + 2];
+        if(rows.some(x => !finalData[x] || !repRowDate(x) || shiftRowYear(x) !== shiftRowYear(r))) { res.problems.push('Il cambio va oltre la fine del calendario dell’anno.'); return res; }
+        const nE = cnName(early), nL = cnName(late), dd = rows.map(cnDay);
+        const E = rows.map(x => cnAt(x, early)), L = rows.map(x => cnAt(x, late));
+        if(!cnIsNight(r, early)) res.problems.push(`${nE} non ha la notte di ${dd[0]}.`);
+        if(!cnIsNight(r + 1, late)) res.problems.push(`${nL} non ha la notte di ${dd[1]}.`);
+        if(E[1].absent || E[1].code !== 'SM') res.problems.push(`${nE} ${dd[1]} ha ${cnWhat(E[1])}: lì farà la notte, ci vuole lo smonto della sua notte di adesso.`);
+        if(E[2].absent || !(E[2].code === '' || E[2].code.toUpperCase() === 'R')) res.problems.push(`${nE} ${dd[2]} ha ${cnWhat(E[2])}: dopo la nuova notte di ${dd[1]} quel giorno serve lo smonto.`);
+        const lateFree = !L[0].absent && (L[0].code === '' || L[0].code.toUpperCase() === 'R');
+        if(L[0].absent || !(L[0].code === 'M' || lateFree)) res.problems.push(`${nL} ${dd[0]} ha ${cnWhat(L[0])}: non può aggiungere la notte.`);
+        if(L[2].absent || L[2].code !== 'SM') res.problems.push(`${nL} ${dd[2]} ha ${cnWhat(L[2])}: con il cambio quel giorno diventa riposo.`);
+        rows.forEach((x, k) => {
+            if(E[k].man) res.problems.push(`${nE} ${dd[k]} ha le ore scritte a mano: toglile prima del cambio.`);
+            if(L[k].man) res.problems.push(`${nL} ${dd[k]} ha le ore scritte a mano: toglile prima del cambio.`);
+        });
+        // reperibilità: chi fa una notte non può essere reperibile in quelle ore
+        const R = repData(), oE = cnOrig(early), oL = cnOrig(late);
+        const isoD = repRowDate(r), isoD1 = repRowDate(r + 1), isoD2 = repRowDate(r + 2);
+        const inSlots = (iso, slots, who) => { const f = R.days[iso]; return !!f && slots.some(s => repNormName(f[s]) === who); };
+        const lateMN = L[0].code === 'M';
+        if(oL && (inSlots(isoD, [2, 3], oL) || inSlots(isoD1, [0, 1], oL))) res.warns.push(`${nL} è reperibile dalle 13:00 di ${dd[0]}: facendo ${lateMN ? 'mattina + notte' : 'la notte'} non può coprire la reperibilità. Cedila o spostala.`);
+        if(oE && (inSlots(isoD1, [2, 3], oE) || inSlots(isoD2, [0, 1], oE))) res.warns.push(`${nE} è reperibile dalle 13:00 di ${dd[1]}: facendo la notte non può coprire la reperibilità. Cedila o spostala.`);
+        if(res.problems.length) return res;
+        const set = (row, col, v) => res.changes.push({ row, col, v });
+        set(r, early, 'R'); set(r + 1, early, 'N'); set(r + 2, early, E[1].raw);
+        set(r, late, lateMN ? 'M+N' : 'N'); set(r + 1, late, L[2].raw); set(r + 2, late, E[2].raw);
+        res.before = { early: [r - 1, r, r + 1, r + 2].map(x => finalData[x] ? cnAt(x, early).code : ''), late: [r - 1, r, r + 1, r + 2].map(x => finalData[x] ? cnAt(x, late).code : '') };
+        res.after = { early: [res.before.early[0], 'R', 'N', 'SM'], late: [res.before.late[0], lateMN ? 'M+N' : 'N', 'SM', E[2].code ? 'R' : ''] };
+        return res;
+    }
+    // Tutti i cambi possibili per la notte di (row, col): con chi ha la notte il giorno dopo
+    // (fa M+N il giorno della mia notte) e con chi ce l'ha il giorno prima (faccio io M+N quel giorno).
+    function cnCandidates(row, col) {
+        const after = [], before = [];
+        drivers.forEach(d => {
+            if(d.idx === col || d.test) return;
+            if(finalData[row + 1] && cnIsNight(row + 1, d.idx)) after.push(cnPair(col, d.idx, row));
+            if(row - 1 >= 1 && finalData[row - 1] && cnIsNight(row - 1, d.idx)) before.push(cnPair(d.idx, col, row - 1));
+        });
+        const ord = (a, b) => (a.problems.length - b.problems.length) || (a.warns.length - b.warns.length);
+        return { after: after.sort(ord), before: before.sort(ord) };
+    }
+    function cnChip(code) {
+        const c = String(code || '');
+        if(!c) return `<span class="cc-code cn-empty">·</span>`;
+        const col = c === 'M+N' ? MAIN_CODE_COLORS.N : (MAIN_CODE_COLORS[c] || MAIN_CODE_COLORS[c.toUpperCase()] || DIURNI_CODE_COLORS[c] || SUB_CODE_COLORS[c.toLowerCase()]);
+        return `<span class="cc-code" style="${swatchStyle(col)}">${esc(ABS_SHORT[c.toLowerCase()] && !MAIN_CODE_COLORS[c] && c !== 'M+N' ? ABS_SHORT[c.toLowerCase()] : c)}</span>`;
+    }
+    function cnCardHtml(p, i, kind, canApply) {
+        const nE = cnName(p.early), nL = cnName(p.late), other = kind === 'after' ? nL : nE;
+        const d0 = cnDay(p.r), d1 = cnDay(p.r + 1);
+        const how = `${esc(nL)} fa <b>mattina + notte</b> ${esc(d0)}, ${esc(nE)} ha riposo ${esc(d0)} e fa la notte di ${esc(d1)}.`;
+        let h = `<div class="cn-card ${p.problems.length ? 'ko' : ''}"><div class="cn-card-h"><b>${esc(other)}</b><small>${kind === 'after' ? 'notte di ' + esc(d1) : 'notte di ' + esc(d0)}</small></div>`;
+        if(!p.problems.length) {
+            const days = [p.r - 1, p.r, p.r + 1, p.r + 2];
+            h += `<p class="cn-how">${how}</p><table class="cn-tab"><tr><th></th>${days.map(x => { const o = finalData[x] && repRowDate(x) ? repDateObj(repRowDate(x)) : null; return `<th>${o ? esc(o.toLocaleDateString('it-IT', { weekday: 'short' })) + '<br><b>' + o.getDate() + '</b>' : ''}</th>`; }).join('')}</tr>`;
+            [[p.early, 'early'], [p.late, 'late']].forEach(([c, k]) => {
+                h += `<tr><td class="cn-who">${esc(cnName(c))}</td>${p.before[k].map((b, j) => { const a = p.after[k][j], ch = a !== b; return `<td class="${ch ? 'ch' : ''}">${cnChip(b)}${ch ? `<span class="material-icons-round cn-arr">arrow_downward</span>${cnChip(a)}` : ''}</td>`; }).join('')}</tr>`;
+            });
+            h += `</table>`;
+        }
+        p.problems.forEach(t => h += `<div class="cn-msg ko"><span class="material-icons-round">block</span>${esc(t)}</div>`);
+        p.warns.forEach(t => h += `<div class="cn-msg warn"><span class="material-icons-round">warning</span>${esc(t)}</div>`);
+        if(canApply && !p.problems.length) h += `<div class="cn-act"><button class="cc-btn primary" onclick="cnApply('${kind}',${i})"><span class="material-icons-round">swap_vert</span>Fai il cambio con ${esc(other)}</button></div>`;
+        return h + `</div>`;
+    }
+    function cnOpen(row, col) {
+        const canApply = !!coordEditModeActive;
+        cnState = Object.assign({ row, col }, cnCandidates(row, col));
+        closeShiftEditPopup(); closeShiftModal();
+        document.getElementById('cn-title').textContent = `Cambio notte · ${cnName(col)}`;
+        document.getElementById('cn-sub').textContent = `Notte di ${repDateLabel(repRowDate(row), true)}`;
+        const okA = cnState.after.filter(p => !p.problems.length).length, okB = cnState.before.filter(p => !p.problems.length).length;
+        let h = `<div class="cn-intro"><span class="material-icons-round">info</span><div>Si cambia con chi ha la notte <b>il giorno dopo</b> o <b>il giorno prima</b>. Chi ha la notte più tardi fa mattina + notte, l’altro ha riposo e fa la notte del giorno dopo. Mattine e notti restano coperte come prima.</div></div>`;
+        const sec = (title, list, kind) => {
+            h += `<div class="sep-group-label">${title}</div>`;
+            if(!list.length) { h += `<div class="cn-none">Nessuno ha la notte quel giorno.</div>`; return; }
+            list.forEach((p, i) => h += cnCardHtml(p, i, kind, canApply));
+        };
+        sec(`Con chi ha la notte il giorno dopo (${esc(cnDay(row + 1))}): il collega fa mattina + notte`, cnState.after, 'after');
+        sec(`Con chi ha la notte il giorno prima (${esc(cnDay(row - 1))}): ${esc(cnName(col))} fa mattina + notte`, cnState.before, 'before');
+        if(!okA && !okB) h += `<div class="cn-msg warn"><span class="material-icons-round">warning</span>Nessun cambio possibile senza toccare altri giorni: vedi i motivi sopra.</div>`;
+        if(!canApply) h += `<div class="cn-intro" style="margin-top:12px"><span class="material-icons-round">assignment</span><div>Il cambio lo inserisce il coordinatore. Mettiti d’accordo con il collega e manda la richiesta di cambio turno dal portale Richieste.</div></div>`;
+        document.getElementById('cn-body').innerHTML = h;
+        const m = document.getElementById('cn-popup'); m.style.display = 'flex';
+        document.getElementById('cn-body').scrollTop = 0;
+        requestAnimationFrame(() => m.classList.add('open'));
+    }
+    function cnClose(e) {
+        if(e && e.target !== e.currentTarget) return;
+        const m = document.getElementById('cn-popup'); m.classList.remove('open');
+        setTimeout(() => { if(!m.classList.contains('open')) m.style.display = 'none'; }, 150);
+    }
+    function cnApply(kind, i) {
+        if(!cnState || !coordEditModeActive) return;
+        const old = (cnState[kind] || [])[i]; if(!old) return;
+        const p = cnPair(old.early, old.late, old.r);   // ricontrolla sui dati di adesso
+        if(p.problems.length) { ccToast(p.problems[0], true); return; }
+        const list = p.changes.map(x => ({ key: cellKey(x.row, x.col), next: { v: x.v, subV: '' }, row: x.row, col: x.col }));
+        const done = absApplyChecked(list); if(!done) return;
+        const entries = done.map(x => ({ key: x.key, prev: x.prev, next: x.next }));
+        pushUndo({ entries }); afterCoordChange(entries.map(x => x.key)); vibrate();
+        cnClose();
+        ccToast(`Cambio notte fatto: ${cnName(p.late)} M+N ${cnDay(p.r)}, ${cnName(p.early)} notte ${cnDay(p.r + 1)}. Ricordati di salvare.`);
+    }
+    // Riquadro nell'editor della cella (solo se la cella è una notte)
+    function cnSepHtml(row, col) {
+        if(!cnIsNight(row, col)) return '';
+        const c = cnCandidates(row, col), n = c.after.concat(c.before).filter(p => !p.problems.length).length;
+        return `<div class="sep-group-label">Cambio notte</div><div class="sep-perm"><div class="sep-perm-row">
+            <button class="cc-btn primary" onclick="cnOpen(${row},${col})"><span class="material-icons-round">swap_vert</span>Cambia la notte con un collega</button>
+            <small>${n ? `${n} ${n === 1 ? 'cambio possibile' : 'cambi possibili'} con chi ha la notte il giorno prima o dopo` : 'Nessun cambio possibile senza toccare altri giorni: apri per vedere perché'}</small></div></div>`;
     }
     // ── Spettanze: in Modifica turni non si va oltre i C.O. e i permessi che la persona ha ──
     const ABS_LIMITED = { f: 1, v: 1, p: 1, pn: 1 };   // v: le ferie residue messe nell'anno dopo scalano il C.O. di quest'anno
@@ -15719,6 +15903,11 @@
         } else {
             list.innerHTML += `<div style="padding:20px;text-align:center;color:#94a3b8;font-size:0.9rem">Nessun infermiere in questo turno.</div>`;
         }
+        { const me = myCalDriver();   // la mia notte: con chi posso cambiarla
+          if(me && (uShift === 'N' || isMN(uShift)) && cnIsNight(rowIndex, me.idx)) {
+            const c = cnCandidates(rowIndex, me.idx), n = c.after.concat(c.before).filter(p => !p.problems.length).length;
+            list.innerHTML += `<button class="cn-mine-btn" onclick="cnOpen(${rowIndex},${me.idx})"><span class="material-icons-round">swap_vert</span><span><b>Cambia la tua notte con un collega</b><small>${n ? n + (n === 1 ? ' cambio possibile' : ' cambi possibili') + ' con chi ha la notte il giorno prima o dopo' : 'Vedi chi ha la notte il giorno prima o dopo'}</small></span></button>`;
+          } }
         list.innerHTML += otherTeamHtml(rowIndex, uShift);
         list.innerHTML += repDaySectionHtml(repRowDate(rowIndex));
         list.innerHTML += noteDaySectionHtml(repRowDate(rowIndex));
