@@ -3134,6 +3134,20 @@
         .dl-chip { font-size:0.74rem; font-weight:800; padding:2px 8px; border-radius:7px; background:#e2e8f0; color:#334155; }
         .dl-chip.kF { background:var(--bg-cong); color:var(--t-cong); } .dl-chip.kP { background:var(--bg-perm); color:var(--t-perm); } .dl-chip.kN { background:#ede9fe; color:#5b21b6; }
         .dl-empty { padding:24px 0; text-align:center; color:var(--text-sec); font:700 0.85rem 'Plus Jakarta Sans',sans-serif; }
+    /* pausa: scheda doppia o 30 minuti senza uso (gli aggiornamenti Firebase si fermano) */
+    #live-pause { position:fixed; inset:0; z-index:100000; display:none; align-items:center; justify-content:center; padding:16px;
+        background:rgba(15,23,42,.55); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); cursor:pointer; }
+    #live-pause.show { display:flex; }
+    #live-pause .lp-card { background:#fff; color:#0f172a; border-radius:20px; max-width:400px; width:100%; padding:26px 22px 20px; text-align:center;
+        box-shadow:0 20px 50px rgba(0,0,0,.35); cursor:default; font-family:inherit; }
+    #live-pause .lp-ic { font-size:52px; color:#1d4ed8; }
+    #live-pause .lp-t { font-size:19px; font-weight:800; margin:6px 0 8px; }
+    #live-pause .lp-p { font-size:14.5px; line-height:1.45; color:#334155; margin:0 0 6px; }
+    #live-pause .lp-warn { font-size:13.5px; color:#9a3412; background:#fff7ed; border-radius:10px; padding:8px 10px; margin:10px 0 0; display:none; }
+    #live-pause .lp-btn { margin-top:16px; width:100%; border:0; border-radius:12px; padding:13px; font-size:16px; font-weight:700;
+        background:#1d4ed8; color:#fff; cursor:pointer; font-family:inherit; }
+    #live-pause .lp-hint { font-size:12.5px; color:#64748b; margin:12px 0 0; }
+    @media print { #live-pause { display:none !important; } }
     </style>
 </head>
 <body>
@@ -4361,6 +4375,93 @@
         appId: "1:389097635025:web:331564551f0e5190a199f0",
         measurementId: "G-PBBLRX8ZZZ"
     };
+    // ── Pausa degli aggiornamenti: una sola scheda per computer e stop dopo 30 minuti senza uso ──
+    // Una pagina non può chiudere da sola una scheda aperta dall'utente: la mette "in pausa", cioè
+    // stacca tutti gli ascolti Firebase (niente letture) senza ricaricare, così non si perde niente
+    // di quanto è in memoria (anche le modifiche non salvate). Al ritorno si riattaccano e arriva
+    // solo ciò che è cambiato. Il motore (?server=1) non ne è toccato.
+    const LIVE = { subs: new Set(), paused: '', idleMs: 30 * 60 * 1000, last: Date.now(), tabId: Math.random().toString(36).slice(2), on: false };
+    function liveInstall() {
+        if(new URLSearchParams(location.search).has('server') || !window.firebase || !firebase.firestore) return;
+        [firebase.firestore.DocumentReference, firebase.firestore.Query].forEach(C => {
+            if(!C || !C.prototype || C.prototype._liveWrapped) return;
+            const orig = C.prototype.onSnapshot;
+            C.prototype.onSnapshot = function(...args) {
+                const ref = this, e = { unsub: null };
+                e.start = () => { if(!e.unsub) e.unsub = orig.apply(ref, args); };
+                e.stop = () => { if(e.unsub) { try { e.unsub(); } catch(_) {} e.unsub = null; } };
+                LIVE.subs.add(e);
+                if(!LIVE.paused) e.start();
+                return () => { LIVE.subs.delete(e); e.stop(); };
+            };
+            C.prototype._liveWrapped = true;
+        });
+        LIVE.on = true;
+        liveTabsStart();
+        ['pointerdown','pointermove','keydown','wheel','touchstart','scroll'].forEach(ev => window.addEventListener(ev, liveTouch, { passive:true, capture:true }));
+        document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible') liveTouch(); });
+        setInterval(() => { if(!LIVE.paused && Date.now() - LIVE.last >= LIVE.idleMs) livePause('idle'); }, 30000);
+    }
+    function liveTouch() { if(!LIVE.paused) LIVE.last = Date.now(); }
+    function livePause(why) {
+        if(!LIVE.on) return;
+        const was = LIVE.paused; LIVE.paused = why;
+        liveShow();
+        if(was) return;
+        try { if(typeof pendingChangesCount === 'function' && pendingChangesCount() > 0 && typeof draftSaveNow === 'function') draftSaveNow(); } catch(e) {}
+        LIVE.subs.forEach(e => e.stop());
+        try { if(fbReady && typeof sessionId !== 'undefined') db.collection('infermieri26_accessi').doc(sessionId).set({ online:false, paused: why, lastActive: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true }).catch(() => {}); } catch(e) {}
+    }
+    function liveResume(claim) {
+        if(!LIVE.paused) return;
+        LIVE.paused = ''; LIVE.last = Date.now();
+        if(claim) liveTabsClaim();
+        const o = document.getElementById('live-pause'); if(o) o.classList.remove('show');
+        LIVE.subs.forEach(e => e.start());
+        try { if(fbReady && typeof sessionId !== 'undefined') db.collection('infermieri26_accessi').doc(sessionId).set({ online: document.visibilityState === 'visible', paused: null, lastActive: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true }).catch(() => {}); } catch(e) {}
+        try { if(typeof ccToast === 'function') ccToast('Turni di nuovo aggiornati in tempo reale'); } catch(e) {}
+    }
+    function liveShow() {
+        let o = document.getElementById('live-pause');
+        if(!o) {
+            o = document.createElement('div'); o.id = 'live-pause';
+            o.innerHTML = '<div class="lp-card"><span class="material-icons-round lp-ic"></span><div class="lp-t"></div><p class="lp-p"></p><p class="lp-warn"></p><button class="lp-btn" type="button"></button><p class="lp-hint">Per chiudere questa scheda: la X sulla sua linguetta in alto, oppure Ctrl+W (Mac: Cmd+W).</p></div>';
+            o.addEventListener('click', ev => {
+                if(ev.target.closest('.lp-btn')) { liveResume(true); return; }
+                if(LIVE.paused === 'idle' && !ev.target.closest('.lp-card')) liveResume(true);
+            });
+            document.body.appendChild(o);
+        }
+        const other = LIVE.paused === 'tab';
+        o.querySelector('.lp-ic').textContent = other ? 'tab' : 'pause_circle';
+        o.querySelector('.lp-t').textContent = other ? 'Turni aperti in un’altra scheda' : 'Turni in pausa';
+        o.querySelector('.lp-p').textContent = other
+            ? 'Su questo computer i turni restano aggiornati in una scheda sola, quella aperta per ultima. Questa scheda puoi chiuderla, oppure continuare qui: l’altra andrà in pausa.'
+            : 'Nessun movimento da 30 minuti: per non consumare letture, i turni hanno smesso di aggiornarsi. Tocca per riprendere, si aggiornano subito.';
+        o.querySelector('.lp-btn').textContent = other ? 'Usa questa scheda' : 'Riprendi';
+        o.querySelector('.lp-hint').style.display = other ? '' : 'none';
+        let n = 0; try { n = typeof pendingChangesCount === 'function' ? pendingChangesCount() : 0; } catch(e) {}
+        const w = o.querySelector('.lp-warn');
+        w.textContent = n ? `Hai ${n} modifiche non salvate in questa scheda: restano qui, riprendi per salvarle.` : '';
+        w.style.display = n ? 'block' : 'none';
+        o.classList.add('show');
+    }
+    // una scheda per computer: chi si apre (o preme "Usa questa scheda") lo dice alle altre, che vanno in pausa.
+    // Prova e ufficiale hanno indirizzi diversi, quindi non si disturbano.
+    let liveChan = null;
+    const LIVE_KEY = 'turni_tab_' + location.pathname.replace(/index\.html$/, '');
+    function liveTabsStart() {
+        const onMsg = d => { if(d && d.type === 'claim' && d.id !== LIVE.tabId) livePause('tab'); };
+        try { if('BroadcastChannel' in window) { liveChan = new BroadcastChannel(LIVE_KEY); liveChan.onmessage = ev => onMsg(ev.data); } } catch(e) { liveChan = null; }
+        if(!liveChan) window.addEventListener('storage', ev => { if(ev.key === LIVE_KEY && ev.newValue) { try { onMsg(JSON.parse(ev.newValue)); } catch(e) {} } });
+        liveTabsClaim();
+    }
+    function liveTabsClaim() {
+        const msg = { type:'claim', id: LIVE.tabId, t: Date.now() };
+        if(liveChan) { try { liveChan.postMessage(msg); } catch(e) {} }
+        else { try { localStorage.setItem(LIVE_KEY, JSON.stringify(msg)); } catch(e) {} }
+    }
+
     let fbApp, db, fbAuth, fbReady = false, fbPersistence = false;
     // PROVA usa documenti propri dentro infermieri26_config ("prova_settings", "prova_turni_…"),
     // così le prove non toccano l'app di produzione, che legge "settings". Per andare in
@@ -4371,6 +4472,7 @@
     try {
         fbApp = firebase.initializeApp(firebaseConfig);
         db = firebase.firestore();
+        liveInstall();   // gli ascolti Firebase passano da qui, così la pausa li può staccare e riattaccare
         // memoria offline: le scritture fatte senza rete restano in coda sul dispositivo
         // (anche chiudendo l'app) e partono appena torna la connessione
         try { db.enablePersistence({ synchronizeTabs:true }).then(() => { fbPersistence = true; }).catch(e => console.warn('Memoria offline non disponibile:', e && e.code)); } catch(e) {}
@@ -4709,6 +4811,7 @@
     function sendHeartbeat(e) {
         if(!fbReady) return;
         if(document.visibilityState !== 'visible' && !(e && e.type === 'visibilitychange')) return;
+        if(LIVE.paused) return;   // in pausa: niente segnali
         db.collection('infermieri26_accessi').doc(sessionId).set({
             lastActive: firebase.firestore.FieldValue.serverTimestamp(),
             currentView: currentViewLabel,
