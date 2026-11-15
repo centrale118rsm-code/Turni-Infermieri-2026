@@ -13698,7 +13698,7 @@
             if(r) return { key:'rep', rep:r, name:r.label, hint: (r.id === 'move' && coordRepMoveFirst) ? 'ora tocca la cella di destinazione' : r.hint };
         }
         if(coordOpTool) { const o = WHEEL_OP_TOOLS.find(x => x.id === coordOpTool); if(o) return { key:'op', name:o.label, hint:o.hint }; }
-        return { key:'select', name:'Seleziona', hint:'tocca una cella per modificarla' };
+        return { key:'select', name:'Nessuno strumento', hint:'scegli dalla ruota cosa inserire' };
     }
     function setCoordTool(kind, v, subV, silent) {
         coordSwapMode = kind === 'swap'; coordSwapFirst = null;
@@ -13918,7 +13918,7 @@
             if(coordSeqTool) { applyWheelSequence(rowIndex, colIdx); return; }
             if(coordRepTool) { repToolTap(rowIndex, colIdx); return; }
             if(coordOpTool) { applyOpTool(colIdx); return; }
-            markSelectedCell(rowIndex, colIdx); openShiftEditPopup(colIdx, rowIndex); return;
+            ccToast('Per inserire turni e assenze scegli dalla ruota delle modifiche.'); return;   // la finestra della casella è stata tolta (richiesta di Mat): si usa solo la ruota
         }
         if(afterMN(rowIndex, colIdx)) cellValue = "SM";
         let hasSub = (finalData[rowIndex] && finalData[rowIndex][colIdx] && finalData[rowIndex][colIdx].subV) ? finalData[rowIndex][colIdx].subV.toString().trim() : "";
@@ -14067,7 +14067,7 @@
 
     // ═══ RUOTA STRUMENTI ══════════════════════════════════════════════════
     const WHEEL_ACTIONS = [
-        { id:'select',  icon:'arrow_selector_tool', label:'Seleziona',  hint:'apre l\u2019editor della cella' },
+        { id:'select',  icon:'arrow_selector_tool', label:'Nessuno strumento',  hint:'il tocco non cambia le caselle' },
         { id:'swap',    icon:'swap_horiz',          label:'Scambia',    hint:'tocca due celle' },
         { id:'erase',   icon:'ink_eraser',          label:'Gomma',      hint:'svuota le celle' },
         { id:'undo',    icon:'undo',                label:'Annulla',    hint:'Ctrl+Z' },
