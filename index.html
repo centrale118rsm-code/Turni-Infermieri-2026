@@ -38,24 +38,26 @@
             --header-bg: rgba(255, 255, 255, 0.82);
             --cell-h: 70px;
             --th-h: 40px;
-            --c-M: #0257d5; --t-M: #ffffff; --b-M: #bae6fd;
-            --c-P: #3f7fe0; --t-P: #ffffff; --b-P: #c7d2fe;
-            --c-N: #002a66; --t-N: #ffffff; --b-N: #c7d2fe;
-            --c-R: #ecfdf5; --t-R: #047857; --b-R: #6ee7b7;
-            --c-SM: #0b0038; --t-SM: #ffffff; --b-SM: #cbd5e1;
-            /* diurnisti: famiglia viola, distinta dal blu dei turnisti */
-            --c-dM: #6d28d9; --t-dM: #ffffff; --b-dM: #5b21b6;
-            --c-dP: #8b5cf6; --t-dP: #ffffff; --b-dP: #7c3aed;
-            --c-dR: #f5f3ff; --t-dR: #6d28d9; --b-dR: #ddd6fe;
-            --bg-ferie: #e2670f; --t-ferie: #ffffff; --b-ferie: #a15300;
-            --bg-rec: #b3005f; --t-rec: #ffe8f2; --b-rec: #c3006b;
-            --bg-cong: #e0c700; --t-cong: #000000; --b-cong: #fbff00;
+            /* turni: pastello in una scala di blu continua (mattina chiarissima → notte scura);
+               il colore pieno resta alle assenze, così le eccezioni si vedono subito */
+            --c-M: #e3eeff; --t-M: #1e3a8a; --b-M: #c9dcfb;
+            --c-P: #c3d9fb; --t-P: #1e3a8a; --b-P: #a9c7f5;
+            --c-N: #4a76c4; --t-N: #ffffff; --b-N: #3f68b0;
+            --c-R: #ffffff; --t-R: #64748b; --b-R: #e2e8f0;
+            --c-SM: #9dbbe8; --t-SM: #0f2350; --b-SM: #8aaee2;
+            /* diurnisti: stessa scala ma in viola (mattina chiara → pomeriggio più pieno), distinti dal blu dei turnisti */
+            --c-dM: #ede9fe; --t-dM: #5b21b6; --b-dM: #ddd6fe;
+            --c-dP: #d9ccfb; --t-dP: #4c1d95; --b-dP: #c4b5fd;
+            --c-dR: #ffffff; --t-dR: #7c3aed; --b-dR: #ede9fe;
+            --bg-ferie: #f97316; --t-ferie: #ffffff; --b-ferie: #ea580c;
+            --bg-rec: #be185d; --t-rec: #ffffff; --b-rec: #9d174d;
+            --bg-cong: #facc15; --t-cong: #422006; --b-cong: #eab308;
             --bg-mal: #dc2626; --t-mal: #ffffff; --b-mal: #b91c1c;
             --bg-nl: #cceef2; --t-nl: #004147; --b-nl: #b2ebf2;
-            --bg-perm: #00c440; --t-perm: #00250e; --b-perm: #004e1c;
+            --bg-perm: #22c55e; --t-perm: #052e16; --b-perm: #16a34a;
             --bg-ng: #009fd6; --t-ng: #ffffff; --b-ng: #0099cc;
             --bg-stu: #ffffff; --t-stu: #dc2626; --b-stu: #dc2626;
-            --bg-pn: #0f3d21; --t-pn: #ffffff; --b-pn: #052e16;
+            --bg-pn: #166534; --t-pn: #ffffff; --b-pn: #14532d;
             --bg-coord: #ffffff; --t-coord: #dc0000; --b-coord: #dc0000;
             --bg-pl: #0f766e; --t-pl: #ffffff; --b-pl: #115e59;
             --bg-ps: #9a3412; --t-ps: #ffffff; --b-ps: #7c2d12;
@@ -69,9 +71,14 @@
         body.dark-mode {
             --bg: #080d18; --bg-card: #131b2a; --text-main: #eef2f8;
             --text-sec: #8592ac; --border: #22304a; --header-bg: rgba(8,13,24,0.9);
-            --c-dM: #5b21b6; --t-dM: #f5f3ff; --b-dM: #7c3aed;
-            --c-dP: #7c3aed; --t-dP: #f5f3ff; --b-dP: #8b5cf6;
-            --c-dR: #1c1433; --t-dR: #c4b5fd; --b-dR: #4c1d95;
+            --c-M: #1f3b63; --t-M: #dbeafe; --b-M: #2a4a78;
+            --c-P: #2b5590; --t-P: #eff6ff; --b-P: #3762a0;
+            --c-SM: #1a3058; --t-SM: #dbeafe; --b-SM: #284372;
+            --c-N: #1c3a70; --t-N: #ffffff; --b-N: #2a4f8f;
+            --c-R: #131b2a; --t-R: #94a3b8; --b-R: #22304a;
+            --c-dM: #3b2470; --t-dM: #ede9fe; --b-dM: #5b21b6;
+            --c-dP: #4c2f8a; --t-dP: #f5f3ff; --b-dP: #6d28d9;
+            --c-dR: #131b2a; --t-dR: #c4b5fd; --b-dR: #2e1f55;
         }
         body {
             font-family: 'Plus Jakarta Sans', sans-serif; margin: 0;
@@ -355,6 +362,11 @@
             .rep-now-pill { padding: 3px 10px 3px 8px; }
             .rep-now-name { max-width: 130px; }
         }
+        /* fine settimana: riga rossa spessa sotto la domenica */
+        #main-table tbody tr.wk-end > td { border-bottom: 4px solid #dc2626 !important; }
+        body.dark-mode #main-table tbody tr.wk-end > td { border-bottom-color: #ef4444 !important; }
+        #main-table tbody tr.wk-end > td.td-date::after { content: ''; position: absolute; right: -6px; bottom: -4px; width: 6px; height: 4px; background: #dc2626; pointer-events: none; }
+        body.dark-mode #main-table tbody tr.wk-end > td.td-date::after { background: #ef4444; }
         tbody td {
             padding: 2px; height: var(--cell-h); vertical-align: middle;
             border-bottom: 1px solid var(--border); border-right: 1px dashed var(--border);
@@ -591,9 +603,12 @@
 
         /* ── M+N (Mattina + Notte) ── */
         .spec-mn {
-            background: linear-gradient(160deg, #026bfe 45%, #003785 55%);
-            color: #ffffff; border: 2px solid #bae6fd; font-size: 0.65rem;
+            background: linear-gradient(160deg, var(--c-M) 45%, var(--c-N) 55%);
+            color: #0f172a; border: 1px solid var(--b-P); font-size: 0.65rem;
         }
+        .spec-mn > * { text-shadow: 0 0 3px #fff, 0 0 3px #fff; }
+        body.dark-mode .spec-mn { color: #fff; }
+        body.dark-mode .spec-mn > * { text-shadow: 0 1px 2px rgba(0,0,0,.7); }
 
         /* ── GRAVIDANZA ── */
         .spec-gr { background: #fdf2f8; color: #db2777; border: 1px solid #f9a8d4; }
@@ -738,11 +753,55 @@
         .col-role { font-size:0.7rem; font-weight:600; color:var(--text-sec); margin-top:2px; }
         .col-badge { font-size:0.75rem; font-weight:800; padding:6px 10px; border-radius:8px; min-width:35px; text-align:center; }
         .nurse-highlight .col-avatar { background:var(--primary); color:white; border:2px solid #1e40af; }
-        .modal-theme-M .modal-header { background:linear-gradient(135deg,#e0f2fe,#f0f9ff); } .modal-theme-M .header-text h3 { color:#0c4a6e; }
-        .modal-theme-P .modal-header { background:linear-gradient(135deg,#e0e7ff,#eef2ff); } .modal-theme-P .header-text h3 { color:#312e81; }
-        .modal-theme-N .modal-header { background:linear-gradient(135deg,#1e293b,#0f172a); } .modal-theme-N .header-text h3 { color:white; } .modal-theme-N .header-text span { color:#94a3b8; } .modal-theme-N .btn-close-modal { background:#334155; color:white; }
-        .modal-theme-R .modal-header { background:linear-gradient(135deg,#dcfce7,#ecfdf5); } .modal-theme-R .header-text h3 { color:#064e3b; }
-        .modal-theme-SM .modal-header { background:linear-gradient(135deg,#64748b,#94a3b8); } .modal-theme-SM .header-text h3 { color:white; }
+        /* ═══ Finestra della casella: scheda moderna centrata (non più foglio dal basso stile iOS) ═══ */
+        #shift-modal { align-items:center; padding:14px; background:rgba(15,23,42,.55); backdrop-filter:blur(3px); }
+        #shift-modal .modal-content { max-width:560px; border-radius:18px; max-height:88vh; box-shadow:0 24px 60px rgba(15,23,42,.35), 0 0 0 1px rgba(15,23,42,.06);
+            transform:translateY(14px) scale(.98); opacity:0; transition:transform .22s cubic-bezier(.2,.8,.2,1), opacity .18s ease; }
+        #shift-modal.open .modal-content { transform:none; opacity:1; }
+        #shift-modal .modal-header { background:var(--bg-card); border-bottom:1px solid var(--border); padding:16px 16px 14px 18px; align-items:flex-start; gap:12px; }
+        #shift-modal .header-text { display:flex; align-items:center; gap:14px; min-width:0; }
+        #shift-modal .header-text h3 { font-size:1.25rem; font-weight:800; letter-spacing:-.01em; color:var(--text-main); gap:0; }
+        #shift-modal .header-text span#modal-subtitle { display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; margin-top:3px; font-size:0.85rem; font-weight:600; color:var(--text-sec); }
+        .sm2-ico { flex:none; width:48px; height:48px; border-radius:14px; display:flex; align-items:center; justify-content:center; }
+        .sm2-ico .material-icons-round { font-size:26px; color:inherit; margin:0; }
+        #shift-modal .btn-close-modal { flex:none; width:34px; height:34px; border-radius:10px; background:var(--bg); color:var(--text-sec); }
+        #shift-modal .btn-close-modal:hover { color:var(--text-main); }
+        .sm2-hchip { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:6px; background:var(--bg); border:1px solid var(--border); color:var(--text-main); font-style:normal; font-weight:700; font-size:0.78rem; font-variant-numeric:tabular-nums; vertical-align:1px; }
+        #shift-modal .modal-body { background:var(--bg); padding:14px 16px 18px; display:flex; flex-direction:column; }
+        .sm2-sec { display:flex; align-items:center; gap:7px; margin:14px 2px 8px; font-size:0.8rem; font-weight:700; color:var(--text-sec); }
+        #modal-list > .sm2-sec:first-child { margin-top:0; }
+        .sm2-sec .material-icons-round { font-size:18px; color:var(--primary); }
+        .sm2-sec .sm2-n { margin-left:2px; min-width:20px; text-align:center; background:var(--bg-card); border:1px solid var(--border); border-radius:6px; padding:0 6px; font-size:0.72rem; font-weight:800; color:var(--text-main); }
+        .sm2-sec .sm2-n.r { margin-left:auto; }
+        .sm2-sec.rep .material-icons-round { color:#dc2626; }
+        .sm2-sec.note .material-icons-round { color:#0d9488; }
+        .sm2-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:8px; }
+        .sm2-row { display:flex; align-items:center; gap:10px; padding:10px 12px; background:var(--bg-card); border:1px solid var(--border); border-radius:12px; min-width:0; }
+        .sm2-tag { flex:none; width:34px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:0.74rem; letter-spacing:-0.2px; }
+        .sm2-who { flex:1; min-width:0; display:flex; flex-direction:column; gap:1px; }
+        .sm2-who b { font-size:0.88rem; font-weight:800; color:var(--text-main); line-height:1.2; overflow-wrap:anywhere; }
+        .sm2-who small { font-size:0.72rem; font-weight:600; color:var(--text-sec); line-height:1.25; }
+        .sm2-who .sm2-rp { color:#dc2626; font-weight:800; display:inline-flex; align-items:center; gap:3px; }
+        .sm2-who .sm2-rp .material-icons-round { font-size:13px; }
+        .sm2-who .perm-note { margin-top:4px; align-self:flex-start; white-space:normal; }
+        .sm2-row.has-perm { grid-column:1 / -1; }
+        .sm2-empty { padding:14px; text-align:center; color:var(--text-sec); font-size:0.85rem; background:var(--bg-card); border:1px dashed var(--border); border-radius:12px; }
+        .sm2-pad { padding:12px; background:var(--bg-card); border:1px solid var(--border); border-radius:12px; }
+        .sm2-pad .note-day { margin-top:0; }
+        .sm2-pad.bare { padding:0; background:none; border:none; margin-top:10px; }
+        .sm2-pad .cn-mine-btn { margin:0; }
+        .sm2-rep { display:grid; grid-template-columns:auto 1fr; gap:6px 14px; align-items:center; font-size:0.84rem; }
+        .sm2-rep span { font-weight:700; color:var(--text-sec); font-variant-numeric:tabular-nums; white-space:nowrap; }
+        .sm2-rep span small { font-weight:600; opacity:.8; }
+        .sm2-rep b { font-weight:800; color:var(--text-main); }
+        .sm2-rep b.ced { color:#92400e; background:#fef3c7; border-radius:6px; padding:1px 6px; justify-self:start; }
+        .sm2-rep b.ced small { font-weight:600; }
+        body.dark-mode .sm2-rep b.ced { background:rgba(245,158,11,.2); color:#fcd34d; }
+        .sm2-rep-one { display:flex; align-items:center; gap:12px; }
+        .sm2-rep-ico { flex:none; width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; background:#fee2e2; color:#dc2626; }
+        body.dark-mode .sm2-rep-ico { background:rgba(220,38,38,.2); color:#fca5a5; }
+        .sm2-rep-ico .material-icons-round { font-size:19px; }
+        @media (max-width:420px) { .sm2-grid { grid-template-columns:1fr 1fr; } #shift-modal { padding:10px; } #shift-modal .modal-body { padding:12px 12px 16px; } }
         .option-item {
             padding:18px 20px; display:flex; justify-content:space-between; align-items:center;
             font-weight:600; color:var(--text-main);
@@ -3343,11 +3402,12 @@
     <div class="modal-content" onclick="event.stopPropagation()">
         <div class="modal-header" id="modal-header-bg">
             <div class="header-text">
-                <h3 id="modal-title">TITOLO</h3>
-                <span id="modal-subtitle">Data del giorno</span>
+                <div class="sm2-ico" id="modal-ico"></div>
+                <div><h3 id="modal-title">TITOLO</h3>
+                <span id="modal-subtitle">Data del giorno</span></div>
             </div>
-            <button class="btn-close-modal" onclick="closeShiftModal()">
-                <span class="material-icons-round">keyboard_arrow_down</span>
+            <button class="btn-close-modal" onclick="closeShiftModal()" aria-label="Chiudi">
+                <span class="material-icons-round">close</span>
             </button>
         </div>
         <div class="modal-body" id="modal-list"></div>
@@ -4487,9 +4547,9 @@
 
     const ADMIN_PASSWORD = "Barbieri!";
     const DEFAULT_COLORS = {
-        "--primary":"#1d4ed8","--c-M":"#0257d5","--c-P":"#3f7fe0","--c-N":"#002a66","--c-R":"#ecfdf5","--c-SM":"#0b0038",
-        "--bg-ferie":"#e2670f","--bg-rec":"#b3005f","--bg-cong":"#e0c700","--bg-mal":"#dc2626","--bg-nl":"#cceef2",
-        "--bg-perm":"#00c440","--bg-ng":"#009fd6","--bg-stu":"#ffffff","--bg-pn":"#0f3d21","--bg-coord":"#ffffff"
+        "--primary":"#1d4ed8","--c-M":"#e3eeff","--c-P":"#c3d9fb","--c-N":"#4a76c4","--c-R":"#ffffff","--c-SM":"#9dbbe8",
+        "--bg-ferie":"#f97316","--bg-rec":"#be185d","--bg-cong":"#facc15","--bg-mal":"#dc2626","--bg-nl":"#cceef2",
+        "--bg-perm":"#22c55e","--bg-ng":"#009fd6","--bg-stu":"#ffffff","--bg-pn":"#166534","--bg-coord":"#ffffff"
     };
     let nameOverrides = Object.assign({}, DEFAULT_NAME_OVERRIDES_BAKED);
     let colorOverrides = Object.assign({}, DEFAULT_COLORS_BAKED);
@@ -9093,15 +9153,16 @@
     function otherTeamHtml(rowIndex, uShift) {
         const row = finalData[rowIndex]; if(!row) return '';
         const mese = row[0].v, giorno = parseInt(row[1].v), year = shiftRowYear(rowIndex);
-        const head = `<div class="ot-sec"><span class="material-icons-round">${OTHER_TEAM.icon}</span>${esc(OTHER_TEAM.title)}</div>`;
-        const box = inner => `<div id="ot-list" data-row="${rowIndex}" data-shift="${esc(uShift)}">${head}${inner}</div>`;
+        const head = n => `<div class="sm2-sec"><span class="material-icons-round">${OTHER_TEAM.icon}</span>${esc(OTHER_TEAM.title)}${n != null ? `<span class="sm2-n">${n}</span>` : ''}</div>`;
+        const box = (inner, n) => `<div id="ot-list" data-row="${rowIndex}" data-shift="${esc(uShift)}">${head(n)}${inner}</div>`;
+        const stdTime = ['M','P','N','SM'].includes(uShift) ? (SCHEDULE[uShift] || '') : '';
         if(!otherTeam) {
             if(!otherTeamLoading) loadOtherTeam();
             otherTeamLoading.then(() => { const el = document.getElementById('ot-list'); if(el && +el.dataset.row === rowIndex && otherTeam) el.outerHTML = otherTeamHtml(rowIndex, uShift); });
-            return box('<div class="ot-empty">Caricamento…</div>');
+            return box('<div class="sm2-empty">Caricamento…</div>');
         }
         const orow = otherRowFor(otherTeam, mese, giorno, year);
-        if(!orow) return box('<div class="ot-empty">Nessun dato per questo giorno</div>');
+        if(!orow) return box('<div class="sm2-empty">Nessun dato per questo giorno</div>');
         const H = otherTeam[0], cards = [];
         for(let c = 3; c < H.length; c++) {
             const cell = orow[c] || {}, sub = String(cell.subV || '').trim().toLowerCase();
@@ -9115,24 +9176,10 @@
             if(['M','P','N','SM'].includes(uShift)) { if(uVal === uShift) isMatch = true; if(isMN(rawV) && (uShift === 'M' || uShift === 'N')) isMatch = true; }
             else if(isWorking) isMatch = true;
             if(!isMatch) continue;
-            let time = isD ? (SCHEDULE_DIURNI[rawV.toLowerCase()] || rawV) : (isMN(rawV) ? `M: ${SCHEDULE['M']} / N: ${SCHEDULE['N']}` : (SCHEDULE[uVal] || uVal));
-            if(rep) time += ` &nbsp;<span style="color:#ef4444;font-weight:900;font-size:0.75rem;">(REPERIBILE)</span>`;
-            let badge = 'background:#e2e8f0;color:#475569';
-            if(uVal === 'M') badge = 'background:#dbeafe;color:#1e40af';
-            if(uVal === 'P') badge = 'background:#ffedd5;color:#9a3412';
-            if(uVal === 'N') badge = 'background:#1e293b;color:#f8fafc';
-            const nm = String(H[c]);
-            cards.push(`<div class="colleague-card">
-                <div class="col-avatar ot-avatar">${esc(nm.substring(0, 2).toUpperCase())}</div>
-                <div class="col-info">
-                    <div class="col-name">${esc(nm)}</div>
-                    <div class="col-role" style="font-size:0.8rem;color:var(--primary)">${time}</div>
-                    <div class="col-role" style="font-size:0.65rem">${isD ? 'Diurnista' : 'Turnista'}</div>
-                </div>
-                <div class="col-badge" style="${badge}">${esc(uVal)}</div>
-            </div>`);
+            const time = isD ? (SCHEDULE_DIURNI[rawV.toLowerCase()] || rawV) : (isMN(rawV) ? `M ${SCHEDULE['M']} · N ${SCHEDULE['N']}` : (SCHEDULE[uVal] || uVal));
+            cards.push(sm2Person(String(H[c]), rawV, uVal, isD, time, stdTime, rep, ''));
         }
-        return box(cards.length ? cards.join('') : '<div class="ot-empty">Nessuno in questo turno</div>');
+        return box(cards.length ? `<div class="sm2-grid">${cards.join('')}</div>` : '<div class="sm2-empty">Nessuno in questo turno</div>', cards.length);
     }
 
     // ═══ EQUITÀ DELL'ANNO ════════════════════════════════════════════════
@@ -11024,10 +11071,10 @@
         const list = noteList().filter(n => n.date === iso), guest = prefOwner() === 'OSPITE';
         if(guest && !list.length) return '';
         const head = n => noteMine(n) ? `La tua nota${noteTo(n) === 'COORD' ? '' : ' ' + noteToChip(n)}` : `${esc(noteName(n))} ${noteToChip(n)}`;
-        return `<div class="note-day">
+        return `<div class="sm2-sec note"><span class="material-icons-round">sticky_note_2</span>Note del giorno${list.length ? `<span class="sm2-n">${list.length}</span>` : ''}</div><div class="sm2-pad"><div class="note-day">
             ${list.map(n => `<div class="note-day-it" onclick="${noteMine(n) ? `closeShiftModal();setTimeout(() => noteOpenEditor('${n.date}','${n.id}'), 220)` : `closeShiftModal();setTimeout(() => noteOpenChat('${n.id}'), 220)`}"><span class="material-icons-round">sticky_note_2</span><div><b>${head(n)}</b> ${notePrefChip(n)}<div>${esc(n.text || '')}</div><small>${esc(noteStatusTxt(n))}</small><div style="margin-top:5px">${noteChatChip(n, true)}</div></div></div>`).join('')}
             ${guest ? '' : `<button class="note-day-btn" onclick="closeShiftModal();setTimeout(() => noteOpenEditor('${iso}'), 220)"><span class="material-icons-round">edit_note</span>Scrivi una nota<small>al coordinatore, a un collega o a tutti</small></button>`}
-        </div>`;
+        </div></div>`;
     }
     // ── La mia pagina: note ricevute e scritte ─────────────────────────────
     function myNotesHtml() {
@@ -15074,15 +15121,12 @@
     function repDaySectionHtml(date) {
         const R = repData(); const tit = R.tit[date]; if(!tit || !date) return '';
         const n = repDateAdd(date, 1);
-        const rows = [[date, 2], [date, 3], [n, 0], [n, 1]].map(([d, s]) => {
-            const who = (R.days[d] || [])[s] || tit; const ced = who !== tit;
-            return `<div style="display:flex;justify-content:space-between;gap:10px;padding:7px 10px;border-radius:8px;background:${ced ? '#fee2e2' : '#dcfce7'};color:${ced ? '#991b1b' : '#166534'};font-weight:800;font-size:0.8rem">
-                <span>${REP_SLOTS[s].long}${s < 2 ? ' <small style="font-weight:600;opacity:.75">(' + repDateLabel(d) + ')</small>' : ''}</span><span>${esc(repDisplayName(who))}${ced ? ' <small style="font-weight:600">(ceduta)</small>' : ''}</span></div>`;
-        }).join('');
-        return `<div style="margin-top:14px;padding:12px;border-radius:14px;border:1px solid var(--border);background:var(--bg)">
-            <div style="display:flex;align-items:center;gap:6px;font-weight:900;font-size:0.8rem;color:#dc2626;margin-bottom:8px"><span class="material-icons-round" style="font-size:17px">phone_in_talk</span> REPERIBILITÀ — 13:00 › 13:00</div>
-            <div style="font-weight:800;font-size:0.85rem;margin-bottom:8px">Titolare: ${esc(repDisplayName(tit))}</div>
-            <div style="display:flex;flex-direction:column;gap:5px">${rows}</div></div>`;
+        const fasce = [[date, 2], [date, 3], [n, 0], [n, 1]].map(([d, s]) => { const who = (R.days[d] || [])[s] || tit; return { d, s, who, ced: who !== tit }; });
+        const head = `<div class="sm2-sec rep"><span class="material-icons-round">phone_in_talk</span>Reperibilità<span class="sm2-n r">13:00 › 13:00</span></div>`;
+        // nessuna cessione: una riga sola con il titolare
+        if(!fasce.some(f => f.ced)) return `${head}<div class="sm2-pad"><div class="sm2-rep-one"><span class="sm2-rep-ico"><span class="material-icons-round">call</span></span><div class="sm2-who"><b>${esc(repDisplayName(tit))}</b><small>Tutte le fasce, fino alle 13:00 del ${esc(repDateLabel(n))}</small></div></div></div>`;
+        const rows = fasce.map(f => `<span>${REP_SLOTS[f.s].long}${f.s < 2 ? ` <small>(${esc(repDateLabel(f.d))})</small>` : ''}</span><b${f.ced ? ' class="ced"' : ''}>${esc(repDisplayName(f.who))}${f.ced ? ' <small>ceduta</small>' : ''}</b>`).join('');
+        return `${head}<div class="sm2-pad"><div style="font-size:0.78rem;color:var(--text-sec);font-weight:600;margin-bottom:6px">Titolare: <b style="color:var(--text-main)">${esc(repDisplayName(tit))}</b></div><div class="sm2-rep">${rows}</div></div>`;
     }
 
     // ── Reperibili del mese (menu Calendario) ──────────────────────────────
@@ -15788,6 +15832,7 @@
         let holKey = `${mIdx}-${dNum}`; let holidayName = HOLIDAYS[holKey]; let isRed = (dayIdx===0||dayIdx===6||holidayName);
         let dateClass = isRed ? "td-date date-red" : "td-date";
         if(mIdx === today.getMonth() && dNum === today.getDate() && today.getFullYear() === year) { tr.className = "today"; tr.id = "today-row"; }
+        if(dayIdx === 0) tr.classList.add('wk-end');   // domenica: riga rossa spessa sotto, fine settimana
 
         // conta M e P per il riepilogo giornaliero (sempre visibile) e per "Graziella"
         let countM = 0, countP = 0, countN = 0;
@@ -16126,6 +16171,17 @@
         const prev = finalData[rowIndex - 1], cell = prev && prev[colIdx];
         return !!cell && isMN((cell.v || "").toString());
     }
+    // sigla del turno con gli stessi colori della casella del calendario
+    function sm2Tag(rawV, uVal, isD) {
+        if(isMN(rawV)) return '<span class="sm2-tag spec-mn">M+N</span>';
+        const cls = isD ? (uVal.charAt(0) === 'P' ? 'd-P' : 'd-M') : ({ M:'t-M', P:'t-P', N:'t-N', SM:'t-S' }[uVal] || '');
+        return `<span class="sm2-tag ${cls}"${cls ? '' : ' style="background:var(--bg);color:var(--text-sec);border:1px solid var(--border)"'}>${esc(uVal)}</span>`;
+    }
+    // riquadro di una persona: sigla colorata, nome, orario solo se diverso da quello del turno, reperibile
+    function sm2Person(name, rawV, uVal, isD, time, stdTime, rep, permNote) {
+        const sub = [isD ? 'Diurnista' : '', time !== stdTime ? time : ''].filter(Boolean).join(' · ');
+        return `<div class="sm2-row${permNote ? ' has-perm' : ''}">${sm2Tag(rawV, uVal, isD)}<div class="sm2-who"><b>${esc(name)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}${rep ? '<small class="sm2-rp"><span class="material-icons-round">call</span>Reperibile</small>' : ''}${permNote || ''}</div></div>`;
+    }
     function openShiftModal(rowIndex, cellValue, month, day, weekDay) {
         vibrate();
         let modal = document.getElementById('shift-modal');
@@ -16141,15 +16197,22 @@
         else if(uShift==="N") content.classList.add("modal-theme-N");
         else if(uShift==="R") content.classList.add("modal-theme-R");
         else if(uShift==="SM") content.classList.add("modal-theme-SM");
-        let fullText = "DETTAGLIO TURNO", icon = "info";
-        if(uShift==="M")  { fullText="MATTINA";    icon="wb_sunny";   }
-        if(uShift==="P")  { fullText="POMERIGGIO"; icon="wb_twilight";}
-        if(uShift==="N")  { fullText="NOTTE";       icon="bedtime";    }
-        if(uShift==="R")  { fullText="RIPOSO";      icon="weekend";    }
-        if(uShift==="SM") { fullText="SMONTO";      icon="logout";     }
-        if(isMN(uShift))  { fullText="MATTINA + NOTTE"; icon="brightness_4"; }
-        document.getElementById('modal-title').innerHTML = `<span class="material-icons-round">${icon}</span> ${fullText}`;
-        document.getElementById('modal-subtitle').innerText = `${weekDay} ${day} ${month}`;
+        else if(isMN(uShift)) content.classList.add("modal-theme-MN");
+        let fullText = "Chi è in turno", icon = "groups", icoCls = "";
+        if(uShift==="M")  { fullText="Mattina";    icon="wb_sunny";    icoCls="t-M"; }
+        if(uShift==="P")  { fullText="Pomeriggio"; icon="wb_twilight"; icoCls="t-P"; }
+        if(uShift==="N")  { fullText="Notte";      icon="bedtime";     icoCls="t-N"; }
+        // su un riposo (o un'assenza) la finestra mostra chi lavora quel giorno
+        if(uShift==="SM") { fullText="Smonto";     icon="logout";      icoCls="t-S"; }
+        if(isMN(uShift))  { fullText="Mattina + Notte"; icon="brightness_4"; icoCls="spec-mn"; }
+        document.getElementById('modal-title').textContent = fullText;
+        const ico = document.getElementById('modal-ico'); ico.className = 'sm2-ico ' + icoCls;
+        if(!icoCls) ico.style.cssText = 'background:var(--bg);color:var(--primary);border:1px solid var(--border)'; else ico.style.cssText = '';
+        ico.innerHTML = `<span class="material-icons-round">${icon}</span>`;
+        // l'orario del turno si scrive una volta sola, in alto; nelle righe compare solo se è diverso
+        const stdTime = ["M","P","N","SM"].includes(uShift) ? (SCHEDULE[uShift] || '') : '';
+        const dIso = repRowDate(rowIndex), dLong = dIso ? new Date(dIso + 'T12:00:00').toLocaleDateString('it-IT', { weekday:'long', day:'numeric', month:'long' }).replace(/^./, c => c.toUpperCase()) : `${weekDay} ${day} ${month}`;
+        document.getElementById('modal-subtitle').innerHTML = `${esc(dLong)}${stdTime ? `<em class="sm2-hchip"><span class="material-icons-round" style="font-size:14px">schedule</span>${esc(stdTime)}</em>` : ''}`;
         list.innerHTML = "";
         let rowData = finalData[rowIndex];
         let foundNurses = [];
@@ -16170,40 +16233,26 @@
                 if(isWorking) isMatch = true;
             }
             if(isMatch) {
-                let time = isD
-                    ? (diurniSched(rawV, repRowDate(rowIndex)) || rawV)
-                    : (isMN(rawV)
-                        ? `M: ${SCHEDULE["M"]} / N: ${SCHEDULE["N"]}`
-                        : (SCHEDULE[uVal] || uVal));
-                if(repData().tit[repRowDate(rowIndex)] === d.originalName) time += ` &nbsp;<span style="color:#ef4444;font-weight:900;font-size:0.75rem;">(REPERIBILE)</span>`;
-                let badgeStyle = "background:#e2e8f0;color:#475569";
-                if(uVal==="M") badgeStyle="background:#dbeafe;color:#1e40af";
-                if(uVal==="P") badgeStyle="background:#ffedd5;color:#9a3412";
-                if(uVal==="N") badgeStyle="background:#1e293b;color:#f8fafc";
+                const rep = repData().tit[repRowDate(rowIndex)] === d.originalName;
+                let time = isD ? (diurniSched(rawV, repRowDate(rowIndex)) || rawV)
+                    : (isMN(rawV) ? `M ${SCHEDULE["M"]} · N ${SCHEDULE["N"]}` : (SCHEDULE[uVal] || uVal));
                 const pm = permOfCell(rowIndex, d.idx);   // ore di permesso dentro il turno
                 const permNote = pm && !pm.full ? `<div class="perm-note">${esc(d.name)} ha preso ${permHFmt(pm.h)} di ${PERM_HOURLY[pm.k].label.toLowerCase()}${pm.k === 'pl' ? ' · conta nel conteggio assenze' : ''}</div>` : '';
-                foundNurses.push({ name:d.name, shift:uVal, time, style:badgeStyle, isDiurno:isD, permNote });
+                foundNurses.push({ name:d.name, rawV, shift:uVal, time, rep, isDiurno:isD, permNote });
             }
         });
+        const ord = n => n.isDiurno ? 9 : ({ M:0, P:2, N:3, SM:4 }[n.shift] ?? (isMN(n.rawV) ? 1 : 5));
+        foundNurses.sort((a, b) => ord(a) - ord(b));
+        list.innerHTML += `<div class="sm2-sec"><span class="material-icons-round">medical_services</span>Infermieri in turno<span class="sm2-n">${foundNurses.length}</span></div>`;
         if(foundNurses.length > 0) {
-            foundNurses.forEach(n => {
-                list.innerHTML += `<div class="colleague-card nurse-highlight">
-                    <div class="col-avatar">${n.name.substring(0,2).toUpperCase()}</div>
-                    <div class="col-info">
-                        <div class="col-name">${n.name}</div>
-                        <div class="col-role" style="font-size:0.8rem;color:var(--primary)">${n.time}</div>
-                        <div class="col-role" style="font-size:0.65rem">${n.isDiurno?'Diurnista':'Turnista'}</div>${n.permNote || ''}
-                    </div>
-                    <div class="col-badge" style="${n.style}">${n.shift}</div>
-                </div>`;
-            });
+            list.innerHTML += `<div class="sm2-grid">${foundNurses.map(n => sm2Person(n.name, n.rawV, n.shift, n.isDiurno, n.time, stdTime, n.rep, n.permNote)).join('')}</div>`;
         } else {
-            list.innerHTML += `<div style="padding:20px;text-align:center;color:#94a3b8;font-size:0.9rem">Nessun infermiere in questo turno.</div>`;
+            list.innerHTML += `<div class="sm2-empty">Nessun infermiere in questo turno.</div>`;
         }
         { const me = myCalDriver();   // la mia notte: con chi posso cambiarla
           if(me && (uShift === 'N' || isMN(uShift)) && cnIsNight(rowIndex, me.idx)) {
             const c = cnCandidates(rowIndex, me.idx), n = c.after.concat(c.before).filter(p => !p.problems.length).length;
-            list.innerHTML += `<button class="cn-mine-btn" onclick="cnOpen(${rowIndex},${me.idx})"><span class="material-icons-round">swap_vert</span><span><b>Cambia la tua notte con un collega</b><small>${n ? n + (n === 1 ? ' cambio possibile' : ' cambi possibili') + ' con chi ha la notte il giorno prima o dopo' : 'Vedi chi ha la notte il giorno prima o dopo'}</small></span></button>`;
+            list.innerHTML += `<div class="sm2-pad bare"><button class="cn-mine-btn" onclick="cnOpen(${rowIndex},${me.idx})"><span class="material-icons-round">swap_vert</span><span><b>Cambia la tua notte con un collega</b><small>${n ? n + (n === 1 ? ' cambio possibile' : ' cambi possibili') + ' con chi ha la notte il giorno prima o dopo' : 'Vedi chi ha la notte il giorno prima o dopo'}</small></span></button></div>`;
           } }
         list.innerHTML += otherTeamHtml(rowIndex, uShift);
         list.innerHTML += repDaySectionHtml(repRowDate(rowIndex));
