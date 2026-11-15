@@ -3699,8 +3699,6 @@
         <div class="sep-grid" id="sep-grid"></div>
         <div class="sep-grid sep-perm-wrap" id="sep-perm"></div>
         <div class="sep-foot">
-            <button class="cc-btn danger" onclick="applyShiftChoice(null,null)"><span class="msym">ink_eraser</span>Svuota cella</button>
-            <button class="cc-btn" onclick="repOpenFromShiftPopup()"><span class="msym">phone_in_talk</span>Reperibilità</button>
             <button class="cc-btn" onclick="closeShiftEditPopup()">Chiudi</button>
         </div>
     </div>
@@ -9843,12 +9841,19 @@
         { id: 'manage',  short: 'GESTISCI', icon: 'manage_accounts', label: 'Gestione operatori',       hint: 'ordine, contratto, aggiungi o togli', fill: '#7c3aed' }
     ];
     let coordOpTool = null;
+    // Strumenti della faccia Assenze che chiedono qualcosa (prima stavano nella finestra della casella)
+    const WHEEL_CELL_TOOLS = [
+        { id: 'perm', short: 'ORE PERM', icon: 'schedule',     label: 'Permesso a ore (legge o sindacale)', hint: 'tocca la casella: chiede le ore', fill: '#0f766e' },
+        { id: 'man',  short: 'ORE MANO', icon: 'edit',         label: 'Ore a mano',                         hint: 'tocca la casella: scrivi le ore del giorno', fill: '#475569' }
+    ];
+    let coordCellTool = null;
     function wheelRingItems() {
         if(twMode === 'rep') return WHEEL_REP_TOOLS.map(r => ({ kind: 'rep', id: r.id, short: r.short, label: r.label, time: r.hint, fill: r.fill, fg: '#fff', group: 0, icon: r.icon }));
         if(twMode === 'operatori') return WHEEL_OP_TOOLS.map(o => ({ kind: 'op', id: o.id, short: o.short, label: o.label, time: o.hint, fill: o.fill, fg: '#fff', group: 0, icon: o.icon }));
         const pal = wheelPaletteItems().map((it, i) => Object.assign({ kind: 'pal', i }, it));
         const isAbsCustom = it => it.group === 3 && (customCodes[it.v] || {}).kind === 'abs';
-        if(twMode === 'assenze') return pal.filter(it => it.group === 2 || isAbsCustom(it));
+        if(twMode === 'assenze') return pal.filter(it => it.group === 2 || isAbsCustom(it))
+            .concat(WHEEL_CELL_TOOLS.map(t => ({ kind: 'ct', id: t.id, short: t.short, label: t.label, time: t.hint, fill: t.fill, fg: '#fff', group: 5, icon: t.icon })));
         return pal.filter(it => it.group === 0 || it.group === 1 || (it.group === 3 && !isAbsCustom(it)))
             .concat(WHEEL_SEQUENCES.map(s => ({ kind: 'seq', id: s.id, short: s.short, label: s.label, time: s.desc, fill: s.fill, fg: '#fff', group: 4 + s.group, dashed: s.dashed })));
     }
@@ -13698,6 +13703,7 @@
             if(r) return { key:'rep', rep:r, name:r.label, hint: (r.id === 'move' && coordRepMoveFirst) ? 'ora tocca la cella di destinazione' : r.hint };
         }
         if(coordOpTool) { const o = WHEEL_OP_TOOLS.find(x => x.id === coordOpTool); if(o) return { key:'op', name:o.label, hint:o.hint }; }
+        if(coordCellTool) { const o = WHEEL_CELL_TOOLS.find(x => x.id === coordCellTool); if(o) return { key:'ct', ct:o, name:o.label, hint:o.hint }; }
         return { key:'select', name:'Nessuno strumento', hint:'scegli dalla ruota cosa inserire' };
     }
     function setCoordTool(kind, v, subV, silent) {
@@ -13705,6 +13711,7 @@
         coordSeqTool = kind === 'seq' ? v : null;
         coordRepTool = kind === 'rep' ? v : null;
         coordOpTool = kind === 'op' ? v : null;
+        coordCellTool = kind === 'ct' ? v : null;
         coordRepMoveFirst = null;
         coNextChoice = null;
         if(kind === 'paint') coordPaintTool = { v: v || '', subV: subV || '' };
@@ -13712,11 +13719,11 @@
         else coordPaintTool = null;
         clearSelectedCellVisual(); coordSelectedCell = null;
         document.body.classList.toggle('paint-active', !!coordPaintTool);
-        document.body.classList.toggle('swap-active', coordSwapMode || kind === 'seq' || kind === 'rep' || kind === 'op');
+        document.body.classList.toggle('swap-active', coordSwapMode || kind === 'seq' || kind === 'rep' || kind === 'op' || kind === 'ct');
         document.body.classList.toggle('select-active', kind === 'select');
         applyEditModeDraggable();
         if(!silent) vibrate();
-        if((kind === 'paint' || kind === 'erase' || kind === 'seq' || kind === 'rep' || kind === 'op') && !silent && localStorage.getItem(WHEEL_AUTOCLOSE_KEY) !== '0') twExpanded = false;
+        if((kind === 'paint' || kind === 'erase' || kind === 'seq' || kind === 'rep' || kind === 'op' || kind === 'ct') && !silent && localStorage.getItem(WHEEL_AUTOCLOSE_KEY) !== '0') twExpanded = false;
         twRender(); twPlace(); updateCoordToolbarState();
     }
     function updateCoordToolbarState() {
@@ -13918,6 +13925,7 @@
             if(coordSeqTool) { applyWheelSequence(rowIndex, colIdx); return; }
             if(coordRepTool) { repToolTap(rowIndex, colIdx); return; }
             if(coordOpTool) { applyOpTool(colIdx); return; }
+            if(coordCellTool) { if(coordCellTool === 'cn' && typeof cnOpen === 'function') cnOpen(rowIndex, colIdx); else openCellToolPopup(colIdx, rowIndex, coordCellTool); return; }
             ccToast('Per inserire turni e assenze scegli dalla ruota delle modifiche.'); return;   // la finestra della casella è stata tolta (richiesta di Mat): si usa solo la ruota
         }
         if(afterMN(rowIndex, colIdx)) cellValue = "SM";
@@ -13928,6 +13936,18 @@
 
     // ── Editor della singola cella ──────────────────────────────────────────
     function swatchStyle(colors) { return colors ? `--sw:var(${colors.bg});--sf:var(${colors.fg});` : ''; }
+    // Finestrella di uno strumento della ruota (permesso a ore, ore a mano) per una casella
+    function openCellToolPopup(colIdx, rowIdx, which) {
+        coordEditPopupTarget = { row: rowIdx, col: colIdx };
+        const d = getDriverByIdx(colIdx), mName = finalData[rowIdx][0].v, dNum = finalData[rowIdx][1].v;
+        const dt = new Date(shiftRowYear(rowIdx), MONTH_MAP[mName], parseInt(dNum)), info = computeDayInfo(rowIdx, colIdx);
+        document.getElementById('sep-title').textContent = d ? d.name : '';
+        document.getElementById('sep-sub').textContent = dt.toLocaleDateString('it-IT', { weekday:'long', day:'numeric', month:'long' }) + ' \u00b7 attuale: ' + (info.label || 'vuoto');
+        document.getElementById('sep-grid').innerHTML = '';
+        document.getElementById('sep-perm').innerHTML = which === 'man' ? sepManHtml(rowIdx, colIdx) : sepPermHtml(rowIdx, colIdx);
+        const m = document.getElementById('shift-edit-popup'); m.style.display = 'flex';
+        requestAnimationFrame(() => m.classList.add('open'));
+    }
     function openShiftEditPopup(colIdx, rowIdx) {
         coordEditPopupTarget = { row: rowIdx, col: colIdx };
         const d = getDriverByIdx(colIdx);
@@ -14180,6 +14200,7 @@
                     else if(it.kind === 'seq') sel = coordSeqTool === it.id;
                     else if(it.kind === 'rep') sel = coordRepTool === it.id;
                     else if(it.kind === 'op') sel = coordOpTool === it.id;
+                    else if(it.kind === 'ct') sel = coordCellTool === it.id;
                 }
                 const fill = it.fill || (it.colors ? `var(${it.colors.bg})` : '#999');
                 const idx = items.indexOf(it);
@@ -14222,8 +14243,8 @@
         // centro
         const t = currentToolInfo(); const sw = document.getElementById('tw-hub-sw');
         if(t.key === 'paint' && t.item) { sw.className = 'tw-hub-sw'; sw.setAttribute('style', swatchStyle(t.item.colors)); sw.textContent = t.item.short; }
-        else if(t.key === 'seq' || t.key === 'rep') { const o = t.key === 'seq' ? t.seq : t.rep; sw.className = 'tw-hub-sw'; sw.setAttribute('style', `background:${o.fill};color:#fff;width:auto;min-width:30px;padding:0 4px`); sw.textContent = o.short; }
-        else { sw.className = 'tw-hub-sw plain'; sw.removeAttribute('style'); const ic = { select:'arrow_selector_tool', swap:'swap_horiz', erase:'ink_eraser' }[t.key]; sw.innerHTML = `<span class="msym">${ic}</span>`; }
+        else if(t.key === 'seq' || t.key === 'rep' || t.key === 'ct') { const o = t.key === 'seq' ? t.seq : t.key === 'rep' ? t.rep : t.ct; sw.className = 'tw-hub-sw'; sw.setAttribute('style', `background:${o.fill};color:#fff;width:auto;min-width:30px;padding:0 4px`); sw.textContent = o.short; }
+        else { sw.className = 'tw-hub-sw plain'; sw.removeAttribute('style'); const ic = { select:'arrow_selector_tool', swap:'swap_horiz', erase:'ink_eraser' }[t.key] || 'touch_app'; sw.innerHTML = `<span class="msym">${ic}</span>`; }
         twCaption();
     }
     function twCaption() {
@@ -14239,7 +14260,7 @@
         const p = e.currentTarget;
         if(p.dataset.kind === 'pal') { const it = wheelRingItems()[+p.dataset.i]; twHover = null; setCoordTool('paint', it.v, it.subV); return; }
         if(p.dataset.kind === 'op') { twHover = null; twOpClick(p.dataset.id); return; }
-        if(p.dataset.kind === 'seq' || p.dataset.kind === 'rep') { twHover = null; setCoordTool(p.dataset.kind, p.dataset.id); return; }
+        if(p.dataset.kind === 'seq' || p.dataset.kind === 'rep' || p.dataset.kind === 'ct') { twHover = null; setCoordTool(p.dataset.kind, p.dataset.id); return; }
         const id = p.dataset.id;
         if(id === 'select' || id === 'swap' || id === 'erase') { twHover = null; setCoordTool(id); }
         else if(id === 'undo') coordUndo();
