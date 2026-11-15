@@ -1,5 +1,8 @@
 # Ogni 15 minuti: aggiorna i calendari del telefono (cartella cal/) e manda le notifiche.
 # Serve il secret VAPID_PRIVATE (Settings › Secrets and variables › Actions).
+# GitHub fa partire i giri programmati solo 4-6 volte al giorno (non ogni 15 minuti come chiesto):
+# per questo ogni giro resta acceso quasi 6 ore e rifà il lavoro da solo ogni quarto d'ora.
+# Il giro programmato dopo aspetta in coda che finisca questo, così il motore non si ferma mai.
 name: Motore notifiche e calendari
 
 on:
@@ -17,7 +20,7 @@ concurrency:
 jobs:
   motore:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 355
     env:
       APP_URL: https://centrale118rsm-code.github.io/Turni-Infermieri-2026/
       VAPID_PUBLIC: BC1Dmgpc5zuCuMFLkCEq5c7eoLPyP7tVulYg2Wzo5M-1zpuuT50eqMWgqIcT3JXwz0ceBY9ZC1yGNRC0gOZuc3Q
@@ -28,16 +31,25 @@ jobs:
           node-version: 20
       - name: Librerie
         run: npm install --prefix .github/motore --no-audit --no-fund
-      - name: Calendari e notifiche
-        run: node .github/motore/motore.mjs
-        env:
-          VAPID_PRIVATE: ${{ secrets.VAPID_PRIVATE }}
-      - name: Salva se cambiato
+      - name: Calendari e notifiche (ogni 15 minuti per quasi 6 ore)
         run: |
           git config user.name "motore-turni"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add cal push
-          if git diff --cached --quiet; then echo "niente da salvare"; exit 0; fi
-          git commit -m "Motore: calendari e stato notifiche aggiornati"
-          for i in 1 2 3; do git pull --rebase -q && git push -q && exit 0; sleep 5; done
-          exit 1
+          end=$(( $(date +%s) + 340 * 60 ))
+          ok=0
+          while :; do
+            git pull --rebase -q || echo "pull non riuscito, uso la copia che ho"
+            if node .github/motore/motore.mjs; then ok=1; else ok=0; echo "::warning::giro non riuscito"; fi
+            git add cal push
+            if ! git diff --cached --quiet; then
+              git commit -q -m "Motore: calendari e stato notifiche aggiornati"
+              for i in 1 2 3; do git pull --rebase -q && git push -q && break; sleep 5; done
+            fi
+            now=$(date +%s)
+            pausa=$(( 900 - now % 900 ))
+            [ $(( now + pausa )) -ge $end ] && break
+            sleep $pausa
+          done
+          [ $ok = 1 ]
+        env:
+          VAPID_PRIVATE: ${{ secrets.VAPID_PRIVATE }}

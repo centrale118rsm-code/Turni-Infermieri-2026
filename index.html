@@ -5128,7 +5128,8 @@
     function admMotore() {
         const runs = admData && admData.runs; if(!runs) return null;
         const day = Date.now() - 864e5, last = runs[0];
-        return { last: last ? Date.parse(last.created_at) : 0, ok: last ? last.conclusion === 'success' : false, running: last && last.status !== 'completed', event: last ? last.event : '', auto24: runs.filter(r => r.event === 'schedule' && Date.parse(r.created_at) > day).length, all24: runs.filter(r => Date.parse(r.created_at) > day).length, failed24: runs.filter(r => r.conclusion === 'failure' && Date.parse(r.created_at) > day).length };
+        return { last: last ? (last.status !== 'completed' ? Date.now() : Date.parse(last.updated_at || last.created_at)) : 0,   // un giro acceso lavora ogni 15 minuti per ore
+             ok: last ? last.conclusion === 'success' : false, running: last && last.status !== 'completed', event: last ? last.event : '', auto24: runs.filter(r => r.event === 'schedule' && Date.parse(r.created_at) > day).length, all24: runs.filter(r => Date.parse(r.created_at) > day).length, failed24: runs.filter(r => r.conclusion === 'failure' && Date.parse(r.created_at) > day).length };
     }
     function admIssues() {
         const out = [], add = (sev, icon, title, detail, act, actLbl) => out.push({ sev, icon, title, detail, act, actLbl });
