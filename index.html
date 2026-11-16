@@ -71,10 +71,10 @@
         body.dark-mode {
             --bg: #080d18; --bg-card: #131b2a; --text-main: #eef2f8;
             --text-sec: #8592ac; --border: #22304a; --header-bg: rgba(8,13,24,0.9);
-            --c-M: #1f3b63; --t-M: #dbeafe; --b-M: #2a4a78;
-            --c-P: #2b5590; --t-P: #eff6ff; --b-P: #3762a0;
-            --c-SM: #1a3058; --t-SM: #dbeafe; --b-SM: #284372;
-            --c-N: #1c3a70; --t-N: #ffffff; --b-N: #2a4f8f;
+            --c-M: #4a6fa8; --t-M: #ffffff; --b-M: #5b80b8;
+            --c-P: #2f5596; --t-P: #ffffff; --b-P: #3d64a8;
+            --c-SM: #233f72; --t-SM: #dbeafe; --b-SM: #30508a;
+            --c-N: #15244a; --t-N: #c7d7fe; --b-N: #26407a;
             --c-R: #131b2a; --t-R: #94a3b8; --b-R: #22304a;
             --c-dM: #3b2470; --t-dM: #ede9fe; --b-dM: #5b21b6;
             --c-dP: #4c2f8a; --t-dP: #f5f3ff; --b-dP: #6d28d9;
@@ -728,10 +728,14 @@
             transform-origin: top center;
         }
         #month-select-dropdown.open { display: block; animation: scaleIn 0.2s cubic-bezier(0.175,0.885,0.32,1.275); }
-        .month-grid { display:flex; flex-direction:column; gap:6px; }
+        .month-grid { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:8px; }
+        @media (min-width:700px) {
+            #month-select-dropdown { left:auto; right:auto; width:560px; left:50%; margin-left:-280px; max-height:none; }
+            .month-grid { grid-template-columns:repeat(4, minmax(0,1fr)); }
+        }
         .month-btn {
-            width:100%; background:var(--bg); border:1px solid var(--border); border-radius:12px;
-            display:flex; align-items:center; gap:10px; padding:12px 16px;
+            width:100%; background:var(--bg); border:1px solid var(--border); border-radius:12px; min-width:0;
+            display:flex; align-items:center; gap:8px; padding:12px 12px;
             font-weight:800; color:var(--text-main); font-size:0.85rem; cursor:pointer;
             transition:0.2s; box-shadow:0 1px 3px rgba(0,0,0,0.04);
         }
@@ -936,20 +940,20 @@
         .rl-nav button { border:1px solid var(--border); background:var(--bg-card); color:var(--text-main); border-radius:12px; width:42px; height:38px; display:flex; align-items:center; justify-content:center; cursor:pointer; }
         .rl-nav button:disabled { opacity:.3; cursor:default; }
         .rl-nav b { font-size:1.05rem; font-weight:900; letter-spacing:.5px; }
-        .rl-wrap { padding:0 10px 8px; overflow-x:auto; }
+        .rl-wrap { padding:0 10px 8px; overflow:visible; }
         .rl-act { display:flex; gap:8px; padding:0 12px 10px; }
         .rl-act button { flex:1; display:flex; align-items:center; justify-content:center; gap:6px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-main); border-radius:12px; padding:9px 10px; font-weight:800; font-size:0.85rem; cursor:pointer; font-family:inherit; }
         .rl-act button .material-icons-round { font-size:19px; color:#dc2626; }
         .rl-table { width:100%; border-collapse:collapse; font-size:0.82rem; table-layout:fixed; }
         .rl-table th, .rl-table td { border:1px solid #9ca3af; padding:5px 6px; height:auto; transition:none; }
-        .rl-table thead th { background:#8ef04a; color:#111; font-weight:900; font-size:0.95rem; text-align:center; position:static; top:auto; min-width:0; height:auto; backdrop-filter:none; text-transform:none; letter-spacing:0; overflow:visible; white-space:nowrap; z-index:auto; }
+        .rl-table thead th { background:#8ef04a; color:#111; font-weight:900; font-size:0.95rem; text-align:center; position:sticky; top:0; min-width:0; height:auto; backdrop-filter:none; text-transform:none; letter-spacing:0; overflow:visible; white-space:nowrap; z-index:3; box-shadow:inset 0 -1px 0 #9ca3af; }
         .rl-table thead th::before { display:none; }
         .rl-table thead th.rl-m { background:#22d3a0; font-style:italic; width:auto !important; min-width:0 !important; max-width:none !important; font-size:0.8rem; }
         .rl-table col.rl-cd { width:44px; } .rl-table col.rl-cw { width:52px; }
         .rl-table td.rl-d { text-align:center; font-weight:900; font-size:1.05rem; color:#1e3a8a; background:#fff; }
         .rl-table td.rl-w { text-align:center; font-weight:600; color:#1d4ed8; background:#dde3fb; }
-        .rl-table tr.rl-fest td.rl-d { background:#5eead4; }
-        .rl-table tr.rl-sun td.rl-w { background:#c6f04a; color:#1e3a8a; }
+        .rl-table tr.rl-sun td.rl-w, .rl-table tr.rl-sun td.rl-d { background:#c6f04a; color:#1e3a8a; }
+        .rl-table tr.rl-fest td.rl-w, .rl-table tr.rl-fest td.rl-d { background:#5eead4; color:#134e4a; }
         .rl-table tr.rl-sun td { border-bottom:2px solid #a21caf; }
         .rl-table td.rl-n { background:#e3f1dc; color:#111; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
         .rl-table td.rl-n.rl-ces { background:#fde68a; }
@@ -3267,6 +3271,90 @@
             #abs-modal #ab-kpis.ab-kpis { padding:0 10px 12px; }
             #eq-modal .eq-sum, #abs-modal #ab-kpis.ab-kpis { grid-template-columns:repeat(2, 1fr); gap:8px; }
         }
+        /* ═══ Finestre in stile moderno (come Equità e Conteggio assenze) ═══════════════
+           scheda centrata, intestazione chiara con l'icona in un riquadro colorato,
+           titoli normali (non in maiuscolo), chiusura a riquadro arrotondato */
+        .mw { align-items:center !important; padding:14px; }
+        .mw .modal-content { border-radius:18px !important; max-height:92vh; box-shadow:0 24px 60px rgba(8,13,24,.32); }
+        .mw .modal-header, .mw .modal-header.hc-header-badge { background:var(--bg-card) !important; color:var(--text-main); border-bottom:1px solid var(--border) !important; padding:14px 16px 14px 18px; }
+        .mw .modal-header .header-text h3 { color:var(--text-main) !important; font-size:1.2rem; font-weight:800; letter-spacing:-.01em; gap:12px; text-transform:none; }
+        .mw .modal-header .header-text h3 .material-icons-round { width:40px; height:40px; border-radius:12px; background:var(--mw-bg, rgba(29,78,216,.1)); color:var(--mw-c, var(--primary)) !important; display:flex; align-items:center; justify-content:center; font-size:22px; margin:0 !important; flex:none; }
+        .mw .modal-header .header-text > span { color:var(--text-sec) !important; margin:2px 0 0 52px; font-size:0.84rem; }
+        .mw .btn-close-modal { background:var(--bg) !important; color:var(--text-sec) !important; border-radius:10px; }
+        .mw .dinner-section-title, .mw .modal-section-title { text-transform:none; letter-spacing:0; font-size:0.84rem; color:var(--text-main); }
+        .mw .modal-section-title .material-icons-round { color:var(--mw-c, var(--primary)); }
+        body.dark-mode .mw .modal-header .header-text h3 .material-icons-round { background:var(--mw-bg, rgba(96,165,250,.16)); }
+        #me-modal .modal-content { max-width:640px; } #options-modal .modal-content { max-width:640px; } #rl-modal .modal-content { max-width:760px; }
+        #dinner-modal .modal-content, #wheel-modal .modal-content { max-width:680px; }
+        #hours-modal.hm-full { padding:0; }
+        #hours-modal.hm-full .modal-content { border-radius:0 !important; max-height:none; }
+        @media (max-width:640px) {
+            .mw { padding:8px; }
+            .mw .modal-content { max-height:94vh; }
+            .mw .modal-header .header-text > span { margin-left:0; }
+        }
+        /* ═══ Organizza un'uscita ═══ */
+        .og-body { background:var(--bg) !important; padding:4px 0 18px; }
+        .og-sec { padding:12px 16px 2px; }
+        .og-lbl { font-size:0.84rem; font-weight:800; color:var(--text-main); margin:0 0 8px; }
+        .og-muted { display:block; color:var(--text-sec); font-size:0.74rem; font-weight:600; margin-top:8px; line-height:1.45; }
+        .og-months { display:flex; flex-wrap:wrap; gap:6px; }
+        .og-chip { border:1px solid var(--border); background:var(--bg-card); color:var(--text-main); border-radius:10px; padding:8px 12px; font:inherit; font-weight:700; font-size:0.82rem; cursor:pointer; }
+        .og-chip.on { background:#ea580c; border-color:#ea580c; color:#fff; }
+        .og-seg { display:flex; gap:4px; padding:4px; background:var(--bg-card); border:1px solid var(--border); border-radius:12px; }
+        .og-seg button { flex:1; display:flex; align-items:center; justify-content:center; gap:6px; border:none; background:transparent; color:var(--text-sec); font:inherit; font-weight:700; font-size:0.84rem; padding:9px 6px; border-radius:9px; cursor:pointer; }
+        .og-seg button .material-icons-round { font-size:19px; }
+        .og-seg button.on { background:rgba(234,88,12,.12); color:#c2410c; }
+        .og-seg.sm button { font-size:0.78rem; padding:7px 6px; }
+        .og-card { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; margin-bottom:10px; overflow:hidden; }
+        .og-card-h { display:flex; align-items:center; gap:8px; padding:10px 12px; border-bottom:1px solid var(--border); }
+        .og-card-h .material-icons-round { font-size:20px; color:#ea580c; }
+        .og-card-h b { font-size:0.88rem; } .og-card-h small { color:var(--text-sec); font-weight:700; font-size:0.74rem; }
+        .og-sp { flex:1; }
+        .og-link { border:none; background:none; color:var(--primary); font:inherit; font-weight:800; font-size:0.76rem; padding:4px 6px; cursor:pointer; }
+        .og-people { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:6px; padding:10px; }
+        .og-p { display:flex; align-items:center; gap:6px; border:1px solid var(--border); background:var(--bg); color:var(--text-sec); border-radius:10px; padding:8px 10px; font:inherit; font-size:0.8rem; font-weight:700; text-align:left; cursor:pointer; min-width:0; overflow-wrap:anywhere; }
+        .og-p .material-icons-round { font-size:18px; flex:none; }
+        .og-p.on { background:var(--bg-card); color:var(--text-main); border-color:rgba(234,88,12,.45); }
+        .og-p.on .material-icons-round { color:#ea580c; }
+        .og-p.aut.on { border-color:rgba(202,138,4,.5); } .og-p.aut.on .material-icons-round { color:#ca8a04; }
+        .og-wait { display:flex; align-items:center; gap:10px; padding:14px; color:var(--text-sec); font-size:0.84rem; font-weight:600; }
+        .og-foot { padding:8px 16px 4px; }
+        .og-go { width:100%; display:flex; align-items:center; justify-content:center; gap:8px; border:none; border-radius:12px; background:#ea580c; color:#fff; font:inherit; font-weight:800; font-size:0.95rem; padding:14px; cursor:pointer; }
+        .og-go small { font-weight:600; opacity:.85; } .og-go:disabled { opacity:.45; cursor:default; }
+        .og-more { width:100%; border:1px solid var(--border); background:var(--bg-card); color:var(--text-main); border-radius:12px; font:inherit; font-weight:700; padding:11px; cursor:pointer; }
+        .og-rbar { position:sticky; top:0; z-index:5; display:flex; align-items:center; gap:12px; padding:10px 16px; background:var(--bg-card); border-bottom:1px solid var(--border); margin-top:-4px; }
+        .og-rbar b { display:block; font-size:0.92rem; } .og-rbar small { color:var(--text-sec); font-weight:600; font-size:0.74rem; }
+        .og-back { display:flex; align-items:center; gap:4px; border:1px solid var(--border); background:var(--bg); color:var(--text-main); border-radius:10px; font:inherit; font-weight:700; font-size:0.8rem; padding:7px 10px; cursor:pointer; }
+        .og-back .material-icons-round { font-size:18px; }
+        .og-list { padding:10px 16px 0; display:flex; flex-direction:column; gap:8px; }
+        .og-res { display:flex; gap:12px; background:var(--bg-card); border:1px solid var(--border); border-radius:14px; padding:12px; }
+        .og-res.top { border-color:rgba(22,163,74,.55); box-shadow:inset 3px 0 0 #16a34a; }
+        .og-date { width:48px; flex:none; border-radius:12px; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:6px 0; align-self:flex-start; }
+        .og-date small { font-size:0.68rem; font-weight:800; color:var(--text-sec); text-transform:uppercase; } .og-date b { font-size:1.3rem; font-weight:900; line-height:1.1; }
+        .og-date.fe small, .og-date.fe b { color:#dc2626; }
+        .og-res-m { flex:1; min-width:0; }
+        .og-res-r { display:flex; align-items:center; gap:6px; flex-wrap:wrap; } .og-res-r b { font-size:0.92rem; }
+        .og-best { font-size:0.68rem; font-weight:800; color:#15803d; background:rgba(22,163,74,.12); border-radius:6px; padding:2px 6px; }
+        .og-fest { font-size:0.68rem; font-weight:800; color:#dc2626; background:rgba(220,38,38,.1); border-radius:6px; padding:2px 6px; }
+        .og-bar { height:6px; border-radius:4px; background:var(--bg); margin:8px 0; overflow:hidden; } .og-bar i { display:block; height:100%; background:#16a34a; border-radius:4px; }
+        .og-no { display:flex; flex-wrap:wrap; gap:4px; }
+        .og-no span { display:inline-flex; align-items:baseline; gap:4px; font-size:0.72rem; font-weight:600; color:var(--text-sec); background:var(--bg); border:1px solid var(--border); border-radius:7px; padding:3px 7px; }
+        .og-no span b { color:var(--text-main); font-weight:800; }
+        .og-no span.aut { border-color:rgba(202,138,4,.45); } .og-no span i { font-size:13px; color:#ca8a04; align-self:center; font-style:normal; }
+        body.dark-mode .og-seg button.on { color:#fdba74; } body.dark-mode .og-best { color:#86efac; }
+        @media (max-width:640px) { .og-people { grid-template-columns:1fr 1fr; } .og-sec, .og-list { padding-left:10px; padding-right:10px; } .og-seg button { font-size:0.78rem; } }
+        /* "Chi sei?": intestazione chiara come le altre finestre */
+        .identity-header { background:var(--bg-card); border-bottom:1px solid var(--border); padding:22px 24px 16px; }
+        .identity-header .material-icons-round { width:48px; height:48px; border-radius:14px; background:rgba(29,78,216,.1); color:var(--primary); display:inline-flex; align-items:center; justify-content:center; font-size:26px; margin-bottom:10px; }
+        .identity-header h3 { color:var(--text-main); font-size:1.3rem; }
+        .identity-header span { color:var(--text-sec); }
+        /* Note e chat: intestazione chiara, l'icona viola nel riquadro */
+        .nchat-head { background:var(--cc-surface); color:var(--cc-text); }
+        .nchat-head > .material-icons-round { width:40px; height:40px; border-radius:12px; background:rgba(124,58,237,.12); color:#7c3aed; display:flex; align-items:center; justify-content:center; font-size:22px; flex:none; }
+        .nchat-head small { color:var(--cc-muted); opacity:1; }
+        .nchat-head .cc-icon-btn { color:var(--cc-muted); background:var(--cc-surface-2); border-radius:10px; }
+        body.dark-mode .nchat-head > .material-icons-round { background:rgba(167,139,250,.16); color:#c4b5fd; }
     </style>
 </head>
 <body>
@@ -3320,7 +3408,7 @@
     <div class="identity-card">
         <div class="identity-header">
             <span class="material-icons-round">badge</span>
-            <h3>CHI SEI?</h3>
+            <h3>Chi sei?</h3>
             <span>Seleziona il tuo nome per continuare</span>
         </div>
         <div class="identity-list" id="identity-list-container"></div>
@@ -3429,7 +3517,7 @@
 </div>
 
 <div id="month-select-dropdown" onclick="event.stopPropagation()">
-    <div class="driver-filter-title"><span class="material-icons-round" style="font-size:14px">calendar_month</span> Vai al Mese</div>
+    <div class="driver-filter-title"><span class="material-icons-round" style="font-size:14px">calendar_month</span> Vai al mese</div>
     <div class="month-grid" id="month-grid-container"></div>
 </div>
 
@@ -3471,11 +3559,11 @@
     </div>
 </div>
 
-<div id="options-modal" onclick="closeOptionsModal(event)">
+<div id="options-modal" class="mw" onclick="closeOptionsModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
         <div class="modal-header">
             <div class="header-text">
-                <h3><span class="material-icons-round" style="margin-right:10px">tune</span> OPZIONI</h3>
+                <h3><span class="material-icons-round">tune</span>Opzioni</h3>
                 <span id="opt-sub">Le tue preferenze</span>
             </div>
             <button class="btn-close-modal" onclick="closeOptionsModal()"><span class="material-icons-round">close</span></button>
@@ -3653,11 +3741,11 @@
 <div id="admin-save-toast" class="admin-save-toast"><span class="material-icons-round">check_circle</span> <span id="admin-save-toast-text">Salvato</span></div>
 
 <!-- ══════════════ LA MIA PAGINA ══════════════ -->
-<div id="me-modal" onclick="closeMyPage(event)">
+<div id="me-modal" class="mw" onclick="closeMyPage(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
         <div class="modal-header hc-header-badge">
             <div class="header-text">
-                <h3><span class="material-icons-round" style="margin-right:10px">person</span> LA MIA PAGINA</h3>
+                <h3><span class="material-icons-round">person</span>La mia pagina</h3>
                 <span>Turni, ore, assenze e reperibilità</span>
             </div>
             <button class="btn-close-modal" onclick="closeMyPage()"><span class="material-icons-round">close</span></button>
@@ -3667,11 +3755,11 @@
 </div>
 
 <!-- ══════════════ I MIEI TURNI: STAMPA, PDF, WHATSAPP ══════════════ -->
-<div id="mycal-modal" onclick="closeMyCal(event)">
+<div id="mycal-modal" class="mw" onclick="closeMyCal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
         <div class="modal-header hc-header-badge">
             <div class="header-text">
-                <h3><span class="material-icons-round" style="margin-right:10px">print</span> I MIEI TURNI</h3>
+                <h3><span class="material-icons-round">print</span>I miei turni</h3>
                 <span>Stampa, scarica in PDF o invia con WhatsApp</span>
             </div>
             <button class="btn-close-modal" onclick="closeMyCal()"><span class="material-icons-round">close</span></button>
@@ -3681,11 +3769,11 @@
 </div>
 
 <!-- ══════════════ CONTEGGIO ASSENZE ══════════════ -->
-<div id="rl-modal" onclick="closeRepList(event)">
+<div id="rl-modal" class="mw" style="--mw-c:#dc2626;--mw-bg:rgba(220,38,38,.1)" onclick="closeRepList(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
         <div class="modal-header hc-header-badge">
             <div class="header-text">
-                <h3><span class="material-icons-round" style="margin-right:10px">phone_in_talk</span> REPERIBILI DEL MESE</h3>
+                <h3><span class="material-icons-round">phone_in_talk</span>Reperibili del mese</h3>
                 <span>Chi è reperibile in ogni fascia, già con le cessioni</span>
             </div>
             <button class="btn-close-modal" onclick="closeRepList()"><span class="material-icons-round">close</span></button>
@@ -3704,6 +3792,7 @@
             <div class="rl-legend">
                 <span><i style="background:#e3f1dc"></i>reperibile titolare</span>
                 <span><i style="background:#fde68a"></i>fascia ceduta (c'è chi la copre)</span>
+                <span><i style="background:#c6f04a"></i>domenica</span>
                 <span><i style="background:#5eead4"></i>festivo</span>
             </div>
         </div>
@@ -3764,11 +3853,11 @@
 </div>
 
 <!-- ══════════════ CONTEGGIO ORARIO ══════════════ -->
-<div id="hours-modal" onclick="closeHoursModal(event)">
+<div id="hours-modal" class="mw" style="--mw-c:#0f766e;--mw-bg:rgba(15,118,110,.12)" onclick="closeHoursModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
         <div class="modal-header hc-header-badge">
             <div class="header-text">
-                <h3><span class="material-icons-round" style="margin-right:10px">query_stats</span> CONTEGGIO ORARIO</h3>
+                <h3><span class="material-icons-round">query_stats</span>Conteggio orario</h3>
                 <span>Ore del mese di tutti, settimana per settimana</span>
             </div>
             <div class="hm-head-btns">
@@ -4018,57 +4107,28 @@
     </div>
 </div>
 
-<div id="dinner-modal" onclick="closeDinnerModal(event)">
+<div id="dinner-modal" class="mw" style="--mw-c:#ea580c;--mw-bg:rgba(234,88,12,.12)" onclick="closeDinnerModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()" style="height:90vh;max-height:90vh;">
-        <div class="modal-header" style="background:#fff7ed;border-bottom-color:#ffedd5;">
+        <div class="modal-header">
             <div class="header-text">
-                <h3 style="color:#ea580c"><span class="material-icons-round" style="margin-right:8px">restaurant</span> ORGANIZZA</h3>
-                <span style="color:#fb923c">Trova la data migliore</span>
+                <h3><span class="material-icons-round">restaurant</span>Organizza un’uscita</h3>
+                <span>Il giorno in cui siete liberi in più, infermieri e autisti</span>
             </div>
             <button class="btn-close-modal" onclick="closeDinnerModal()">
                 <span class="material-icons-round">close</span>
             </button>
         </div>
-        <div class="modal-body" style="background:var(--bg-card);display:flex;flex-direction:column;height:100%;">
-            <div id="dinner-step-1">
-                <div class="dinner-section-title">1. MESE</div>
-                <div class="month-selector" id="dinner-month-list"></div>
-                <div class="dinner-section-title">2. TIPO DI USCITA</div>
-                <div class="event-type-selector">
-                    <div class="event-option active" id="opt-cena" onclick="setEventType('cena',this)">
-                        <span class="material-icons-round">bedtime</span> CENA (Sera)
-                    </div>
-                    <div class="event-option" id="opt-pranzo" onclick="setEventType('pranzo',this)">
-                        <span class="material-icons-round">wb_sunny</span> PRANZO (Giorno)
-                    </div>
-                </div>
-                <div style="display:flex;justify-content:space-between;align-items:center;padding-right:20px;">
-                    <div class="dinner-section-title">3. SELEZIONA COLLEGHI</div>
-                    <button onclick="toggleAllDrivers()" style="background:none;border:none;color:var(--primary);font-weight:bold;cursor:pointer;font-size:0.8rem;padding:10px;">Tutti/Nessuno</button>
-                </div>
-                <div class="dinner-checkbox-list" id="dinner-driver-list"></div>
-                <div style="padding:0 20px 20px 20px;">
-                    <button class="btn-find-dinner" onclick="calculateDinner()">
-                        <span class="material-icons-round">search</span> CERCA DISPONIBILITÀ
-                    </button>
-                </div>
-            </div>
-            <div id="dinner-step-2" style="display:none;padding-bottom:30px;">
-                <div style="padding:15px 20px;display:flex;align-items:center;gap:10px;cursor:pointer;color:var(--primary);font-weight:700" onclick="resetDinnerStep()">
-                    <span class="material-icons-round">arrow_back</span> Torna ai filtri
-                </div>
-                <div id="dinner-results-container"></div>
-            </div>
-        </div>
+        <div class="modal-body og-body" id="og-body"></div>
     </div>
 </div>
 
-<div id="wheel-modal" onclick="closeWheelModal(event)">
+
+<div id="wheel-modal" class="mw" style="--mw-c:#db2777;--mw-bg:rgba(219,39,119,.11)" onclick="closeWheelModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()" style="height:92vh;max-height:92vh;">
-        <div class="modal-header" style="background:#fff7ed;border-bottom-color:#ffedd5;">
+        <div class="modal-header">
             <div class="header-text">
-                <h3 style="color:#ea580c"><span class="material-icons-round" style="margin-right:8px">casino</span> LA RUOTA DELLA SFIGA</h3>
-                <span style="color:#fb923c" id="wheel-subtitle">Chi tocca stavolta?</span>
+                <h3><span class="material-icons-round">casino</span>La ruota della sfiga</h3>
+                <span id="wheel-subtitle">Chi tocca stavolta?</span>
             </div>
             <button class="btn-close-modal" onclick="closeWheelModal()">
                 <span class="material-icons-round">close</span>
@@ -4079,7 +4139,7 @@
             <!-- STEP 1: selezione infermieri -->
             <div id="wheel-step-1">
                 <div style="display:flex;justify-content:space-between;align-items:center;padding-right:20px;">
-                    <div class="dinner-section-title">1. CHI PARTECIPA ALLA SFIGA?</div>
+                    <div class="dinner-section-title">1. Chi partecipa?</div>
                     <button onclick="toggleAllWheelNurses()" style="background:none;border:none;color:var(--primary);font-weight:bold;cursor:pointer;font-size:0.8rem;padding:10px;">Tutti/Nessuno</button>
                 </div>
                 <div class="dinner-checkbox-list" id="wheel-nurse-list"></div>
@@ -4091,19 +4151,19 @@
             <!-- STEP 2: scelta modalità -->
             <div id="wheel-step-2" style="display:none;">
                 <div class="wheel-steps-nav" onclick="goToWheelStep(1)"><span class="material-icons-round" style="font-size:18px">arrow_back</span> Torna alla selezione</div>
-                <div class="dinner-section-title">2. A COSA SERVE OGGI LA RUOTA?</div>
+                <div class="dinner-section-title">2. A cosa serve oggi la ruota?</div>
                 <div class="wheel-mode-grid">
                     <div class="wheel-mode-card mode-a" onclick="chooseWheelMode('slots')">
                         <div class="wm-icon"><span class="material-icons-round">schedule</span></div>
                         <div>
-                            <div class="wm-title">Smista le Fasce Orarie</div>
+                            <div class="wm-title">Smista le fasce orarie</div>
                             <div class="wm-desc">Inserisci solo l'orario di inizio (la fine è sempre le 06:30): la ruota divide il turno in 3 fasce e assegna a caso chi tocca per ognuna.</div>
                         </div>
                     </div>
                     <div class="wheel-mode-card mode-b" onclick="chooseWheelMode('random')">
                         <div class="wm-icon"><span class="material-icons-round">theater_comedy</span></div>
                         <div>
-                            <div class="wm-title">Estrazione Random per Ridere</div>
+                            <div class="wm-title">Estrazione a caso, per ridere</div>
                             <div class="wm-desc">Gira la ruota e scopri chi la sfiga ha scelto oggi, con tanto di battuta finale.</div>
                         </div>
                     </div>
@@ -4113,7 +4173,7 @@
             <!-- STEP 3a: calcolo automatico delle 3 fasce orarie -->
             <div id="wheel-step-3-slots" style="display:none;">
                 <div class="wheel-steps-nav" onclick="goToWheelStep(2)"><span class="material-icons-round" style="font-size:18px">arrow_back</span> Cambia modalità</div>
-                <div class="dinner-section-title">3. ORARIO DI INIZIO (fine sempre 06:30)</div>
+                <div class="dinner-section-title">3. Orario di inizio (la fine è sempre alle 06:30)</div>
                 <div class="slot-add-row">
                     <input type="time" id="wheel-start-time-input" value="13:00">
                     <button class="slot-add-btn" onclick="calcThreeBands()"><span class="material-icons-round">calculate</span></button>
@@ -6264,7 +6324,8 @@
         if(globalMonthsList.length === 0) { grid.innerHTML = "<div style='text-align:center;color:var(--text-sec);padding:10px;'>Nessun mese disponibile</div>"; return; }
         const nowMonthIdx = new Date().getMonth();
         globalMonthsList.forEach(m => {
-            const isCurrent = MONTH_MAP[m.name] === nowMonthIdx;
+            const yr = shiftRowYear(m.row);
+            const isCurrent = MONTH_MAP[m.name] === nowMonthIdx && yr === new Date().getFullYear();
             const niceName = m.name.charAt(0) + m.name.slice(1).toLowerCase();
             let btn = document.createElement('div'); btn.className = 'month-btn' + (isCurrent ? ' month-current' : '');
             btn.innerHTML = `<span class="material-icons-round">${isCurrent ? 'today' : 'event'}</span><span>${niceName}</span>`;
@@ -16203,7 +16264,7 @@
 
         if(isDiurnista) {
             let time = diurniSched(val, fmtDateCtx) || "";
-            let timeHtml = time ? `<div class="time-tag">${time}</div>` : "";
+            let timeHtml = time && time !== "RIPOSO" ? `<div class="time-tag">${time}</div>` : "";
             let cls = "d-" + u; if(!["M","P","R"].includes(u)) cls = "d-M";
             return `<div class="cell ${cls}">
                 <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;width:100%;">
@@ -16211,7 +16272,7 @@
                 </div>${permTagHtml(info)}${repHtml}${graziellaHtml}</div>`;
         } else {
             let time = SCHEDULE[u] || "";
-            let timeHtml = time ? `<div class="time-tag">${time}</div>` : "";
+            let timeHtml = time && time !== "RIPOSO" ? `<div class="time-tag">${time}</div>` : "";
             let cls = "t-" + u;
             if(u==="S"||u==="SM") cls = "t-S";
             else if(!["M","P","N","R"].includes(u)) cls = "t-M";
@@ -16318,60 +16379,111 @@
     }
     function closeShiftModal(e) { if(e && e.target !== e.currentTarget) return; let m = document.getElementById('shift-modal'); m.classList.remove('open'); setTimeout(() => m.style.display='none', 200); }
 
-    // ── Organizza Uscita ──────────────────────────────────────────────────────
+    // ── Organizza un'uscita ──────────────────────────────────────────────────
+    // Si sceglie il mese, il momento (colazione, pranzo, cena) e chi viene, infermieri e autisti
+    // (turni autisti letti dal file dell'app autisti, solo lettura). Per ogni giorno da oggi in poi
+    // si contano i liberi; chi non può compare con il motivo (turno o assenza).
+    const OG_WHEN = {
+        colazione: { label:'Colazione', icon:'free_breakfast', busy:['M','M+N'] },
+        pranzo:    { label:'Pranzo',    icon:'lunch_dining',   busy:['M','P','M+N'] },
+        cena:      { label:'Cena',      icon:'dinner_dining',  busy:['P','N','M+N'] }
+    };
+    const OG_SHIFT = { 'M':'Mattina', 'P':'Pomeriggio', 'N':'Notte', 'M+N':'M+N' };
+    const OG_ABS = { f:'Ferie', v:'Ferie', m:'Malattia', pn:'Perm. notte', c:'Congedo', gr:'Gravidanza' };
+    const OG_WD = ['dom','lun','mar','mer','gio','ven','sab'];
+    let og = { month:null, when:'cena', off:new Set(), weekend:false, all:false, res:null, step:1 };
+    function ogNurses() { return drivers.filter(d => !d.test && !d.hidden).map(d => d.name); }
+    function ogDrivers() { return otherTeam && otherTeam[0] ? otherTeam[0].slice(3).filter(Boolean) : []; }
+    function ogMonths() {
+        const t = new Date(); t.setHours(0,0,0,0);
+        return (globalMonthsList || []).map(m => ({ name:m.name, mi:MONTH_MAP[m.name], y:shiftRowYear(m.row) }))
+            .filter(m => new Date(m.y, m.mi + 1, 0) >= t);
+    }
     function openDinnerModal() {
         closeMenu();
-        let m = document.getElementById('dinner-modal'); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 10);
+        const m = document.getElementById('dinner-modal'); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 10);
         setCurrentView("Organizza Uscita");
-        resetDinnerStep();
-        let ml = document.getElementById('dinner-month-list'); ml.innerHTML = "";
-        let currentDate = new Date(); let currentMonthIdx = currentDate.getMonth(); let currentYear = currentDate.getFullYear();
-        if(currentYear > 2026) currentMonthIdx = 12; if(currentYear < 2026) currentMonthIdx = -1;
-        Object.keys(MONTH_MAP).forEach(k => {
-            let mIdx = MONTH_MAP[k]; let c = document.createElement('div'); c.className = "chip chip-month"; c.innerText = k.substr(0,3);
-            if(mIdx < currentMonthIdx) { c.classList.add('disabled'); }
-            else { c.onclick = () => { vibrate(); document.querySelectorAll('#dinner-month-list .chip-month').forEach(x => x.classList.remove('active')); c.classList.add('active'); dinnerSelectedMonth = k; }; }
-            ml.appendChild(c);
-        });
-        let dl = document.getElementById('dinner-driver-list');
-        if(dl.children.length === 0) {
-            drivers.forEach(d => {
-                if(d.test) return;
-                let l = document.createElement('label'); l.className = "dinner-check-item checked";
-                l.innerHTML = `<input type="checkbox" value="${d.idx}" checked onchange="this.parentElement.classList.toggle('checked');vibrate()"><div class="dinner-check-icon"><span class="material-icons-round" style="font-size:14px">check</span></div>${d.name}`;
-                dl.appendChild(l);
-            });
-        }
+        const ms = ogMonths();
+        if(!og.month || !ms.some(x => x.name === og.month.name && x.y === og.month.y)) og.month = ms[0] || null;
+        og.step = 1; ogRender();
+        if(!otherTeam) loadOtherTeam().then(() => { if(og.step === 1) ogRender(); });
     }
-    function setEventType(t,e) { vibrate(); eventType=t; document.querySelectorAll('.event-option').forEach(x=>x.classList.remove('active')); e.classList.add('active'); }
-    function toggleAllDrivers() { vibrate(); let ck=document.querySelectorAll('#dinner-driver-list input'); let all=Array.from(ck).every(c=>c.checked); ck.forEach(c=>{c.checked=!all;c.parentElement.classList.toggle('checked',!all);}); }
-    function resetDinnerStep() { document.getElementById('dinner-step-1').style.display='block'; document.getElementById('dinner-step-2').style.display='none'; }
-    function closeDinnerModal(e) { if(e && e.target !== e.currentTarget) return; let m=document.getElementById('dinner-modal'); m.classList.remove('open'); setTimeout(()=>m.style.display='none',200); }
-    function calculateDinner() {
-        vibrate(); if(!dinnerSelectedMonth) return alert("Seleziona il mese!");
-        let s=[]; document.querySelectorAll('#dinner-driver-list input:checked').forEach(x=>s.push(parseInt(x.value))); if(s.length===0) return alert("Seleziona almeno un collega!");
-        let res=[];
-        for(let i=1;i<finalData.length;i++){
-            let r=finalData[i]; if(r[0]&&r[0].v!==dinnerSelectedMonth) continue;
-            let d=r[1]?r[1].v:""; let ok=0; let ko=[];
-            s.forEach(idx=>{
-                let cell=r[idx]||{}; let v=(cell.v||"").toString().trim().toUpperCase();
-                if(isRepStr(v)){let si=v.indexOf('/');if(si!==-1)v=v.substring(0,si).trim();}
-                let sv=(cell.subV||"").toString().trim().toLowerCase(); let busy=false;
-                if(["m","f","v","pn","c","gr"].includes(sv)) busy=true;
-                if(eventType==="cena"){if(v==="P"||v==="N"||isMN(v)) busy=true;}
-                else {if(v==="M"||v==="P"||isMN(v)) busy=true;}
-                if(busy){let obj=drivers.find(z=>z.idx===idx); ko.push(obj?obj.name:"Ignoto");}
-                else ok++;
-            });
-            res.push({day:d,score:ok,tot:s.length,mis:ko});
+    function closeDinnerModal(e) { if(e && e.target !== e.currentTarget) return; const m = document.getElementById('dinner-modal'); m.classList.remove('open'); setTimeout(() => m.style.display = 'none', 200); }
+    function ogPick(k, v) { vibrate(); og[k] = v; ogRender(); }
+    function ogPickMonth(i) { vibrate(); og.month = ogMonths()[i] || null; ogRender(); }
+    function ogToggle(name) { vibrate(); if(og.off.has(name)) og.off.delete(name); else og.off.add(name); ogRender(); }
+    function ogGroup(list, on) { vibrate(); list.forEach(n => on ? og.off.delete(n) : og.off.add(n)); ogRender(); }
+    function ogPeopleHtml(title, icon, list, kind) {
+        const sel = list.filter(n => !og.off.has(n)).length, enc = JSON.stringify(list).replace(/"/g, '&quot;');
+        return `<div class="og-card"><div class="og-card-h"><span class="material-icons-round">${icon}</span><b>${title}</b><small>${sel} su ${list.length}</small>
+                <span class="og-sp"></span><button class="og-link" onclick="ogGroup(${enc},true)">Tutti</button><button class="og-link" onclick="ogGroup(${enc},false)">Nessuno</button></div>
+            <div class="og-people">${list.map(n => `<button class="og-p ${og.off.has(n) ? '' : 'on'} ${kind}" onclick="ogToggle('${esc(n).replace(/'/g, "\\'")}')"><span class="material-icons-round">${og.off.has(n) ? 'radio_button_unchecked' : 'check_circle'}</span>${esc(n)}</button>`).join('')}</div></div>`;
+    }
+    function ogRender() {
+        const box = document.getElementById('og-body'); if(!box) return;
+        if(og.step === 2) { box.innerHTML = ogResultsHtml(); return; }
+        const ms = ogMonths(), nurses = ogNurses(), drv = ogDrivers();
+        const mLabel = m => m.name.charAt(0) + m.name.slice(1, 3).toLowerCase() + (m.y !== new Date().getFullYear() ? ' ' + String(m.y).slice(2) : '');
+        const n = nurses.filter(x => !og.off.has(x)).length + drv.filter(x => !og.off.has(x)).length;
+        box.innerHTML = `<div class="og-sec"><div class="og-lbl">Mese</div>
+                <div class="og-months">${ms.map((m, i) => `<button class="og-chip ${og.month && og.month.name === m.name && og.month.y === m.y ? 'on' : ''}" onclick="ogPickMonth(${i})">${mLabel(m)}</button>`).join('') || '<small class="og-muted">Nessun mese nel calendario.</small>'}</div></div>
+            <div class="og-sec"><div class="og-lbl">Momento</div>
+                <div class="og-seg">${Object.entries(OG_WHEN).map(([k, w]) => `<button class="${og.when === k ? 'on' : ''}" onclick="ogPick('when','${k}')"><span class="material-icons-round">${w.icon}</span>${w.label}</button>`).join('')}</div>
+                <small class="og-muted">${og.when === 'colazione' ? 'Non può chi fa la mattina.' : og.when === 'pranzo' ? 'Non può chi fa la mattina o il pomeriggio.' : 'Non può chi fa il pomeriggio o la notte.'} Chi è in ferie, malattia o congedo conta come assente.</small></div>
+            <div class="og-sec"><div class="og-lbl">Chi viene</div>
+                ${ogPeopleHtml('Infermieri', 'medical_services', nurses, 'inf')}
+                ${drv.length ? ogPeopleHtml('Autisti', 'airport_shuttle', drv, 'aut') : `<div class="og-card og-wait"><span class="material-icons-round ${otherTeam ? '' : 'adm-spin'}">${otherTeam ? 'cloud_off' : 'autorenew'}</span>${otherTeam ? 'Turni degli autisti non disponibili in questo momento.' : 'Carico i turni degli autisti…'}</div>`}</div>
+            <div class="og-foot"><button class="og-go" ${og.month && n ? '' : 'disabled'} onclick="ogSearch()"><span class="material-icons-round">search</span>Cerca il giorno migliore${n ? ` <small>(${n} persone)</small>` : ''}</button></div>`;
+    }
+    // stato di una persona in un giorno: '' libero, altrimenti il motivo
+    function ogWhy(cell) {
+        cell = cell || {};
+        const sv = String(cell.subV || '').trim().toLowerCase();
+        if(OG_ABS[sv]) return OG_ABS[sv];
+        let v = String(cell.v || '').trim();
+        if(isRepStr(v)) { const i = v.indexOf('/'); if(i !== -1) v = v.substring(0, i).trim(); }
+        let u = v.toUpperCase().replace(/\s+/g, ''); if(isMN(u)) u = 'M+N';
+        return OG_WHEN[og.when].busy.includes(u) ? OG_SHIFT[u] : '';
+    }
+    function ogSearch() {
+        vibrate();
+        const M = og.month; if(!M) return;
+        const today = new Date(); today.setHours(0,0,0,0);
+        const nurses = ogNurses().filter(n => !og.off.has(n)), drv = ogDrivers().filter(n => !og.off.has(n));
+        const nIdx = nurses.map(n => (drivers.find(d => d.name === n) || {}).idx);
+        const dIdx = drv.map(n => otherTeam[0].indexOf(n));
+        const days = [], HY = holidaysFor(M.y);
+        for(let r = 1; r < finalData.length; r++) {
+            const row = finalData[r]; if(!row[0] || row[0].v !== M.name || shiftRowYear(r) !== M.y) continue;
+            const dn = parseInt(row[1] && row[1].v); if(isNaN(dn)) continue;
+            const dt = new Date(M.y, M.mi, dn); if(dt < today) continue;
+            const no = [];
+            nurses.forEach((n, k) => { const w = ogWhy(row[nIdx[k]]); if(w) no.push({ n, w, aut:false }); });
+            const orow = drv.length ? otherRowFor(otherTeam, M.name, dn, M.y) : null;
+            drv.forEach((n, k) => { const w = orow ? ogWhy(orow[dIdx[k]]) : ''; if(w) no.push({ n, w, aut:true }); });
+            const fest = HY[`${dt.getMonth()}-${dt.getDate()}`] || '';
+            days.push({ dt, dn, wd:dt.getDay(), fest, tot:nurses.length + drv.length, free:nurses.length + drv.length - no.length, no, noAut:!orow && drv.length });
         }
-        res.sort((a,b)=>b.score-a.score);
-        let c=document.getElementById('dinner-results-container'); c.innerHTML="";
-        res.slice(0,10).forEach(x=>{
-            c.innerHTML+=`<div class="dinner-result-card"><div class="d-res-header"><span class="d-res-date">${x.day} ${dinnerSelectedMonth}</span><span class="d-res-score">${x.score}/${x.tot}</span></div>${x.mis.length?`<div class="missing-list">${x.mis.map(n=>`<span class="missing-badge">${n}</span>`).join("")}</div>`:'<div style="color:green;font-weight:bold;text-align:center">TUTTI LIBERI!</div>'}</div>`;
-        });
-        document.getElementById('dinner-step-1').style.display='none'; document.getElementById('dinner-step-2').style.display='block';
+        og.res = { days, label:M.name.charAt(0) + M.name.slice(1).toLowerCase() + ' ' + M.y, when:og.when, tot:nurses.length + drv.length };
+        og.step = 2; og.all = false; ogRender();
+        const b = document.querySelector('#dinner-modal .modal-body'); if(b) b.scrollTop = 0;
+    }
+    function ogResultsHtml() {
+        const R = og.res; if(!R) return '';
+        let list = R.days.slice(); if(og.weekend) list = list.filter(d => d.wd === 5 || d.wd === 6 || d.wd === 0 || d.fest);
+        list.sort((a, b) => b.free - a.free || a.dt - b.dt);
+        const best = list.length ? list[0].free : 0, shown = og.all ? list : list.slice(0, 8);
+        const card = d => { const pct = d.tot ? Math.round(d.free / d.tot * 100) : 0, top = d.free === best;
+            return `<div class="og-res ${top ? 'top' : ''}"><div class="og-date ${d.wd === 0 || d.fest ? 'fe' : ''}"><small>${OG_WD[d.wd]}</small><b>${d.dn}</b></div>
+                <div class="og-res-m"><div class="og-res-r"><b>${d.free === d.tot ? 'Tutti liberi' : d.free + ' su ' + d.tot + ' liberi'}</b>${top ? '<span class="og-best">migliore</span>' : ''}${d.fest ? `<span class="og-fest">${esc(d.fest.charAt(0) + d.fest.slice(1).toLowerCase())}</span>` : ''}</div>
+                <div class="og-bar"><i style="width:${pct}%"></i></div>
+                ${d.no.length ? `<div class="og-no">${d.no.map(x => `<span class="${x.aut ? 'aut' : ''}">${x.aut ? '<i class="material-icons-round">airport_shuttle</i>' : ''}<b>${esc(x.n)}</b>${esc(x.w)}</span>`).join('')}</div>` : ''}
+                ${d.noAut ? '<small class="og-muted">Turni autisti di questo giorno non trovati.</small>' : ''}</div></div>`; };
+        return `<div class="og-rbar"><button class="og-back" onclick="og.step=1;ogRender()"><span class="material-icons-round">arrow_back</span>Cambia</button>
+                <div><b>${esc(R.label)} · ${OG_WHEN[R.when].label}</b><small>${R.tot} persone</small></div></div>
+            <div class="og-sec"><div class="og-seg sm"><button class="${og.weekend ? '' : 'on'}" onclick="ogPick('weekend',false)">Tutti i giorni</button><button class="${og.weekend ? 'on' : ''}" onclick="ogPick('weekend',true)">Ven, sab, dom e festivi</button></div></div>
+            <div class="og-list">${shown.length ? shown.map(card).join('') : '<div class="og-card og-wait"><span class="material-icons-round">event_busy</span>Nessun giorno da oggi in poi in questo mese.</div>'}</div>
+            ${!og.all && list.length > shown.length ? `<div class="og-foot"><button class="og-more" onclick="ogPick('all',true)">Mostra tutti i ${list.length} giorni</button></div>` : ''}`;
     }
 
     // ── LA RUOTA DELLA SFIGA ─────────────────────────────────────────────────
@@ -16475,7 +16587,7 @@
     function renderWheelNurseList() {
         const dl = document.getElementById('wheel-nurse-list'); dl.innerHTML = '';
         drivers.forEach(d => {
-            if(d.test) return;
+            if(d.test || d.hidden) return;
             let l = document.createElement('label'); l.className = 'dinner-check-item';
             l.innerHTML = `<input type="checkbox" value="${d.name}" onchange="this.parentElement.classList.toggle('checked');updateWheelContinueBtn();vibrate()"><div class="dinner-check-icon"><span class="material-icons-round" style="font-size:14px">check</span></div>${d.name}`;
             dl.appendChild(l);
