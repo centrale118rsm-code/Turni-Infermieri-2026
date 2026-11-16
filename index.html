@@ -783,9 +783,7 @@
         .sm2-row { display:flex; align-items:center; gap:10px; padding:10px 12px; background:var(--bg-card); border:1px solid var(--border); border-radius:12px; min-width:0; }
         .sm2-tag { flex:none; width:34px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:0.74rem; letter-spacing:-0.2px; }
         .sm2-who { flex:1; min-width:0; display:flex; flex-direction:column; gap:1px; }
-        .sm2-who b { font-size:0.88rem; font-weight:800; color:var(--text-main); line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-        .sm2-row.wide { grid-column:span 2; }
-        .sm2-grid { grid-auto-flow:row dense; }
+        .sm2-who b { font-size:0.88rem; font-weight:800; color:var(--text-main); line-height:1.2; overflow-wrap:normal; word-break:normal; hyphens:none; }
         .sm2-who small { font-size:0.72rem; font-weight:600; color:var(--text-sec); line-height:1.25; }
         .sm2-who .sm2-rp { color:#dc2626; font-weight:800; display:inline-flex; align-items:center; gap:3px; }
         .sm2-who .sm2-rp .material-icons-round { font-size:13px; }
@@ -16299,8 +16297,8 @@
     }
     // riquadro di una persona: sigla colorata, nome, orario solo se diverso da quello del turno, reperibile
     function sm2Person(name, rawV, uVal, isD, time, stdTime, rep, permNote) {
-        const sub = [isD ? 'Diurnista' : '', time !== stdTime ? time : ''].filter(Boolean).join(' · ');
-        return `<div class="sm2-row${permNote ? ' has-perm' : ''}${String(name).length > 12 ? ' wide' : ''}">${sm2Tag(rawV, uVal, isD)}<div class="sm2-who"><b>${esc(name)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}${rep ? '<small class="sm2-rp"><span class="material-icons-round">call</span>Reperibile</small>' : ''}${permNote || ''}</div></div>`;
+        const sub = [isD ? 'Diurnista' : '', time !== stdTime ? String(time).replace(/ - /g, '\u00a0-\u00a0') : ''].filter(Boolean).join(' · ');
+        return `<div class="sm2-row${permNote ? ' has-perm' : ''}">${sm2Tag(rawV, uVal, isD)}<div class="sm2-who"><b>${esc(name)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}${rep ? '<small class="sm2-rp"><span class="material-icons-round">call</span>Reperibile</small>' : ''}${permNote || ''}</div></div>`;
     }
     function openShiftModal(rowIndex, cellValue, month, day, weekDay) {
         vibrate();
