@@ -1114,11 +1114,11 @@
         .rt-v { display:flex; flex-direction:column; align-items:center; line-height:1.15; }
         .rt-v b { font-size:0.95rem; font-weight:800; }
         .rt-v small { font-size:0.62rem; font-weight:700; color:var(--text-sec); white-space:nowrap; }
-        .rt-v.d b { color:var(--c-dM); } .rt-v.t b { color:var(--c-M); }
+        .rt-v.d b { color:#6d28d9; } .rt-v.t b { color:#0257d5; }   /* colori pieni di prima: le caselle del calendario ora sono pastello */
         body.dark-mode .rt-v.d b { color:#a78bfa; } body.dark-mode .rt-v.t b { color:#60a5fa; }
         .rt-bar { display:flex; height:12px; min-width:110px; border-radius:6px; overflow:hidden; background:var(--bg); }
         .rt-bar i { display:block; height:100%; }
-        .rt-bar i.d, .rt-key.d, .rt-mm i.d { background:var(--c-dP); } .rt-bar i.t, .rt-key.t, .rt-mm i.t { background:var(--c-P); } .rt-bar i.a, .rt-key.a, .rt-mm i.a { background:#cbd5e1; }
+        .rt-bar i.d, .rt-key.d, .rt-mm i.d { background:#8b5cf6; } .rt-bar i.t, .rt-key.t, .rt-mm i.t { background:#3f7fe0; } .rt-bar i.a, .rt-key.a, .rt-mm i.a { background:#cbd5e1; }
         .rt-pct { font-size:0.62rem; font-weight:800; color:var(--text-sec); margin-top:3px; white-space:nowrap; }
         .rt-mm { display:grid; grid-template-columns:repeat(12, 1fr); gap:2px; min-width:150px; }
         .rt-mm span { display:flex; flex-direction:column-reverse; height:22px; background:var(--bg); border-radius:3px; overflow:hidden; }
@@ -2145,7 +2145,7 @@
         .pw-kind { display:inline-flex; border:1px solid var(--pw-line); border-radius:999px; overflow:hidden; }
         .pw-kind button { border:none; background:transparent; color:var(--pw-mut); font:inherit; font-size:0.78rem; font-weight:700; padding:6px 12px; cursor:pointer; }
         .pw-kind button.on { background:var(--pw-acc); color:#fff; }
-        .pw-card { background:var(--pw-card); border:1px solid var(--pw-line); border-radius:14px; padding:12px 14px; }
+        .pw-box { background:var(--pw-card); border:1px solid var(--pw-line); border-radius:14px; padding:12px 14px; }
         .pw-h { font-size:0.85rem; color:var(--pw-mut); margin-bottom:10px; line-height:1.5; }
         .pw-h b { color:var(--pw-tx); }
         .pw-tag { display:inline-block; border-radius:999px; padding:0 8px; font-size:0.72rem; font-weight:800; }
@@ -3210,6 +3210,63 @@
     #live-pause .lp-both .material-icons-round { font-size:17px; }
     #live-pause .lp-hint { font-size:12.5px; color:#64748b; margin:12px 0 0; }
     @media print { #live-pause { display:none !important; } }
+
+        /* ═══ Equità dell'anno e Conteggio assenze: impaginazione ordinata ═══════════════
+           scheda centrata con intestazione chiara, barra fissa in alto (schede + periodo),
+           riepiloghi in una griglia regolare, tabelle dentro un unico riquadro a righe */
+        #eq-modal, #abs-modal { align-items:center; padding:14px; }
+        #eq-modal .modal-content, #abs-modal .modal-content { max-width:1120px; border-radius:18px; max-height:92vh; }
+        #eq-modal .modal-header.hc-header-badge, #abs-modal .modal-header.hc-header-badge { background:var(--bg-card); color:var(--text-main); border-bottom:1px solid var(--border); padding:14px 16px 14px 18px; }
+        #eq-modal .hc-header-badge .header-text h3, #abs-modal .hc-header-badge .header-text h3 { color:var(--text-main); font-size:1.2rem; letter-spacing:-.01em; gap:12px; }
+        #eq-modal .hc-header-badge .header-text h3 .material-icons-round, #abs-modal .hc-header-badge .header-text h3 .material-icons-round { width:40px; height:40px; border-radius:12px; background:rgba(29,78,216,.1); color:var(--primary); display:flex; align-items:center; justify-content:center; font-size:22px; margin:0; }
+        #eq-modal .hc-header-badge .header-text > span, #abs-modal .hc-header-badge .header-text > span { color:var(--text-sec); margin:2px 0 0 52px; font-size:0.84rem; }
+        #eq-modal .hc-header-badge .btn-close-modal, #abs-modal .hc-header-badge .btn-close-modal { background:var(--bg); color:var(--text-sec); border-radius:10px; }
+        #eq-modal .modal-body, #abs-modal .modal-body { background:var(--bg); padding:0 0 18px; }
+        #eq-modal .ab-toolbar, #abs-modal .ab-toolbar { position:sticky; top:0; z-index:30; display:flex; flex-direction:row-reverse; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px 12px; padding:10px 16px; margin:0 0 14px; background:var(--bg-card); border-bottom:1px solid var(--border); }
+        #abs-modal .ab-toolbar { flex-direction:row; justify-content:flex-start; }
+        #eq-modal .ab-period, #abs-modal .ab-period { padding:3px; margin:0; gap:2px; border-radius:10px; background:var(--bg); border:1px solid var(--border); }
+        #eq-modal .ab-period button, #abs-modal .ab-period button { height:30px !important; padding:0 12px; border-radius:8px; font-size:0.78rem; }
+        #eq-modal .ab-period button.active, #abs-modal .ab-period button.active { box-shadow:none; }
+        #eq-modal .eq-cats { padding:0; justify-content:flex-start; gap:4px; flex-wrap:wrap; }
+        #eq-modal .eq-cats button { height:34px; padding:0 12px; border-radius:10px; border:none; background:transparent; color:var(--text-sec); font-size:0.82rem; }
+        #eq-modal .eq-cats button:hover { background:var(--bg); color:var(--text-main); }
+        #eq-modal .eq-cats button.on { background:rgba(29,78,216,.1); color:var(--primary); box-shadow:none; }
+        body.dark-mode #eq-modal .eq-cats button.on { background:rgba(96,165,250,.16); color:#93c5fd; }
+        #eq-modal .hg-wrap, #abs-modal .hg-wrap { padding:0 16px; overflow:visible; }
+        #eq-modal .eq-cat-h { margin:0 0 12px; }
+        #eq-modal .eq-cat-h .material-icons-round { color:var(--primary); }
+        #eq-modal .eq-sum, #abs-modal #ab-kpis.ab-kpis { display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:10px; padding:0 0 14px; }
+        #abs-modal #ab-kpis.ab-kpis { padding:0 16px 14px; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); }
+        #eq-modal .eq-sum-c, #abs-modal .ab-kpi2 { border-radius:12px; box-shadow:none; padding:10px 12px; }
+        #eq-modal .eq-sum-c:hover { border-color:var(--primary); }
+        /* tabelle: un riquadro unico, righe separate da una linea, nomi fissi a sinistra */
+        #eq-modal .xg-split, #abs-modal .xg-split { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+        #eq-modal .xg-split table, #abs-modal .xg-split table { border-spacing:0; }
+        #eq-modal .xg-split thead th, #abs-modal .xg-split thead th { background:var(--bg) !important; border-bottom:1px solid var(--border); padding-top:8px; padding-bottom:8px; }
+        #eq-modal .xg-split tbody td, #eq-modal .xg-split tbody th, #abs-modal .xg-split tbody td, #abs-modal .xg-split tbody th { background:transparent; border-bottom:1px solid var(--border); border-radius:0 !important; }
+        #eq-modal .xg-split tbody tr:last-child > *, #abs-modal .xg-split tbody tr:last-child > * { border-bottom:none; }
+        #eq-modal .xg-split tbody tr:hover > *, #abs-modal .xg-split tbody tr:hover > * { background:var(--bg); }
+        #eq-modal .xg-left, #abs-modal .xg-left { border-right:1px solid var(--border); }
+        #eq-modal .xg-left .eq-name, #abs-modal .xg-left .ab-op { box-shadow:none !important; padding-left:14px; }
+        #eq-modal .xg-left tbody tr.me .eq-name, #abs-modal .xg-left tbody tr.me .ab-op { box-shadow:inset 3px 0 0 var(--primary) !important; }
+        #eq-modal .eq-table tbody tr.eq-avg > * { background:var(--bg); }
+        #abs-modal .ab2 thead th.ab-sep, #abs-modal .ab2 tbody td.ab-sep { border-left:1px solid var(--border); }
+        #abs-modal .ab-av { width:28px; height:28px; font-size:0.66rem; }
+        #eq-modal .hg-note, #abs-modal .hg-note { padding:0 18px; margin:12px 0 0; font-size:0.74rem; line-height:1.5; color:var(--text-sec); }
+        #eq-modal #eq-pairs { padding:0 16px; }
+        #eq-modal .eq-cards .eq-card { box-shadow:none; border-radius:12px; }
+        @media (max-width:640px) {
+            #eq-modal, #abs-modal { padding:8px; }
+            #eq-modal .modal-content, #abs-modal .modal-content { max-height:94vh; }
+            #eq-modal .hc-header-badge .header-text > span, #abs-modal .hc-header-badge .header-text > span { margin-left:0; }
+            #eq-modal .ab-toolbar, #abs-modal .ab-toolbar { padding:8px 10px; flex-direction:column; align-items:flex-start; }
+            #eq-modal .eq-cats { flex-wrap:nowrap; overflow-x:auto; width:100%; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+            #eq-modal .eq-cats::-webkit-scrollbar { display:none; }
+            #eq-modal .eq-cats button { flex:none; }
+            #eq-modal .hg-wrap, #abs-modal .hg-wrap, #eq-modal #eq-pairs { padding:0 10px; }
+            #abs-modal #ab-kpis.ab-kpis { padding:0 10px 12px; }
+            #eq-modal .eq-sum, #abs-modal #ab-kpis.ab-kpis { grid-template-columns:repeat(2, 1fr); gap:8px; }
+        }
     </style>
 </head>
 <body>
@@ -3656,7 +3713,7 @@
     <div class="modal-content" onclick="event.stopPropagation()">
         <div class="modal-header hc-header-badge">
             <div class="header-text">
-                <h3><span class="material-icons-round" style="margin-right:10px">balance</span> EQUITÀ DELL’ANNO</h3>
+                <h3><span class="material-icons-round">balance</span>Equità dell’anno</h3>
                 <span>Notti, weekend, festivi e reperibilità di ognuno, rispetto alla media</span>
             </div>
             <button class="btn-close-modal" onclick="closeEquity()"><span class="material-icons-round">close</span></button>
@@ -3667,8 +3724,8 @@
                     <button data-p="oggi" onclick="eqSetPeriod('oggi')">Fino a oggi</button>
                     <button data-p="anno" onclick="eqSetPeriod('anno')">Anno intero</button>
                 </div>
+                <div class="eq-cats" id="eq-cats"></div>
             </div>
-            <div class="eq-cats" id="eq-cats"></div>
             <div class="hg-wrap" id="eq-grid"></div>
             <p class="hg-note" id="eq-note"></p>
             <div id="eq-pairs"></div>
@@ -3679,7 +3736,7 @@
     <div class="modal-content" onclick="event.stopPropagation()">
         <div class="modal-header hc-header-badge">
             <div class="header-text">
-                <h3><span class="material-icons-round" style="margin-right:10px">event_busy</span> CONTEGGIO ASSENZE</h3>
+                <h3><span class="material-icons-round">event_busy</span>Conteggio assenze</h3>
                 <span>Congedi, permessi, malattie e giornate particolari</span>
             </div>
             <button class="btn-close-modal" onclick="closeAbsModal()"><span class="material-icons-round">close</span></button>
@@ -11190,7 +11247,7 @@
         return `<div class="pw">
             <div class="pw-top"><label>Persona <select onchange="pwPick(this.value,'${where}')">${opts}</select></label>
                 <div class="pw-kind"><button class="${pwKind === 'turnisti' ? 'on' : ''}" onclick="pwSetKind('turnisti','${where}')">Solo turnisti</button><button class="${pwKind === 'tutti' ? 'on' : ''}" onclick="pwSetKind('tutti','${where}')">Anche diurnisti</button></div></div>
-            <div class="pw-card"><div class="pw-h"><b>${esc(sel.d.name)}</b> · ${sel.tot} turni lavorati · in media <b>${f1(R.avg)}</b> turni con ogni collega${hi || lo ? ` · <span class="pw-tag hi">${hi} spesso</span> <span class="pw-tag lo">${lo} poco</span>` : ''}</div>
+            <div class="pw-box"><div class="pw-h"><b>${esc(sel.d.name)}</b> · ${sel.tot} turni lavorati · in media <b>${f1(R.avg)}</b> turni con ogni collega${hi || lo ? ` · <span class="pw-tag hi">${hi} spesso</span> <span class="pw-tag lo">${lo} poco</span>` : ''}</div>
                 <div class="pw-bars">${bars}</div>
                 <p class="pw-note">La barra è il numero di turni fatti insieme (stessa mattina, pomeriggio o notte); la linea verticale è la media. <span class="eq-key hi"></span> oltre il 30% sopra la media, <span class="eq-key lo"></span> oltre il 30% sotto.</p></div>
             <div class="pw-tw"><table class="pw-t"><thead><tr><th></th>${head}<th class="pw-avg">Media</th></tr></thead><tbody>${rows}</tbody></table></div>
