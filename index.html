@@ -4836,6 +4836,9 @@
     // NB: è un blocco della pagina, non dei dati: chi sa usare Firebase può ancora leggerli (vedi area admin).
     // App ufficiale: la password sta in settings.appGate (la prova usa un campo suo, 'appGateProva').
     const GATE_FIELD = 'appGate';
+    // 18/11/2026: schermata password TOLTA per ora (compariva un attimo all'apertura anche se spenta).
+    // Per riaccenderla basta rimettere true: tutto il resto (admin, impostazioni) è rimasto.
+    const GATE_ENABLED = false;
     const GATE_KEY = 'app_gate_' + DATA_NS, GATE_OK_KEY = 'app_gate_ok_' + DATA_NS;
     let appGate = null;
     let appGatePw = '';
@@ -4845,7 +4848,7 @@
         return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
     }
     function gateOkHash() { try { return localStorage.getItem(GATE_OK_KEY) || ''; } catch(e) { return ''; } }
-    function gateLocked() { return !SERVER_MODE && !!(appGate && appGate.on && appGate.hash) && gateOkHash() !== appGate.hash && gateSessionHash !== appGate.hash; }
+    function gateLocked() { return GATE_ENABLED && !SERVER_MODE && !!(appGate && appGate.on && appGate.hash) && gateOkHash() !== appGate.hash && gateSessionHash !== appGate.hash; }
     function gateApply(g) {
         const prevSig = JSON.stringify([appGate, appGatePw]);
         appGatePw = (g && typeof g === 'object' && typeof g.pw === 'string') ? g.pw : '';
@@ -4876,10 +4879,10 @@
     }
     // ?server=1: l'app viene aperta dal motore su GitHub solo per leggere i turni (niente sessioni, popup o scritture).
     const SERVER_MODE = new URLSearchParams(location.search).has('server');
-    if(!SERVER_MODE) { try { const g = JSON.parse(localStorage.getItem(GATE_KEY) || 'null'); if(g) gateApply(g); } catch(e) {} }   // blocco subito, prima che arrivino le impostazioni
+    if(GATE_ENABLED && !SERVER_MODE) { try { const g = JSON.parse(localStorage.getItem(GATE_KEY) || 'null'); if(g) gateApply(g); } catch(e) {} }   // blocco subito, prima che arrivino le impostazioni
     // Prima apertura su questo telefono: non si sa ancora se serve la password, quindi i turni restano coperti
     // finché non arrivano le impostazioni (senza, si vedevano i turni per qualche secondo prima della password).
-    if(!SERVER_MODE) { let known = true; try { known = localStorage.getItem(GATE_KEY) !== null; } catch(e) {}
+    if(GATE_ENABLED && !SERVER_MODE) { let known = true; try { known = localStorage.getItem(GATE_KEY) !== null; } catch(e) {}
         if(!known) { document.documentElement.classList.add('gate-wait'); setTimeout(gateWaitEnd, 12000); } }   // 12 s: senza rete non si resta bloccati
     function gateWaitEnd() { document.documentElement.classList.remove('gate-wait'); }
     let userIdentity = SERVER_MODE ? null : (localStorage.getItem('infermieri_identity_name') || null);
@@ -5686,7 +5689,7 @@
         const box = document.getElementById('adm-password'); if(!box) return;
         const g = appGate, on = !!(g && g.on && g.hash), has = !!(g && g.hash);
         const when = g && g.at ? new Date(g.at).toLocaleString('it-IT', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '';
-        box.innerHTML = `<div class="adm-card">
+        box.innerHTML = (GATE_ENABLED ? '' : `<div class="adm-card" style="border-left:4px solid #f59e0b"><b>Schermata password tolta per ora</b><div class="adm-muted" style="font-size:.78rem">Anche se qui risulta attiva, l’app si apre senza chiederla.</div></div>`) + `<div class="adm-card">
                 <div class="adm-gate-st"><span class="material-icons-round" style="color:${on ? '#16a34a' : '#94a3b8'}">${on ? 'lock' : 'lock_open'}</span>
                     <div><b>${on ? 'Attiva' : has ? 'Spenta' : 'Nessuna password'}</b> ${on ? '<span class="adm-pill ok">l’app chiede la password</span>' : '<span class="adm-pill muted">l’app si apre senza password</span>'}
                     ${has ? `<div class="adm-muted" style="font-size:.74rem">Impostata${when ? ' il ' + admEsc(when) : ''}${g.by ? ' da ' + admEsc(g.by) : ''}</div>` : ''}</div></div>
@@ -17661,7 +17664,7 @@
             CAL({ st:0, say:'Fatto: adesso l’app sa chi sei', hold:1800 }),
             MENU(['imp', 'user'], 3)],
         try:{ label:'Cambia utente', run:() => requestChangeIdentity(), when:() => has('requestChangeIdentity') } });
-    T(cIn, { id:'password', t:'La password d’accesso', icon:'lock', when:() => !!$('app-gate'),
+    T(cIn, { id:'password', t:'La password d’accesso', icon:'lock', when:() => GATE_ENABLED && !!$('app-gate'),
         sub:'Se il coordinatore la accende, i turni si vedono solo dopo la password.',
         steps:['Alla prima apertura compare il logo 118 con la richiesta della <b>password</b>.',
             'Scrivila e tocca <b>Entra</b>.',
