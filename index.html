@@ -40,8 +40,8 @@
             --th-h: 40px;
             /* turni: pastello in una scala di blu continua (mattina chiarissima → notte scura);
                il colore pieno resta alle assenze, così le eccezioni si vedono subito */
-            --c-M: #e3eeff; --t-M: #1e3a8a; --b-M: #c9dcfb;
-            --c-P: #c3d9fb; --t-P: #1e3a8a; --b-P: #a9c7f5;
+            --c-P: #e3eeff; --t-P: #1e3a8a; --b-P: #c9dcfb;   /* scala del ciclo: pomeriggio (più chiaro) → mattino → smonto → notte (più scuro) */
+            --c-M: #c3d9fb; --t-M: #1e3a8a; --b-M: #a9c7f5;
             --c-N: #4a76c4; --t-N: #ffffff; --b-N: #3f68b0;
             --c-R: #ffffff; --t-R: #64748b; --b-R: #e2e8f0;
             --c-SM: #9dbbe8; --t-SM: #0f2350; --b-SM: #8aaee2;
@@ -1356,6 +1356,73 @@
         .opt-reset { display:flex; justify-content:center; padding:16px 20px 6px; }
         .opt-reset button { height:38px; padding:0 16px; border-radius:10px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-sec); font:700 12.5px 'Plus Jakarta Sans',sans-serif; cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
         .opt-reset button .material-icons-round { font-size:17px; }
+
+        /* ══ Calendario giorno per giorno (scelta di ognuno in Opzioni) ══ */
+        #dd-view { position:fixed; top:var(--header-h); left:0; right:0; bottom:0; z-index:940; background:var(--bg); display:none; flex-direction:column; }
+        #dd-view.open { display:flex; }
+        body.cal-days { overflow:hidden; }
+        .dd-bar { display:flex; justify-content:center; padding:8px 10px; border-bottom:1px solid var(--border); background:var(--bg-card); flex-shrink:0; }
+        .dd-seg, .cvp-seg { display:flex; gap:4px; padding:3px; border-radius:12px; background:var(--bg); border:1px solid var(--border); }
+        .dd-seg button { display:inline-flex; align-items:center; gap:5px; height:32px; padding:0 12px; border:none; border-radius:9px; background:transparent; color:var(--text-sec); font:700 12.5px 'Plus Jakarta Sans',sans-serif; cursor:pointer; }
+        .dd-seg button .material-icons-round { font-size:17px; }
+        .dd-seg button.on { background:var(--primary); color:#fff; }
+        .dd-scroll { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:0 10px 90px; }
+        #dd-body { max-width:640px; margin:0 auto; }
+        .dd-mh { position:sticky; top:0; z-index:2; margin:0 -10px; padding:7px 14px 6px; background:var(--month-bar-bg); color:#fff; font-size:0.85rem; font-weight:900; letter-spacing:.04em; text-transform:uppercase; }
+        .dd-more { display:block; margin:12px auto 0; height:36px; padding:0 14px; border-radius:10px; border:1px solid var(--border); background:var(--bg-card); color:var(--primary); font:700 12.5px 'Plus Jakarta Sans',sans-serif; }
+        .dd-day { margin:7px 0; border:1px solid var(--border); border-radius:14px; background:var(--bg-card); overflow:hidden; scroll-margin-top:36px; }
+        .dd-day.today { border-color:#f97316; box-shadow:0 0 0 2px rgba(249,115,22,.35); }
+        .dd-day.wk-end { margin-bottom:14px; }
+        .dd-day.wk-end::after { content:''; display:block; height:4px; background:#dc2626; }
+        .dd-dh { display:flex; align-items:center; gap:8px; padding:5px 10px; border-bottom:1px solid var(--border); }
+        .dd-dn { font-size:1.1rem; font-weight:900; color:var(--text-main); line-height:1; min-width:30px; text-align:center; }
+        .dd-dw { flex:1; min-width:0; display:flex; flex-direction:column; }
+        .dd-dw b { font-size:0.78rem; font-weight:800; color:var(--text-main); text-transform:capitalize; }
+        .dd-dw small { font-size:0.7rem; font-weight:700; color:#dc2626; }
+        .dd-day.red .dd-dn, .dd-day.red .dd-dw b { color:#dc2626; }
+        .dd-today { font-size:0.62rem; font-weight:900; color:#fff; background:#f97316; border-radius:999px; padding:2px 8px; letter-spacing:.06em; }
+        .dd-rows { display:flex; flex-direction:column; }
+        .dd-row { display:flex; align-items:flex-start; gap:6px; padding:4px 8px; border-top:1px solid var(--border); }
+        .dd-row:first-child { border-top:none; }
+        .dd-lbl { flex:none; width:36px; display:flex; flex-direction:column; align-items:center; gap:0; padding-top:2px; }
+        .dd-lbl .cc-code { min-width:28px; height:18px; font-size:0.62rem; }
+        .dd-lbl small { font-size:0.52rem; font-weight:700; color:var(--text-sec); white-space:nowrap; }
+        .dd-ppl { flex:1; min-width:0; display:flex; flex-wrap:wrap; gap:3px; }
+        .dd-p { display:inline-flex; align-items:center; gap:3px; height:24px; padding:0 7px; border-radius:7px; border:1px solid var(--border); background:var(--bg); color:var(--text-main); font:800 0.68rem 'Plus Jakarta Sans',sans-serif; cursor:pointer; white-space:nowrap; }
+        .dd-p.me { border-color:var(--primary); box-shadow:inset 0 0 0 1px var(--primary); }
+        .dd-p.dz { color:#6d28d9; }
+        .dd-p i { font-style:normal; font-size:0.56rem; font-weight:900; padding:1px 4px; border-radius:4px; background:var(--sw, #e2e8f0); color:var(--sf, #334155); }
+        .dd-p .rp { background:#dc2626; color:#fff; }
+        .dd-row.abs .dd-p { height:22px; font-size:0.64rem; }
+        .dd-none { font-size:0.68rem; color:var(--text-sec); font-weight:600; padding:5px 0; }
+        .dd-rep { display:flex; flex-wrap:wrap; gap:2px 10px; align-items:center; padding-top:2px; font-size:0.68rem; font-weight:700; color:var(--text-sec); }
+        .dd-rep b { color:var(--text-main); font-weight:800; }
+        .dd-rep .ced { color:#dc2626; }
+        /* striscia "domani" all'apertura */
+        #tm-strip { position:fixed; left:50%; bottom:calc(16px + env(safe-area-inset-bottom,0px)); transform:translate(-50%, 140%); z-index:9300; width:calc(100% - 24px); max-width:460px; display:flex; align-items:center; gap:10px; padding:10px 8px 10px 12px; border-radius:14px; background:var(--bg-card); color:var(--text-main); border:1px solid var(--border); box-shadow:0 12px 32px rgba(15,23,42,.22); cursor:pointer; transition:transform .35s cubic-bezier(.16,1,.3,1); }
+        #tm-strip.show { transform:translate(-50%, 0); }
+        #tm-strip .tm-code { flex:none; min-width:40px; height:34px; font-size:0.8rem; }
+        .tm-txt { flex:1; min-width:0; display:flex; flex-direction:column; gap:1px; font-size:0.8rem; line-height:1.25; }
+        .tm-txt small { font-size:0.68rem; font-weight:700; color:var(--text-sec); text-transform:capitalize; }
+        .tm-txt b { font-size:0.9rem; font-weight:800; } .tm-txt b small { text-transform:none; }
+        .tm-txt span { color:var(--text-sec); font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .tm-txt .tm-rep { color:#dc2626; font-weight:800; }
+        .tm-x { flex:none; width:32px; height:32px; border:none; border-radius:50%; background:var(--bg); color:var(--text-sec); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+        .tm-x .material-icons-round { font-size:18px; }
+        @media print { #tm-strip { display:none !important; } }
+        /* scelta della vista */
+        .cvp-modal { display:none; position:fixed; inset:0; z-index:9600; background:rgba(12,18,26,.45); align-items:center; justify-content:center; padding:16px; }
+        .cvp-modal.open { display:flex; }
+        .cvp-card { width:100%; max-width:420px; background:var(--bg-card); color:var(--text-main); border-radius:18px; padding:16px; box-shadow:0 20px 50px rgba(15,23,42,.25); }
+        .cvp-card h3 { margin:0 0 4px; font-size:1.05rem; font-weight:800; }
+        .cvp-card > small { display:block; color:var(--text-sec); font-size:0.78rem; margin-bottom:12px; }
+        .cvp-opt { display:flex; align-items:center; gap:12px; width:100%; padding:12px; margin-bottom:8px; border:1px solid var(--border); border-radius:12px; background:var(--bg); color:var(--text-main); text-align:left; cursor:pointer; font-family:inherit; }
+        .cvp-opt.on { border-color:var(--primary); box-shadow:inset 0 0 0 1px var(--primary); }
+        .cvp-opt .material-icons-round { font-size:26px; color:var(--primary); }
+        .cvp-opt b { display:block; font-size:0.9rem; font-weight:800; }
+        .cvp-opt small { display:block; font-size:0.74rem; color:var(--text-sec); line-height:1.3; }
+        /* vista compatta scelta fuori dalla modifica: nomi in testa più stretti */
+        body.cal-compact #main-table thead th:not(:first-child) { font-size:0.66rem; letter-spacing:-0.01em; padding-left:2px; padding-right:2px; text-overflow:clip; }
 
         /* ══ Vista d'insieme del calendario ══ */
         #ov-view { position:fixed; top:var(--header-h); left:0; right:0; bottom:0; z-index:950; background:var(--bg); display:none; flex-direction:column; }
@@ -2699,6 +2766,7 @@
         .missing-list { display:flex; flex-wrap:wrap; gap:6px; }
         .missing-badge { background:#fee2e2; color:#b91c1c; font-size:0.75rem; font-weight:600; padding:4px 8px; border-radius:6px; }
 
+
         /* ── RUOTA DELLA SFIGA ────────────────────────────────────────────── */
         .wheel-steps-nav { display:flex; align-items:center; gap:8px; padding:14px 20px 0 20px; color:var(--primary); font-weight:700; font-size:0.85rem; cursor:pointer; }
         .wheel-mode-grid { display:flex; flex-direction:column; gap:14px; padding:16px 20px 24px; }
@@ -2843,8 +2911,14 @@
         .identity-group::before, .identity-group::after { content:""; flex:1; height:1px; background:var(--border); }
         .identity-pw-tag .material-icons-round { font-size:14px; color:#94a3b8; }
         /* password: finestra per COORDINATORE/TEST e blocco "password per aprire l'app" */
+        .gate-logo { display:block; width:96px; height:96px; margin:0 auto 14px; border-radius:22px; filter:drop-shadow(0 10px 22px rgba(15,42,99,.3)); }
         #pw-ask, #app-gate { display:none; position:fixed; inset:0; align-items:center; justify-content:center; padding:20px; }
         #pw-ask { z-index:10600; background:rgba(0,0,0,.6); }
+        html.gate-wait #app-gate { display:flex !important; }
+        html.gate-wait #app-gate-card { display:none; }
+        #app-gate-wait { display:none; width:110px; height:110px; border-radius:24px; animation:gateWaitPulse 1.2s ease-in-out infinite alternate; }
+        html.gate-wait #app-gate-wait { display:block; }
+        @keyframes gateWaitPulse { from { opacity:.55; transform:scale(.96); } to { opacity:1; transform:scale(1); } }
         #app-gate { z-index:30000; background:radial-gradient(circle at 30% 20%, rgba(37,99,235,.18), transparent 55%), radial-gradient(circle at 80% 80%, rgba(30,58,138,.2), transparent 55%), var(--bg); }
         .pw-card { width:100%; max-width:360px; background:var(--bg-card); border:1px solid var(--border); border-radius:20px; padding:24px 22px 20px; box-shadow:0 20px 50px rgba(15,23,42,.25); text-align:center; color:var(--text-main); }
         .pw-card .pw-ico { width:56px; height:56px; margin:0 auto 12px; border-radius:16px; background:rgba(37,99,235,.12); color:var(--primary); display:flex; align-items:center; justify-content:center; }
@@ -2864,6 +2938,11 @@
         .adm-gate-row input { flex:1; min-width:160px; height:38px; padding:0 12px; border-radius:9px; border:1px solid var(--border); background:var(--bg); color:var(--text-main); font:700 .9rem 'Plus Jakarta Sans',sans-serif; }
         .adm-gate-st { display:flex; align-items:center; gap:10px; font-size:.84rem; }
         .adm-gate-st .material-icons-round { font-size:28px; }
+        .adm-gate-cur { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:12px; padding:10px 12px; border-radius:10px; background:var(--bg); border:1px solid var(--border); font-size:.84rem; }
+        .adm-gate-cur > b { font:800 1.05rem 'Plus Jakarta Sans',sans-serif; letter-spacing:.04em; color:var(--text-main); user-select:all; }
+        .adm-gate-cur .adm-btn { margin-left:auto; }
+        .adm-gate-cur.none { align-items:flex-start; font-size:.78rem; line-height:1.45; color:var(--text-main); }
+        .adm-gate-cur.none .material-icons-round { font-size:20px; color:#d97706; }
         .adm-gate-list { margin:6px 0 0; padding-left:18px; font-size:.8rem; line-height:1.55; color:var(--text-main); }
         .identity-btn.pending { opacity:0.5; pointer-events:none; animation:identityPulse 1.2s ease-in-out infinite; }
         .identity-pending-tag { font-size:0.55rem; font-weight:800; color:var(--text-sec); text-transform:uppercase; }
@@ -3356,8 +3435,17 @@
         .nchat-head .cc-icon-btn { color:var(--cc-muted); background:var(--cc-surface-2); border-radius:10px; }
         body.dark-mode .nchat-head > .material-icons-round { background:rgba(167,139,250,.16); color:#c4b5fd; }
     </style>
+    <style>
+        /* Modalità offline: avviso in basso quando manca la rete */
+        #net-offline { position:fixed; left:50%; bottom:calc(14px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%); z-index:9940; display:none; align-items:center; gap:6px; max-width:calc(100% - 32px); padding:6px 12px; border-radius:999px; background:#7c2d12; color:#fff; font:600 12.5px/1.25 system-ui,-apple-system,'Segoe UI',sans-serif; box-shadow:0 4px 14px rgba(0,0,0,.25); cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        #net-offline.show { display:flex; }
+        #net-offline .material-icons-round { font-size:16px; color:#fff; }
+        #net-offline .net-txt { overflow:hidden; text-overflow:ellipsis; }
+        @media print { #net-offline { display:none !important; } }
+    </style>
 </head>
 <body>
+<div id="net-offline" role="status" onclick="netOfflineInfo()"><span class="material-icons-round">cloud_off</span><span class="net-txt">Senza rete</span></div>
 
 <div id="graziella-modal" onclick="closeGraziellaModal()">
     <img src="graziella.jpg" alt="Graziella" id="graziella-large-img">
@@ -3394,10 +3482,11 @@
     </div>
 </div>
 <div id="app-gate" role="dialog" aria-modal="true">
+    <img id="app-gate-wait" src="icon-118.png" alt="">
     <div class="pw-card" id="app-gate-card">
-        <div class="pw-ico"><span class="material-icons-round">lock</span></div>
+        <img class="gate-logo" src="icon-118.png" alt="118">
         <h3>Turni Infermieri 118</h3>
-        <p>Per vedere i turni serve la password. La chiedi al coordinatore: su questo telefono la metti una volta sola.</p>
+        <p>Per entrare serve la password d’accesso. La metti solo la prima volta: poi questo telefono la ricorda.</p>
         <input type="password" id="app-gate-input" autocomplete="off" placeholder="Password" onkeydown="if(event.key==='Enter')gateSubmit()">
         <div class="pw-err" id="app-gate-err"></div>
         <div class="pw-acts"><button class="pw-ok" onclick="gateSubmit()">Entra</button></div>
@@ -4302,6 +4391,13 @@
     <div class="ov-adv-mini" id="ov-adv-mini"></div>
     <div class="ov-scroll" id="ov-scroll"><div class="ov-advice" id="ov-advice"></div><div id="ov-body"></div></div>
 </div>
+<div id="dd-view" aria-label="Calendario giorno per giorno">
+    <div class="dd-bar">
+        <div class="dd-seg" id="dd-seg"></div>
+    </div>
+    <div class="dd-scroll" id="dd-scroll"><div id="dd-body"></div></div>
+</div>
+<div id="cvp-modal" class="cvp-modal" onclick="closeCalViewPicker(event)"><div class="cvp-card" onclick="event.stopPropagation()" id="cvp-card"></div></div>
 <div id="ov-sheet" class="ov-sheet" onclick="ovCloseSheet(event)"><div class="ov-sheet-card" id="ov-sheet-card" onclick="event.stopPropagation()"></div></div>
 
 <!-- ══════════════ CALENDARIO FERIE DESIDERATE ══════════════ -->
@@ -4664,7 +4760,7 @@
 
     const ADMIN_PASSWORD = "Barbieri!";
     const DEFAULT_COLORS = {
-        "--primary":"#1d4ed8","--c-M":"#e3eeff","--c-P":"#c3d9fb","--c-N":"#4a76c4","--c-R":"#ffffff","--c-SM":"#9dbbe8",
+        "--primary":"#1d4ed8","--c-M":"#c3d9fb","--c-P":"#e3eeff","--c-N":"#4a76c4","--c-R":"#ffffff","--c-SM":"#9dbbe8",
         "--bg-ferie":"#f97316","--bg-rec":"#be185d","--bg-cong":"#facc15","--bg-mal":"#dc2626","--bg-nl":"#cceef2",
         "--bg-perm":"#22c55e","--bg-ng":"#009fd6","--bg-stu":"#ffffff","--bg-pn":"#166534","--bg-coord":"#ffffff"
     };
@@ -4738,18 +4834,28 @@
     // mai la password. Ogni telefono la chiede una volta e poi la ricorda (localStorage); se l'admin la cambia,
     // la richiede a tutti. Non vale per il motore (?server=1).
     // NB: è un blocco della pagina, non dei dati: chi sa usare Firebase può ancora leggerli (vedi area admin).
+    // App ufficiale: la password sta in settings.appGate (la prova usa un campo suo, 'appGateProva').
+    const GATE_FIELD = 'appGate';
     const GATE_KEY = 'app_gate_' + DATA_NS, GATE_OK_KEY = 'app_gate_ok_' + DATA_NS;
     let appGate = null;
+    let appGatePw = '';
+    let gateSessionHash = '';   // sbloccato solo per questa apertura (chi ha appena impostato la password in admin): alla prossima apertura la chiede anche a lui   // password in chiaro (settings.appGate.pw) solo per mostrarla nell'area admin; non va nella copia del telefono
     async function gateHash(pw) {
         const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('turni118|' + String(pw || '').trim().toLowerCase()));
         return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
     }
     function gateOkHash() { try { return localStorage.getItem(GATE_OK_KEY) || ''; } catch(e) { return ''; } }
-    function gateLocked() { return !SERVER_MODE && !!(appGate && appGate.on && appGate.hash) && gateOkHash() !== appGate.hash; }
+    function gateLocked() { return !SERVER_MODE && !!(appGate && appGate.on && appGate.hash) && gateOkHash() !== appGate.hash && gateSessionHash !== appGate.hash; }
     function gateApply(g) {
+        const prevSig = JSON.stringify([appGate, appGatePw]);
+        appGatePw = (g && typeof g === 'object' && typeof g.pw === 'string') ? g.pw : '';
+        gateWaitEnd();
         appGate = (g && typeof g === 'object') ? { on: !!g.on, hash: g.hash || '', ver: g.ver || 0, by: g.by || '', at: g.at || '' } : null;
         try { localStorage.setItem(GATE_KEY, JSON.stringify(appGate)); } catch(e) {}
         const el = document.getElementById('app-gate'); if(!el) return;
+        // area admin aperta: si aggiorna se la password è cambiata (senza cancellare quello che si sta scrivendo)
+        const ai = document.getElementById('adm-gate-pw');
+        if(document.getElementById('adm-password') && prevSig !== JSON.stringify([appGate, appGatePw]) && !(ai && ai.value)) try { admRenderGate(); } catch(e) {}
         const lock = gateLocked(), was = el.style.display === 'flex';
         el.style.display = lock ? 'flex' : 'none';
         document.documentElement.style.overflow = lock ? 'hidden' : '';
@@ -4771,6 +4877,11 @@
     // ?server=1: l'app viene aperta dal motore su GitHub solo per leggere i turni (niente sessioni, popup o scritture).
     const SERVER_MODE = new URLSearchParams(location.search).has('server');
     if(!SERVER_MODE) { try { const g = JSON.parse(localStorage.getItem(GATE_KEY) || 'null'); if(g) gateApply(g); } catch(e) {} }   // blocco subito, prima che arrivino le impostazioni
+    // Prima apertura su questo telefono: non si sa ancora se serve la password, quindi i turni restano coperti
+    // finché non arrivano le impostazioni (senza, si vedevano i turni per qualche secondo prima della password).
+    if(!SERVER_MODE) { let known = true; try { known = localStorage.getItem(GATE_KEY) !== null; } catch(e) {}
+        if(!known) { document.documentElement.classList.add('gate-wait'); setTimeout(gateWaitEnd, 12000); } }   // 12 s: senza rete non si resta bloccati
+    function gateWaitEnd() { document.documentElement.classList.remove('gate-wait'); }
     let userIdentity = SERVER_MODE ? null : (localStorage.getItem('infermieri_identity_name') || null);
     console.log('[Identità] Letta da localStorage all\'avvio:', userIdentity || '(nessuna)');
     let identityRecoveryPromise = null;
@@ -4817,6 +4928,7 @@
         setTimeout(() => { const go = () => loadLib('chart').catch(() => {}); window.requestIdleCallback ? requestIdleCallback(go, { timeout: 10000 }) : go(); }, 8000);
         // impostazioni e reperibilità subito: non aspettano la scrittura della sessione (connessione lenta o assente)
         listenConfigChanges();
+        netWatchSync();         // ora dell'ultimo allineamento, per l'avviso "Senza rete"
         listenReperibilita();   // le richieste in arrivo si ascoltano solo sul telefono del coordinatore
         listenOpNotes();        // note degli operatori per il coordinatore
         try {
@@ -5027,10 +5139,11 @@
     function listenConfigChanges() {
         if(!fbReady) return;
         cfgRef('settings').onSnapshot(doc => {
-            if(!doc.exists) { seedNamespaceSettings(); resolveConfigReady(); return; }
+            // senza rete un documento che manca dalla copia sul dispositivo non vuol dire che non esista: niente copia iniziale
+            if(!doc.exists) { if(!doc.metadata.fromCache) { gateWaitEnd(); seedNamespaceSettings(); } resolveConfigReady(); return; }
             const data = doc.data();
-            if(!SERVER_MODE && !doc.metadata.fromCache) gateApply(data.appGate || null);
-            else if(!SERVER_MODE && data.appGate) gateApply(data.appGate);
+            if(!SERVER_MODE && !doc.metadata.fromCache) gateApply(data[GATE_FIELD] || null);
+            else if(!SERVER_MODE && data[GATE_FIELD]) gateApply(data[GATE_FIELD]);
             if(data.dataSource !== undefined) dataSourceMode = data.dataSource === 'firebase' ? 'firebase' : 'excel';
             if(data.activeYear !== undefined && data.activeYear) {
                 const prevYear = activeYear; activeYear = +data.activeYear;
@@ -5577,13 +5690,16 @@
                 <div class="adm-gate-st"><span class="material-icons-round" style="color:${on ? '#16a34a' : '#94a3b8'}">${on ? 'lock' : 'lock_open'}</span>
                     <div><b>${on ? 'Attiva' : has ? 'Spenta' : 'Nessuna password'}</b> ${on ? '<span class="adm-pill ok">l’app chiede la password</span>' : '<span class="adm-pill muted">l’app si apre senza password</span>'}
                     ${has ? `<div class="adm-muted" style="font-size:.74rem">Impostata${when ? ' il ' + admEsc(when) : ''}${g.by ? ' da ' + admEsc(g.by) : ''}</div>` : ''}</div></div>
+                ${has ? (appGatePw ? `<div class="adm-gate-cur"><span class="adm-muted">Password attuale</span><b id="adm-gate-cur-pw" class="hid">${'•'.repeat(Math.max(4, appGatePw.length))}</b>
+                        <button class="adm-btn sm" onclick="admGateShowPw(this)"><span class="material-icons-round">visibility</span>Mostra</button></div>`
+                    : `<div class="adm-gate-cur none"><span class="material-icons-round">help_outline</span><span>Questa password è stata scelta prima che l’app la ricordasse, quindi non si può mostrare. Scrivila qui sotto e premi <b>Cambia e attiva</b>: da quel momento la vedi qui.</span></div>`) : ''}
                 <div class="adm-gate-row"><input id="adm-gate-pw" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${has ? 'Nuova password' : 'Scegli la password'}">
                     <button class="adm-btn primary" onclick="admGateSave()"><span class="material-icons-round">lock</span>${has ? 'Cambia e attiva' : 'Salva e attiva'}</button></div>
-                ${has ? `<div class="adm-gate-row"><button class="adm-btn" onclick="admGateToggle(${on ? 'false' : 'true'})"><span class="material-icons-round">${on ? 'lock_open' : 'lock'}</span>${on ? 'Disattiva' : 'Riattiva la stessa password'}</button></div>` : ''}
+                ${has ? `<div class="adm-gate-row"><button class="adm-btn" onclick="admGateToggle(${on ? 'false' : 'true'})"><span class="material-icons-round">${on ? 'lock_open' : 'lock'}</span>${on ? 'Disattiva' : 'Riattiva la stessa password'}</button>${on ? `<button class="adm-btn" onclick="admGateForget()"><span class="material-icons-round">phonelink_lock</span>Richiedila su questo telefono</button>` : ''}</div>` : ''}
                 <ul class="adm-gate-list">
-                    <li>Ogni telefono la chiede <b>una volta sola</b>, poi la ricorda.</li>
+                    <li>Ogni telefono la chiede <b>una volta sola</b>, alla prima apertura, poi la ricorda. Vale per tutti, coordinatore e admin compresi: anche questo telefono la chiederà alla prossima apertura.</li>
                     <li>Se la <b>cambi</b>, tutti dovranno mettere quella nuova (anche chi l’aveva già).</li>
-                    <li>Maiuscole e minuscole non contano. La password non viene salvata: se la dimentichi, ne scegli una nuova.</li>
+                    <li>Maiuscole e minuscole non contano. La password resta scritta qui, così non la perdi.</li>
                     <li>Il motore delle notifiche e il calendario sul telefono (iPhone/Google) continuano a funzionare.</li>
                 </ul></div>
             <div class="adm-note" style="margin-top:12px"><span class="material-icons-round">info</span><div><b>Cosa protegge davvero.</b> Chi apre il link dell’app senza password non vede i turni. Però è un blocco della pagina: i dati su Firebase, il file Excel e i calendari .ics nel repository restano leggibili da chi sa dove guardare. Per una protezione vera servono anche regole Firebase legate alla password: vedi la proposta nel progetto.</div></div>`;
@@ -5592,16 +5708,28 @@
         const inp = document.getElementById('adm-gate-pw'), pw = (inp && inp.value || '').trim();
         if(pw.length < 4) { showAdminToast('Almeno 4 caratteri'); return; }
         const hash = await gateHash(pw);
-        const g = { on: true, hash, ver: ((appGate && appGate.ver) || 0) + 1, by: 'Admin · ' + getDeviceLabel(), at: new Date().toISOString() };
-        try { localStorage.setItem(GATE_OK_KEY, hash); } catch(e) {}   // su questo telefono resta aperta
-        try { await saveSettingsFields({ appGate: g }); gateApply(g); admRenderGate(); showAdminToast('Password attivata'); vibrate(); }
+        const g = { on: true, hash, pw, ver: ((appGate && appGate.ver) || 0) + 1, by: 'Admin · ' + getDeviceLabel(), at: new Date().toISOString() };
+        gateSessionHash = hash;   // ora resta aperta; alla prossima apertura la chiede anche a chi l'ha impostata (Mat: tutti, coordinatore compreso)
+        try { await saveSettingsFields({ [GATE_FIELD]: g }); gateApply(g); admRenderGate(); showAdminToast('Password attivata'); vibrate(); }
         catch(e) { showAdminToast('Errore: ' + (e.code || e.message)); }
+    }
+    function admGateShowPw(btn) {
+        const b = document.getElementById('adm-gate-cur-pw'); if(!b) return;
+        const hid = b.classList.toggle('hid');
+        b.textContent = hid ? '•'.repeat(Math.max(4, appGatePw.length)) : appGatePw;
+        btn.innerHTML = `<span class="material-icons-round">${hid ? 'visibility' : 'visibility_off'}</span>${hid ? 'Mostra' : 'Nascondi'}`;
+    }
+    // per provarla: questo telefono "dimentica" di averla già messa e mostra subito la schermata della password
+    function admGateForget() {
+        try { localStorage.removeItem(GATE_OK_KEY); } catch(e) {}
+        gateSessionHash = '';
+        vibrate(); gateApply(appGate);
     }
     async function admGateToggle(on) {
         if(!appGate || !appGate.hash) return;
-        const g = Object.assign({}, appGate, { on: !!on, at: new Date().toISOString(), by: 'Admin · ' + getDeviceLabel() });
-        if(on) try { localStorage.setItem(GATE_OK_KEY, g.hash); } catch(e) {}
-        try { await saveSettingsFields({ appGate: g }); gateApply(g); admRenderGate(); showAdminToast(on ? 'Password riattivata' : 'Password disattivata'); vibrate(); }
+        const g = Object.assign({}, appGate, appGatePw ? { pw: appGatePw } : {}, { on: !!on, at: new Date().toISOString(), by: 'Admin · ' + getDeviceLabel() });
+        if(on) gateSessionHash = g.hash;
+        try { await saveSettingsFields({ [GATE_FIELD]: g }); gateApply(g); admRenderGate(); showAdminToast(on ? 'Password riattivata' : 'Password disattivata'); vibrate(); }
         catch(e) { showAdminToast('Errore: ' + (e.code || e.message)); }
     }
 
@@ -6111,7 +6239,7 @@
     var PREF_DEFAULTS = {
         theme:'light', startPage:'calendario', startToday:true, lite: IS_IOS,
         myColFirst:false, highlightMe:true, showTimes:true, showRepBars:true, filter:null,
-        notifyChanges:true, notifyRep:true, notifyTomorrow:false, haptics:true
+        notifyChanges:true, notifyRep:true, notifyTomorrow:false, haptics:true, calView:'normale'
     };
     var prefs = null, prefsOwnerLoaded = null, prefsRemoteTimer = null;
     function prefOwner() { return (userIdentity && userIdentity !== 'Ospite') ? String(userIdentity).toUpperCase() : 'OSPITE'; }
@@ -6171,6 +6299,7 @@
         prefs[k] = v; prefs.updatedAt = Date.now(); savePrefsLocal(); prefsSaveRemoteSoon();
         if(noApply) return;
         if(k === 'theme') applyTheme();
+        else if(k === 'calView') calViewApply(true);
         else if(['myColFirst','highlightMe','showTimes','showRepBars','lite'].includes(k)) {
             applyBodyPrefClasses();
             if(k === 'lite') liteFrom = null;
@@ -6215,6 +6344,7 @@
             { group:'Calendario' },
             { id:'cal', icon:'calendar_month', label:'Calendario', desc:'Oggi, mesi, operatori', color: MN_COLORS.cal, children: [
                 { id:'today', icon:'today', label:'Vai a oggi', desc:'Torna al giorno corrente', color: MN_COLORS.cal, run: () => scrollToToday() },
+                { id:'calview', icon:'view_day', label:'Come vedere il calendario', desc: ({ normale:'Ora: tabella', compatta:'Ora: compatta', giorni:'Ora: giorno per giorno' })[(prefs && prefs.calView) || 'normale'] + ' · scegli tu', color: MN_COLORS.cal, run: () => openCalViewPicker() },
                 { id:'month', icon:'event', label:'Vai a un mese', desc:'Scegli il mese da vedere', color: MN_COLORS.cal, run: () => toggleMonthDropdown() },
                 (typeof isViewingArchive === 'function' && isViewingArchive()) ? null : { id:'nexty', icon:'fast_forward', label:'Vai al ' + (SHIFT_YEAR + 1), desc:'L’anno dopo è già qui, sotto dicembre: i turni si possono già scrivere', color: MN_COLORS.cal, run: () => goNextYear() },
                 { id:'filter', icon:'groups', label:'Filtra operatori', desc:'Mostra solo alcuni colleghi', color: MN_COLORS.cal, run: () => toggleDriverFilterDropdown() },
@@ -6316,6 +6446,7 @@
         const m = globalMonthsList.find(x => shiftRowYear(x.row) === SHIFT_YEAR + 1);
         if(!m) { ccToast('L’anno dopo non è ancora nel calendario', true); return; }
         if(calOverview) setCalView('normale');
+        if(ddOn()) { ddScrollToMonth(MONTH_MAP[m.name], SHIFT_YEAR + 1); return; }
         setTimeout(() => { if(liteOn()) liteShowRow(m.row); liteScrollTo(document.getElementById(m.id), 120); }, calOverview ? 120 : 0);
     }
     function closeMonthDropdown() { document.getElementById('month-select-dropdown').classList.remove('open'); }
@@ -6329,7 +6460,7 @@
             const niceName = m.name.charAt(0) + m.name.slice(1).toLowerCase();
             let btn = document.createElement('div'); btn.className = 'month-btn' + (isCurrent ? ' month-current' : '');
             btn.innerHTML = `<span class="material-icons-round">${isCurrent ? 'today' : 'event'}</span><span>${niceName}</span>`;
-            btn.onclick = () => { vibrate(); closeMonthDropdown(); if(calOverview) { ovScrollTo('ov-m-' + MONTH_MAP[m.name]); return; } if(liteOn()) liteShowRow(m.row); liteScrollTo(document.getElementById(m.id), 120); };
+            btn.onclick = () => { vibrate(); closeMonthDropdown(); if(calOverview) { ovScrollTo('ov-m-' + MONTH_MAP[m.name]); return; } if(ddOn()) { ddScrollToMonth(MONTH_MAP[m.name], shiftRowYear(m.row)); return; } if(liteOn()) liteShowRow(m.row); liteScrollTo(document.getElementById(m.id), 120); };
             grid.appendChild(btn);
         });
     }
@@ -6345,6 +6476,7 @@
 
     if('serviceWorker' in navigator && !SERVER_MODE) navigator.serviceWorker.register('sw.js').catch(() => {});
     window.onload = async () => {
+        netUpdateBadge();
         initFirebaseTracking();
         try {
             const lastUp = new Date(document.lastModified);
@@ -6823,6 +6955,7 @@
     }
     function scrollToToday(instant) {
         if(calOverview) { ovScrollToday(); return; }
+        if(ddOn()) { ddScrollToday(instant); return; }
         if(liteOn()) liteShowRow(liteTodayRow());
         const el = document.getElementById('today-row'); if(!el) return;
         liteScrollTo(el, todayTopOffset(el), instant);
@@ -7593,6 +7726,8 @@
             <div class="option-category-header"><span class="material-icons-round">calendar_month</span> Calendario</div>
             <div class="opt-block"><div class="opt-txt"><span>All’apertura mostra</span><small>La schermata con cui parte l’app.</small></div>
                 ${seg('startPage', [['calendario', 'Calendario', 'view_agenda'], ['me', 'La mia pagina', 'person']])}</div>
+            <div class="opt-block"><div class="opt-txt"><span>Come vedere il calendario</span><small>Tabella: come sempre. Compatta: caselle piccole con la sigla, più giorni e colleghi nello schermo. Giorni: una scheda per giorno con chi lavora, comoda sul telefono.</small></div>
+                ${seg('calView', [['normale', 'Tabella', 'table_chart'], ['compatta', 'Compatta', 'view_compact'], ['giorni', 'Giorni', 'view_day']])}</div>
             ${sw('startToday', 'Parti dal giorno di oggi', 'All’apertura il calendario scorre fino a oggi.')}
             ${sw('myColFirst', 'La mia colonna per prima', named ? 'I tuoi turni sempre nella prima colonna, accanto alla data.' : 'Disponibile dopo aver scelto chi sei.')}
             ${sw('highlightMe', 'Evidenzia la mia colonna', 'Colora leggermente la tua colonna per trovarla subito.')}
@@ -7635,7 +7770,7 @@
         vibrate();
         if(k === 'myColFirst' && v && !prefMe()) { ccToast('Scegli prima chi sei', true); renderOptions(); return; }
         setPref(k, v);
-        if(k === 'theme' || k === 'startPage') renderOptions();
+        if(k === 'theme' || k === 'startPage' || k === 'calView') renderOptions();
     }
     async function optReset() {
         const ok = await ccConfirm('Ripristinare le preferenze?', 'Tema, calendario, colleghi visibili e notifiche tornano come all’inizio.', 'Ripristina');
@@ -7788,6 +7923,153 @@
         else { ovCloseSheet(); setCurrentView('Tabella Turni'); }
     }
     function toggleCalView() { vibrate(); setCalView(calOverview ? 'dettaglio' : 'insieme'); }
+
+    // ═══ COME VEDERE IL CALENDARIO: tabella, compatta, giorno per giorno ═══════
+    // Ognuno sceglie per sé (prefs.calView, salvata con le altre preferenze). La compatta usa le
+    // caselle piccole della modifica turni; "Giorni" mostra una scheda per giorno con chi lavora.
+    const CAL_VIEWS = [
+        ['normale', 'Tabella', 'table_chart', 'Il calendario di sempre, con orari e fasce.'],
+        ['compatta', 'Compatta', 'view_compact', 'Caselle piccole con la sigla del turno: più giorni e colleghi nello schermo.'],
+        ['giorni', 'Giorno per giorno', 'view_day', 'Una scheda per giorno: chi fa mattina, pomeriggio e notte, assenti e reperibile.']
+    ];
+    function ddOn() { return !!(prefs && prefs.calView === 'giorni') && !coordEditModeActive && !SERVER_MODE; }
+    function calViewSet(v) { vibrate(); closeCalViewPicker(); if(prefs.calView !== v) setPref('calView', v); }
+    function calViewApply(changed) {
+        document.body.classList.toggle('cal-compact', calCompactOn());
+        if(finalData.length) renderTable(); else ddSync();
+        if(changed) setTimeout(() => scrollToToday(true), 60);
+    }
+    function openCalViewPicker() {
+        const cur = (prefs && prefs.calView) || 'normale';
+        document.getElementById('cvp-card').innerHTML = `<h3>Come vedere il calendario</h3><small>La scelta vale solo per te${prefMe() ? ' e la ritrovi su ogni telefono' : ''}. La cambi quando vuoi, anche da Opzioni.</small>`
+            + CAL_VIEWS.map(([v, l, ic, d]) => `<button class="cvp-opt ${cur === v ? 'on' : ''}" onclick="calViewSet('${v}')"><span class="material-icons-round">${ic}</span><span><b>${l}</b><small>${d}</small></span></button>`).join('');
+        document.getElementById('cvp-modal').classList.add('open');
+    }
+    function closeCalViewPicker(e) { if(e && e.target !== e.currentTarget) return; const m = document.getElementById('cvp-modal'); if(m) m.classList.remove('open'); }
+    let ddFrom = null, ddSig = '';
+    function ddSync() {
+        const v = document.getElementById('dd-view'); if(!v) return;
+        const on = ddOn();
+        v.classList.toggle('open', on); document.body.classList.toggle('cal-days', on);
+        if(on) ddRender();
+    }
+    function ddSegHtml() {
+        const cur = (prefs && prefs.calView) || 'normale';
+        return CAL_VIEWS.map(([v, l, ic]) => `<button class="${cur === v ? 'on' : ''}" onclick="calViewSet('${v}')"><span class="material-icons-round">${ic}</span>${v === 'giorni' ? 'Giorni' : l}</button>`).join('');
+    }
+    function ddRender() {
+        const box = document.getElementById('dd-body'); if(!box) return;
+        document.getElementById('dd-seg').innerHTML = ddSegHtml();
+        if(!finalData.length) { box.innerHTML = '<div class="dd-none" style="padding:20px;text-align:center">Sto caricando i turni…</div>'; return; }
+        const sc = document.getElementById('dd-scroll'), top = sc.scrollTop;
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        if(ddFrom === null) ddFrom = new Date(today.getFullYear(), today.getMonth(), 1);
+        const me = prefMe();
+        let active = drivers.filter(d => !d.hidden);
+        if(me && prefs.myColFirst && active.includes(me)) active = [me].concat(active.filter(d => d !== me));
+        if(selectedDrivers && selectedDrivers.size) active = active.filter(d => selectedDrivers.has(d.idx) || (me && d.idx === me.idx));
+        const R = repData();
+        let html = '', lastM = '', first = null;
+        for(let r = 1; r < finalData.length; r++) {
+            const iso = repRowDate(r); if(!iso) continue;
+            const dt = repDateObj(iso); if(dt < ddFrom) { if(first === null) first = r; continue; }
+            const mk = dt.getFullYear() + '-' + dt.getMonth();
+            if(mk !== lastM) { lastM = mk; html += `<div class="dd-mh" id="dd-m-${mk}">${MONTH_NAMES_IT[dt.getMonth()]} ${dt.getFullYear()}</div>`; }
+            html += ddDayHtml(r, dt, iso, active, me, R, today);
+        }
+        const more = ddFrom > repDateObj(repRowDate(1) || ymd(ddFrom)) ? `<button class="dd-more" onclick="ddShowEarlier()"><span class="material-icons-round" style="font-size:16px;vertical-align:-3px">expand_less</span> Mostra i mesi prima</button>` : '';
+        box.innerHTML = more + html;
+        sc.scrollTop = top;
+    }
+    function ddShowEarlier() { vibrate(); const sc = document.getElementById('dd-scroll'), h = sc.scrollHeight; ddFrom = new Date(1970, 0, 1); ddRender(); sc.scrollTop += sc.scrollHeight - h; }
+    function ddDayHtml(r, dt, iso, active, me, R, today) {
+        const row = finalData[r], mName = row[0].v, dNum = parseInt(row[1].v);
+        const wd = dt.toLocaleDateString('it-IT', { weekday:'long' });
+        const hol = HOLIDAYS[`${dt.getMonth()}-${dt.getDate()}`], red = dt.getDay() === 0 || !!hol || dt.getDay() === 6;
+        const isToday = dt.getTime() === today.getTime();
+        const dayWeek = RT_WEEKDAY_FMT.format(dt).toUpperCase();
+        const g = { M:[], P:[], N:[] }, abs = [];
+        const repT = R.tit[iso] || '';
+        active.forEach(d => {
+            const info = computeDayInfo(r, d.idx), c = info.code;
+            if(info.justified && !info.pnTail) { abs.push({ d, meta: ccCodeMeta(info) }); return; }
+            const dz = c === 'm' || c === 'p' || (c && c.charAt(0) >= 'a' && c.charAt(0) <= 'z' && !info.justified);
+            const lc = String(c || '').toLowerCase();
+            const into = lc === 'm+n' || isMN(String(c || '')) ? ['M', 'N'] : (c === 'M' || (dz && lc.startsWith('m'))) ? ['M'] : (c === 'P' || (dz && lc.startsWith('p'))) ? ['P'] : c === 'N' ? ['N'] : [];
+            into.forEach(k => g[k].push({ d, dz, mn: into.length > 1, raw: String((row[d.idx] || {}).v || '').trim(), code: c }));
+        });
+        const person = (x, sig) => {
+            const rawVal = String((row[x.d.idx] || {}).v || '').trim();
+            const click = `handleCellClick(${r},${x.d.idx},'${mName}',${dNum},'${dayWeek}','${rawVal.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')`.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+            const isRep = repT && (x.d.originalName === repT);
+            return `<button class="dd-p${me && x.d.idx === me.idx ? ' me' : ''}${x.dz ? ' dz' : ''}" onclick="${click}">${esc(x.d.name)}${sig || ''}${x.mn ? '<i>M+N</i>' : ''}${x.dz ? `<i style="--sw:var(--c-dM);--sf:var(--t-dM)">${esc(ddDzTime(x.code, iso))}</i>` : ''}${isRep ? '<i class="rp">REP</i>' : ''}</button>`;
+        };
+        const lbl = (code, time) => `<div class="dd-lbl"><span class="cc-code" style="--sw:var(--c-${code});--sf:var(--t-${code})">${code}</span><small>${esc(time || '')}</small></div>`;
+        const t = k => { const v = SCHEDULE[k] || ''; return v ? v.split('-')[0].trim() : ''; };
+        let rows = '';
+        [['M', 'Mattina'], ['P', 'Pomeriggio'], ['N', 'Notte']].forEach(([k]) => {
+            rows += `<div class="dd-row">${lbl(k, t(k))}<div class="dd-ppl">${g[k].length ? g[k].map(x => person(x)).join('') : '<span class="dd-none">Nessuno</span>'}</div></div>`;
+        });
+        if(abs.length) rows += `<div class="dd-row abs"><div class="dd-lbl"><span class="cc-code" style="--sw:#e2e8f0;--sf:#475569">ASS</span><small>assenti</small></div><div class="dd-ppl">${abs.map(x => person({ d: x.d }, `<i style="${x.meta.colors ? `--sw:var(${x.meta.colors.bg});--sf:var(${x.meta.colors.fg})` : ''}">${esc(x.meta.short)}</i>`)).join('')}</div></div>`;
+        if(repT) {
+            const n = repDateAdd(iso, 1);
+            const ced = [[iso, 2], [iso, 3], [n, 0], [n, 1]].map(([d, s]) => ({ s, who: (R.days[d] || [])[s] || repT })).filter(f => f.who !== repT);
+            rows += `<div class="dd-row"><div class="dd-lbl"><span class="cc-code" style="--sw:#dc2626;--sf:#fff">REP</span><small>13 › 13</small></div><div class="dd-ppl dd-rep"><span>Reperibile <b>${esc(repDisplayName(repT))}</b></span>${ced.map(f => `<span class="ced">${REP_SLOTS[f.s].label} <b class="ced">${esc(repDisplayName(f.who))}</b></span>`).join('')}</div></div>`;
+        }
+        const wk = dt.getDay() === 0 ? ' wk-end' : '';
+        return `<div class="dd-day${isToday ? ' today' : ''}${red ? ' red' : ''}${wk}" id="dd-r-${r}"><div class="dd-dh"><span class="dd-dn">${dt.getDate()}</span><span class="dd-dw"><b>${esc(wd)}</b>${hol ? `<small>${esc(hol)}</small>` : ''}</span>${isToday ? '<span class="dd-today">OGGI</span>' : ''}</div><div class="dd-rows">${rows}</div></div>`;
+    }
+    // ═══ DOMANI A COLPO D'OCCHIO ════════════════════════════════════════════
+    // All'apertura (una volta per apertura) una striscia in basso col proprio turno di domani e
+    // chi lavora insieme; si chiude da sola dopo qualche secondo, tocco = finestra della casella.
+    let tmDone = false, tmTimer = null;
+    function tmSoon() {
+        if(tmDone || SERVER_MODE || !finalData.length) return;
+        clearTimeout(tmTimer); tmTimer = setTimeout(tmShow, 2500);
+    }
+    function tmShow() {
+        if(tmDone) return;
+        const gate = document.getElementById('app-gate');
+        if(document.documentElement.classList.contains('gate-wait') || (gate && getComputedStyle(gate).display !== 'none') || document.visibilityState === 'hidden') { tmTimer = setTimeout(tmShow, 3000); return; }
+        const me = prefMe(); if(!me) { tmDone = true; return; }
+        const t = new Date(); t.setHours(0, 0, 0, 0); t.setDate(t.getDate() + 1);
+        const iso = ymd(t), r = repRowOfDate(iso); if(!r) { tmDone = true; return; }
+        tmDone = true;
+        const info = computeDayInfo(r, me.idx), meta = ccCodeMeta(info), c = String(info.code || '');
+        const R = repData(), isRep = R.tit[iso] === me.originalName;
+        const grp = k => { const u = String(k || ''); return isMN(u) ? ['M', 'N'] : (u === 'M' || u === 'm') ? ['M'] : (u === 'P' || u === 'p') ? ['P'] : u === 'N' ? ['N'] : []; };
+        const mine = info.justified ? [] : grp(c);
+        let txt;
+        if(mine.length) {
+            const mates = drivers.filter(d => !d.hidden && d.idx !== me.idx && grp(workCode(r, d.idx)).some(k => mine.includes(k))).map(d => d.name);
+            const lab = { M:'Mattina', P:'Pomeriggio', N:'Notte' }, time = c.charAt(0) >= 'a' && c.charAt(0) <= 'z' ? (diurniSched(c, iso) || '') : (SCHEDULE[c.toUpperCase()] || '');
+            txt = `<b>${mine.map(k => lab[k]).join(' + ')}</b>${time && mine.length === 1 ? ` <small>${esc(time)}</small>` : ''}${mates.length ? `<span>con ${esc(mates.join(', '))}</span>` : ''}`;
+        } else if(meta.kind === 'abs') txt = `<b>${esc(meta.label || meta.short)}</b>`;
+        else if(c === 'SM') txt = `<b>Smonto</b><span>riposo dopo la notte</span>`;
+        else txt = `<b>Riposo</b>`;
+        if(isRep) txt += `<span class="tm-rep">Reperibile dalle 13:00</span>`;
+        let el = document.getElementById('tm-strip');
+        if(!el) { el = document.createElement('div'); el.id = 'tm-strip'; document.body.appendChild(el); }
+        const row = finalData[r], rawVal = String((row[me.idx] || {}).v || '').trim();
+        el.onclick = () => { tmHide(); handleCellClick(r, me.idx, row[0].v, parseInt(row[1].v), RT_WEEKDAY_FMT.format(t).toUpperCase(), rawVal); };
+        const st = meta.colors ? `--sw:var(${meta.colors.bg});--sf:var(${meta.colors.fg})` : '--sw:#fff;--sf:#64748b';
+        el.innerHTML = `<span class="tm-code cc-code" style="${st}">${esc(meta.short || 'R')}</span><span class="tm-txt"><small>Domani, ${esc(t.toLocaleDateString('it-IT', { weekday:'long', day:'numeric', month:'long' }))}</small>${txt}</span><button class="tm-x" onclick="event.stopPropagation();tmHide()" aria-label="Chiudi"><span class="material-icons-round">close</span></button>`;
+        requestAnimationFrame(() => el.classList.add('show'));
+        setTimeout(tmHide, 9000);
+    }
+    function tmHide() { const el = document.getElementById('tm-strip'); if(el) el.classList.remove('show'); }
+    // diurnista: il suo orario vero di quel giorno (inizio), non quello dei turnisti
+    function ddDzTime(code, iso) {
+        let t = ''; try { t = diurniSched(String(code || ''), iso) || ''; } catch(e) {}
+        const m = String(t).match(/(\d{1,2}[:.]\d{2})/); return m ? 'D ' + m[1].replace('.', ':') : 'D';
+    }
+    function ddScrollToday(instant) {
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const el = document.querySelector('#dd-body .dd-day.today') || document.getElementById('dd-m-' + today.getFullYear() + '-' + today.getMonth());
+        const sc = document.getElementById('dd-scroll'); if(!el || !sc) return;
+        const mh = document.querySelector('#dd-body .dd-mh'); sc.scrollTo({ top: Math.max(0, el.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop - (mh ? mh.offsetHeight : 34) - 6), behavior: instant ? 'auto' : 'smooth' });
+    }
+    function ddScrollToMonth(mi, y) { const el = document.getElementById('dd-m-' + y + '-' + mi); const sc = document.getElementById('dd-scroll'); if(el && sc) sc.scrollTo({ top: el.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop, behavior: 'smooth' }); }
     // ═══ CALENDARIO FERIE DESIDERATE ═════════════════════════════════════
     // Un calendario come quello dei turni ma vuoto: ognuno scrive le ferie e i permessi
     // che vorrebbe, solo nella propria colonna (riconosciuta da "Chi sei?").
@@ -9902,7 +10184,8 @@
     // Caselle piccole con il colore e la sigla del turno e la sola scritta REP (niente orari né
     // fasce), per vedere più giorni e più colleghi insieme. Si accende dalla ruota strumenti.
     let calCompact = (() => { try { return localStorage.getItem('cal_compact_v1') === '1'; } catch(e) { return false; } })();
-    function calCompactOn() { return coordEditModeActive && calCompact && !calOverview; }
+    // fuori dalla modifica la vista compatta la sceglie ognuno per sé (Opzioni > Come vedere il calendario)
+    function calCompactOn() { if(calOverview) return false; return coordEditModeActive ? calCompact : !!(prefs && prefs.calView === 'compatta'); }
     const MINI_SHORT = { 't-M':'M', 't-P':'P', 't-N':'N', 't-S':'S', 't-SM':'S', 't-R':'R', 'd-M':'m', 'd-P':'p', 'd-R':'r',
         'spec-cong':'C.O.', 'spec-mal':'MAL', 'spec-gr':'GR', 'spec-ferie':'F.R.', 'spec-rec':'REC', 'spec-coord':'Z', 'spec-perm':'PERM',
         'spec-pn':'PN', 'spec-mn':'M+N', 'spec-nl':'NL', 'spec-ng':'NG', 'spec-stu':'STU', 'spec-pl':'PL', 'spec-ps':'PS', 'spec-xk':'DS', 'spec-xs':'SPO', 'spec-xl':'LUT', 'spec-xa':'MAT' };
@@ -9928,6 +10211,7 @@
     }
     function calCompactUi() {
         document.body.classList.toggle('cal-compact', calCompactOn());
+        try { ddSync(); } catch(e) {}
         ['tw-view-btn', 'tw-sat-view'].forEach(id => {
             const b = document.getElementById(id); if(!b) return;
             b.classList.toggle('on', calCompact);
@@ -10435,7 +10719,8 @@
     // Strumenti della faccia Assenze che chiedono qualcosa (prima stavano nella finestra della casella)
     const WHEEL_CELL_TOOLS = [
         { id: 'perm', short: 'ORE PERM', icon: 'schedule',     label: 'Permesso a ore (legge o sindacale)', hint: 'tocca la casella: chiede le ore', fill: '#0f766e' },
-        { id: 'man',  short: 'ORE MANO', icon: 'edit',         label: 'Ore a mano',                         hint: 'tocca la casella: scrivi le ore del giorno', fill: '#475569' }
+        { id: 'man',  short: 'ORE MANO', icon: 'edit',         label: 'Ore a mano',                         hint: 'tocca la casella: scrivi le ore del giorno', fill: '#475569' },
+        { id: 'cn',   short: 'CAMBIO N', icon: 'swap_vert',    label: 'Cambio notte',                       hint: 'tocca la notte da cambiare con un collega', fill: '#1e3a8a' }
     ];
     let coordCellTool = null;
     function wheelRingItems() {
@@ -12566,9 +12851,9 @@
     function seedNamespaceSettings() {
         if(!DATA_NS || nsSeedTried || !fbReady) return;
         nsSeedTried = true;
-        db.collection('infermieri26_config').doc('settings').get().then(d => {
+        db.collection('infermieri26_config').doc('settings').get({ source: 'server' }).then(d => {
             if(!d.exists) return;
-            return cfgRef('settings').get().then(p => { if(!p.exists) return cfgRef('settings').set(Object.assign({}, d.data(), { copiedFromSharedAt: new Date().toISOString() })); });
+            return cfgRef('settings').get({ source: 'server' }).then(p => { if(!p.exists) return cfgRef('settings').set(Object.assign({}, d.data(), { copiedFromSharedAt: new Date().toISOString() })); });
         }).catch(e => console.error('Copia iniziale impostazioni non riuscita:', e));
     }
 
@@ -12666,6 +12951,7 @@
         const rep = repBuildPayload();
         if(!changes.length && !rep) { ccToast('Non ci sono modifiche da salvare.'); return true; }
         if(!fbReady) { ccToast('Firebase non disponibile: le modifiche restano su questo dispositivo.', true); return false; }
+        if(netBlockWrite('Senza rete i turni non si salvano: le modifiche restano qui, salvale appena torna la connessione.')) { draftSaveNow(); return false; }
         vibrate(); saveInFlight = true; ccToast('Salvataggio in corso…');
         const batch = db.batch();
         if(changes.length) addCellWrites(batch, changes);
@@ -12995,6 +13281,7 @@
     // un documento per mese; le reperibilità "/R" dell'Excel diventano reperibilità dell'app.
     async function ccMigrateToFirebase(skipConfirm) {
         if(dataSourceMode === 'firebase') return;
+        if(netBlockWrite()) return;
         if(pendingChangesCount()) { ccToast('Prima salva o scarta le modifiche in sospeso.', true); return; }
         if(!excelParsedData.length || !finalData.length) { ccToast('Turni non ancora caricati: riprova tra poco.', true); return; }
         const year = SHIFT_YEAR;
@@ -13044,6 +13331,7 @@
     // telefono che apre l'app dal 1° gennaio lo fa per tutti) oppure a mano dall'Area Coordinatore.
     async function ccStartNewYear() {
         if(dataSourceMode !== 'firebase' || isViewingArchive()) return;
+        if(netBlockWrite()) return;
         if(pendingChangesCount()) { ccToast('Prima salva o scarta le modifiche in sospeso.', true); return; }
         const next = activeYear + 1;
         const ok = await ccConfirm(`Aprire il ${next}?`, `Il ${activeYear} viene chiuso: resta consultabile da tutti in sola lettura dal menu, alla voce «Anni passati». Il ${next} parte con i turni già inseriti, la stessa squadra e le stesse ore di contratto; le ferie del ${activeYear} messe tra gennaio e marzo del ${next} diventano «ferie residue anno prima». Prima faccio una copia di sicurezza. A capodanno succede anche da solo.`, `Apri il ${next}`, 'solid-danger');
@@ -13204,8 +13492,11 @@
             <div class="cc-panel"><div class="cc-panel-head"><h3>Origine dei turni e anni</h3></div><div class="cc-panel-body">
                 ${ccSourcePanelHtml()}
                 ${dataSourceMode === 'firebase' ? `<div style="margin-top:14px"><div class="cc-inline-form">
+
                         ${archivedYears.length ? `<button class="cc-btn" onclick="openYearPicker()"><span class="msym">history</span>Consulta un anno passato</button>` : ''}
+
                         <button class="cc-btn danger" ${isViewingArchive() ? 'disabled' : ''} onclick="ccStartNewYear()"><span class="msym">event_upcoming</span>Chiudi il ${activeYear} e apri il ${activeYear + 1}</button>
+
                     </div></div>` : ''}
             </div></div>`;
         maybeDailySnapshot();
@@ -13514,6 +13805,48 @@
         t.innerHTML = `<span class="msym">${isErr ? 'error' : 'check_circle'}</span><span>${esc(msg)}</span>`;
         t.classList.toggle('err', !!isErr); t.classList.add('show');
         clearTimeout(ccToastTimer); ccToastTimer = setTimeout(() => t.classList.remove('show'), isErr ? 4200 : 2600);
+    }
+
+    // ── Modalità offline: senza rete l'app mostra l'ultimo calendario scaricato, in sola lettura ──
+    // La pagina, le librerie e l'Excel li tiene il service worker (sw.js); turni e impostazioni
+    // li tiene Firestore sul dispositivo. Quando torna la rete Firestore si riallinea da solo.
+    // Senza rete i salvataggi dei turni non partono (niente scritture in coda): restano "da salvare".
+    const NET_SYNC_KEY = 'net_last_sync_' + DATA_NS;
+    let netWasOffline = navigator.onLine === false;
+    function netIsOffline() { return navigator.onLine === false; }
+    function netMarkSync() { try { localStorage.setItem(NET_SYNC_KEY, String(Date.now())); } catch(e) {} }
+    function netLastSyncText() {
+        let t = 0; try { t = +localStorage.getItem(NET_SYNC_KEY) || 0; } catch(e) {}
+        if(!t) return '';
+        const d = new Date(t), day = d.toDateString() === new Date().toDateString() ? 'oggi' : d.toLocaleDateString('it-IT', { day:'numeric', month:'short' });
+        return day + ' alle ' + d.toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' });
+    }
+    function netUpdateBadge() {
+        const b = document.getElementById('net-offline'); if(!b) return;
+        const off = netIsOffline();
+        if(off) { const t = netLastSyncText(); b.querySelector('.net-txt').textContent = 'Senza rete · ' + (t ? 'turni aggiornati ' + t : 'ultimo calendario scaricato'); }
+        b.classList.toggle('show', off);
+    }
+    function netOfflineInfo() {
+        ccToast('Senza rete vedi l’ultimo calendario scaricato. Si aggiorna da solo appena torna la connessione. Per salvare le modifiche serve la rete.');
+        clearTimeout(ccToastTimer); ccToastTimer = setTimeout(() => { const t = document.getElementById('cc-toast'); if(t) t.classList.remove('show'); }, 6500);
+    }
+    // prima di un salvataggio: senza rete si ferma qui (true) e lo dice
+    function netBlockWrite(msg) {
+        if(!netIsOffline()) return false;
+        ccToast(msg || 'Senza rete non si può salvare: riprova appena torna la connessione.', true);
+        return true;
+    }
+    window.addEventListener('offline', () => { netWasOffline = true; netUpdateBadge(); });
+    window.addEventListener('online', () => { netUpdateBadge(); if(netWasOffline) { netWasOffline = false; ccToast('Rete tornata: il calendario si aggiorna da solo.'); } });
+    // Firestore dice se i dati arrivano dal server o dalla copia sul dispositivo: si annota l'ora dell'ultimo allineamento
+    function netWatchSync() {
+        if(!fbReady || SERVER_MODE) return;
+        let iv = null;
+        cfgRef('settings').onSnapshot({ includeMetadataChanges: true }, doc => {
+            if(doc.metadata.fromCache) { clearInterval(iv); iv = null; return; }
+            netMarkSync(); if(!iv) iv = setInterval(() => { if(!netIsOffline()) netMarkSync(); }, 60000);
+        }, () => {});
     }
 
     // ── Colori e sigle dei codici turno (riusano le variabili CSS del calendario) ──
@@ -14572,7 +14905,7 @@
             if(coordSeqTool) { applyWheelSequence(rowIndex, colIdx); return; }
             if(coordRepTool) { repToolTap(rowIndex, colIdx); return; }
             if(coordOpTool) { applyOpTool(colIdx); return; }
-            if(coordCellTool) { if(coordCellTool === 'cn' && typeof cnOpen === 'function') cnOpen(rowIndex, colIdx); else openCellToolPopup(colIdx, rowIndex, coordCellTool); return; }
+            if(coordCellTool) { if(coordCellTool === 'cn') cnOpen(rowIndex, colIdx); else openCellToolPopup(colIdx, rowIndex, coordCellTool); return; }
             ccToast('Per inserire turni e assenze scegli dalla ruota delle modifiche.'); return;   // la finestra della casella è stata tolta (richiesta di Mat): si usa solo la ruota
         }
         if(afterMN(rowIndex, colIdx)) cellValue = "SM";
@@ -15912,8 +16245,9 @@
         } else if(focusCols.length) { thD.className = 'th-focus-clear'; thD.title = 'Mostra di nuovo tutte le colonne'; thD.innerHTML = 'DATA<br><span class="material-icons-round" style="font-size:16px">close</span>'; }
         else thD.innerText = "DATA";
         frag.appendChild(thD);
+        const shortNm = calCompactOn() ? compactNames(rtCols) : null;   // vista compatta: nomi accorciati senza ambiguità
         rtCols.forEach(d => {
-            let th = document.createElement('th'); th.innerText = d.name; if(d.idx === rtMeIdx) th.classList.add('me-col');
+            let th = document.createElement('th'); th.innerText = shortNm ? shortNm[d.idx] : d.name; if(shortNm) th.dataset.full = d.name; if(d.idx === rtMeIdx) th.classList.add('me-col');
             th.dataset.col = d.idx; const fc = colFocusCls(d.idx); if(fc) th.className += ' ' + fc;
             th.title = focusCols.includes(d.idx) ? 'Tocca per togliere dall\'evidenza' : 'Tocca per mettere in evidenza';
             if(coordEditModeActive) {
@@ -15940,6 +16274,21 @@
         });
         thead.innerHTML = ""; thead.appendChild(frag);
         thFitHeight();
+    }
+    // Nomi corti per la vista compatta: cognome tagliato alla lunghezza minima (almeno 4 lettere)
+    // che lo distingue dagli altri; con lo stesso inizio si aggiunge l'iniziale della parola dopo.
+    function compactNames(cols) {
+        const out = {}, words = cols.map(d => String(d.name || '').trim().split(/\s+/));
+        cols.forEach((d, i) => {
+            const w = words[i][0] || '';
+            let n = Math.min(4, w.length);
+            const clash = k => cols.some((o, j) => j !== i && (words[j][0] || '').slice(0, k) === w.slice(0, k));
+            while(n < w.length && clash(n)) n++;
+            let lbl = n < w.length ? w.slice(0, n) + '.' : w;
+            if(n >= w.length && clash(w.length) && words[i][1]) lbl = w + ' ' + words[i][1].charAt(0) + '.';
+            out[d.idx] = lbl;
+        });
+        return out;
     }
     function buildDayRow(i, today) {
         const year = shiftRowYear(i);
@@ -16024,6 +16373,8 @@
         else fitCalendarCells();
         liteObserve();
         if(calOverview) renderOverviewSoon();
+        ddSync();
+        tmSoon();
     }
     // ═══ MODALITÀ LEGGERA ════════════════════════════════════════════════
     // Il calendario completo ha ~9.000 caselle: su iPhone Safari non fa in tempo a disegnarle
@@ -16845,6 +17196,7 @@
         document.getElementById('wheel-char-quote').innerText = IRONIC_QUOTES[Math.floor(Math.random()*IRONIC_QUOTES.length)];
         rev.classList.add('show');
     }
+
 
     // ═══════════════════════════════════════════════════════════════════════
     // GESTIONE TASTO "INDIETRO" (Android/browser) — con un popup aperto, il
